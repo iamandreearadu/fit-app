@@ -1,0 +1,4 @@
+.profile-form { max-width:480px; }
+/* Keep small custom tweaks while Bootstrap handles most styling */
+.profile-form .form-label { font-weight:600 }
+.card { box-shadow: 0 1px 4px rgba(0,0,0,0.04) }

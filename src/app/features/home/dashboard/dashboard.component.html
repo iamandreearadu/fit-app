@@ -1,0 +1,24 @@
+ <h2>Dashboard</h2>
+
+    <!-- DASHBOARD SUS -->
+    <section class="d-flex gap-5" *ngIf="metrics as m; else noData">
+      <div class="card p-3">
+        <h5>Current weight</h5>
+        <p>{{ user?.weightKg }} kg</p>
+      </div>
+     <div class="card p-3">
+        <h5>Goal kcal</h5>
+        <p>{{ m.goalCalories }} kg</p>
+      </div>
+     <div class="card p-3">
+        <h5>Water</h5>
+        <p>{{ m.waterL| number }} ml / zi</p>
+      </div>
+      
+    </section>
+
+    <ng-template #noData>
+  <div>No user data</div>
+</ng-template>
+<br>
+
