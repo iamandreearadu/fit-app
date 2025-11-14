@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SignalTemplate
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.18.
@@ -57,3 +58,6 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+=======
+# fit-app
+>>>>>>> 74e2c83a827b6a4af033445a40d5b9dbe89cd6a9
