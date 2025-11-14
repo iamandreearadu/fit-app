@@ -24,8 +24,8 @@ export class ProfileUserDataComponent {
       weightKg: [0, (v['weightKg'] as any) || []],
       age: [0, (v['age'] as any) || []],
       gender: ['other', (v['gender'] as any) || []],
-      activity: ['moderate',(v['activity'] as any) || []], 
-      goal: ['maintain',(v['goal'] as any) || []], 
+      activity: ['moderate',(v['activity'] as any) || []],
+      goal: ['maintain',(v['goal'] as any) || []],
     });
 
     // keep form synced with store user (signals -> form)
@@ -43,6 +43,16 @@ export class ProfileUserDataComponent {
           activity: u.activity ?? 'moderate',
           goal: u.goal ?? 'maintain'
         });
+      }
+    });
+
+    // react to loading signal: disable form while loading, enable when done
+    effect(() => {
+      const isLoading = this.facade.loading();
+      if (isLoading) {
+        this.form.disable({ emitEvent: false });
+      } else {
+        this.form.enable({ emitEvent: false });
       }
     });
   }

@@ -1,9 +1,10 @@
 import { Injectable, computed } from '@angular/core';
 import { UserStore } from '../store/user.store';
-import { AccountService } from '../services/account.service';
 import { UserMetricsService } from '../services/user-metrics.service';
 import { UserFitMetrics } from '../models/user-fit-metrics.model';
-import { UserValidationService } from '../services/user-validation.service';
+import { UserValidationService } from '../validations/user-validation.service';
+import { UserProfile } from '../models/user.model';
+import { UserService } from '../../api/user.service';
 
 @Injectable({ providedIn: 'root' })
 export class UserFacade {
@@ -11,7 +12,7 @@ export class UserFacade {
 
   constructor(
     private store: UserStore,
-    private account: AccountService,
+    private userService: UserService,
     private metricsSvc: UserMetricsService,
     private validation: UserValidationService
   ) {
@@ -47,21 +48,29 @@ export class UserFacade {
   async loadUser() {
     this.loading.set(true);
     try {
-      const u = await this.account.getCurrentUser();
+      const u = await this.userService.getCurrentUser();
       this.store.setUser(u);
     } finally {
       this.loading.set(false);
     }
   }
 
-  async updateProfile(patch: Partial<any>) {
+  async updateProfile(patch: Partial<UserProfile>) {
     this.loading.set(true);
     try {
-      const updated = await this.account.updateProfile(patch);
+      const updated = await this.userService.updateProfile(patch);
       this.store.setUser(updated);
       return updated;
-    } finally {
-      this.loading.set(false);
+    }
+    catch(error)
+    {
+      console.error('Failed to update profile', error);
+      throw error;
+    }
+    finally {
+      setTimeout(() => {
+        this.loading.set(false);
+      }, 2000);
     }
   }
 
