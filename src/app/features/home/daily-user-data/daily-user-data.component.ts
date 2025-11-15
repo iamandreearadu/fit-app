@@ -1,10 +1,8 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, effect } from '@angular/core';
 import { DailyUserData } from '../../../core/models/daily-user-data.model';
-import { DailyUserDataService } from '../../../core/services/daily-user-data.service';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserFacade } from '../../../core/facade/user.facade';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   standalone: true,
@@ -14,40 +12,64 @@ import { toSignal } from '@angular/core/rxjs-interop';
   styleUrl: './daily-user-data.component.css'
 })
 export class DailyUserDataComponent implements OnInit {
-  data = signal<DailyUserData | null>(null);
   form: FormGroup;
-  loading = signal(false);
-  formValue: ReturnType<typeof toSignal>;
 
-  waterTargetL = 3;     
+  waterTargetL = 3;
   defaultStepTarget = 3000;
 
-
-  dailyService = inject(DailyUserDataService);
   facade = inject(UserFacade);
   fb = inject(FormBuilder)
 
 
   constructor() {
+    const v = this.facade.getDailyValidators().getControlValidators();
+
     this.form = this.fb.group({
-      date: [this.dailyService.todayDate, Validators.required],
+      date: [this.facade.todayDate, (v['date'] as any) || []],
       activityType: 'Rest Day',
-      waterConsumedL: 0,
-      steps:0,
-      stepTarget:0,
+      waterConsumedL: [0, (v['waterConsumedL'] as any) || []],
+      steps: [0, (v['steps'] as any) || []],
+      stepTarget: [0, (v['stepTarget'] as any) || []],
       macrosPct: this.fb.group({
-        protein: 0,
-        carbs: 0,
-        fats: 0
+        protein: [0, (v['macrosPct']?.protein as any) || []],
+        carbs: [0, (v['macrosPct']?.carbs as any) || []],
+        fats: [0, (v['macrosPct']?.fats as any) || []]
       }),
-      caloriesBurned: 0,
+      caloriesBurned: [0, (v['caloriesBurned'] as any) || []],
       caloriesIntake: 0,
       caloriesTotal: 0,
 
     });
 
-     this.formValue = toSignal(this.form.valueChanges, {
-      initialValue: this.form.value
+    // sync form from facade daily signal
+    effect(() => {
+      const d = this.facade.daily();
+      if (d) {
+        this.form.patchValue({
+          date: d.date ?? this.facade.todayDate,
+          activityType: d.activityType ?? 'Rest Day',
+          waterConsumedL: d.waterConsumedL ?? 0,
+          steps: d.steps ?? 0,
+          stepTarget: d.stepTarget ?? this.defaultStepTarget,
+          macrosPct: {
+            protein: d.macrosPct?.protein ?? 0,
+            carbs: d.macrosPct?.carbs ?? 0,
+            fats: d.macrosPct?.fats ?? 0,
+          },
+          caloriesBurned: d.caloriesBurned ?? 0,
+          caloriesIntake: d.caloriesIntake ?? 0,
+          caloriesTotal: d.caloriesTotal ?? 0,
+        }, { emitEvent: false });
+      } else {
+        this.form.patchValue(this.defaultValues(), { emitEvent: false });
+      }
+    });
+
+    // disable form while daily load/save is in progress
+    effect(() => {
+      const isLoading = this.facade.dailyLoading();
+      if (isLoading) this.form.disable({ emitEvent: false });
+      else this.form.enable({ emitEvent: false });
     });
 
   }
@@ -59,7 +81,7 @@ export class DailyUserDataComponent implements OnInit {
 
   private defaultValues(): Partial<DailyUserData> {
     return {
-      date: this.dailyService.todayDate,
+      date: this.facade.todayDate,
       activityType: 'Rest Day',
       waterConsumedL: 0,
       steps: 0,
@@ -72,32 +94,18 @@ export class DailyUserDataComponent implements OnInit {
   }
 
   async load(): Promise<void> {
-    this.loading.set(true);
-    try {
-      this.data.set(await this.dailyService.getDailyUserData());
-      const vals = this.data ?? this.defaultValues();
-      this.form.patchValue(vals);
-    } finally {
-    this.loading.set(false);
-    }
+    await this.facade.loadDaily();
   }
 
   async saveDailyData(): Promise<void> {
     if (this.form.invalid) return;
-    this.loading.set(true);
-    try {
-      const payload = this.form.value as Partial<DailyUserData>;
-      const updated = await this.dailyService.setDailyUserData(payload);
-      this.data.set(updated);
-      this.form.patchValue(updated);
-    
-    } finally {
-      this.loading.set(false);
-    }
+    const payload = this.form.value as Partial<DailyUserData>;
+    await this.facade.saveDaily(payload);
   }
 
   reset(): void {
-    if (this.data) this.form.patchValue(this.data);
+    const d = this.facade.daily();
+    if (d) this.form.patchValue(d);
     else this.form.patchValue(this.defaultValues());
   }
 
@@ -106,83 +114,58 @@ export class DailyUserDataComponent implements OnInit {
 }
 
   get todayLabel(): string {
-    return this.dailyService.todayDate ?? 'Today';
+    return this.facade.todayDate ?? 'Today';
   }
 
+  // facade-backed computed getters and mutations
+  // expose loading as a callable used by the template (was previously a local signal)
+  loading() {
+    return this.facade.dailyLoading();
+  }
 
-  // calories burned
-   caloriesBurned = computed(() => {
-    const val = this.formValue() as Partial<DailyUserData>;
-    return Number(val.caloriesBurned ?? 0);
-  });
+  // facade-backed computed callers (methods so template can call them)
+  caloriesBurned() {
+    return this.facade.caloriesBurned();
+  }
 
-  netCalories = computed(() => {
-    const net = this.totalCalories() - this.caloriesBurned();
-    return Math.max(0, Math.round(net));
-  });
+  netCalories() {
+    return this.facade.netCalories();
+  }
 
   adjustCaloriesBurned(delta: number): void {
-    const current = this.caloriesBurned();
-    const next = Math.max(0, current + delta);
-    this.form.get('caloriesBurned')?.setValue(next);
+    void this.facade.adjustCaloriesBurned(delta);
   }
 
+  totalCalories() {
+    return this.facade.totalCalories();
+  }
 
+  waterConsumedL() {
+    return this.facade.waterConsumed();
+  }
 
-  //total calories
-  totalCalories = computed(() => {
-    const val = this.formValue() as Partial<DailyUserData>; 
-    const macros = val.macrosPct ?? { protein: 0, carbs: 0, fats: 0 };
-    const p = Number(macros.protein ?? 0);
-    const c = Number(macros.carbs ?? 0);
-    const f = Number(macros.fats ?? 0);
-  
-    const totalCal = p*4 + c*4 + f*9;
-    return Math.round(totalCal);
-  })
-
-
-
-  // water
-  waterConsumedL = computed(() => {
-    const val = this.formValue() as Partial<DailyUserData>;
-    return Number(val.waterConsumedL ?? 0);
-  })
-
-   waterProgress = computed(() => {
-    if(!this.waterTargetFromMetrics) return 0;
-    const pct = (this.waterConsumedL() / this.waterTargetFromMetrics) * 100;
-    return Math.max(0, Math.min(100, Math.round(pct)));
-   })
+  waterProgress() {
+    return this.facade.waterProgress();
+  }
 
   addWater(deltaL: number): void {
-    const current = this.waterConsumedL();
-    const next = Math.max(0, current + deltaL);
-    this.form.get('waterConsumedL')?.setValue(+next.toFixed(2));
+    void this.facade.addWater(deltaL);
   }
 
-  // steps
-   steps = computed(() => {
-    const val = this.formValue() as Partial<DailyUserData>;
-    return Number(val.steps ?? 0);
-   })
+  steps() {
+    return this.facade.steps();
+  }
 
-   stepTarget = computed(() => {
-    const val = this.formValue() as Partial<DailyUserData>;
-    return Number(val.stepTarget ?? this.defaultStepTarget);
-   })
+  stepTarget() {
+    return this.facade.stepTarget();
+  }
 
-  
-   stepsProgress =computed(() => {
-    const target = this.stepTarget();
-    const pct = (this.steps() / target) * 100;
-    return Math.max(0, Math.min(100, Math.round(pct)));
-   })
+  stepsProgress() {
+    return this.facade.stepsProgress();
+  }
 
   addSteps(delta: number): void {
-    const current = this.steps();
-    const next = Math.max(0, current + delta);
-    this.form.get('steps')?.setValue(next);
+    void this.facade.addSteps(delta);
   }
 
 
