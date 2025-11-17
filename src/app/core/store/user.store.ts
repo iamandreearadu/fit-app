@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { signal, effect } from '@angular/core';
 import { UserProfile } from '../models/user.model';
-import { LocalStorageService } from '../services/local-storage.service';
+import { LocalStorageService } from '../../shared/services/local-storage.service';
 
-@Injectable({ 
-  providedIn: 'root' 
+@Injectable({
+  providedIn: 'root'
 })
 
 export class UserStore {

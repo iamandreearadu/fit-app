@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Validators, ValidatorFn, ValidationErrors } from '@angular/forms';
 
-@Injectable({ 
-  providedIn: 'root' 
+@Injectable({
+  providedIn: 'root'
 })
 
 export class UserValidationService {
@@ -12,7 +12,7 @@ export class UserValidationService {
     return {
       fullName: [Validators.required, Validators.minLength(3)],
       email: [Validators.required, Validators.email],
-      heightCm: [Validators.min(0)],
+      heightCm: [Validators.min(50), Validators.max(250)],
       weightKg: [Validators.min(0)],
       age: [Validators.min(0), Validators.max(130)],
       gender: [],
@@ -23,7 +23,7 @@ export class UserValidationService {
 
   getErrorMessage(
     controlName: string,
-    errors: ValidationErrors | null
+    errors: ValidationErrors | null | undefined
   ): string | null {
     if (!errors) return null;
     if (errors['required']) return 'This field is required';

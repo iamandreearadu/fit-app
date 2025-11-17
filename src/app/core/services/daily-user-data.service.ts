@@ -1,7 +1,6 @@
 import { inject, Injectable } from "@angular/core";
-import { UserProfile } from "../models/user.model";
 import { DailyUserData } from "../models/daily-user-data.model";
-import { LocalStorageService } from "./local-storage.service";
+import { LocalStorageService } from "../../shared/services/local-storage.service";
 
 @Injectable({
     providedIn: 'root'
@@ -22,7 +21,7 @@ caloriesTotal(intake:number, burned:number):number{
 
 
 keyForDate(iso:string){
-    return `dailyPlan:${iso}`; 
+    return `dailyPlan:${iso}`;
 }
 
 async getDailyUserData(): Promise<DailyUserData | null> {
@@ -45,9 +44,9 @@ async setDailyUserData(patch:Partial< DailyUserData>): Promise<DailyUserData> {
             fats: patch.macrosPct?.fats ?? existing?.macrosPct?.fats ?? 0,
         },
         caloriesIntake: this.caloriesIntake(
-        patch.macrosPct?.protein ?? existing?.macrosPct?.protein ?? 0,  
-        patch.macrosPct?.carbs ?? existing?.macrosPct?.carbs ?? 0,  
-        patch.macrosPct?.fats ?? existing?.macrosPct?.fats ?? 0  
+        patch.macrosPct?.protein ?? existing?.macrosPct?.protein ?? 0,
+        patch.macrosPct?.carbs ?? existing?.macrosPct?.carbs ?? 0,
+        patch.macrosPct?.fats ?? existing?.macrosPct?.fats ?? 0
         ),
         caloriesBurned: patch.caloriesBurned ?? existing?.caloriesBurned ?? 0,
         caloriesTotal:this.caloriesTotal(
@@ -55,7 +54,7 @@ async setDailyUserData(patch:Partial< DailyUserData>): Promise<DailyUserData> {
             patch.caloriesBurned ?? existing?.caloriesBurned ?? 0
         )
     };
-    this.ls.set(this.keyForDate(this.todayDate), updated);  
+    this.ls.set(this.keyForDate(this.todayDate), updated);
     return updated;
 }
 

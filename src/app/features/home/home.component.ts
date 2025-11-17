@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { DashboardComponent } from "./dashboard/dashboard.component";
 import { DailyUserDataComponent } from './daily-user-data/daily-user-data.component';
+import { HeaderComponent } from '../../shared/components/header.component';
 
 @Component({
   standalone: true,
   selector: 'app-home',
-  imports: [CommonModule, DashboardComponent,DailyUserDataComponent],
+  imports: [CommonModule, DashboardComponent,DailyUserDataComponent, HeaderComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
