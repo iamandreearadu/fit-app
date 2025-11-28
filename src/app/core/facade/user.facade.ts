@@ -28,7 +28,8 @@ export class UserFacade {
 
   readonly caloriesBurned = computed(() => Number(this._daily()?.caloriesBurned ?? 0));
 
-  readonly netCalories = computed(() => Math.max(0, this.totalCalories() - this.caloriesBurned()));
+  readonly netCalories = computed(
+    () => Math.max(0, this.totalCalories() - this.caloriesBurned()));
 
   readonly waterConsumed = computed(() => Number(this._daily()?.waterConsumedL ?? 0));
 
@@ -77,12 +78,17 @@ export class UserFacade {
     return this.dailySvc.todayDate;
   }
 
-  async getDailyData(): Promise<DailyUserData | null> {
+  async getDailyData(dateIso?: string): Promise<DailyUserData | null> {
     // keep the internal signal in sync when fetched directly
-    const d = await this.dailySvc.getDailyUserData();
+    this._dailyLoading.set(true);
+    try {
+    const d = await this.dailySvc.getDailyUserData(dateIso);
     this._daily.set(d);
-    return d;
-  }
+      return d;
+  } finally {
+      this._dailyLoading.set(false);
+    }
+}
 
   async setDailyData(patch: Partial<DailyUserData>): Promise<DailyUserData> {
     // persist and update internal signal
@@ -111,45 +117,50 @@ export class UserFacade {
   }
 
   async saveDaily(patch: Partial<DailyUserData>) {
-    this._dailyLoading.set(true);
+   // this._dailyLoading.set(true);
     try {
       const updated = await this.dailySvc.setDailyUserData(patch);
       this._daily.set(updated);
       return updated;
     } finally {
-      this._dailyLoading.set(false);
+    //  this._dailyLoading.set(false);
     }
   }
 
   // UI helpers that mutate the daily signal and persist
   async addWater(deltaL: number) {
-    const cur = this._daily() ?? {
-      date: this.todayDate,
-      activityType: 'Rest Day',
-      waterConsumedL: 0,
-      steps: 0,
-      stepTarget: 3000,
-      macrosPct: { protein: 0, carbs: 0, fats: 0 },
-      caloriesBurned: 0,
-      caloriesIntake: 0,
-      caloriesTotal: 0,
-    } as DailyUserData;
-    const next = Math.max(0, Number(cur.waterConsumedL ?? 0) + deltaL);
-    const updated: Partial<DailyUserData> = { ...cur, waterConsumedL: +next.toFixed(2) };
+    // Ensure we operate on the latest persisted/current daily data instead of a fresh default
+    let current = this._daily();
+    if (!current) {
+      // try to load persisted value first (localStorage / Firestore)
+      current = await this.dailySvc.getDailyUserData() ?? null;
+    }
+    const base = current ?? { waterConsumedL: 0, } as DailyUserData;
+
+    const next = Math.max(0, Number(base.waterConsumedL ?? 0) + deltaL);
+    const updated: Partial<DailyUserData> = { ...base, waterConsumedL: +next.toFixed(2) };
     return this.saveDaily(updated);
   }
 
   async addSteps(delta: number) {
-    const cur = this._daily() ?? { steps: 0 } as DailyUserData;
-    const next = Math.max(0, Number(cur.steps ?? 0) + delta);
-    const updated: Partial<DailyUserData> = { ...cur, steps: next };
+    let current = this._daily();
+    if (!current) {
+      current = await this.dailySvc.getDailyUserData() ?? null;
+    }
+    const base = current ?? { steps: 0 } as DailyUserData;
+    const next = Math.max(0, Number(base.steps ?? 0) + delta);
+    const updated: Partial<DailyUserData> = { ...base, steps: next };
     return this.saveDaily(updated);
   }
 
   async adjustCaloriesBurned(delta: number) {
-    const cur = this._daily() ?? { caloriesBurned: 0 } as DailyUserData;
-    const next = Math.max(0, Number(cur.caloriesBurned ?? 0) + delta);
-    const updated: Partial<DailyUserData> = { ...cur, caloriesBurned: next };
+    let current = this._daily();
+    if (!current) {
+      current = await this.dailySvc.getDailyUserData() ?? null;
+    }
+    const base = current ?? { caloriesBurned: 0 } as DailyUserData;
+    const next = Math.max(0, Number(base.caloriesBurned ?? 0) + delta);
+    const updated: Partial<DailyUserData> = { ...base, caloriesBurned: next };
     return this.saveDaily(updated);
   }
 
@@ -202,7 +213,6 @@ export class UserFacade {
       }, 2000);
     }
   }
-
 
 
   // small helper to format validation messages from validation service

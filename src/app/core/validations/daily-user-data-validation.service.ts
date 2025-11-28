@@ -14,9 +14,10 @@ export class DailyUserDataValidationService {
       steps: [Validators.min(0)],
       stepTarget: [Validators.min(0)],
       macrosPct: {
-        protein: [Validators.min(0), Validators.max(100)],
-        carbs: [Validators.min(0), Validators.max(100)],
-        fats: [Validators.min(0), Validators.max(100)],
+        // macros are entered in grams in the UI; allow larger upper bounds
+        protein: [Validators.min(0)],
+        carbs: [Validators.min(0)],
+        fats: [Validators.min(0)],
       },
       caloriesBurned: [Validators.min(0)]
     };

@@ -8,6 +8,7 @@ import { UserFitMetrics } from '../models/user-fit-metrics.model';
 
 export class UserMetricsService {
 
+
   compute(user: UserProfile | null): UserFitMetrics {
     if (!user) return {
       bmi: null,
