@@ -12,6 +12,7 @@ import { DailyUserData } from '../models/daily-user-data.model';
 @Injectable({ providedIn: 'root' })
 export class UserFacade {
   private _metrics = computed<UserFitMetrics | null>(() => null);
+
   // daily data signals & derived values
   private _daily = signal<DailyUserData | null>(null);
   private _dailyLoading = signal(false);
@@ -52,14 +53,28 @@ export class UserFacade {
     return Math.max(0, Math.min(100, Math.round(pct)));
   });
 
-  constructor(
-    private store: UserStore,
-    private userService: UserService,
-    private metricsSvc: UserMetricsService,
-    private validation: UserValidationService,
-    private dailyValidation: DailyUserDataValidationService,
-    private dailySvc: DailyUserDataService
+
+  private initialized = false;
+
+  constructor(private store: UserStore,  private userService: UserService, private metricsSvc: UserMetricsService,
+    private validation: UserValidationService, private dailyValidation: DailyUserDataValidationService, private dailySvc: DailyUserDataService
   ) {
+
+    if (!this.initialized) {
+
+      this.userService.getCurrentUser().then((u: UserProfile | null) => {
+        if (u) {
+          this.store.setUser(u);
+        }
+      });
+
+      this.initialized = true;
+    }
+
+
+
+
+
     // initialize computed now that services are available
     this._metrics = computed<UserFitMetrics | null>(() => {
       const u = this.store.user();
@@ -79,7 +94,6 @@ export class UserFacade {
   }
 
   async getDailyData(dateIso?: string): Promise<DailyUserData | null> {
-    // keep the internal signal in sync when fetched directly
     this._dailyLoading.set(true);
     try {
     const d = await this.dailySvc.getDailyUserData(dateIso);

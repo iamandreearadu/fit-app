@@ -5,7 +5,6 @@ import { doc, Firestore, getDoc, serverTimestamp, setDoc } from "@angular/fire/f
 import { Auth, User } from "@angular/fire/auth";
 import { AlertService } from "../shared/services/alert.service";
 import { UserMetricsService } from "../core/services/user-metrics.service";
-import { UserStore } from "../core/store/user.store";
 
 @Injectable({
   providedIn: 'root'
@@ -16,22 +15,23 @@ export class UserService {
   private ls = inject(LocalStorageService);
   private firestore = inject(Firestore);
   private alerts = inject(AlertService);
-  private userStore = inject(UserStore);
   private metricsSvc = inject(UserMetricsService);
-  private auth = inject<Auth>(Auth);
+  private auth = inject(Auth);
 
   constructor() {}
 
-  async getCurrentUser(): Promise<UserProfile | null> {
+  public async getCurrentUser(): Promise<UserProfile | null> {
+    var userProfile: UserProfile | null = null;
     try{
-  const user = this.auth.currentUser as User | null;
+
+      const user = this.auth.currentUser as User | null;
 
       if(user){
         const ref = doc(this.firestore, `users/${user.uid}`);
         const snap =  await getDoc(ref);;
         if(snap.exists()){
           const d = snap.data() as any;
-          return {
+          userProfile = {
             id: user.uid,
             email: d.email ?? user.email ?? '',
             fullName: d.fullName ?? d.displayName ?? '',
@@ -47,8 +47,18 @@ export class UserService {
     } catch(err){
       this.alerts.warn('Firestore getCurrentUser failed, falling back to LocalStorage', err as string);
     }
-    return this.ls.get<UserProfile>(this.storageKey) ?? null;
+    finally {
+      return userProfile;
+    }
   }
+
+
+
+
+
+
+
+
 
   async updateProfile(patch: Partial<UserProfile>): Promise<UserProfile> {
     const existing = this.ls.get<UserProfile>(this.storageKey);
@@ -93,20 +103,7 @@ export class UserService {
     return updated;
   }
 
-  // load profile from firestore after login
- async getCurrentUserProfile(): Promise<UserProfile | null> {
-   try{
-        const profile = await this.getCurrentUser();
-        this.userStore.setUser(profile);
-    } catch(err){
-        console.error('Failed to fetch user profile after login', err);
-        this.alerts.warn('Failed to fetch user profile after login', err as string);
-
-      }
-      return null;  
-  }
-
-  async getMetrics (user:UserProfile, ref:any){  
+  async getMetrics (user:UserProfile, ref:any){
         try {
           const metrics = this.metricsSvc.compute(user);
           await setDoc(ref, {

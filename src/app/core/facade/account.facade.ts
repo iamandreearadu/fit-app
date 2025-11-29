@@ -5,16 +5,27 @@ import { AuthCredentials } from '../models/auth-credentials.model';
 import { AuthenticationUser } from '../models/authentication-user.model';
 import { AccountValidationService } from '../validations/account-validation.service';
 import { UserService } from '../../api/user.service';
+import { LocalStorageService } from '../../shared/services/local-storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class AccountFacade {
 
-  private svc = inject(AccountService);
   private store = inject(AuthenticationStore);
+  private ls = inject(LocalStorageService);
+
+
+  private svc = inject(AccountService);
   private validation = inject(AccountValidationService);
   private userService = inject(UserService);
 
+  private readonly storageKey = 'auth_v1';
+
   constructor() {}
+
+  public init(): void {
+    const fromLs = this.ls.get<AuthenticationUser>(this.storageKey);
+    if (fromLs) this.store.setAuth(fromLs);
+  }
 
   get loading() {
     return this.store.loading;
@@ -26,13 +37,14 @@ export class AccountFacade {
 
   async login(creds: AuthCredentials): Promise<AuthenticationUser | null> {
     this.store.setLoading(true);
-    
+
     try {
       const u = await this.svc.login(creds);
       this.store.setAuth(u);
 
       if(u) {
-      this.userService.getCurrentUserProfile();
+      // wait for user profile to be loaded and propagated to UserStore
+      await this.userService.getCurrentUserProfile();
       }
 
       return u;
@@ -56,10 +68,6 @@ export class AccountFacade {
     this.svc.logout();
     this.store.clear();
    // this.userStore.clear();
-  }
-
-  hydrateFromLocalStorage() {
-    this.store.hydrateFromLocalStorage();
   }
 
   // expose validation helpers so components use the facade for validation logic

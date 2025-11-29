@@ -132,8 +132,8 @@ export class DailyUserDataService {
     }
 
     // Persist the daily data for today (or specified date)
-    async setDailyUserData(patch: Partial<DailyUserData>, dateIso?: string): Promise<DailyUserData> {
-        const key = this.keyForDate(dateIso ?? this.todayDate);
+    async setDailyUserData(patch: Partial<DailyUserData>): Promise<DailyUserData> {
+        const key = this.keyForDate(patch.date ?? this.todayDate);
         const existing = this.ls.get<DailyUserData>(key);
 
         const updated = this.buildComplete(patch, existing ?? undefined);
@@ -144,7 +144,7 @@ export class DailyUserDataService {
             const user = this.auth.currentUser;
 
             if (user) {
-                const date = dateIso ?? this.todayDate;
+                const date = patch.date ?? this.todayDate;
                 const ref = doc(this.firestore, `users/${user.uid}/daily/${date}`);
                 await setDoc(ref, { ...updated, updatedAt: serverTimestamp() }, { merge: true });
                 this.alerts?.success('Daily data saved to Firestore');

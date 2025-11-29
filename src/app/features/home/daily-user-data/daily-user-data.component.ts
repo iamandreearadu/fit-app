@@ -17,6 +17,7 @@ export class DailyUserDataComponent implements OnInit, OnDestroy {
 
   waterTargetL = 3;
   defaultStepTarget = 3000;
+  public todayDate = new Date().toLocaleDateString("en-CA");
 
   facade = inject(UserFacade);
   fb = inject(FormBuilder)
@@ -46,9 +47,11 @@ export class DailyUserDataComponent implements OnInit, OnDestroy {
     // sync form from facade daily signal
     effect(() => {
       const d = this.facade.daily();
+
       if (d) {
         // don't overwrite user's in-progress edits — only patch when the form is not dirty
         if (this.form.dirty) return;
+
 
         this.form.patchValue({
           date: d.date ?? this.facade.todayDate,
@@ -105,7 +108,7 @@ export class DailyUserDataComponent implements OnInit, OnDestroy {
           console.log(d)
            if (d) this.form.patchValue(d, { emitEvent: false });
            else this.form.patchValue(this.defaultValues(), { emitEvent: false });
-      
+
           this.form.markAsPristine();
         } catch (err) {
           console.error('Failed to load daily data for date', val, err);
@@ -135,7 +138,7 @@ export class DailyUserDataComponent implements OnInit, OnDestroy {
   async saveDailyData(): Promise<void> {
     if (this.form.invalid) return;
     const payload = this.form.value as Partial<DailyUserData>;
-  
+
     await this.facade.saveDaily(payload);
     // mark as clean so the sync effect may re-apply values from facade.daily
     this.form.markAsPristine();

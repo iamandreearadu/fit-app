@@ -8,16 +8,16 @@
     </span>
   </div>
 
-  <ng-container *ngIf="metrics as m; else noData">
+  <ng-container *ngIf="UserFacade.metrics() as m; else noData">
     <div class="row g-3">
 
       <!-- CURRENT WEIGHT -->
-      <div class="col-md-4">
+      <div class="col-md-4" *ngIf="UserFacade.user() as u">
         <div class="card h-100 shadow-sm">
           <div class="card-body">
             <h6 class="text-muted mb-1">Current weight</h6>
             <p class="display-6 mb-0">
-              {{ user?.weightKg ?? '–' }} 
+              {{ u?.weightKg ?? '–' }}
               <span class="fs-6 text-muted">kg</span>
             </p>
           </div>
