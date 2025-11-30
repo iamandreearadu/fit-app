@@ -3,6 +3,8 @@ import { provideRouter } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+// Angular Material modules
+import { MaterialModule } from './core/material/material.module';
 
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
@@ -24,7 +26,9 @@ export const appConfig: ApplicationConfig = {
       ToastrModule.forRoot({
         positionClass: 'toast-bottom-right',
         closeButton: true,
-      })
+      }),
+      // Provide MaterialModule (aggregated Material imports)
+      MaterialModule
     ),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),

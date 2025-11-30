@@ -4,11 +4,12 @@ import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { UserProfile } from '../../../core/models/user.model';
 import { FormErrorService } from '../../../shared/services/form-error.service';
+import { MaterialModule } from '../../../core/material/material.module';
 
 @Component({
   standalone: true,
   selector: 'app-profile-user-data',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
   templateUrl: './profile-user-data.component.html',
   styleUrls: ['./profile-user-data.component.css'],
 })

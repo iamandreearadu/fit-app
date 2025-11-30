@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { DailyUserData } from '../../../core/models/daily-user-data.model';
+import { MaterialModule } from '../../../core/material/material.module';
 
 @Component({
   standalone: true,
   selector: 'app-daily-user-data',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
+  host: { class: 'd-block' },
   templateUrl: './daily-user-data.component.html',
   styleUrl: './daily-user-data.component.css'
 })

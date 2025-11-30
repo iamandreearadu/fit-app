@@ -1,68 +1,48 @@
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Dashboard</h2>
-    <span class="badge bg-secondary">
-      {{ facade.todayDate }}
-    </span>
+<div class="dashboard-root">
+  <div class="dashboard-header">
+    <h2>Dashboard</h2>
+    <mat-chip-set>
+      <mat-chip highlighted>{{ facade.todayDate }}</mat-chip>
+    </mat-chip-set>
   </div>
 
   <ng-container *ngIf="user() as u; else noData">
     <ng-container *ngIf="metrics() as m">
 
-      <div class="row g-3">
+      <div class="dashboard-cards">
+        <mat-card class="stat-card">
+          <mat-card-title>Current weight</mat-card-title>
+          <mat-card-content>
+            <div class="stat-value">{{ u.weightKg }} <span class="muted">kg</span></div>
+          </mat-card-content>
+        </mat-card>
 
-        <!-- CURRENT WEIGHT -->
-        <div class="col-md-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Current weight</h6>
-              <p class="display-6 mb-0">
-                {{ u.weightKg }}
-                <span class="fs-6 text-muted">kg</span>
-              </p>
-            </div>
-          </div>
-        </div>
+        <mat-card class="stat-card">
+          <mat-card-title>Goal calories</mat-card-title>
+          <mat-card-content>
+            <div class="stat-value">{{ m.goalCalories }} <span class="muted">kcal / day</span></div>
+          </mat-card-content>
+        </mat-card>
 
-        <!-- GOAL CALORIES -->
-        <div class="col-md-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Goal calories</h6>
-              <p class="display-6 mb-0">
-                {{ m.goalCalories }}
-                <span class="fs-6 text-muted">kcal / day</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- WATER TARGET -->
-        <div class="col-md-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Water target</h6>
-              <p class="display-6 mb-1">
-                {{ m.waterL | number : '1.1-1' }}
-                <span class="fs-6 text-muted">L / day</span>
-              </p>
-              <small class="text-muted">
-                Try to keep water intake around your daily target.
-              </small>
-            </div>
-          </div>
-        </div>
-
+        <mat-card class="stat-card">
+          <mat-card-title>Water target</mat-card-title>
+          <mat-card-content>
+            <div class="stat-value">{{ m.waterL | number : '1.1-1' }} <span class="muted">L / day</span></div>
+            <p class="help-text">Try to keep water intake around your daily target.</p>
+          </mat-card-content>
+        </mat-card>
       </div>
 
     </ng-container>
   </ng-container>
 
   <ng-template #noData>
-    <div class="alert alert-warning mt-3">
-      No user data available yet. Go to
-      <a routerLink="/user-profile" class="alert-link">Profile</a>
-      to add your information.
-    </div>
+    <mat-card color="warn">
+      <mat-card-content>
+        No user data available yet. Go to
+        <a routerLink="/user-profile">Profile</a>
+        to add your information.
+      </mat-card-content>
+    </mat-card>
   </ng-template>
 </div>

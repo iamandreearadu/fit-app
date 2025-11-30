@@ -1,25 +1,93 @@
-.profile-form { max-width:480px; }
-/* Keep small custom tweaks while Bootstrap handles most styling */
-.profile-form .form-label { font-weight:600 }
-.card { box-shadow: 0 1px 4px rgba(0,0,0,0.04) }
+.profile-card {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+}
 
-/* Loader overlay styles */
+.profile-card ::ng-deep .mat-mdc-card-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #3f51b5;
+  padding-left: 12px;
+  padding-top: 12px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e8eaf6;
+  margin-bottom: 24px;
+}
+
+.profile-card ::ng-deep .mat-mdc-card-content {
+  padding: 24px;
+}
+
 .loader-overlay {
-	position: absolute;
-	inset: 0;
-	background: rgba(255,255,255,0.7);
-	z-index: 20;
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
 }
 
-.loader {
-	width: 32px;
-	height: 32px;
-	border: 4px solid rgba(0,0,0,0.08);
-	border-top-color: #0d6efd; /* bootstrap primary */
-	border-radius: 50%;
-	animation: spin 0.9s linear infinite;
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-@keyframes spin {
-	to { transform: rotate(360deg); }
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-label {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-left: 4px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.actions button {
+  min-width: 160px;
+  height: 48px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    justify-content: stretch;
+  }
+
+  .actions button {
+    width: 100%;
+  }
 }

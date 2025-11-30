@@ -1,77 +1,99 @@
-<div class="card">
-  <div class="card-body position-relative">
-    <div *ngIf="facade.loading()" class="loader-overlay d-flex align-items-center justify-content-center">
-      <div class="loader" aria-hidden="true"></div>
+<mat-card class="profile-card">
+  <mat-card-title>Personal Information</mat-card-title>
+  <mat-card-content>
+    <div *ngIf="facade.loading()" class="loader-overlay">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
     </div>
-    <h5 class="card-title">User profile</h5>
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row g-3">
-      <div class="col-12">
-        <label class="form-label">Full name</label>
-        <input class="form-control" formControlName="fullName" />
-        <div *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid" class="text-danger small">
-          {{ formErrors.getMessage(form.get('fullName')?.errors) }}
-        </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="profile-form">
+      <div class="form-section">
+        <h4 class="section-label">Basic Information</h4>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Full name</mat-label>
+          <input matInput formControlName="fullName">
+          <mat-icon matPrefix>person</mat-icon>
+          <mat-error *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">{{ formErrors.getMessage(form.get('fullName')?.errors) }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email">
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error *ngIf="form.get('email')?.touched && form.get('email')?.invalid">{{ formErrors.getMessage(form.get('email')?.errors) }}</mat-error>
+        </mat-form-field>
       </div>
-      <div class="col-12">
-        <label class="form-label">Email</label>
-        <input class="form-control" formControlName="email" />
-        <div *ngIf="form.get('email')?.touched && form.get('email')?.invalid" class="text-danger small">
-          {{ formErrors.getMessage(form.get('email')?.errors) }}
+
+      <div class="form-section">
+        <h4 class="section-label">Physical Stats</h4>
+        <div class="two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Height (cm)</mat-label>
+            <input matInput type="number" formControlName="heightCm">
+            <mat-icon matPrefix>height</mat-icon>
+            <mat-error *ngIf="form.get('heightCm')?.touched && form.get('heightCm')?.invalid">{{ formErrors.getMessage(form.get('heightCm')?.errors) }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Weight (kg)</mat-label>
+            <input matInput type="number" formControlName="weightKg">
+            <mat-icon matPrefix>monitor_weight</mat-icon>
+            <mat-error *ngIf="form.get('weightKg')?.touched && form.get('weightKg')?.invalid">{{ formErrors.getMessage(form.get('weightKg')?.errors) }}</mat-error>
+          </mat-form-field>
         </div>
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">Height (cm)</label>
-        <input class="form-control" type="number" formControlName="heightCm" />
-        <div *ngIf="form.get('heightCm')?.touched && form.get('heightCm')?.invalid" class="text-danger small">
-          {{ formErrors.getMessage(form.get('heightCm')?.errors) }}
-        </div>
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">Weight (kg)</label>
-        <input class="form-control" type="number" formControlName="weightKg" />
-        <div *ngIf="form.get('weightKg')?.touched && form.get('weightKg')?.invalid" class="text-danger small">
-          {{ formErrors.getMessage(form.get('weightKg')?.errors) }}
+
+        <div class="two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Age</mat-label>
+            <input matInput type="number" formControlName="age">
+            <mat-icon matPrefix>cake</mat-icon>
+            <mat-error *ngIf="form.get('age')?.touched && form.get('age')?.invalid">{{ formErrors.getMessage(form.get('age')?.errors) }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Gender</mat-label>
+            <mat-select formControlName="gender">
+              <mat-option value="male">Male</mat-option>
+              <mat-option value="female">Female</mat-option>
+              <mat-option value="other">Other</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>wc</mat-icon>
+          </mat-form-field>
         </div>
       </div>
 
-      <div class="col-md-6">
-        <label class="form-label">Age</label>
-        <input class="form-control" type="number" formControlName="age" />
-        <div *ngIf="form.get('age')?.touched && form.get('age')?.invalid" class="text-danger small">
-          {{ formErrors.getMessage(form.get('age')?.errors) }}
+      <div class="form-section">
+        <h4 class="section-label">Fitness Goals</h4>
+        <div class="two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Activity Level</mat-label>
+            <mat-select formControlName="activity">
+              <mat-option value="sedentary">Sedentary</mat-option>
+              <mat-option value="light">Light</mat-option>
+              <mat-option value="moderate">Moderate</mat-option>
+              <mat-option value="active">Active</mat-option>
+              <mat-option value="athlete">Athlete</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>directions_run</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Goal</mat-label>
+            <mat-select formControlName="goal">
+              <mat-option value="maintain">Maintain Weight</mat-option>
+              <mat-option value="lose">Lose Weight</mat-option>
+              <mat-option value="gain">Gain Weight</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>flag</mat-icon>
+          </mat-form-field>
         </div>
       </div>
-      <div class="col-md-6">
-        <label class="form-label">Gender</label>
-        <select class="form-select" formControlName="gender">
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
 
-    <div class="col-md-6">
-        <label class="form-label">Activity</label>
-        <select class="form-select" formControlName="activity">
-        <option value="sedentary">Sedentary</option>
-        <option value="light">Light</option>
-        <option value="moderate">Moderate</option>
-        <option value="active">Active</option>
-        <option value="athlete">Athlete</option>
-        </select>
-      </div>
-
-      <div class="col-md-6">
-        <label class="form-label">Goal</label>
-        <select class="form-select" formControlName="goal">
-        <option value="maintain">Maintain</option>
-        <option value="lose">Lose</option>
-        <option value="gain">Gain</option>
-        </select>
-      </div>
-      <div class="col-12 mt-2">
-        <button class="btn btn-primary" type="submit">Save</button>
+      <div class="actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
+          <mat-icon>save</mat-icon>
+          Save Profile
+        </button>
       </div>
     </form>
-  </div>
-</div>
+  </mat-card-content>
+</mat-card>

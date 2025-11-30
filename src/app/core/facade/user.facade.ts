@@ -101,6 +101,8 @@ export class UserFacade {
       const d = await this.userSrv.getDailyForDate(dateIso ?? this.todayDate);
 
       this.dailyUserSrv.setDailyFromBackend(d);
+
+      this.userMetricsSrv.updateWaterConsumed(d?.waterConsumedL ?? 0);
     } finally {
       this.dailyUserSrv.loading.set(false);
     }

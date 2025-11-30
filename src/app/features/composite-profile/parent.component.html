@@ -1,14 +1,17 @@
 <app-header></app-header>
 
-<div class="py-4">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-8">
-        <app-profile-user-data></app-profile-user-data>
-      </div>
-      <div class="col-md-4">
-        <app-user-fit-metrics></app-user-fit-metrics>
-      </div>
+<div class="composite-root">
+  <div class="section-header">
+    <h2 class="section-title">Complete Profile</h2>
+    <p class="section-subtitle">Manage your personal information and view your fitness metrics</p>
+  </div>
+
+  <div class="profile-grid">
+    <div class="main-col">
+      <app-profile-user-data></app-profile-user-data>
     </div>
+    <aside class="side-col">
+      <app-user-fit-metrics></app-user-fit-metrics>
+    </aside>
   </div>
 </div>

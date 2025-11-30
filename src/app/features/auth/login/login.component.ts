@@ -5,11 +5,12 @@ import { Router, RouterLink } from '@angular/router';
 import { AccountFacade } from '../../../core/facade/account.facade';
 import { FormErrorService } from '../../../shared/services/form-error.service';
 import { AuthCredentials } from '../../../core/models/auth-credentials.model';
+import { MaterialModule } from '../../../core/material/material.module';
 
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, MaterialModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
