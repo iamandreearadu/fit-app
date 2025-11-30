@@ -1,11 +1,11 @@
 .blog-root {
-  padding: 32px 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-  margin-top: 40px;
+  padding: 32px 24px 48px;
+  max-width: calc(100% - 100px);
+  width: 1400px;
+  margin: 40px auto 32px auto;
   background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
   min-height: 80vh;
 }
 
@@ -68,11 +68,12 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .post-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
 }
 
 .post-card ::ng-deep .mat-mdc-card-content {

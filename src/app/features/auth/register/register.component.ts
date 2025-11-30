@@ -40,7 +40,7 @@ export class RegisterComponent {
     const ok = await this.facade.register(creds);
 
     if (ok) {
-      await this.router.navigate(['']);
+      await this.router.navigate(['/user-dashboard']);
     } else {
       this.form.reset();
     }

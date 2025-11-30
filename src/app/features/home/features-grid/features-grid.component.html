@@ -1,0 +1,18 @@
+<section class="features-section">
+  <div class="section-header">
+    <h2 class="section-title">Powerful Features</h2>
+    <p class="section-subtitle">Everything you need to track and improve your fitness</p>
+  </div>
+
+  <div class="features-grid">
+    <mat-card *ngFor="let feature of features" class="feature-card">
+      <div class="feature-icon">
+        <mat-icon>{{ feature.icon }}</mat-icon>
+      </div>
+      <mat-card-title>{{ feature.title }}</mat-card-title>
+      <mat-card-content>
+        <p>{{ feature.description }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>

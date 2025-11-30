@@ -1,0 +1,110 @@
+<footer class="app-footer">
+  <div class="footer-content">
+    <!-- Brand Section -->
+    <div class="footer-section brand-section">
+      <div class="brand-logo">
+        <mat-icon class="logo-icon">fitness_center</mat-icon>
+        <h3>FitApp</h3>
+      </div>
+      <p class="brand-description">
+        Your personal fitness companion for tracking workouts, nutrition, and achieving your health goals.
+      </p>
+      <div class="social-links">
+        <a *ngFor="let social of socialLinks"
+           [href]="social.url"
+           class="social-link"
+           [attr.aria-label]="social.name"
+           target="_blank"
+           rel="noopener noreferrer">
+          <mat-icon>{{ social.icon }}</mat-icon>
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Links Section -->
+    <div class="footer-section">
+      <h4 class="section-title">Quick Links</h4>
+      <ul class="footer-links">
+        <li *ngFor="let link of quickLinks">
+          <a *ngIf="!link.requiresAuth || accountFacade.authUser()"
+             [routerLink]="link.route"
+             class="footer-link">
+            <mat-icon>chevron_right</mat-icon>
+            {{ link.label }}
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Resources Section -->
+    <div class="footer-section">
+      <h4 class="section-title">Resources</h4>
+      <ul class="footer-links">
+        <li>
+          <a href="#" class="footer-link">
+            <mat-icon>chevron_right</mat-icon>
+            Getting Started
+          </a>
+        </li>
+        <li>
+          <a href="#" class="footer-link">
+            <mat-icon>chevron_right</mat-icon>
+            Workout Plans
+          </a>
+        </li>
+        <li>
+          <a href="#" class="footer-link">
+            <mat-icon>chevron_right</mat-icon>
+            Nutrition Guide
+          </a>
+        </li>
+        <li>
+          <a href="#" class="footer-link">
+            <mat-icon>chevron_right</mat-icon>
+            FAQ
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="footer-section">
+      <h4 class="section-title">Get In Touch</h4>
+      <div class="contact-info">
+        <div class="contact-item">
+          <mat-icon>email</mat-icon>
+          <span>support&#64;fitapp.com</span>
+        </div>
+        <div class="contact-item">
+          <mat-icon>phone</mat-icon>
+          <span>+1 (555) 123-4567</span>
+        </div>
+        <div class="contact-item">
+          <mat-icon>location_on</mat-icon>
+          <span>123 Fitness St, Health City</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="footer-bottom">
+    <div class="footer-bottom-content">
+      <div class="footer-left">
+        <p class="copyright">
+          &copy; {{ currentYear }} FitApp. All rights reserved.
+        </p>
+        <p class="powered-by">
+          <mat-icon>favorite</mat-icon> Powered by Radu Andreea
+        </p>
+      </div>
+      <div class="legal-links">
+        <a *ngFor="let link of legalLinks; let last = last"
+           [routerLink]="link.route"
+           class="legal-link">
+          {{ link.label }}<span *ngIf="!last" class="separator">|</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

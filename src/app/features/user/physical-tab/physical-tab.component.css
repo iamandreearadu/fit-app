@@ -1,0 +1,16 @@
+.physical-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .physical-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-col {
+    order: -1;
+  }
+}

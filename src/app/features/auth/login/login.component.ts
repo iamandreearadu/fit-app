@@ -39,7 +39,7 @@ export class LoginComponent {
     const ok = await this.facade.login(creds);
 
     if (ok) {
-      await this.router.navigate(['']);
+      await this.router.navigate(['/user-dashboard']);
     } else {
       this.form.reset();
     }

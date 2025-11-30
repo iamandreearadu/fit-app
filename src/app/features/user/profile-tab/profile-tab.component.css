@@ -1,0 +1,81 @@
+.profile-card {
+  margin: 0 auto;
+  position: relative;
+}
+
+.profile-card ::ng-deep .mat-mdc-card-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #3f51b5;
+  padding-left: 12px;
+  padding-top: 12px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e8eaf6;
+  margin-bottom: 24px;
+}
+
+.profile-card ::ng-deep .mat-mdc-card-content {
+  padding: 24px;
+}
+
+.loader-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.form-field-half {
+  width: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid #e0e0e0;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.actions button {
+  min-width: 160px;
+  height: 48px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .actions {
+    justify-content: stretch;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}
