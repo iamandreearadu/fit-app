@@ -1,16 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { UserFacade } from '../../../core/facade/user.facade';
+import { RouterLink } from '@angular/router';
 
 @Component({
   standalone: true,
   selector: 'app-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent {
+  public facade = inject(UserFacade);
 
-  public UserFacade = inject(UserFacade);
-  public todayDate = new Date().toISOString().slice(0,10)
+  public metrics = this.facade.metrics;
+  public user = this.facade.user;
 }

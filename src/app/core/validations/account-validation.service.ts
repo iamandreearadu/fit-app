@@ -1,30 +1,33 @@
 import { Injectable } from '@angular/core';
 import { Validators, ValidatorFn, ValidationErrors } from '@angular/forms';
 
+export interface LoginValidators {
+  email: ValidatorFn[];
+  password: ValidatorFn[];
+}
+
+export interface RegisterValidators {
+  fullName: ValidatorFn[];
+  email: ValidatorFn[];
+  password: ValidatorFn[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AccountValidationService {
   constructor() {}
 
-  getLoginValidators(): Record<string, ValidatorFn[]> {
+  public getLoginValidators(): LoginValidators {
     return {
       email: [Validators.required, Validators.email],
-      password: [Validators.required, Validators.minLength(6)]
+      password: [Validators.required, Validators.minLength(6)],
     };
   }
 
-  getRegisterValidators(): Record<string, ValidatorFn[]> {
+  public getRegisterValidators(): RegisterValidators {
     return {
       fullName: [Validators.required, Validators.minLength(3)],
       email: [Validators.required, Validators.email],
-      password: [Validators.required, Validators.minLength(6)]
+      password: [Validators.required, Validators.minLength(6)],
     };
-  }
-
-  getErrorMessage(controlName: string, errors: ValidationErrors | null | undefined): string | null {
-    if (!errors) return null;
-    if (errors['required']) return 'This field is required';
-    if (errors['minlength']) return `Minimum length is ${errors['minlength'].requiredLength}`;
-    if (errors['email']) return 'Invalid email address';
-    return 'Invalid value';
   }
 }

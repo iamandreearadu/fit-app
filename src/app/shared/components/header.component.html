@@ -8,20 +8,20 @@
           <ul class="navbar-nav">
             <li class="nav-item"><a class="nav-link" routerLink="/">Home</a></li>
             <li class="nav-item"><a class="nav-link" routerLink="/blog">Blog</a></li>
-            <li *ngIf="account.authUser()"  class="nav-item"><a class="nav-link" routerLink="/page/user-profile">Profile</a></li>
-            <li *ngIf="account.authUser()"  class="nav-item"><a class="nav-link" routerLink="/parent/profile-user-data">Composite</a></li>
+            <li *ngIf="accountFacade.authUser()"  class="nav-item"><a class="nav-link" routerLink="/user-profile">Profile</a></li>
+            <li *ngIf="accountFacade.authUser()"  class="nav-item"><a class="nav-link" routerLink="/parent/profile-user-data">Composite</a></li>
           </ul>
 
           <div class="ms-auto d-flex align-items-center">
             <!-- if not logged in show login/register -->
-            <ng-container *ngIf="!account.authUser(); else logged">
+            <ng-container *ngIf="!accountFacade.authUser(); else logged">
               <a class="btn btn-outline-light btn-sm me-2" routerLink="/login">Login</a>
               <a class="btn btn-light btn-sm" routerLink="/register">Register</a>
             </ng-container>
 
             <ng-template #logged>
-              <div class="me-3 text-white">{{ account.authUser()?.fullName || account.authUser()?.email }}</div>
-              <button class="btn btn-sm btn-outline-light" (click)="logout()">Logout</button>
+              <div class="me-3 text-white">{{ accountFacade.authUser()?.fullName || accountFacade.authUser()?.email }}</div>
+              <button class="btn btn-sm btn-outline-light" (click)="accountFacade.logout()">Logout</button>
             </ng-template>
           </div>
     </div>

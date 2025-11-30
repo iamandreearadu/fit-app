@@ -11,9 +11,5 @@ import { AccountFacade } from '../../core/facade/account.facade';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
-  account = inject(AccountFacade);
-
-  logout() {
-    this.account.logout();
-  }
+  public accountFacade = inject(AccountFacade);
 }

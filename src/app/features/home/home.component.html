@@ -2,4 +2,4 @@
 
 <app-dashboard></app-dashboard>
 
-<app-daily-user-data></app-daily-user-data>
+<app-daily-user-data  *ngIf="accountFacade.authUser()?.fullName"></app-daily-user-data>

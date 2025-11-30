@@ -1,5 +1,21 @@
 import { Injectable } from '@angular/core';
-import { Validators, ValidatorFn, ValidationErrors } from '@angular/forms';
+import { Validators } from '@angular/forms';
+
+export interface DailyValidators {
+  date: any[];
+  waterConsumedL: any[];
+  steps: any[];
+  stepTarget: any[];
+  macrosPct: {
+    protein: any[];
+    carbs: any[];
+    fats: any[];
+  };
+  caloriesBurned: any[];
+  caloriesIntake: any[];
+  caloriesTotal: any[];
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -7,27 +23,20 @@ import { Validators, ValidatorFn, ValidationErrors } from '@angular/forms';
 export class DailyUserDataValidationService {
   constructor() {}
 
-  getControlValidators(): Record<string, any> {
+  public getControlValidators(): DailyValidators {
     return {
       date: [Validators.required],
       waterConsumedL: [Validators.min(0)],
       steps: [Validators.min(0)],
       stepTarget: [Validators.min(0)],
       macrosPct: {
-        // macros are entered in grams in the UI; allow larger upper bounds
         protein: [Validators.min(0)],
         carbs: [Validators.min(0)],
         fats: [Validators.min(0)],
       },
-      caloriesBurned: [Validators.min(0)]
+      caloriesBurned: [Validators.min(0)],
+      caloriesIntake: [Validators.min(0)],
+      caloriesTotal: [Validators.min(0)],
     };
-  }
-
-  getErrorMessage(controlName: string, errors: ValidationErrors | null | undefined): string | null {
-    if (!errors) return null;
-    if (errors['required']) return 'This field is required';
-    if (errors['min']) return `Value must be >= ${errors['min'].min}`;
-    if (errors['max']) return `Value must be <= ${errors['max'].max}`;
-    return 'Invalid value';
   }
 }

@@ -1,8 +1,9 @@
-import { Component, effect } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { UserProfile } from '../../../core/models/user.model';
+import { FormErrorService } from '../../../shared/services/form-error.service';
 
 @Component({
   standalone: true,
@@ -12,58 +13,59 @@ import { UserProfile } from '../../../core/models/user.model';
   styleUrls: ['./profile-user-data.component.css'],
 })
 export class ProfileUserDataComponent {
-  form: FormGroup;
 
-  constructor(public facade: UserFacade, private fb: FormBuilder) {
-    // build form using validators from the facade's validation service
-    const v = this.facade.getValidators().getControlValidators();
-    this.form = this.fb.group({
-      fullName: ['', (v['fullName'] as any) || []],
-      email: ['', (v['email'] as any) || []],
-      heightCm: [0, (v['heightCm'] as any) || []],
-      weightKg: [0, (v['weightKg'] as any) || []],
-      age: [0, (v['age'] as any) || []],
-      gender: ['other', (v['gender'] as any) || []],
-      activity: ['moderate',(v['activity'] as any) || []],
-      goal: ['maintain',(v['goal'] as any) || []],
-    });
+  public form: FormGroup;
 
-    // keep form synced with store user (signals -> form)
-    effect(() => {
-      const u = this.facade.user();
-      if (u) {
-        // patch only known fields
-        this.form.patchValue({
-          fullName: u.fullName ?? '',
-          email: u.email ?? '',
-          heightCm: u.heightCm ?? 0,
-          weightKg: u.weightKg ?? 0,
-          age: u.age ?? 0,
-          gender: u.gender ?? 'other',
-          activity: u.activity ?? 'moderate',
-          goal: u.goal ?? 'maintain'
-        });
-      }
-    });
+  public formErrors = inject(FormErrorService);
+  public facade = inject(UserFacade);
+  private fb = inject(FormBuilder);
 
-    // react to loading signal: disable form while loading, enable when done
-    effect(() => {
-      const isLoading = this.facade.loading();
-      if (isLoading) {
-        this.form.disable({ emitEvent: false });
-      } else {
-        this.form.enable({ emitEvent: false });
-      }
-    });
+  constructor() {
+    this.form = this.buildForm();
+    this.setupUserEffect();
   }
 
-  async onSubmit() {
+
+  // ========== Event handlers ==========
+
+  public async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const payload = this.form.value as Partial<UserProfile>;
-    await this.facade.updateProfile(payload);
+    const payload = this.form.getRawValue() as Partial<UserProfile>;
+    await this.facade.saveUserProfile(payload);
   }
+
+  // ========== helpers ==========
+
+  private buildForm(): FormGroup {
+    const v = this.facade.userValidation.getControlValidators();
+
+    return this.fb.group({
+      fullName: ['', v.fullName ?? []],
+      email: ['', v.email ?? []],
+      heightCm: [0, v.heightCm ?? []],
+      weightKg: [0, v.weightKg ?? []],
+      age: [0, v.age ?? []],
+      gender: ['other', v.gender ?? []],
+      activity: ['moderate', v.activity ?? []],
+      goal: ['maintain', v.goal ?? []],
+    });
+  }
+
+  private setupUserEffect(): void {
+    effect(() => {
+      const u = this.facade.user();
+      if (!u) return;
+
+      if (this.form.dirty) return;
+
+      this.form.patchValue(u, { emitEvent: false });
+
+    });
+  }
+
 }
+

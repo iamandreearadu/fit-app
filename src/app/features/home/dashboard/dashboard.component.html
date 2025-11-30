@@ -1,65 +1,67 @@
-
-
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Dashboard</h2>
     <span class="badge bg-secondary">
-      {{ todayDate }}
+      {{ facade.todayDate }}
     </span>
   </div>
 
-  <ng-container *ngIf="UserFacade.metrics() as m; else noData">
-    <div class="row g-3">
+  <ng-container *ngIf="user() as u; else noData">
+    <ng-container *ngIf="metrics() as m">
 
-      <!-- CURRENT WEIGHT -->
-      <div class="col-md-4" *ngIf="UserFacade.user() as u">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body">
-            <h6 class="text-muted mb-1">Current weight</h6>
-            <p class="display-6 mb-0">
-              {{ u?.weightKg ?? '–' }}
-              <span class="fs-6 text-muted">kg</span>
-            </p>
+      <div class="row g-3">
+
+        <!-- CURRENT WEIGHT -->
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h6 class="text-muted mb-1">Current weight</h6>
+              <p class="display-6 mb-0">
+                {{ u.weightKg }}
+                <span class="fs-6 text-muted">kg</span>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- GOAL CALORIES -->
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body">
-            <h6 class="text-muted mb-1">Goal calories</h6>
-            <p class="display-6 mb-0">
-              {{ m.goalCalories ?? 0 }}
-              <span class="fs-6 text-muted">kcal / day</span>
-            </p>
+        <!-- GOAL CALORIES -->
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h6 class="text-muted mb-1">Goal calories</h6>
+              <p class="display-6 mb-0">
+                {{ m.goalCalories }}
+                <span class="fs-6 text-muted">kcal / day</span>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- WATER TARGET -->
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body">
-            <h6 class="text-muted mb-1">Water target</h6>
-            <p class="display-6 mb-1">
-              {{ m.waterL ?? 0 | number : '1.1-1' }}
-              <span class="fs-6 text-muted">L / day</span>
-            </p>
-            <small class="text-muted">
-              Try to keep water intake around your daily target.
-            </small>
+        <!-- WATER TARGET -->
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h6 class="text-muted mb-1">Water target</h6>
+              <p class="display-6 mb-1">
+                {{ m.waterL | number : '1.1-1' }}
+                <span class="fs-6 text-muted">L / day</span>
+              </p>
+              <small class="text-muted">
+                Try to keep water intake around your daily target.
+              </small>
+            </div>
           </div>
         </div>
+
       </div>
 
-    </div>
+    </ng-container>
   </ng-container>
 
   <ng-template #noData>
     <div class="alert alert-warning mt-3">
       No user data available yet. Go to
-      <a routerLink="/profile" class="alert-link">Profile</a>
+      <a routerLink="/user-profile" class="alert-link">Profile</a>
       to add your information.
     </div>
   </ng-template>

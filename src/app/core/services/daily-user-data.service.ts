@@ -1,163 +1,195 @@
-import { inject, Injectable } from "@angular/core";
-import { DailyUserData } from "../models/daily-user-data.model";
-import { LocalStorageService } from "../../shared/services/local-storage.service";
-import { Firestore } from '@angular/fire/firestore';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { Auth } from '@angular/fire/auth';
-import { AlertService } from '../../shared/services/alert.service';
+import { computed, Injectable, signal } from "@angular/core";
+import { DailyUserDataStats, DailyUserData } from "../models/daily-user-data.model";
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
-
 export class DailyUserDataService {
-    // today's ISO date (YYYY-MM-DD)
-   todayDate = new Date().toISOString().slice(0, 10);
+
+  readonly todayDate = new Date().toISOString().slice(0, 10);
+
+  // ----------------- STATE (signals) -----------------
+
+  private readonly _daily = signal<DailyUserData | null>(null);
+  readonly daily = this._daily.asReadonly();
+
+  readonly loading = signal(false);
+
+  readonly stats = computed<DailyUserDataStats>(() =>
+    this.computeStats(this._daily())
+  );
+
+  // ----------------- PUBLIC API -----------------
 
 
-    // today's local date in YYYY-MM-DD (use local date to avoid timezone shifts)
-    // todayDate = (() => {
-    //     const d = new Date();
-    //     const y = d.getFullYear();
-    //     const m = String(d.getMonth() + 1).padStart(2, '0');
-    //     const day = String(d.getDate()).padStart(2, '0');
-    //     return `${y}-${m}-${day}`;
-    // })();
+  public setDailyFromPatch(patch: Partial<DailyUserData>): void {
+    const existing = this._daily();
+    const complete = this.buildComplete(patch, existing ?? undefined);
+    this._daily.set(complete);
+  }
 
-    private ls = inject(LocalStorageService);
-    private firestore = inject(Firestore);
-    private alerts = inject(AlertService);
-    private auth = inject<Auth>(Auth);
+  public setDailyFromBackend(d: DailyUserData | null): void {
+    const complete = this.buildComplete(d ?? {}, d ?? undefined);
+    this._daily.set(complete);
+  }
 
-    caloriesFromMacros(protein:number,carbs:number,fats:number): number{
-        return (protein*4)+(carbs*4)+(fats*9);
+  public resetDaily(date: string): void {
+    this._daily.set({
+      date: date,
+      activityType: 'Rest Day',
+      waterConsumedL: 0,
+      steps: 0,
+      stepTarget: 3000,
+      macrosPct: { protein: 0, carbs: 0, fats: 0 },
+      caloriesIntake: 0,
+      caloriesBurned: 0,
+      caloriesTotal: 0
+    });
+  }
+
+
+  // ----------------- PUBLIC API (mutations) -----------------
+
+  public addWater(deltaL: number): void {
+    const current = this._daily();
+    if (!current) return;
+
+    const next = Math.max(0, Number(current.waterConsumedL ?? 0) + deltaL);
+    this.setDailyFromPatch({
+      date: current.date,
+      waterConsumedL: +next.toFixed(2),
+    });
+  }
+
+  public addSteps(delta: number): void {
+    const current = this._daily();
+    if (!current) return;
+
+    const next = Math.max(0, Number(current.steps ?? 0) + delta);
+    this.setDailyFromPatch({
+      date: current.date,
+      steps: next,
+    });
+  }
+
+  public adjustCaloriesBurned(delta: number): void {
+    const current = this._daily();
+    if (!current) return;
+
+    const next = Math.max(0, Number(current.caloriesBurned ?? 0) + delta);
+    this.setDailyFromPatch({
+      date: current.date,
+      caloriesBurned: next,
+    });
+  }
+
+  // ----------------- DOMAIN LOGIC (pure) -----------------
+
+  private caloriesFromMacros(protein: number, carbs: number, fats: number): number {
+    return protein * 4 + carbs * 4 + fats * 9;
+  }
+
+  private caloriesTotal(intake: number, burned: number): number {
+    return intake - burned;
+  }
+
+  private buildComplete(
+    patch: Partial<DailyUserData> = {},
+    existing?: DailyUserData
+  ): DailyUserData {
+
+    if (!patch.date && !existing?.date) {
+      patch.date = this.todayDate;
     }
 
-    caloriesTotal(intake: number, burned: number): number {
-        return (intake - burned);
+    const baseDate = patch.date ?? existing!.date!;
+
+    const macros = {
+      protein: Number(patch.macrosPct?.protein ?? existing?.macrosPct?.protein ?? 0),
+      carbs: Number(patch.macrosPct?.carbs ?? existing?.macrosPct?.carbs ?? 0),
+      fats: Number(patch.macrosPct?.fats ?? existing?.macrosPct?.fats ?? 0),
+    };
+
+    const hasMacrosInPatch =
+      !!patch.macrosPct &&
+      (
+        patch.macrosPct.protein !== undefined ||
+        patch.macrosPct.carbs !== undefined ||
+        patch.macrosPct.fats !== undefined
+      );
+
+    const caloriesIntake = hasMacrosInPatch
+      ? this.caloriesFromMacros(macros.protein, macros.carbs, macros.fats)
+      : Number(
+          patch.caloriesIntake
+          ?? existing?.caloriesIntake
+          ?? this.caloriesFromMacros(macros.protein, macros.carbs, macros.fats)
+        );
+
+    const caloriesBurned = Number(patch.caloriesBurned ?? existing?.caloriesBurned ?? 0);
+
+    const result: DailyUserData = {
+      date: baseDate,
+      activityType: patch.activityType ?? existing?.activityType ?? 'Rest Day',
+      waterConsumedL: Number(patch.waterConsumedL ?? existing?.waterConsumedL ?? 0),
+      steps: Number(patch.steps ?? existing?.steps ?? 0),
+      stepTarget: Number(patch.stepTarget ?? existing?.stepTarget ?? 3000),
+      macrosPct: macros,
+      caloriesIntake,
+      caloriesBurned,
+      caloriesTotal: this.caloriesTotal(caloriesIntake, caloriesBurned),
+    };
+
+    if (result.caloriesIntake == null) {
+      result.caloriesIntake = this.caloriesFromMacros(macros.protein, macros.carbs, macros.fats);
+      result.caloriesTotal = this.caloriesTotal(result.caloriesIntake, caloriesBurned);
     }
 
-    // key namespaced by date
-    keyForDate(iso?: string) {
-        const d = iso ?? this.todayDate;
-        return `dailyPlan:${d}`;
+    return result;
+  }
+
+  private computeStats(d: DailyUserData | null): DailyUserDataStats {
+    if (!d) {
+      return {
+        totalCalories: 0,
+        caloriesBurned: 0,
+        netCalories: 0,
+        caloriesIntake: 0,
+        waterConsumedL: 0,
+        steps: 0,
+        stepTarget: 3000,
+        stepsProgress: 0,
+      };
     }
 
-    // Returns stored daily data for today (or null)
-    async getDailyUserData(dateIso?: string): Promise<DailyUserData | null> {
-        const key = this.keyForDate(dateIso);
+    const macros = d.macrosPct ?? { protein: 0, carbs: 0, fats: 0 };
+    const protein = Number(macros.protein ?? 0);
+    const carbs = Number(macros.carbs ?? 0);
+    const fats = Number(macros.fats ?? 0);
 
-        // if user is authenticated, try Firestore first
-        try {
-            const user = this.auth.currentUser;
-            if (user) {
-                const date = dateIso ?? this.todayDate;
-                const ref = doc(this.firestore, `users/${user.uid}/daily/${date}`);
-                const snap = await getDoc(ref);
-                if (snap.exists()) {
-                    const d = snap.data() as any;
-                    // map Firestore document to DailyUserData shape
-                    const fromFs: DailyUserData = {
-                        date: d.date ?? date,
-                        activityType: d.activityType ?? d.activity ?? 'Rest Day',
-                        waterConsumedL: Number(d.waterConsumedL ?? 0),
-                        steps: Number(d.steps ?? 0),
-                        stepTarget: Number(d.stepTarget ?? 3000),
-                        macrosPct: {
-                            protein: Number(d.macrosPct?.protein ?? d.protein ?? 0),
-                            carbs: Number(d.macrosPct?.carbs ?? d.carbs ?? 0),
-                            fats: Number(d.macrosPct?.fats ?? d.fats ?? 0),
-                        },
-                        caloriesIntake: Number(d.caloriesIntake ?? 0),
-                        caloriesBurned: Number(d.caloriesBurned ?? 0),
-                        caloriesTotal: Number(d.caloriesTotal ?? 0),
-                    } as DailyUserData;
+    const caloriesIntake = d.caloriesIntake ?? this.caloriesFromMacros(protein, carbs, fats);
+    const caloriesBurned = Number(d.caloriesBurned ?? 0);
+    const totalCalories = Math.round(this.caloriesFromMacros(protein, carbs, fats));
+    const netCalories = Math.max(0, this.caloriesTotal(caloriesIntake, caloriesBurned));
 
-                    // keep local copy in sync
-                    this.ls.set(key, fromFs);
-                    return fromFs;
-                }
-            }
-        } catch (err) {
-            // non-fatal, fallback to local storage
-            this.alerts?.warn('Firestore read for daily data failed, using local cache', err as string);
-        }
+    const waterConsumedL = Number(d.waterConsumedL ?? 0);
+    const steps = Number(d.steps ?? 0);
+    const stepTarget = Number(d.stepTarget ?? 3000);
 
-        return this.ls.get<DailyUserData>(key) ?? null;
-    }
+    const stepsProgress = stepTarget
+      ? Math.max(0, Math.min(100, Math.round((steps / stepTarget) * 100)))
+      : 0;
 
-    // Build a complete DailyUserData from an optional partial and existing stored value
-    buildComplete(patch: Partial<DailyUserData> = {}, existing?: DailyUserData): DailyUserData {
-        const baseDate = patch.date ?? existing?.date ?? this.todayDate;
-
-        const macros = {
-            protein: Number(patch.macrosPct?.protein ?? existing?.macrosPct?.protein ?? 0),
-            carbs: Number(patch.macrosPct?.carbs ?? existing?.macrosPct?.carbs ?? 0),
-            fats: Number(patch.macrosPct?.fats ?? existing?.macrosPct?.fats ?? 0),
-        };
-
-            // If the caller provided macros (even if some are zero), prefer computing
-            // caloriesIntake from those macros so a literal 0 in patch.caloriesIntake
-            // won't overwrite the expected computed intake.
-            const hasMacrosInPatch = patch.macrosPct && (
-                patch.macrosPct.protein !== undefined ||
-                patch.macrosPct.carbs !== undefined ||
-                patch.macrosPct.fats !== undefined
-            );
-
-            const caloriesIntake = hasMacrosInPatch
-                ? this.caloriesFromMacros(macros.protein, macros.carbs, macros.fats)
-                : Number(patch.caloriesIntake ?? existing?.caloriesIntake ?? this.caloriesFromMacros(macros.protein, macros.carbs, macros.fats));
-        const caloriesBurned = Number(patch.caloriesBurned ?? existing?.caloriesBurned ?? 0);
-
-        const result: DailyUserData = {
-            date: baseDate,
-            activityType: patch.activityType ?? existing?.activityType ?? 'Rest Day',
-            waterConsumedL: Number(patch.waterConsumedL ?? existing?.waterConsumedL ?? 0),
-            steps: Number(patch.steps ?? existing?.steps ?? 0),
-            stepTarget: Number(patch.stepTarget ?? existing?.stepTarget ?? 3000),
-            macrosPct: macros,
-            caloriesIntake: caloriesIntake,
-            caloriesBurned: caloriesBurned,
-            caloriesTotal: this.caloriesTotal(caloriesIntake, caloriesBurned),
-        } as DailyUserData;
-
-        // ensure caloriesIntake is always a number (not undefined/null)
-        if (result.caloriesIntake === undefined || result.caloriesIntake === null) {
-            // use calculated macros from above to avoid possible undefined access on result
-            result.caloriesIntake = this.caloriesFromMacros(macros.protein, macros.carbs, macros.fats);
-            result.caloriesTotal = this.caloriesTotal(result.caloriesIntake, caloriesBurned);
-        }
-        return result;
-    }
-
-    // Persist the daily data for today (or specified date)
-    async setDailyUserData(patch: Partial<DailyUserData>): Promise<DailyUserData> {
-        const key = this.keyForDate(patch.date ?? this.todayDate);
-        const existing = this.ls.get<DailyUserData>(key);
-
-        const updated = this.buildComplete(patch, existing ?? undefined);
-
-        this.ls.set(key, updated);
-        // attempt to persist in Firestore for authenticated user
-        try {
-            const user = this.auth.currentUser;
-
-            if (user) {
-                const date = patch.date ?? this.todayDate;
-                const ref = doc(this.firestore, `users/${user.uid}/daily/${date}`);
-                await setDoc(ref, { ...updated, updatedAt: serverTimestamp() }, { merge: true });
-                this.alerts?.success('Daily data saved to Firestore');
-            }
-        } catch (err) {
-            // non-fatal: warn user and continue
-            this.alerts?.warn('Failed to persist daily data to Firestore; saved locally', err as string);
-        }
-
-        return updated;
-    }
-
-
-
+    return {
+      totalCalories,
+      caloriesBurned,
+      netCalories,
+      caloriesIntake,
+      waterConsumedL,
+      steps,
+      stepTarget,
+      stepsProgress,
+    };
+  }
 
 }

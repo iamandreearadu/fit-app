@@ -1,12 +1,10 @@
 <div class="container py-4">
-  <!-- <h2 class="mb-3">Daily User Data</h2> -->
 
-  <!-- LOADING -->
-  <div *ngIf="loading()" class="alert alert-info">
+  <div *ngIf="facade.dailyDataLoading()" class="alert alert-info">
     Loading…
   </div>
-  {{form.value.date}} - {{ todayDate }}
-  <ng-container *ngIf="!loading()">
+
+  <ng-container *ngIf="!facade.dailyDataLoading()">
     <form [formGroup]="form" novalidate>
 
       <!-- TOP ROW: TODAY / CALORIES / WATER & STEPS -->
@@ -49,7 +47,7 @@
 
                  <div class="d-flex justify-content-between align-items-center mb-1">
         <span class="text-muted">Calories burned</span>
-        <span class="fw-semibold">{{ caloriesBurned() }} kcal</span>
+        <span class="fw-semibold">{{ facade.dailyDataStats().caloriesBurned }} kcal</span>
       </div>
 
       <div class="input-group input-group-sm mb-2">
@@ -63,13 +61,13 @@
         <button
           type="button"
           class="btn btn-outline-primary"
-          (click)="adjustCaloriesBurned(200)">
+          (click)="facade.adjustCaloriesBurned(200)">
           +200
         </button>
         <button
           type="button"
           class="btn btn-outline-secondary"
-          (click)="adjustCaloriesBurned(-200)">
+          (click)="facade.adjustCaloriesBurned(-200)">
           −200
         </button>
       </div>
@@ -78,10 +76,10 @@
         <span class="fw-semibold">Net calories:</span>
         <span
           [ngClass]="{
-            'text-success': netCalories() < totalCalories(),
-            'text-danger': netCalories() > totalCalories()
+            'text-success': facade.dailyDataStats().netCalories < facade.dailyDataStats().totalCalories,
+            'text-danger': facade.dailyDataStats().netCalories > facade.dailyDataStats().totalCalories
           }">
-          {{ netCalories() }} kcal
+          {{ facade.dailyDataStats().netCalories }} kcal
         </span>
       </div>
 
@@ -96,7 +94,7 @@
               <h5 class="card-title mb-2">Calories & Macros</h5>
 
               <p class="mb-1 text-muted">Estimated calories for today</p>
-              <p class="display-6 mb-2">{{ totalCalories() }} kcal</p>
+              <p class="display-6 mb-2">{{ facade.dailyDataStats().totalCalories }} kcal</p>
 
 
               <fieldset formGroupName="macrosPct">
@@ -131,7 +129,6 @@
                 </div>
               </fieldset>
 
-
             </div>
           </div>
         </div>
@@ -144,16 +141,16 @@
 
               <!-- WATER -->
               <p class="mb-1">
-                <strong>{{ waterConsumedL() }} L</strong>
+                <strong>{{ facade.dailyDataStats().waterConsumedL }} L</strong>
                 <span class="text-muted ms-1">
-                  / {{ waterTargetFromMetrics }} L (target)
+                  / {{ facade.waterTargetFromMetrics() }} L (target)
                 </span>
               </p>
               <div class="progress mb-2">
                 <div
                   class="progress-bar bg-info"
                   role="progressbar"
-                  [style.width.%]="waterProgress()"
+                  [style.width.%]="facade.waterProgress()"
                   aria-valuemin="0"
                   aria-valuemax="100">
                 </div>
@@ -163,33 +160,33 @@
                 <button
                   type="button"
                   class="btn btn-outline-primary btn-sm"
-                  (click)="addWater(0.25)">
+                  (click)="facade.addWater(0.25)">
                   + 250 ml
                 </button>
                 <button
                   type="button"
                   class="btn btn-outline-primary btn-sm"
-                  (click)="addWater(0.5)">
+                  (click)="facade.addWater(0.5)">
                   + 500 ml
                 </button>
                 <button
                   type="button"
                   class="btn btn-outline-secondary btn-sm"
-                  (click)="addWater(-0.25)">
+                  (click)="facade.addWater(-0.25)">
                   − 250 ml
                 </button>
               </div>
 
               <!-- STEPS -->
               <p class="mb-1">
-                <strong>{{ steps() }}</strong>
-                <span class="text-muted"> / {{ stepTarget()}} steps</span>
+                <strong>{{ facade.dailyDataStats().steps }}</strong>
+                <span class="text-muted"> / {{ facade.dailyDataStats().stepTarget }} steps</span>
               </p>
               <div class="progress mb-2">
                 <div
                   class="progress-bar"
                   role="progressbar"
-                  [style.width.%]="stepsProgress()"
+                  [style.width.%]="facade.dailyDataStats().stepsProgress"
                   aria-valuemin="0"
                   aria-valuemax="100">
                 </div>
@@ -199,19 +196,19 @@
                 <button
                   type="button"
                   class="btn btn-outline-primary btn-sm"
-                  (click)="addSteps(500)">
+                  (click)="facade.addSteps(500)">
                   + 500
                 </button>
                 <button
                   type="button"
                   class="btn btn-outline-primary btn-sm"
-                  (click)="addSteps(1000)">
+                  (click)="facade.addSteps(1000)">
                   + 1000
                 </button>
                 <button
                   type="button"
                   class="btn btn-outline-secondary btn-sm"
-                  (click)="addSteps(-500)">
+                  (click)="facade.addSteps(-500)">
                   − 500
                 </button>
               </div>
@@ -222,20 +219,18 @@
 
       </div>
 
-      <!-- ACTIONS -->
       <div class="row g-3 mt-3">
         <div class="col-12 d-flex gap-2">
           <button
             type="button"
             class="btn btn-primary"
-            [disabled]="form.value.date != todayDate"
-            (click)="saveDailyData()">
+            (click)="onSaveData()">
             Save
           </button>
-          <button
+          <button  *ngIf="isTodaySelected"
             type="button"
             class="btn btn-secondary"
-            (click)="reset()">
+            (click)="onReset()">
             Reset
           </button>
         </div>
@@ -243,4 +238,5 @@
 
     </form>
   </ng-container>
+
 </div>

@@ -9,28 +9,28 @@
         <label class="form-label">Full name</label>
         <input class="form-control" formControlName="fullName" />
         <div *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid" class="text-danger small">
-          {{ facade.getValidationMessage('fullName', form.get('fullName')?.errors) }}
+          {{ formErrors.getMessage(form.get('fullName')?.errors) }}
         </div>
       </div>
       <div class="col-12">
         <label class="form-label">Email</label>
         <input class="form-control" formControlName="email" />
         <div *ngIf="form.get('email')?.touched && form.get('email')?.invalid" class="text-danger small">
-          {{ facade.getValidationMessage('email', form.get('email')?.errors) }}
+          {{ formErrors.getMessage(form.get('email')?.errors) }}
         </div>
       </div>
       <div class="col-md-6">
         <label class="form-label">Height (cm)</label>
         <input class="form-control" type="number" formControlName="heightCm" />
         <div *ngIf="form.get('heightCm')?.touched && form.get('heightCm')?.invalid" class="text-danger small">
-          {{ facade.getValidationMessage('heightCm', form.get('heightCm')?.errors) }}
+          {{ formErrors.getMessage(form.get('heightCm')?.errors) }}
         </div>
       </div>
       <div class="col-md-6">
         <label class="form-label">Weight (kg)</label>
         <input class="form-control" type="number" formControlName="weightKg" />
         <div *ngIf="form.get('weightKg')?.touched && form.get('weightKg')?.invalid" class="text-danger small">
-          {{ facade.getValidationMessage('weightKg', form.get('weightKg')?.errors) }}
+          {{ formErrors.getMessage(form.get('weightKg')?.errors) }}
         </div>
       </div>
 
@@ -38,7 +38,7 @@
         <label class="form-label">Age</label>
         <input class="form-control" type="number" formControlName="age" />
         <div *ngIf="form.get('age')?.touched && form.get('age')?.invalid" class="text-danger small">
-          {{ facade.getValidationMessage('age', form.get('age')?.errors) }}
+          {{ formErrors.getMessage(form.get('age')?.errors) }}
         </div>
       </div>
       <div class="col-md-6">

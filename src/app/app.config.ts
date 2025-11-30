@@ -10,6 +10,8 @@ import { environment } from '../environments/environment';
 
 import { routes } from './app.routes';
 import { AccountFacade } from './core/facade/account.facade';
+import { getFirestore } from 'firebase/firestore';
+import { provideFirestore } from '@angular/fire/firestore';
 
 
 export const appConfig: ApplicationConfig = {
@@ -26,9 +28,10 @@ export const appConfig: ApplicationConfig = {
     ),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
+    provideFirestore(() => getFirestore()),
     provideAppInitializer(() => {
-      const facade = inject(AccountFacade);
-      facade.init();
+      const accountFacade = inject(AccountFacade);
+      return accountFacade.init();
     }),
   ]
 };

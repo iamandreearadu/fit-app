@@ -1,32 +1,20 @@
 import { Injectable } from '@angular/core';
 import { signal } from '@angular/core';
 import { UserProfile } from '../models/user.model';
-import { LocalStorageService } from '../../shared/services/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserStore {
 
-  private readonly storageKey = 'user_profile_v1';
-  private initialized = false;
   private readonly _user = signal<UserProfile | null>(null);
   public loading = signal<boolean>(false);
   public user = this._user.asReadonly();
 
-  constructor(private ls: LocalStorageService) {
-    if (!this.initialized) {
-      const fromLs = this.ls.get<UserProfile>(this.storageKey);
-      if (fromLs) this._user.set(fromLs);
-
-      this.initialized = true;
-    }
-  }
+  constructor() {}
 
   public setUser(user: UserProfile | null) {
     this._user.set(user);
-    const payload = this._user();
-    this.ls.set(this.storageKey, payload);
   }
 
   public setLoading(flag: boolean) {
@@ -52,6 +40,5 @@ export class UserStore {
 
   public clear() {
     this._user.set(null);
-    this.ls.remove(this.storageKey);
   }
 }

@@ -10,21 +10,21 @@
         <label class="form-label">Full name</label>
         <input class="form-control" formControlName="fullName" />
         <div *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid" class="text-danger small">
-          {{ facade.getValidators().getErrorMessage('fullName', form.get('fullName')?.errors) }}
+          {{ formErrors.getMessage(form.get('fullName')?.errors) }}
         </div>
       </div>
       <div class="mb-3">
         <label class="form-label">Email</label>
         <input class="form-control" formControlName="email" />
         <div *ngIf="form.get('email')?.touched && form.get('email')?.invalid" class="text-danger small">
-          {{ facade.getValidators().getErrorMessage('email', form.get('email')?.errors) }}
+          {{ formErrors.getMessage(form.get('email')?.errors) }}
         </div>
       </div>
       <div class="mb-3">
         <label class="form-label">Password</label>
         <input type="password" class="form-control" formControlName="password" />
         <div *ngIf="form.get('password')?.touched && form.get('password')?.invalid" class="text-danger small">
-          {{ facade.getValidators().getErrorMessage('password', form.get('password')?.errors) }}
+          {{ formErrors.getMessage(form.get('password')?.errors) }}
         </div>
       </div>
 

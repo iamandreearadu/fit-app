@@ -1,236 +1,185 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { UserStore } from '../store/user.store';
 import { UserMetricsService } from '../services/user-metrics.service';
-import { UserFitMetrics } from '../models/user-fit-metrics.model';
 import { UserValidationService } from '../validations/user-validation.service';
 import { DailyUserDataValidationService } from '../validations/daily-user-data-validation.service';
 import { UserProfile } from '../models/user.model';
 import { UserService } from '../../api/user.service';
-import { DailyUserDataService } from '../services/daily-user-data.service';
 import { DailyUserData } from '../models/daily-user-data.model';
+import { LocalStorageService } from '../../shared/services/local-storage.service';
+import { DailyUserDataService } from '../services/daily-user-data.service';
+import { mapFirestoreToProfile } from '../mappings/user-mapping';
+import { UserFitMetrics } from '../models/user-fit-metrics.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserFacade {
-  private _metrics = computed<UserFitMetrics | null>(() => null);
 
-  // daily data signals & derived values
-  private _daily = signal<DailyUserData | null>(null);
-  private _dailyLoading = signal(false);
+  private ls = inject(LocalStorageService);
 
-  // derived/computed values for the UI
-  readonly totalCalories = computed(() => {
-    const d = this._daily();
-    const macros = d?.macrosPct ?? { protein: 0, carbs: 0, fats: 0 };
-    const p = Number(macros.protein ?? 0);
-    const c = Number(macros.carbs ?? 0);
-    const f = Number(macros.fats ?? 0);
-    return Math.round(p * 4 + c * 4 + f * 9);
-  });
+  private userMetricsSrv = inject(UserMetricsService);
+  private userSrv = inject(UserService);
+  private dailyUserSrv = inject(DailyUserDataService);
 
-  readonly caloriesBurned = computed(() => Number(this._daily()?.caloriesBurned ?? 0));
+  private userValidationSrv = inject(UserValidationService);
+  private dailyValidationSrv = inject(DailyUserDataValidationService);
 
-  readonly netCalories = computed(
-    () => Math.max(0, this.totalCalories() - this.caloriesBurned()));
+  private userStore = inject(UserStore);
 
-  readonly waterConsumed = computed(() => Number(this._daily()?.waterConsumedL ?? 0));
+  // ========== Getters ==========
 
-  readonly waterTargetFromMetrics = computed(() => this._metrics()?.waterL ?? 0);
-
-  readonly waterProgress = computed(() => {
-    const target = this.waterTargetFromMetrics();
-    if (!target) return 0;
-    const pct = (this.waterConsumed() / target) * 100;
-    return Math.max(0, Math.min(100, Math.round(pct)));
-  });
-
-  readonly steps = computed(() => Number(this._daily()?.steps ?? 0));
-
-  readonly stepTarget = computed(() => Number(this._daily()?.stepTarget ?? 3000));
-
-  readonly stepsProgress = computed(() => {
-    const target = this.stepTarget();
-    const pct = (this.steps() / target) * 100;
-    return Math.max(0, Math.min(100, Math.round(pct)));
-  });
-
-
-  private initialized = false;
-
-  constructor(private store: UserStore,  private userService: UserService, private metricsSvc: UserMetricsService,
-    private validation: UserValidationService, private dailyValidation: DailyUserDataValidationService, private dailySvc: DailyUserDataService
-  ) {
-
-    if (!this.initialized) {
-
-      this.userService.getCurrentUser().then((u: UserProfile | null) => {
-        if (u) {
-          this.store.setUser(u);
-        }
-      });
-
-      this.initialized = true;
-    }
-
-
-
-
-
-    // initialize computed now that services are available
-    this._metrics = computed<UserFitMetrics | null>(() => {
-      const u = this.store.user();
-      if (!u) return null;
-      return this.metricsSvc.compute(u);
-    });
+  get todayDate() {
+    return this.dailyUserSrv.todayDate;
   }
 
-  // expose daily validators via facade so components can build form with rules
-  getDailyValidators() {
-    return this.dailyValidation;
+  get dailyData() {
+    return this.dailyUserSrv.daily;
   }
 
-  // expose small helpers for daily user data so components can remain thin
-  get todayDate(): string {
-    return this.dailySvc.todayDate;
+  get dailyDataLoading() {
+    return this.dailyUserSrv.loading;
   }
 
-  async getDailyData(dateIso?: string): Promise<DailyUserData | null> {
-    this._dailyLoading.set(true);
-    try {
-    const d = await this.dailySvc.getDailyUserData(dateIso);
-    this._daily.set(d);
-      return d;
-  } finally {
-      this._dailyLoading.set(false);
-    }
-}
-
-  async setDailyData(patch: Partial<DailyUserData>): Promise<DailyUserData> {
-    // persist and update internal signal
-    const updated = await this.dailySvc.setDailyUserData(patch);
-    this._daily.set(updated);
-    return updated;
+  get dailyDataValidation() {
+    return this.dailyValidationSrv;
   }
 
-  // signal accessors for components
-  get daily() {
-    return this._daily;
-  }
-
-  get dailyLoading() {
-    return this._dailyLoading;
-  }
-
-  async loadDaily() {
-    this._dailyLoading.set(true);
-    try {
-      const d = await this.dailySvc.getDailyUserData();
-      this._daily.set(d);
-    } finally {
-      this._dailyLoading.set(false);
-    }
-  }
-
-  async saveDaily(patch: Partial<DailyUserData>) {
-   // this._dailyLoading.set(true);
-    try {
-      const updated = await this.dailySvc.setDailyUserData(patch);
-      this._daily.set(updated);
-      return updated;
-    } finally {
-    //  this._dailyLoading.set(false);
-    }
-  }
-
-  // UI helpers that mutate the daily signal and persist
-  async addWater(deltaL: number) {
-    // Ensure we operate on the latest persisted/current daily data instead of a fresh default
-    let current = this._daily();
-    if (!current) {
-      // try to load persisted value first (localStorage / Firestore)
-      current = await this.dailySvc.getDailyUserData() ?? null;
-    }
-    const base = current ?? { waterConsumedL: 0, } as DailyUserData;
-
-    const next = Math.max(0, Number(base.waterConsumedL ?? 0) + deltaL);
-    const updated: Partial<DailyUserData> = { ...base, waterConsumedL: +next.toFixed(2) };
-    return this.saveDaily(updated);
-  }
-
-  async addSteps(delta: number) {
-    let current = this._daily();
-    if (!current) {
-      current = await this.dailySvc.getDailyUserData() ?? null;
-    }
-    const base = current ?? { steps: 0 } as DailyUserData;
-    const next = Math.max(0, Number(base.steps ?? 0) + delta);
-    const updated: Partial<DailyUserData> = { ...base, steps: next };
-    return this.saveDaily(updated);
-  }
-
-  async adjustCaloriesBurned(delta: number) {
-    let current = this._daily();
-    if (!current) {
-      current = await this.dailySvc.getDailyUserData() ?? null;
-    }
-    const base = current ?? { caloriesBurned: 0 } as DailyUserData;
-    const next = Math.max(0, Number(base.caloriesBurned ?? 0) + delta);
-    const updated: Partial<DailyUserData> = { ...base, caloriesBurned: next };
-    return this.saveDaily(updated);
-  }
-
-  // expose validators via facade so components stay thin
-  getValidators() {
-    return this.validation;
-  }
-
-  get user() {
-    return this.store.user;
-  }
-
-  get loading() {
-    return this.store.loading;
+  get dailyDataStats() {
+    return this.dailyUserSrv.stats;
   }
 
   get metrics() {
-    return this._metrics;
+    return this.userMetricsSrv.metrics;
   }
 
-  hydrateFromLocalStorage() {
-    this.store.hydrateFromLocalStorage();
+  get waterTargetFromMetrics() {
+    return this.userMetricsSrv.waterTarget;
   }
 
-  async loadUser() {
-    this.loading.set(true);
+  get waterProgress() {
+    return this.userMetricsSrv.waterProgress;
+  }
+
+  get user() {
+    return this.userStore.user;
+  }
+
+  get loading() {
+    return this.userStore.loading;
+  }
+
+  get userValidation() {
+    return this.userValidationSrv;
+  }
+
+
+
+  // ========== Initialization ==========
+
+  constructor() { }
+
+  public async loadCurrentUserFromFireStore(uid?: string): Promise<void> {
     try {
-      const u = await this.userService.getCurrentUser();
-      this.store.setUser(u);
+      const fsUser = uid ? await this.userSrv.getUserById(uid) : await this.userSrv.getCurrentUser();
+      if (fsUser != null) {
+        const mappedProfile = mapFirestoreToProfile(fsUser);
+        this.userStore.setUser(mappedProfile);
+        this.ls.set('user_profile_v1', mappedProfile);
+        this.userMetricsSrv.updateFromUser(mappedProfile);
+      }
+    } catch (err) {
+      console.warn('Failed to load current user from Firestore', err);
+    }
+  }
+
+
+  // ========== Daily User Data operations ==========
+
+  public async loadDailyFromFireStore(dateIso?: string): Promise<void> {
+    this.dailyUserSrv.loading.set(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const d = await this.userSrv.getDailyForDate(dateIso ?? this.todayDate);
+
+      this.dailyUserSrv.setDailyFromBackend(d);
     } finally {
-      this.loading.set(false);
+      this.dailyUserSrv.loading.set(false);
     }
   }
 
-  async updateProfile(patch: Partial<UserProfile>) {
-    this.loading.set(true);
+  public async saveDailyToFireStore(patch: Partial<DailyUserData>): Promise<void> {
+    this.dailyUserSrv.loading.set(true);
     try {
-      const updated = await this.userService.updateProfile(patch);
-      this.store.setUser(updated);
-      return updated;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      this.dailyUserSrv.setDailyFromPatch(patch);
+
+      const current = this.dailyUserSrv.daily();
+      if (!current) {
+        console.error('daily is null after setDailyFromPatch. This should not happen.');
+        return;
+      }
+
+      await this.userSrv.saveDailyForDate(current.date, current);
+    } finally {
+      this.dailyUserSrv.loading.set(false);
     }
-    catch(error)
-    {
-      console.error('Failed to update profile', error);
-      throw error;
+  }
+
+  public async resetDailyForDate(date: string): Promise<void> {
+    const today = this.dailyUserSrv.todayDate;
+    const existing = this.dailyUserSrv.daily();
+
+    if (date !== today) {
+      return;
     }
-    finally {
-      setTimeout(() => {
-        this.loading.set(false);
-      }, 2000);
+
+
+    this.dailyUserSrv.resetDaily(date);
+
+    if (!existing) {
+      return;
+    }
+
+    const resetValue = this.dailyUserSrv.daily();
+    if (!resetValue) return;
+
+    await this.userSrv.saveDailyForDate(date, resetValue);
+  }
+
+  public async saveUserProfile(patch: Partial<UserProfile>): Promise<void> {
+    this.userStore.loading.set(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      this.userStore.patchUser(patch);
+      const current = this.userStore.user();
+
+      if (!current) {
+        console.error('user is null after patchUser. This should not happen.');
+        return;
+      }
+
+      this.userMetricsSrv.updateFromUser(current);
+      const metrics = this.userMetricsSrv.metrics();
+
+      await this.userSrv.saveUserProfile(current, metrics);
+    } finally {
+      this.userStore.loading.set(false);
     }
   }
 
 
-  // small helper to format validation messages from validation service
-  getValidationMessage(controlName: string, errors: any) {
-    return this.validation.getErrorMessage(controlName, errors);
+  // === Domain logic delegations ===
+
+  public addWater(deltaL: number): void {
+    this.dailyUserSrv.addWater(deltaL);
   }
+
+  public addSteps(delta: number): void {
+    this.dailyUserSrv.addSteps(delta);
+  }
+
+  public adjustCaloriesBurned(delta: number): void {
+    this.dailyUserSrv.adjustCaloriesBurned(delta);
+  }
+
 }
