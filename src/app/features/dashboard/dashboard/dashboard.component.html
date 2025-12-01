@@ -1,0 +1,48 @@
+<div class="dashboard-root">
+  <div class="dashboard-header">
+    <h2>Dashboard</h2>
+    <mat-chip-set>
+      <mat-chip highlighted>{{ facade.todayDate }}</mat-chip>
+    </mat-chip-set>
+  </div>
+
+  <ng-container *ngIf="user() as u; else noData">
+    <ng-container *ngIf="metrics() as m">
+
+      <div class="dashboard-cards">
+        <mat-card class="stat-card">
+          <mat-card-title>Current weight</mat-card-title>
+          <mat-card-content>
+            <div class="stat-value">{{ u.weightKg }} <span class="muted">kg</span></div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-title>Goal calories</mat-card-title>
+          <mat-card-content>
+            <div class="stat-value">{{ m.goalCalories }} <span class="muted">kcal / day</span></div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-title>Water target</mat-card-title>
+          <mat-card-content>
+            <div class="stat-value">{{ m.waterL | number : '1.1-1' }} <span class="muted">L / day</span></div>
+            <p class="help-text">Try to keep water intake around your daily target.</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+    </ng-container>
+  </ng-container>
+
+  <ng-template #noData>
+    <mat-card color="warn">
+      <mat-card-content>
+        No user data available yet. Go to
+        <a routerLink="/user-profile">Profile</a>
+        to add your information.
+      </mat-card-content>
+    </mat-card>
+  </ng-template>
+</div>

@@ -1,15 +1,20 @@
-import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom, inject, provideAppInitializer } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+// Angular Material modules
+import { MaterialModule } from './core/material/material.module';
 
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { environment } from '../environments/environment';
 
 import { routes } from './app.routes';
+import { AccountFacade } from './core/facade/account.facade';
+import { getFirestore } from 'firebase/firestore';
+import { provideFirestore } from '@angular/fire/firestore';
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,10 +26,16 @@ export const appConfig: ApplicationConfig = {
       ToastrModule.forRoot({
         positionClass: 'toast-bottom-right',
         closeButton: true,
-      })
+      }),
+      // Provide MaterialModule (aggregated Material imports)
+      MaterialModule
     ),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
+    provideAppInitializer(() => {
+      const accountFacade = inject(AccountFacade);
+      return accountFacade.init();
+    }),
   ]
 };

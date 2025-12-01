@@ -1,0 +1,56 @@
+import { Component, inject, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { MaterialModule } from '../../core/material/material.module';
+import { HeaderComponent } from '../../shared/components/header/header.component';
+import { ProfileTabComponent } from './profile-tab/profile-tab.component';
+import { PhysicalTabComponent } from './physical-tab/physical-tab.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { AccountFacade } from '../../core/facade/account.facade';
+import { UserStore } from '../../core/store/user.store';
+
+@Component({
+  standalone: true,
+  selector: 'app-user-page',
+  imports: [CommonModule, RouterModule, MaterialModule, HeaderComponent, ProfileTabComponent, PhysicalTabComponent, FooterComponent],
+  templateUrl: './user-page.component.html',
+  styleUrl: './user-page.component.css'
+})
+export class UserPageComponent {
+  public accountFacade = inject(AccountFacade);
+  public userStore = inject(UserStore);
+
+  activeTab: 'profile' | 'physical' | 'workouts' | 'nutrition' | 'progress' | 'goals' | 'settings' | 'notifications' = 'profile';
+  sidebarCollapsed = false;
+
+  public avatarUrl = computed(() => {
+    const user = this.userStore.user();
+    const gender = user?.gender;
+
+    if (gender === 'female') {
+      return 'https://i.pravatar.cc/150?img=47';
+    } else if (gender === 'male') {
+      return 'https://i.pravatar.cc/150?img=12';
+    } else {
+      return 'https://i.pravatar.cc/150?img=68';
+    }
+  });
+
+  public displayName = computed(() => {
+    const user = this.userStore.user();
+    return user?.fullName || this.accountFacade.authUser()?.fullName || 'User';
+  });
+
+  public displayEmail = computed(() => {
+    const user = this.userStore.user();
+    return user?.email || this.accountFacade.authUser()?.email || '';
+  });
+
+  setActiveTab(tab: 'profile' | 'physical' | 'workouts' | 'nutrition' | 'progress' | 'goals' | 'settings' | 'notifications') {
+    this.activeTab = tab;
+  }
+
+  toggleSidebar() {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
+}

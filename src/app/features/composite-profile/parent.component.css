@@ -1,3 +1,0 @@
-.parent-grid{ display:flex; gap:16px; align-items:flex-start }
-.parent-grid .left{ flex:1 }
-.parent-grid .right{ width:320px }

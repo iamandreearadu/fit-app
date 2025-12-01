@@ -1,37 +1,35 @@
 import { Injectable } from '@angular/core';
-import { Validators, ValidatorFn, ValidationErrors } from '@angular/forms';
+import { Validators, ValidatorFn } from '@angular/forms';
+
+export interface UserValidators {
+  fullName: ValidatorFn[];
+  email: ValidatorFn[];
+  heightCm: ValidatorFn[];
+  weightKg: ValidatorFn[];
+  age: ValidatorFn[];
+  gender: ValidatorFn[];
+  activity: ValidatorFn[];
+  goal: ValidatorFn[];
+}
 
 @Injectable({
   providedIn: 'root'
 })
-
 export class UserValidationService {
   constructor() {}
 
-  getControlValidators(): Record<string, ValidatorFn[]> {
+  public getControlValidators(): UserValidators {
     return {
       fullName: [Validators.required, Validators.minLength(3)],
       email: [Validators.required, Validators.email],
-      heightCm: [Validators.min(50), Validators.max(250)],
-      weightKg: [Validators.min(0)],
-      age: [Validators.min(0), Validators.max(130)],
-      gender: [],
-      activity: [Validators.required],
-      goal: [Validators.required]
-    };
-  }
 
-  getErrorMessage(
-    controlName: string,
-    errors: ValidationErrors | null | undefined
-  ): string | null {
-    if (!errors) return null;
-    if (errors['required']) return 'This field is required';
-    if (errors['minlength'])
-      return `Minimum length is ${errors['minlength'].requiredLength}`;
-    if (errors['email']) return 'Invalid email address';
-    if (errors['min']) return `Value must be >= ${errors['min'].min}`;
-    if (errors['max']) return `Value must be <= ${errors['max'].max}`;
-    return 'Invalid value';
+      heightCm: [Validators.required, Validators.min(50), Validators.max(250)],
+      weightKg: [Validators.required, Validators.min(20), Validators.max(300)],
+      age: [Validators.required, Validators.min(1), Validators.max(120)],
+
+      gender: [],                  // select cu default valid
+      activity: [Validators.required],
+      goal: [Validators.required],
+    };
   }
 }

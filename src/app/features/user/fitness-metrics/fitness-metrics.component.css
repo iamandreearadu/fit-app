@@ -1,0 +1,104 @@
+.metrics-card {
+  position: sticky;
+  top: 24px;
+}
+
+.metrics-card ::ng-deep .mat-mdc-card-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #3f51b5;
+  padding-left: 12px;
+  padding-top: 12px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e8eaf6;
+  margin-bottom: 16px;
+}
+
+.metrics-card ::ng-deep .mat-mdc-card-content {
+  padding: 20px;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8eaf6 100%);
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+
+.metric-item:hover {
+  transform: translateX(4px);
+}
+
+.metric-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+}
+
+.metric-label mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #3f51b5;
+}
+
+.metric-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+}
+
+.metric-value .unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: #777;
+  margin-left: 2px;
+}
+
+.calculation-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px;
+  background: #fff3cd;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #856404;
+}
+
+.calculation-info mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.no-data-card ::ng-deep .mat-mdc-card-content {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.no-data-card mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #bbb;
+  margin-bottom: 16px;
+}
+
+.no-data-card p {
+  margin: 8px 0;
+  color: #666;
+}
+
+.no-data-card .hint {
+  font-size: 13px;
+  color: #999;
+}

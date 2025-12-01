@@ -1,0 +1,125 @@
+<div class="daily-root">
+  <div class="section-header">
+    <h2 class="section-title">Daily Tracker</h2>
+    <p class="section-subtitle">Track your daily activities, nutrition, and progress</p>
+  </div>
+
+  <div *ngIf="facade.dailyDataLoading()" class="loading-block">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  </div>
+
+  <ng-container *ngIf="!facade.dailyDataLoading()">
+    <form [formGroup]="form" class="daily-form" novalidate>
+
+      <div class="cards-row">
+        <mat-card class="card-col">
+          <mat-card-title>Today</mat-card-title>
+          <mat-card-content>
+            <div class="date-pill">{{ form.get('date')?.value }}</div>
+
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Date</mat-label>
+              <input matInput type="date" formControlName="date">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Activity Type</mat-label>
+              <mat-select formControlName="activityType">
+                <mat-option value="strength-training">Strength Training</mat-option>
+                <mat-option value="cardio">Cardio</mat-option>
+                <mat-option value="hiit-training">HIIT Training</mat-option>
+                <mat-option value="active-rest-day">Active Rest Day</mat-option>
+                <mat-option value="rest-day">Rest Day</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <p class="muted">Choose what kind of day this is so you can better track your habits.</p>
+
+            <div class="stat-row">
+              <span>Calories burned</span>
+              <strong>{{ facade.dailyDataStats().caloriesBurned }} kcal</strong>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Calories burned</mat-label>
+              <input matInput type="number" min="0" formControlName="caloriesBurned" placeholder="Enter burned kcal">
+            </mat-form-field>
+
+            <div class="btn-row">
+              <button mat-stroked-button color="primary" type="button" (click)="facade.adjustCaloriesBurned(200)">+200</button>
+              <button mat-stroked-button color="accent" type="button" (click)="facade.adjustCaloriesBurned(-200)">−200</button>
+            </div>
+
+            <div class="net-row">
+              <span>Net calories:</span>
+              <span [class.text-success]="facade.dailyDataStats().netCalories < facade.dailyDataStats().totalCalories" [class.text-danger]="facade.dailyDataStats().netCalories > facade.dailyDataStats().totalCalories">{{ facade.dailyDataStats().netCalories }} kcal</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="card-col">
+          <mat-card-title>Calories & Macros</mat-card-title>
+          <mat-card-content>
+            <p class="muted">Estimated calories for today</p>
+            <div class="big-number">{{ facade.dailyDataStats().totalCalories }} kcal</div>
+
+            <fieldset formGroupName="macrosPct" class="macros-fieldset">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Protein (g)</mat-label>
+                <input matInput type="number" formControlName="protein" min="0">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Carbs (g)</mat-label>
+                <input matInput type="number" formControlName="carbs" min="0">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Fats (g)</mat-label>
+                <input matInput type="number" formControlName="fats" min="0">
+              </mat-form-field>
+            </fieldset>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="card-col">
+          <mat-card-title>Water & Steps</mat-card-title>
+          <mat-card-content>
+            <div class="progress-header">
+              <span class="progress-label">Water Intake</span>
+              <span class="progress-value">{{ facade.dailyDataStats().waterConsumedL | number:'1.1-1' }} L / {{ facade.waterTargetFromMetrics() | number:'1.1-1' }} L</span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="facade.waterProgress()" class="custom-progress"></mat-progress-bar>
+            <div class="progress-percentage">{{ (facade.waterProgress() || 0) | number:'1.0-0' }}% complete</div>
+
+            <div class="btn-row">
+              <button mat-stroked-button color="primary" (click)="facade.addWater(0.25)">+250 ml</button>
+              <button mat-stroked-button color="primary" (click)="facade.addWater(0.5)">+500 ml</button>
+              <button mat-stroked-button color="warn" (click)="facade.addWater(-0.25)">−250 ml</button>
+            </div>
+
+            <div class="progress-header">
+              <span class="progress-label">Steps</span>
+              <span class="progress-value">{{ facade.dailyDataStats().steps | number:'1.0-0' }} / {{ facade.dailyDataStats().stepTarget | number:'1.0-0' }} steps</span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="facade.dailyDataStats().stepsProgress" class="custom-progress"></mat-progress-bar>
+            <div class="progress-percentage">{{ facade.dailyDataStats().stepsProgress | number:'1.0-0' }}% complete</div>
+
+            <div class="btn-row">
+              <button mat-stroked-button color="primary" (click)="facade.addSteps(500)">+500</button>
+              <button mat-stroked-button color="primary" (click)="facade.addSteps(1000)">+1000</button>
+              <button mat-stroked-button color="warn" (click)="facade.addSteps(-500)">−500</button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="action-row">
+        <button mat-flat-button color="primary" (click)="onSaveData()">Save</button>
+        <button *ngIf="isTodaySelected" mat-stroked-button (click)="onReset()">Reset</button>
+      </div>
+
+    </form>
+  </ng-container>
+
+</div>

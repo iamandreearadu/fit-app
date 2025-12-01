@@ -1,0 +1,68 @@
+<div class="auth-container">
+  <div class="auth-background">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <mat-card class="auth-card">
+    <div class="auth-header">
+      <div class="brand-icon" [routerLink]="['']">
+        <mat-icon>fitness_center</mat-icon>
+      </div>
+      <h1 class="auth-title">Welcome Back</h1>
+      <p class="auth-subtitle">Log in to continue your fitness journey</p>
+    </div>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email Address</mat-label>
+          <input matInput formControlName="email" type="email" placeholder="your.email@example.com">
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+            {{ formErrors.getMessage(form.get('email')?.errors) }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" formControlName="password" placeholder="Enter your password">
+          <mat-icon matPrefix>lock</mat-icon>
+          <mat-error *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
+            {{ formErrors.getMessage(form.get('password')?.errors) }}
+          </mat-error>
+        </mat-form-field>
+
+        <div class="forgot-password">
+          <a href="#" class="link">Forgot password?</a>
+        </div>
+
+        <button mat-flat-button color="primary" type="submit" class="submit-btn" [disabled]="facade.loading()">
+          <mat-icon *ngIf="!facade.loading()">login</mat-icon>
+          <mat-spinner *ngIf="facade.loading()" diameter="20"></mat-spinner>
+          <span>{{ facade.loading() ? 'Logging in...' : 'Log In' }}</span>
+        </button>
+
+        <div class="divider">
+          <span>or continue with</span>
+        </div>
+
+        <div class="social-buttons">
+          <button mat-stroked-button type="button" class="social-btn">
+            <mat-icon>g_translate</mat-icon>
+            Google
+          </button>
+          <button mat-stroked-button type="button" class="social-btn">
+            <mat-icon>apple</mat-icon>
+            Apple
+          </button>
+        </div>
+
+        <div class="auth-footer">
+          <p>Don't have an account? <a routerLink="/register" class="link-bold">Sign Up</a></p>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

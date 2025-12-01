@@ -1,0 +1,40 @@
+<section class="benefits-section">
+  <div class="benefits-content">
+    <div class="benefits-text">
+      <h2 class="section-title">Why Choose FitApp?</h2>
+      <p class="section-subtitle">Join thousands of users who are already achieving their fitness goals</p>
+
+      <div class="benefits-list">
+        <div *ngFor="let benefit of benefits" class="benefit-item">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ benefit }}</span>
+        </div>
+      </div>
+
+      <div class="benefits-cta" *ngIf="!accountFacade.authUser()">
+        <button mat-flat-button color="primary" routerLink="/register" class="large-cta">
+          Start Your Journey Today
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="benefits-visual">
+      <div class="visual-card">
+        <mat-icon>insights</mat-icon>
+        <h3>Track Everything</h3>
+        <p>Monitor your progress with detailed analytics and insights</p>
+      </div>
+      <div class="visual-card">
+        <mat-icon>verified</mat-icon>
+        <h3>Proven Results</h3>
+        <p>Science-backed metrics and calculations for accurate tracking</p>
+      </div>
+      <div class="visual-card">
+        <mat-icon>security</mat-icon>
+        <h3>Your Data is Safe</h3>
+        <p>Secure cloud storage with Firebase ensures your data is protected</p>
+      </div>
+    </div>
+  </div>
+</section>

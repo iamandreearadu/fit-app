@@ -1,19 +1,23 @@
 import { Routes } from '@angular/router';
-import { PageUserProfileComponent } from './features/user-profile/page-user-profile.component';
-import { ParentComponent } from './features/composite-profile/parent.component';
-import { HomeComponent } from './features/home/home.component';
-import { LoginComponent } from './core/components/login/login.component';
-import { RegisterComponent } from './core/components/register/register.component';
-import { AuthenticationGuard } from './core/guards/authentication.guard';
+import { LoginComponent } from './features/auth/login/login.component';
+import { RegisterComponent } from './features/auth/register/register.component';
 import { BlogComponent } from './features/blog/blog.component';
+import { AuthGuard } from './core/guards/auth.guard';
+import { GuestGuard } from './core/guards/guest.guard';
+import { UserPageComponent } from './features/user/user-page.component';
+import { DashboardPageComponent } from './features/dashboard/dashboard-page.component';
+import { HomePageComponent } from './features/home/home-page.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'page/user-profile', component: PageUserProfileComponent, canActivate: [AuthenticationGuard], data: { allowed: true } },
-  { path: 'parent/profile-user-data', component: ParentComponent, canActivate: [AuthenticationGuard], data: { allowed: true } },
-  { path: 'blog', component: BlogComponent, canActivate: [AuthenticationGuard], data: { allowed: true }},
-  { path: 'login', component: LoginComponent, canActivate: [AuthenticationGuard], data: { allowed: false } },
-  { path: 'register', component: RegisterComponent, canActivate: [AuthenticationGuard], data: { allowed: false } },
-  { path: '', redirectTo: '', pathMatch: 'full' },
+
+  { path: '', component: HomePageComponent },
+  { path: 'blog', component: BlogComponent },
+
+  { path: 'user-profile', component: UserPageComponent, canActivate: [AuthGuard] },
+  { path: 'user-dashboard', component: DashboardPageComponent, canActivate: [AuthGuard] },
+
+  { path: 'login', component: LoginComponent, canActivate: [GuestGuard] },
+  { path: 'register', component: RegisterComponent, canActivate: [GuestGuard] },
+
   { path: '**', redirectTo: '' },
 ];
