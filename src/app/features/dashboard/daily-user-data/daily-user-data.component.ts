@@ -20,6 +20,8 @@ export class DailyUserDataComponent implements OnInit {
   public facade = inject(UserFacade);
   private fb = inject(FormBuilder)
 
+  public history = this.facade.history;
+
   constructor() {
     this.form = this.buildForm();
     this.setupDailyEffect();
@@ -27,6 +29,7 @@ export class DailyUserDataComponent implements OnInit {
 
   ngOnInit(): void {
     this.facade.loadDailyFromFireStore();
+
   }
 
   // ========== Event handlers ==========
@@ -64,15 +67,15 @@ export class DailyUserDataComponent implements OnInit {
     return this.fb.group({
       date: [this.facade.todayDate, v.date ?? []],
       activityType: ['Rest Day'],
-      waterConsumedL: [0, v.waterConsumedL ?? []],
-      steps: [0, v.steps ?? []],
+      waterConsumedL: [this.facade.waterProgress, v.waterConsumedL ?? []],
+      steps: [this.facade.addSteps, v.steps ?? []],
       stepTarget: [3000, v.stepTarget ?? []],
       macrosPct: this.fb.group({
         protein: [0, v.macrosPct?.protein ?? []],
         carbs: [0, v.macrosPct?.carbs ?? []],
         fats: [0, v.macrosPct?.fats ?? []],
       }),
-      caloriesBurned: [0, v.caloriesBurned ?? []],
+      caloriesBurned: [this.facade.adjustCaloriesBurned, v.caloriesBurned ?? []],
       caloriesIntake: [0, v.caloriesIntake ?? []],
       caloriesTotal: [0, v.caloriesTotal ?? []],
     });

@@ -19,6 +19,9 @@ export class DailyUserDataService {
     this.computeStats(this._daily())
   );
 
+ readonly history = signal<DailyUserData[]>([]);
+
+
   // ----------------- PUBLIC API -----------------
 
 
@@ -46,6 +49,11 @@ export class DailyUserDataService {
       caloriesTotal: 0
     });
   }
+
+    public setHistory(list: DailyUserData[]) {
+    this.history.set(list);
+    }
+
 
 
   // ----------------- PUBLIC API (mutations) -----------------
@@ -127,7 +135,7 @@ export class DailyUserDataService {
         );
 
     const caloriesBurned = Number(patch.caloriesBurned ?? existing?.caloriesBurned ?? 0);
-
+//
     const result: DailyUserData = {
       date: baseDate,
       activityType: patch.activityType ?? existing?.activityType ?? 'Rest Day',
@@ -135,8 +143,8 @@ export class DailyUserDataService {
       steps: Number(patch.steps ?? existing?.steps ?? 0),
       stepTarget: Number(patch.stepTarget ?? existing?.stepTarget ?? 3000),
       macrosPct: macros,
-      caloriesIntake,
-      caloriesBurned,
+      caloriesIntake: caloriesIntake,
+      caloriesBurned: caloriesBurned,
       caloriesTotal: this.caloriesTotal(caloriesIntake, caloriesBurned),
     };
 

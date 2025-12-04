@@ -9,7 +9,6 @@ import { DailyUserData } from '../models/daily-user-data.model';
 import { LocalStorageService } from '../../shared/services/local-storage.service';
 import { DailyUserDataService } from '../services/daily-user-data.service';
 import { mapFirestoreToProfile } from '../mappings/user-mapping';
-import { UserFitMetrics } from '../models/user-fit-metrics.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserFacade {
@@ -71,7 +70,9 @@ export class UserFacade {
     return this.userValidationSrv;
   }
 
-
+  get history(){
+    return this.dailyUserSrv.history;
+  }
 
   // ========== Initialization ==========
 
@@ -168,6 +169,18 @@ export class UserFacade {
       this.userStore.loading.set(false);
     }
   }
+
+  public async loadDailyHistory(): Promise<DailyUserData[]> {
+  try {
+    const h = await this.userSrv.getAllPreviousData();
+    this.dailyUserSrv.setHistory(h);
+    return h;
+
+  } catch (err) {
+    console.warn("Failed to load daily history", err);
+    return [];
+  }
+}
 
 
   // === Domain logic delegations ===

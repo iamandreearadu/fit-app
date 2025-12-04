@@ -1,4 +1,5 @@
 export interface BlogPost {
+    uid?: string;
 id: number;
 title: string;
 caption: string;

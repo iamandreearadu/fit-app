@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { doc, Firestore, getDoc, serverTimestamp, setDoc } from "@angular/fire/firestore";
+import { collection, doc, Firestore, getDoc, getDocs, serverTimestamp, setDoc } from "@angular/fire/firestore";
 import { Auth, User } from "@angular/fire/auth";
 import { AlertService } from "../shared/services/alert.service";
 import { UserFirestore } from "../core/models/user-firestore.model";
@@ -157,4 +157,40 @@ export class UserService {
     }
   }
 
+
+public async getAllPreviousData(): Promise<DailyUserData[]> {
+  try {
+    const fbUser = this.getAuthUser();
+    if (!fbUser) return [];
+
+    const ref = collection(this.firestore, `users/${fbUser.uid}/daily`);
+    const snap = await getDocs(ref);
+
+    const items: DailyUserData[] = [];
+
+    snap.forEach(d => {
+      const data = d.data() as any;
+
+      items.push({
+        date: data.date,
+        activityType: data.activityType ?? 'Rest Day',
+        caloriesBurned: data.caloriesBurned ?? 0,
+        caloriesIntake: data.caloriesIntake ?? 0,
+        caloriesTotal: data.caloriesTotal ?? 0,
+        waterConsumedL: data.waterConsumedL ?? 0,
+        steps: data.steps ?? 0,
+        stepTarget: data.stepTarget ?? 3000,
+        macrosPct: data.macrosPct ?? { protein: 0, carbs: 0, fats: 0 },
+      });
+    });
+
+    // sort desc — cea mai recentă zi prima
+    return items.sort((a,b) => b.date.localeCompare(a.date));
+
+  } catch (err) {
+    this.alerts.warn("Failed to load daily history", String(err));
+    return [];
+  }
+
+}
 }

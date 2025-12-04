@@ -1,0 +1,105 @@
+<div class="previous-container">
+
+  <h2 class="title">Previous Days</h2>
+
+  <div class="timeline">
+
+    <!-- Days -->
+    <ng-container *ngFor="let d of history()">
+      <div class="timeline-item" (click)="openDay(d)">
+
+        <mat-card class="day-card" appearance="outlined">
+
+          <mat-card-content>
+            <div class="day-header">
+              <span class="day-date">
+                {{ d.date | date:'dd MMM yyyy' }}
+              </span>
+          
+              <div class="day-meta">
+              <div class="meta-item">
+                <mat-icon>directions_walk</mat-icon>
+                <span>{{ d.steps || 0 }}</span>
+              </div>
+
+              <div class="meta-item">
+                <mat-icon>local_fire_department</mat-icon>
+                <span>{{ d.caloriesTotal || 0 }}</span>
+              </div>
+             </div>
+                         
+              <mat-icon class="arrow">chevron_right</mat-icon>
+
+            </div>
+
+        
+          </mat-card-content>
+
+        </mat-card>
+
+      </div>
+    </ng-container>
+
+  </div>
+
+</div>
+
+
+<!-- MODAL BACKDROP -->
+<div *ngIf="selectedDay"
+     class="modal-backdrop"
+     (click)="closeModal()">
+
+  <!-- MODAL CARD -->
+  <mat-card class="modal-card" (click)="$event.stopPropagation()">
+
+    <mat-card-header>
+      <mat-card-title class="modal-title">
+        {{ selectedDay.date | date:'dd MMM yyyy' }}
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content class="modal-content">
+
+      <div class="modal-row">
+        <span>Steps</span>
+        <strong>{{ selectedDay.steps }}</strong>
+      </div>
+
+      <div class="modal-row">
+        <span>Calories Intake</span>
+        <strong>{{ selectedDay.caloriesIntake }}</strong>
+      </div>
+
+      <div class="modal-row">
+        <span>Calories Burned</span>
+        <strong>{{ selectedDay.caloriesBurned }}</strong>
+      </div>
+
+      <div class="modal-row">
+        <span>Total Calories</span>
+        <strong>{{ selectedDay.caloriesTotal }}</strong>
+      </div>
+
+      <div class="modal-row">
+        <span>Water Consumed (L)</span>
+        <strong>{{ selectedDay.waterConsumedL }}</strong>
+      </div>
+
+      <div class="modal-row">
+        <span>Activity</span>
+        <strong>{{ selectedDay.activityType }}</strong>
+      </div>
+
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-stroked-button color="primary" class="close-btn" (click)="closeModal()">
+        <mat-icon>close</mat-icon>
+        Close
+      </button>
+    </mat-card-actions>
+
+  </mat-card>
+
+</div>

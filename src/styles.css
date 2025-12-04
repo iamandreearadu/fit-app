@@ -34,7 +34,7 @@ app-root {
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 14px;
   height: 12px;
 }
 
@@ -60,8 +60,3 @@ app-root {
   background: linear-gradient(135deg, #4a5bc4 0%, #5d367d 100%);
 }
 
-/* Firefox scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #667eea #f1f1f1;
-}

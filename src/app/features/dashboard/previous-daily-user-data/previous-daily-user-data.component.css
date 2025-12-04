@@ -1,0 +1,152 @@
+
+/* Container */
+.previous-container {
+  padding: 24px;
+  max-width: 800px;
+  margin: auto;
+  color: white;
+}
+
+.previous-container {
+  padding: 24px;
+  max-width: calc(100% - 100px);
+  width: 1400px;
+  margin: 40px auto;
+  background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+}
+
+
+.title {
+  margin: 32px 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a237e;
+  letter-spacing: -0.5px;
+  text-align: center;
+ border-bottom: 2px solid #e0e0e0;
+ padding-bottom: 24px;
+}
+
+/* Timeline wrapper */
+.timeline {
+ max-width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+
+/* Timeline Item */
+.timeline-item {
+  padding: 0 12px ;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Card */
+.day-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 14px;
+  border: 1px solid #cecece;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.day-card:hover {
+  transform: scale(1.015);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.day-date {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.arrow {
+  color: #bbb;
+}
+
+/* Meta info */
+.day-meta {
+  margin-top: 10px;
+  display: flex;
+  gap: 20px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.8;
+}
+
+.meta-item mat-icon {
+  font-size: 18px;
+}
+
+
+/* MODAL */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  animation: fadeIn .25s ease-out;
+}
+
+.modal-card {
+  width: 90%;
+  max-width: 450px;
+  background: #fafafa;
+  border-radius: 18px;
+  border: 1px solid #b6b6b6;
+  padding: 20px;
+  animation: slideUp .25s ease-out;
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.modal-content {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-row {
+  display: flex;
+  justify-content: space-between;
+  opacity: 0.9;
+  font-size: 15px;
+}
+
+.close-btn mat-icon {
+  margin-right: 6px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to   { opacity: 1 }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

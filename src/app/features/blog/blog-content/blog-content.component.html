@@ -49,7 +49,7 @@
             <mat-icon>edit</mat-icon>
             Edit
           </button>
-          <button *ngIf="isOwner" mat-icon-button color="warn" (click)="deletePost()">
+          <button *ngIf="isOwner" mat-icon-button color="warn" (click)="deletePost(p.uid)">
             <mat-icon>delete</mat-icon>
           </button>
         </div>

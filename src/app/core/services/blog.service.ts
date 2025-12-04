@@ -1,4 +1,4 @@
-import { inject, Injectable } from "@angular/core";
+import { inject, Injectable, signal } from "@angular/core";
 import { Firestore } from '@angular/fire/firestore';
 import { doc, getDoc, addDoc, collection, serverTimestamp, getDocs, query, orderBy, updateDoc, where, deleteDoc } from 'firebase/firestore';
 import { AlertService } from "../../shared/services/alert.service";
@@ -10,6 +10,9 @@ import { BlogPost } from "../models/blog.model";
 })
 
 export class BlogService {
+
+readonly loading = signal(false);
+
 private firestore = inject(Firestore);
 private alerts = inject(AlertService);
 private auth = inject<Auth>(Auth);
@@ -23,6 +26,7 @@ private auth = inject<Auth>(Auth);
             const d = snap.data() as any;
             // map Firestore document to BlogPost
             const post: BlogPost = {
+                uid: ref.id,
                 id: Number(d.id ?? Date.now()),
                 title: d.title ?? '',
                 caption: d.caption ?? '',
@@ -49,6 +53,7 @@ private auth = inject<Auth>(Auth);
             snaps.forEach((s: any) => {
                 const d = s.data();
                 posts.push({
+                    uid: s.id,
                     id: Number(d.id ?? Date.now()),
                     title: d.title ?? '',
                     caption: d.caption ?? '',
@@ -78,6 +83,7 @@ private auth = inject<Auth>(Auth);
             if (!snap.exists()) return null;
             const d = snap.data() as any;
             const post: BlogPost = {
+                uid: ref.id,
                 id: Number(d.id ?? Date.now()),
                 title: d.title ?? '',
                 caption: d.caption ?? '',
@@ -108,6 +114,7 @@ private auth = inject<Auth>(Auth);
             if (!snap.exists()) return null;
             const d = snap.data() as any;
             const post: BlogPost = {
+                 uid: ref.id,
                 id: Number(d.id ?? Date.now()),
                 title: d.title ?? '',
                 caption: d.caption ?? '',
@@ -148,6 +155,7 @@ private auth = inject<Auth>(Auth);
             if (!snap.exists()) return null;
             const d = snap.data() as any;
             const post: BlogPost = {
+                uid: ref.id,
                 id: Number(d.id ?? Date.now()),
                 title: d.title ?? '',
                 caption: d.caption ?? '',
@@ -165,16 +173,23 @@ private auth = inject<Auth>(Auth);
         }
     }
 
-   async deletePost(id: number): Promise<boolean>{
-    try{
-        if(!id) return false;
-        const ref = doc(this.firestore as any, `blog/${id}`) as any;
-        await deleteDoc(ref);
-        this.alerts?.success('Blog post deleted');
-        return true;
-    } catch(err){
-        console.error('BlogService.deletePost error', err);
-        this.alerts?.warn('Failed to delete blog post', (err as any)?.message ?? String(err));
-        return false;
-    }    }
+
+
+ async deletePostByUid(uid: string): Promise<boolean> {
+  try {
+    if (!uid) return false;
+
+    await deleteDoc(doc(this.firestore, 'blog', uid));
+
+    this.alerts?.success('Blog post deleted');
+    return true;
+  } catch (err) {
+     console.error('BlogService.deletePost error', err);
+    this.alerts?.warn('Failed to delete blog post', (err as any)?.message ?? String(err));
+    return false;
+  }
+}
+   
+
+
 }
