@@ -4,11 +4,8 @@
     <p class="section-subtitle">Track your daily activities, nutrition, and progress</p>
   </div>
 
-  <div *ngIf="facade.dailyDataLoading()" class="loading-block">
-    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-  </div>
-
-  <ng-container *ngIf="!facade.dailyDataLoading()">
+  <!-- Keep the form in the DOM to preserve layout height; show an overlay spinner while loading -->
+  <div class="daily-content-wrapper" [class.loading]="facade.dailyDataLoading()">
     <form [formGroup]="form" class="daily-form" novalidate>
 
       <div class="cards-row">
@@ -46,8 +43,8 @@
             </mat-form-field>
 
             <div class="btn-row">
-              <button mat-stroked-button color="primary" type="button" (click)="facade.adjustCaloriesBurned(200)">+200</button>
-              <button mat-stroked-button color="accent" type="button" (click)="facade.adjustCaloriesBurned(-200)">−200</button>
+              <button mat-stroked-button color="primary" type="button" (click)="adjustCaloriesBurned(200)">+200</button>
+              <button mat-stroked-button color="accent" type="button" (click)="adjustCaloriesBurned(-200)">−200</button>
             </div>
 
             <div class="net-row">
@@ -80,7 +77,7 @@
               </mat-form-field>
             </fieldset>
 
-      
+
 
           </mat-card-content>
         </mat-card>
@@ -123,6 +120,10 @@
       </div>
 
     </form>
-  </ng-container>
+
+    <div *ngIf="facade.dailyDataLoading()" class="loading-overlay">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    </div>
+  </div>
 
 </div>

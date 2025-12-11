@@ -170,23 +170,24 @@ export class UserFacade {
     }
   }
 
-  public async loadDailyHistory(): Promise<DailyUserData[]> {
-  try {
-    const h = await this.userSrv.getAllPreviousData();
-    this.dailyUserSrv.setHistory(h);
-    return h;
+  public async loadDailyHistory(): Promise<void> {
+    try {
+      const h = await this.userSrv.getAllPreviousData();
+      this.dailyUserSrv.setHistory(h);
 
-  } catch (err) {
-    console.warn("Failed to load daily history", err);
-    return [];
+    } catch (err) {
+      console.warn("Failed to load daily history", err);
+    }
   }
-}
 
 
   // === Domain logic delegations ===
 
   public addWater(deltaL: number): void {
     this.dailyUserSrv.addWater(deltaL);
+    // Sync the metrics service so waterProgress updates immediately
+    const current = this.dailyUserSrv.daily();
+    this.userMetricsSrv.updateWaterConsumed(current?.waterConsumedL ?? 0);
   }
 
   public addSteps(delta: number): void {

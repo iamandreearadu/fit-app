@@ -44,6 +44,33 @@
   padding: 60px;
 }
 
+/* Keep layout space during loading and show overlay */
+.daily-content-wrapper {
+  position: relative;
+  /* ensure the main content keeps reasonable height while loading */
+  min-height: 420px;
+}
+
+.daily-content-wrapper.loading {
+  /* optionally dim background when loading */
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.28);
+  border-radius: 12px;
+  z-index: 30;
+}
+
+.loading-overlay mat-progress-spinner {
+  width: 64px;
+  height: 64px;
+}
+
 .daily-form {
   width: 100%;
 }

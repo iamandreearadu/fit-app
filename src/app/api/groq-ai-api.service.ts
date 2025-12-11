@@ -1,21 +1,19 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { GroqChatResponse } from '../models/groq-ai.model';
-
+import { environment } from '../../environments/environment';
+import { GroqChatResponse } from '../core/models/groq-ai.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GroqService {
+export class GroqAiApiService {
 
   private readonly apiKey = environment.groqApiKey;
   private readonly baseUrl = environment.groqApiUrl;
 
   constructor(private http: HttpClient) {}
 
-  // ========== TEXT ONLY CHAT ==========
   async askText(prompt: string): Promise<string> {
     const url = `${this.baseUrl}/chat/completions`;
 
@@ -25,7 +23,6 @@ export class GroqService {
     });
 
     const body = {
-     // model: 'llama-3.3-70b-specdec',   // un model text-only rapid
       model:'llama-3.1-8b-instant',
 
       messages: [
@@ -41,7 +38,6 @@ export class GroqService {
     return this.extractText(res);
   }
 
-  // ========== TEXT + IMAGE (VISION) ==========
   async analyzeImage(prompt: string, file: File): Promise<string> {
     const url = `${this.baseUrl}/chat/completions`;
 
@@ -50,7 +46,6 @@ export class GroqService {
       'Authorization': `Bearer ${this.apiKey}`,
     });
 
-    // convertim fișierul în base64 → data URL, exact ca în exemplele Groq
     const base64 = await this.fileToBase64(file);
     const dataUrl = `data:${file.type};base64,${base64}`;
 

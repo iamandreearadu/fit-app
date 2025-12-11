@@ -2,11 +2,10 @@
 
   <h2 class="ai-title">AI Assistant</h2>
 
-  <!-- Conversation list -->
   <div class="conv-list" *ngIf="facade.conversations() as convs">
     <h3>Conversations</h3>
 
-    <button 
+    <button
       *ngFor="let c of convs"
       mat-stroked-button
       class="conv-btn"
@@ -15,7 +14,6 @@
     </button>
   </div>
 
-  <!-- CHAT WINDOW -->
   <div class="chat-window" *ngIf="facade.messages() as msgs">
     <div *ngFor="let msg of msgs" [ngClass]="msg.role === 'user' ? 'bubble user' : 'bubble ai'">
       <p>{{ msg.content }}</p>
@@ -23,7 +21,6 @@
     </div>
   </div>
 
-  <!-- AI INPUT CARD -->
   <mat-card class="ai-card">
 
     <mat-form-field appearance="outline" class="full-width ai-field">
@@ -35,39 +32,33 @@
         (keydown)="onKeyDown($event)"
         placeholder="Type here… or upload an image to analyze"
         [disabled]="facade.loading()"
->
+      >
       </textarea>
     </mat-form-field>
 
 
-    <!-- IMAGE + SEND ON SAME ROW -->
-<div class="input-row">
+  <div class="input-row">
 
-  <!-- Upload button -->
-  <button mat-stroked-button color="primary" class="upload-btn" (click)="fileInput.click()">
-    <mat-icon>photo</mat-icon>
-  </button>
+    <button mat-stroked-button color="primary" class="upload-btn" (click)="fileInput.click()">
+      <mat-icon>photo</mat-icon>
+    </button>
 
-  <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)" />
+    <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)" />
 
-  <!-- Filename -->
-  <span *ngIf="imageFile" class="filename">{{ imageFile.name }}</span>
+    <span *ngIf="imageFile" class="filename">{{ imageFile.name }}</span>
 
-  <!-- Spacer -->
-  <div class="flex-spacer"></div>
+    <div class="flex-spacer"></div>
 
-  <!-- SEND BUTTON -->
-  <button 
-    mat-flat-button 
-    color="primary"
-    class="send-btn"
-    [disabled]="facade.loading() || (!prompt.trim() && !imageFile)"
-    (click)="send()">
-    <mat-icon>{{ facade.loading() ? 'sync' : 'send' }}</mat-icon>
-  </button>
+    <button
+      mat-flat-button
+      color="primary"
+      class="send-btn"
+      [disabled]="facade.loading() || (!prompt.trim() && !imageFile)"
+      (click)="send()">
+      <mat-icon>{{ facade.loading() ? 'sync' : 'send' }}</mat-icon>
+    </button>
 
-</div>
-
+  </div>
 
   </mat-card>
 </div>

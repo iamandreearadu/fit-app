@@ -11,7 +11,7 @@ import { MaterialModule } from '../../../core/material/material.module';
   imports: [CommonModule, ReactiveFormsModule, MaterialModule],
   host: { class: 'd-block' },
   templateUrl: './daily-user-data.component.html',
-  styleUrl: './daily-user-data.component.css'
+  styleUrls: ['./daily-user-data.component.css']
 })
 export class DailyUserDataComponent implements OnInit {
 
@@ -66,18 +66,27 @@ export class DailyUserDataComponent implements OnInit {
     return this.fb.group({
       date: [this.facade.todayDate, v.date ?? []],
       activityType: ['Rest Day'],
-      waterConsumedL: [this.facade.waterProgress, v.waterConsumedL ?? []],
-      steps: [this.facade.addSteps, v.steps ?? []],
+      waterConsumedL: [0, v.waterConsumedL ?? []],
+      steps: [0, v.steps ?? []],
       stepTarget: [3000, v.stepTarget ?? []],
       macrosPct: this.fb.group({
         protein: [0, v.macrosPct?.protein ?? []],
         carbs: [0, v.macrosPct?.carbs ?? []],
         fats: [0, v.macrosPct?.fats ?? []],
       }),
-      caloriesBurned: [this.facade.adjustCaloriesBurned, v.caloriesBurned ?? []],
+      caloriesBurned: [0, v.caloriesBurned ?? []],
       caloriesIntake: [0, v.caloriesIntake ?? []],
       caloriesTotal: [0, v.caloriesTotal ?? []],
     });
+  }
+
+  public adjustCaloriesBurned(delta: number): void {
+    const ctrl = this.form.get('caloriesBurned');
+    if (!ctrl) return;
+
+    const current = Number(ctrl.value ?? 0);
+    const next = Math.max(0, current + delta);
+    ctrl.setValue(next);
   }
 
   private setupDailyEffect() {
