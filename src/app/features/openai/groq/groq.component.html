@@ -1,0 +1,73 @@
+<div class="ai-container">
+
+  <h2 class="ai-title">AI Assistant</h2>
+
+  <!-- Conversation list -->
+  <div class="conv-list" *ngIf="facade.conversations() as convs">
+    <h3>Conversations</h3>
+
+    <button 
+      *ngFor="let c of convs"
+      mat-stroked-button
+      class="conv-btn"
+      (click)="openConversation(c.id)">
+      {{ c.createdAt | date:'short' }}
+    </button>
+  </div>
+
+  <!-- CHAT WINDOW -->
+  <div class="chat-window" *ngIf="facade.messages() as msgs">
+    <div *ngFor="let msg of msgs" [ngClass]="msg.role === 'user' ? 'bubble user' : 'bubble ai'">
+      <p>{{ msg.content }}</p>
+      <span class="time">{{ msg.timestamp | date:'shortTime' }}</span>
+    </div>
+  </div>
+
+  <!-- AI INPUT CARD -->
+  <mat-card class="ai-card">
+
+    <mat-form-field appearance="outline" class="full-width ai-field">
+      <mat-label>Your message</mat-label>
+      <textarea
+        matInput
+        rows="3"
+        [(ngModel)]="prompt"
+        (keydown)="onKeyDown($event)"
+        placeholder="Type here… or upload an image to analyze"
+        [disabled]="facade.loading()"
+>
+      </textarea>
+    </mat-form-field>
+
+
+    <!-- IMAGE + SEND ON SAME ROW -->
+<div class="input-row">
+
+  <!-- Upload button -->
+  <button mat-stroked-button color="primary" class="upload-btn" (click)="fileInput.click()">
+    <mat-icon>photo</mat-icon>
+  </button>
+
+  <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)" />
+
+  <!-- Filename -->
+  <span *ngIf="imageFile" class="filename">{{ imageFile.name }}</span>
+
+  <!-- Spacer -->
+  <div class="flex-spacer"></div>
+
+  <!-- SEND BUTTON -->
+  <button 
+    mat-flat-button 
+    color="primary"
+    class="send-btn"
+    [disabled]="facade.loading() || (!prompt.trim() && !imageFile)"
+    (click)="send()">
+    <mat-icon>{{ facade.loading() ? 'sync' : 'send' }}</mat-icon>
+  </button>
+
+</div>
+
+
+  </mat-card>
+</div>

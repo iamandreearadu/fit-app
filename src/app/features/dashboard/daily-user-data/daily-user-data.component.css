@@ -1,35 +1,42 @@
+
 .daily-root {
   padding: 24px;
   max-width: calc(100% - 100px);
   width: 1400px;
   margin: 40px auto;
-  background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.06) 100%
+  );
   border-radius: 12px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
 }
 
+/* HEADER */
 .section-header {
   text-align: center;
   margin-bottom: 32px;
   padding-bottom: 24px;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid var(--white-fade);
 }
 
 .section-title {
   margin: 0 0 8px 0;
   font-size: 32px;
   font-weight: 600;
-  color: #1a237e;
+  color: var(--white);
   letter-spacing: -0.5px;
 }
 
 .section-subtitle {
   margin: 0;
   font-size: 16px;
-  color: #666;
+  color: var(--white-soft);
   font-weight: 400;
 }
 
+/* LOADING BLOCK */
 .loading-block {
   display: flex;
   justify-content: center;
@@ -41,6 +48,7 @@
   width: 100%;
 }
 
+/* CARDS GRID */
 .cards-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -52,12 +60,15 @@
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  background: rgba(255,255,255,0.04);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
 }
 
 .card-col:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
 }
 
 .card-col ::ng-deep .mat-mdc-card-title {
@@ -67,11 +78,12 @@
   padding-bottom: 12px;
   padding-left: 12px;
   padding-top: 12px;
-  color: #3f51b5;
-  border-bottom: 2px solid #e8eaf6;
+  color: var(--primary);
+  border-bottom: 2px solid rgba(255,255,255,0.08);
   letter-spacing: 0.3px;
 }
 
+/* CARD CONTENT */
 .card-col mat-card-content {
   flex: 1;
   display: flex;
@@ -79,49 +91,53 @@
   gap: 16px;
 }
 
+/* DATE PILL */
 .date-pill {
   display: inline-block;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-glow) 100%);
+  color: var(--white);
   border-radius: 20px;
   font-weight: 500;
   font-size: 14px;
   margin-bottom: 8px;
 }
 
+/* TEXT */
 .full-width {
   width: 100%;
 }
 
 .muted {
-  color: #666;
+  color: var(--white-soft);
   font-size: 13px;
   margin: 0;
   line-height: 1.5;
 }
 
+/* STAT ITEMS */
 .stat-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px;
-  background: #f5f5f5;
+  background: rgba(255,255,255,0.06);
   border-radius: 8px;
   margin: 8px 0;
 }
 
 .stat-row span {
   font-size: 14px;
-  color: #666;
+  color: var(--white-soft);
 }
 
 .stat-row strong {
   font-size: 18px;
-  color: #333;
+  color: var(--white);
   font-weight: 600;
 }
 
+/* BUTTON ROW */
 .btn-row {
   display: flex;
   gap: 8px;
@@ -133,12 +149,17 @@
   min-width: 80px;
 }
 
+/* NET-ROW */
 .net-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.05) 0%,
+    rgba(255,255,255,0.12) 100%
+  );
   border-radius: 8px;
   margin-top: 8px;
   font-weight: 500;
@@ -148,6 +169,7 @@
   font-size: 15px;
 }
 
+/* SUCCESS / DANGER TEXT */
 .text-success {
   color: #4caf50;
   font-weight: 600;
@@ -158,17 +180,19 @@
   font-weight: 600;
 }
 
+/* BIG NUMBER */
 .big-number {
   font-size: 32px;
   font-weight: 700;
-  color: #3f51b5;
+  color: var(--primary);
   margin: 12px 0;
   text-align: center;
   padding: 16px;
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  background: rgba(255,255,255,0.08);
   border-radius: 12px;
 }
 
+/* MACROS FIELDSET */
 .macros-fieldset {
   border: none;
   padding: 0;
@@ -178,6 +202,7 @@
   gap: 12px;
 }
 
+/* PROGRESS BARS */
 .progress-header {
   display: flex;
   justify-content: space-between;
@@ -189,7 +214,7 @@
 .progress-label {
   font-size: 14px;
   font-weight: 600;
-  color: #444;
+  color: var(--white);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -197,7 +222,7 @@
 .progress-value {
   font-size: 15px;
   font-weight: 600;
-  color: #3f51b5;
+  color: var(--primary);
 }
 
 .custom-progress {
@@ -210,11 +235,12 @@
   background-color: #4caf50;
 }
 
+/* Percentage text */
 .progress-percentage {
   display: block;
   text-align: right;
   font-size: 13px;
-  color: #666;
+  color: var(--white-soft);
   margin-top: 4px;
   margin-bottom: 8px;
   font-weight: 500;
@@ -227,12 +253,18 @@ mat-progress-bar {
   border-radius: 4px;
 }
 
+mat-label{
+  color: var(--white-soft);
+
+}
+
+/* ACTION ROW */
 .action-row {
   display: flex;
   gap: 16px;
   justify-content: flex-end;
   padding: 24px;
-  background: #fafafa;
+  background: rgba(255,255,255,0.04);
   border-radius: 8px;
   margin-top: 24px;
 }
@@ -244,7 +276,15 @@ mat-progress-bar {
   font-weight: 500;
 }
 
-/* Responsive adjustments */
+/* Angular Material filled background */
+.daily-root ::ng-deep .mat-mdc-text-field-wrapper {
+  background: rgba(255,255,255,0.05) !important;
+  border-radius: 8px !important;
+}
+
+
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .daily-root {
     padding: 16px;

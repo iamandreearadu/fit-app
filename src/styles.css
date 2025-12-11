@@ -1,8 +1,37 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,700,900');
 
+/* GLOBAL VARIABLES */
+:root {
+  --primary: #7C4DFF;
+  --primary-glow: rgba(124, 77, 255, 0.35);
+  --surface: #0D0D10;
+  --white: #ffffff;
+  --white-soft: rgba(255, 255, 255, 0.85);
+  --white-fade: rgba(255, 255, 255, 0.08);
+}
+
+/* FONT */
+* {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* FIX: Input text color for dark theme */
+input,
+textarea,
+select,
+.mat-mdc-input-element {
+  color: var(--white-soft) !important;
+}
+
+
+
+/* LAYOUT */
 html, body {
   height: 100%;
   margin: 0;
+  background: var(--surface);
+  color: var(--white-soft);
 }
 
 body {
@@ -28,35 +57,39 @@ app-root {
   flex: 1;
 }
 
-.navbar{
-    height: 12vh;
+.navbar {
+  height: 12vh;
 }
 
-/* Custom Scrollbar */
+/* CUSTOM SCROLLBAR */
 ::-webkit-scrollbar {
   width: 14px;
   height: 12px;
 }
 
+/* Track (fundal) */
 ::-webkit-scrollbar-track {
-  background: linear-gradient(to bottom, #f1f1f1 0%, #e8e8e8 100%);
+  background: linear-gradient(to bottom, var(--surface) 0%, #1a1a20 100%);
   border-radius: 10px;
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.05);
 }
 
+/* Thumb (bara scroll) */
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-glow) 100%);
   border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   transition: all 0.3s ease;
 }
 
+/* Hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #6E3CFF 0%, rgba(124, 77, 255, 0.5) 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
+/* Clicked */
 ::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(135deg, #4a5bc4 0%, #5d367d 100%);
+  background: linear-gradient(135deg, #5C2FE0 0%, rgba(124, 77, 255, 0.6) 100%);
 }
 

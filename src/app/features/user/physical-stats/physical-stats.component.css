@@ -1,33 +1,43 @@
 .stats-card {
   position: relative;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
 }
 
+/* TITLE */
 .stats-card ::ng-deep .mat-mdc-card-title {
   font-size: 24px;
   font-weight: 600;
-  color: #3f51b5;
+  color: var(--primary);
   padding-left: 12px;
   padding-top: 12px;
   padding-bottom: 16px;
-  border-bottom: 2px solid #e8eaf6;
+  border-bottom: 2px solid var(--white-fade);
   margin-bottom: 24px;
 }
 
+/* CONTENT */
 .stats-card ::ng-deep .mat-mdc-card-content {
   padding: 24px;
+  color: var(--white-soft);
 }
 
+/* LOADING OVERLAY */
 .loader-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(0,0,0,0.55);
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 12px;
+  backdrop-filter: blur(4px);
 }
 
+/* FORM STRUCTURE */
 .stats-form {
   display: flex;
   flex-direction: column;
@@ -44,24 +54,26 @@
   margin: 0 0 8px 0;
   font-size: 16px;
   font-weight: 600;
-  color: #666;
+  color: var(--white);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding-left: 4px;
 }
 
+/* GRID */
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
+/* ACTIONS FOOTER */
 .actions {
   display: flex;
   justify-content: flex-end;
   padding-top: 16px;
   margin-top: 8px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--white-fade);
 }
 
 .actions button {
@@ -71,6 +83,12 @@
   font-weight: 500;
 }
 
+mat-label,mat-select{
+  color: var(--white);
+}
+
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .two-col {
     grid-template-columns: 1fr;
@@ -84,3 +102,4 @@
     width: 100%;
   }
 }
+

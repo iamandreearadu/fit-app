@@ -13,6 +13,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import  { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
 
 @NgModule({
   imports: [
@@ -30,6 +32,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatChipsModule,
     MatSelectModule,
     MatProgressBarModule,
+    MatSidenavModule,
+    MatListModule,
   ],
   exports: [
     MatButtonModule,
@@ -46,6 +50,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatChipsModule,
     MatSelectModule,
     MatProgressBarModule,
+    MatSidenavModule,
+    MatListModule,
   ],
 })
 export class MaterialModule {}

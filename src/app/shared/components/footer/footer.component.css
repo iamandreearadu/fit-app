@@ -1,11 +1,13 @@
 .app-footer {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, var(--surface) 0%, #141418 100%);
+  color: var(--white);
   margin-top: auto;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
 }
 
+/* Content */
 .footer-content {
+  height: 400px;
   max-width: 1200px;
   margin: 0 auto;
   padding: 60px 24px 40px;
@@ -30,20 +32,20 @@
   font-size: 36px;
   width: 36px;
   height: 36px;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: var(--white);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .brand-logo h3 {
   margin: 0;
   font-size: 28px;
   font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: var(--white);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .brand-description {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--white-soft);
   line-height: 1.6;
   margin-bottom: 24px;
   font-size: 14px;
@@ -61,18 +63,18 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--white-fade);
   border-radius: 50%;
-  color: #ffffff;
+  color: var(--white);
   text-decoration: none;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
 }
 
 .social-link:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.2);
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .social-link mat-icon {
@@ -91,10 +93,10 @@
   margin: 0 0 20px 0;
   font-size: 18px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--white);
   text-transform: uppercase;
   letter-spacing: 1px;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 /* Footer Links */
@@ -111,7 +113,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--white-soft);
   text-decoration: none;
   font-size: 14px;
   transition: all 0.3s ease;
@@ -126,10 +128,11 @@
   transition: all 0.3s ease;
 }
 
+/* Hover accent: am păstrat exact stilul, doar culoarea mutată pe primary */
 .footer-link:hover {
-  color: #00e5ff;
+  color: var(--primary);
   padding-left: 8px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .footer-link:hover mat-icon {
@@ -148,7 +151,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--white-soft);
   font-size: 14px;
 }
 
@@ -156,14 +159,14 @@
   font-size: 20px;
   width: 20px;
   height: 20px;
-  color: #00e5ff;
-  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
+  color: var(--primary);
+  filter: drop-shadow(0 1px 4px var(--primary-glow));
 }
 
 /* Footer Bottom */
 .footer-bottom {
-  background: rgba(0, 0, 0, 0.2);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--white-fade);
   padding: 24px 0;
 }
 
@@ -184,7 +187,7 @@
   gap: 4px;
 }
 
-.copyright {
+copyright {
   margin: 0;
   color: rgba(255, 255, 255, 0.7);
   font-size: 14px;
@@ -192,7 +195,7 @@
 
 .powered-by {
   margin: 0;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--white-soft);
   font-size: 13px;
   display: flex;
   align-items: center;
@@ -203,7 +206,7 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
-  color: #ff6b9d;
+  color: var(--primary);
   animation: heartbeat 1.5s ease-in-out infinite;
 }
 
@@ -229,7 +232,7 @@
 }
 
 .legal-link:hover {
-  color: #ffd700;
+   color: var(--primary);
 }
 
 .separator {
@@ -237,7 +240,7 @@
   color: rgba(255, 255, 255, 0.3);
 }
 
-/* Responsive Design */
+/* Responsive Design - unchanged */
 @media (max-width: 992px) {
   .footer-content {
     grid-template-columns: repeat(2, 1fr);

@@ -29,7 +29,6 @@ export class DailyUserDataComponent implements OnInit {
 
   ngOnInit(): void {
     this.facade.loadDailyFromFireStore();
-
   }
 
   // ========== Event handlers ==========

@@ -1,7 +1,7 @@
 /* Benefits Section */
 .benefits-section {
-  padding: 80px 24px;
-  background: white;
+  padding: 150px 24px;
+  background: var(--surface);
 }
 
 .benefits-content {
@@ -13,19 +13,21 @@
   align-items: center;
 }
 
+/* TITLU + SUBTITLU */
 .section-title {
   font-size: 36px;
   font-weight: 700;
-  color: #1a237e;
+  color: var(--white);
   margin: 0 0 16px;
 }
 
 .section-subtitle {
   font-size: 18px;
-  color: #666;
+  color: var(--white-soft);
   margin: 0;
 }
 
+/* LISTA BENEFICII */
 .benefits-list {
   display: flex;
   flex-direction: column;
@@ -38,16 +40,17 @@
   align-items: center;
   gap: 12px;
   font-size: 16px;
-  color: #444;
+  color: var(--white-soft);
 }
 
 .benefit-item mat-icon {
-  color: #667eea;
+  color: var(--primary);
   font-size: 24px;
   width: 24px;
   height: 24px;
 }
 
+/* CTA */
 .benefits-cta {
   margin-top: 32px;
 }
@@ -63,6 +66,7 @@
   gap: 8px;
 }
 
+/* VIZUAL-CARDS */
 .benefits-visual {
   display: flex;
   flex-direction: column;
@@ -71,17 +75,21 @@
 
 .visual-card {
   padding: 24px;
-  background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.05) 0%,
+    rgba(255,255,255,0.08) 100%
+  );
   border-radius: 12px;
-  border-left: 4px solid #667eea;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid var(--primary);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
 .visual-card mat-icon {
   font-size: 36px;
   width: 36px;
   height: 36px;
-  color: #667eea;
+  color: var(--primary);
   margin-bottom: 12px;
 }
 
@@ -89,12 +97,12 @@
   margin: 0 0 8px;
   font-size: 18px;
   font-weight: 600;
-  color: #1a237e;
+  color: var(--white);
 }
 
 .visual-card p {
   margin: 0;
-  color: #666;
+  color: var(--white-soft);
   font-size: 14px;
   line-height: 1.5;
 }

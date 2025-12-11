@@ -1,0 +1,97 @@
+.chat-layout-container {
+  height: 100vh;
+  background: var(--surface);
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  background: #111218;
+  border-right: 1px solid var(--white-fade);
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* NEW CHAT BUTTON */
+.new-chat-btn {
+  width: 95%;
+  margin: 0 5px 1rem 5px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.btn-caption{
+    font-size: 0.875rem;
+    color: var(--white-soft);
+    margin-top: 4px;
+}
+
+/* LIST ITEMS */
+mat-list-item {
+  color: var(--white-soft);
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 4px 8px;
+  padding: 6px 8px;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+mat-list-item:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+mat-list-item.active {
+  background: rgba(124, 77, 255, 0.35);
+  color: var(--white);
+}
+
+.small-date {
+  font-size: 0.75rem;
+  color: var(--white-soft);
+}
+
+/* MAIN CHAT AREA */
+.chat-content {
+  padding: 0;
+  background: var(--surface);
+}
+
+
+/* DELETE BUTTON */
+.delete-btn {
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.45);
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.delete-btn mat-icon {
+  font-size: 20px;
+  position: absolute;
+  right: 20px;
+  top: 30%;
+}
+
+/* HOVER EFFECT */
+.delete-btn:hover {
+  color: #ff4f4f;
+}
+
+/* WHEN CONVERSATION IS ACTIVE */
+mat-list-item.active .delete-btn {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+mat-list-item.active .delete-btn:hover {
+  color: #ff6b6b;
+
+}
+
+

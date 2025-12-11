@@ -79,6 +79,9 @@
                 <input matInput type="number" formControlName="fats" min="0">
               </mat-form-field>
             </fieldset>
+
+      
+
           </mat-card-content>
         </mat-card>
 
@@ -115,8 +118,8 @@
       </div>
 
       <div class="action-row">
-        <button mat-flat-button color="primary" (click)="onSaveData()">Save</button>
-        <button *ngIf="isTodaySelected" mat-stroked-button (click)="onReset()">Reset</button>
+        <button mat-flat-button color="primary" class="primary-button" (click)="onSaveData()">Save</button>
+        <button *ngIf="isTodaySelected" color="primary container" mat-stroked-button class="stroke-button" (click)="onReset()">Reset</button>
       </div>
 
     </form>

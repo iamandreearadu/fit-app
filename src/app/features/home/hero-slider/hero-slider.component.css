@@ -3,6 +3,7 @@
   position: relative;
   height: calc(100vh - 64px);
   overflow: hidden;
+  background: var(--surface);
 }
 
 .slider-container {
@@ -31,17 +32,23 @@
   z-index: 1;
 }
 
+/* DARK OVERLAY */
 .slide-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.4) 0%,
+    rgba(0,0,0,0.7) 100%
+  );
   z-index: 1;
 }
 
+/* CONTENT */
 .slide-content {
   position: relative;
   z-index: 2;
-  color: white;
+  color: var(--white);
   max-width: 1400px;
   width: 100%;
   padding: 48px;
@@ -74,12 +81,13 @@
   gap: 16px;
 }
 
+/* TITLES */
 .slide-title {
   font-size: 56px;
   font-weight: 700;
   margin: 0 0 16px;
   letter-spacing: -1px;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 4px 12px rgba(0,0,0,0.6);
 }
 
 .slide-subtitle {
@@ -87,7 +95,7 @@
   font-weight: 500;
   margin: 0 0 24px;
   opacity: 0.95;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
 
 .slide-description {
@@ -97,11 +105,12 @@
   opacity: 0.9;
   line-height: 1.8;
   max-width: 600px;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
 
+/* MOTIVATIONAL CARDS */
 .motivational-card {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--white-fade);
   backdrop-filter: blur(10px);
   padding: 16px 20px;
   border-radius: 12px;
@@ -109,11 +118,11 @@
   align-items: center;
   gap: 12px;
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .motivational-card:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.2);
   transform: translateX(8px);
 }
 
@@ -121,7 +130,7 @@
   font-size: 28px;
   width: 28px;
   height: 28px;
-  color: white;
+  color: var(--white);
   flex-shrink: 0;
 }
 
@@ -129,9 +138,10 @@
   margin: 0;
   font-size: 14px;
   font-weight: 500;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
 }
 
+/* DOTS */
 .slider-dots {
   position: absolute;
   bottom: 32px;
@@ -146,22 +156,23 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-  border: 2px solid white;
+  background: var(--white-soft);
+  border: 2px solid var(--white);
   cursor: pointer;
   transition: all 0.3s ease;
   padding: 0;
 }
 
 .dot:hover {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--white);
   transform: scale(1.2);
 }
 
 .dot.active {
-  background: white;
+  background: var(--primary);
   width: 32px;
   border-radius: 6px;
+  border-color: var(--primary);
 }
 
 /* Responsive */

@@ -24,6 +24,11 @@
       <mat-icon class="nav-icon">dashboard</mat-icon>
       <span>Dashboard</span>
     </a>
+    <a mat-button routerLink="/openai" class="nav-item" [class.active]="navService.isActive('/openai')">
+      <mat-icon class="nav-icon">chat </mat-icon>
+      <span>AI Assistant</span>
+    </a>  
+
     <a mat-button routerLink="/blog" class="nav-item" [class.active]="navService.isActive('/blog')">
       <mat-icon class="nav-icon">article</mat-icon>
       <span>Blog</span>

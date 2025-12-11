@@ -17,7 +17,7 @@ export class BlogFacade {
     private readonly _loading = signal(false);
 
 
-  // getters pentru valori sincrone (apel în template: `facade.posts()` etc.)
+  // getters 
     get posts() {
     return this._posts();
 }
@@ -25,12 +25,11 @@ export class BlogFacade {
     return this._selectedPost();
  }
 
-  // observabile pentru async pipe (dacă ai nevoie)
+  // observabile 
   posts$ = toObservable(this._posts);
   selectedPost$ = toObservable(this._selectedPost) ;
 
 
-  // categorie derivată
    categories = computed(() => {
     const set = new Set<string>();
     this._posts().forEach(p => { if (p.category) set.add(p.category); });

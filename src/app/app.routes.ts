@@ -7,11 +7,13 @@ import { GuestGuard } from './core/guards/guest.guard';
 import { UserPageComponent } from './features/user/user-page.component';
 import { DashboardPageComponent } from './features/dashboard/dashboard-page.component';
 import { HomePageComponent } from './features/home/home-page.component';
+import { OpenaiComponent } from './features/openai/openai.component';
 
 export const routes: Routes = [
 
   { path: '', component: HomePageComponent },
   { path: 'blog', component: BlogComponent },
+  { path: 'openai', component: OpenaiComponent },
 
   { path: 'user-profile', component: UserPageComponent, canActivate: [AuthGuard] },
   { path: 'user-dashboard', component: DashboardPageComponent, canActivate: [AuthGuard] },
