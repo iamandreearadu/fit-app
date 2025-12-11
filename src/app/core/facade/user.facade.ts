@@ -187,6 +187,9 @@ export class UserFacade {
 
   public addWater(deltaL: number): void {
     this.dailyUserSrv.addWater(deltaL);
+    // Sync the metrics service so waterProgress updates immediately
+    const current = this.dailyUserSrv.daily();
+    this.userMetricsSrv.updateWaterConsumed(current?.waterConsumedL ?? 0);
   }
 
   public addSteps(delta: number): void {
