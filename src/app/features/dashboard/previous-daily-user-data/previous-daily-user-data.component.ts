@@ -1,8 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, effect } from '@angular/core';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { DailyUserData } from '../../../core/models/daily-user-data.model';
 import { CommonModule, NgFor } from '@angular/common';
-import { MatIcon } from "@angular/material/icon";
 import { MaterialModule } from '../../../core/material/material.module';
 
 @Component({
@@ -14,18 +13,17 @@ import { MaterialModule } from '../../../core/material/material.module';
 })
 export class PreviousDailyUserDataComponent implements OnInit {
 
-   selectedDay: DailyUserData | null = null;
-   showModal = false;
-    showCreateOverlay = false;
+  selectedDay: DailyUserData | null = null;
+  showModal = false;
+  showCreateOverlay = false;
 
-   public facade = inject(UserFacade);
+  public facade = inject(UserFacade);
 
-   history = this.facade.history;
+  history = this.facade.history;
 
-   ngOnInit(): void {
+  ngOnInit(): void {
     this.facade.loadDailyHistory();
   }
-
 
   openDay(day: DailyUserData) {
     this.selectedDay = day;
@@ -39,6 +37,6 @@ export class PreviousDailyUserDataComponent implements OnInit {
     this.showModal = false;
   }
 
-  
+
 
 }

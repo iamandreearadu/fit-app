@@ -170,17 +170,15 @@ export class UserFacade {
     }
   }
 
-  public async loadDailyHistory(): Promise<DailyUserData[]> {
-  try {
-    const h = await this.userSrv.getAllPreviousData();
-    this.dailyUserSrv.setHistory(h);
-    return h;
+  public async loadDailyHistory(): Promise<void> {
+    try {
+      const h = await this.userSrv.getAllPreviousData();
+      this.dailyUserSrv.setHistory(h);
 
-  } catch (err) {
-    console.warn("Failed to load daily history", err);
-    return [];
+    } catch (err) {
+      console.warn("Failed to load daily history", err);
+    }
   }
-}
 
 
   // === Domain logic delegations ===

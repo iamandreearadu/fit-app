@@ -6,7 +6,6 @@ import {
   doc,
   getDocs,
   query,
-  where,
   orderBy,
   deleteDoc
 } from '@angular/fire/firestore';
@@ -26,7 +25,6 @@ export class GroqAiService {
     return user.uid;
   }
 
-  /** Create a new conversation under the user */
   async createConversation(): Promise<string> {
     const uid = this.getUserId();
 
@@ -38,7 +36,6 @@ export class GroqAiService {
     return docRef.id;
   }
 
-  /** Add new message in the conversation */
   async saveMessage(conversationId: string, msg: ChatMessage): Promise<void> {
     const uid = this.getUserId();
 
@@ -50,7 +47,6 @@ export class GroqAiService {
     });
   }
 
-  /** Load ALL conversations of the authenticated user */
   async loadUserConversations(): Promise<ChatConversation[]> {
     const uid = this.getUserId();
 
@@ -67,7 +63,6 @@ export class GroqAiService {
     }));
   }
 
-  /** Load messages of a selected conversation */
   async loadMessages(conversationId: string): Promise<ChatMessage[]> {
     const uid = this.getUserId();
 
@@ -86,17 +81,15 @@ export class GroqAiService {
 
   async deleteConversation(id: string): Promise<void> {
     const uid = this.getUserId();
-  if (!uid) return;
+    if (!uid) return;
 
-  const convRef = doc(this.fs, `users/${uid}/conversations/${id}`);
-  const messagesRef = collection(convRef, 'messages');
+    const convRef = doc(this.fs, `users/${uid}/conversations/${id}`);
+    const messagesRef = collection(convRef, 'messages');
 
-  // delete all messages first
-  const messagesSnap = await getDocs(messagesRef);
-  messagesSnap.forEach(m => deleteDoc(m.ref));
+    const messagesSnap = await getDocs(messagesRef);
+    messagesSnap.forEach(m => deleteDoc(m.ref));
 
-  // delete conversation document
-  await deleteDoc(convRef);
-}
+    await deleteDoc(convRef);
+  }
 
 }

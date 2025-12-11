@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { HeaderComponent } from "../../shared/components/header/header.component";
 import { FooterComponent } from "../../shared/components/footer/footer.component";
-import { ChatComponent } from "./chat/chat.component";
 import { GroqComponent } from './groq/groq.component';
 import { GroqAiFacade } from '../../core/facade/groq-ai.facade';
 import { CommonModule } from '@angular/common';
@@ -30,9 +29,9 @@ export class OpenaiComponent {
   }
 
   delete(id: string) {
-  const confirmDelete = confirm('Are you sure you want to delete this conversation?');
-  if (!confirmDelete) return;
+    const confirmDelete = confirm('Are you sure you want to delete this conversation?');
+    if (!confirmDelete) return;
 
-  this.facade.deleteConversation(id);
-}
+    this.facade.deleteConversation(id);
+  }
 }

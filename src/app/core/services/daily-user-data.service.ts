@@ -50,11 +50,9 @@ export class DailyUserDataService {
     });
   }
 
-    public setHistory(list: DailyUserData[]) {
+  public setHistory(list: DailyUserData[]) {
     this.history.set(list);
-    }
-
-
+  }
 
   // ----------------- PUBLIC API (mutations) -----------------
 
