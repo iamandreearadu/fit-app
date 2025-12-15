@@ -32,29 +32,52 @@
   </div>
 
   <div class="posts-grid">
-    <mat-card *ngFor="let p of filtered" class="post-card">
-      <div class="img-holder" [style.background-image]="'url(' + (p.image || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80') + ')'"></div>
-      <mat-card-content>
-        <mat-chip-set class="category-chip">
-          <mat-chip>{{ p.category }}</mat-chip>
-        </mat-chip-set>
-        <h3 class="post-title">{{ p.title }}</h3>
-        <p class="post-caption">{{ p.caption }}</p>
-        <div class="post-actions">
-          <button mat-flat-button color="primary" (click)="post = p">
-            <mat-icon>visibility</mat-icon>
-            View
-          </button>
-          <button *ngIf="isOwner" mat-stroked-button color="accent" (click)="openEdit(p)">
-            <mat-icon>edit</mat-icon>
-            Edit
-          </button>
-          <button *ngIf="isOwner" mat-icon-button color="warn" (click)="deletePost(p.uid)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
+
+    <mat-card *ngFor="let p of filtered" class="post-card" >
+
+  <div *ngIf="isOwner" class="admin-actions">
+    <button
+      mat-icon-button
+      (click)="openEdit(p)"
+      aria-label="Edit post"
+    >
+      <mat-icon>edit</mat-icon>
+    </button>
+
+    <button
+      mat-icon-button
+      (click)="deletePost(p.uid)"
+      aria-label="Delete post"
+      color="accent"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+
+  <div 
+    class="img-holder"
+    [style.background-image]="'url(' + (p.image || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80') + ')'"
+    [routerLink]="['/blog', p.uid]"
+    ></div>
+
+  <mat-card-content [routerLink]="['/blog', p.uid]">
+    <mat-chip-set class="category-chip">
+      <mat-chip>{{ p.category }}</mat-chip>
+    </mat-chip-set>
+
+    <h3 class="post-title">{{ p.title }}</h3>
+    <p class="post-caption">{{ p.caption }}</p>
+
+    <div class="post-actions">
+      <button mat-flat-button color="primary" [routerLink]="['/blog', p.uid]">
+        <mat-icon>visibility</mat-icon>
+        View
+      </button>
+    </div>
+  </mat-card-content>
+
+</mat-card>
+
   </div>
 
   <div *ngIf="filtered.length === 0" class="no-results">
@@ -62,23 +85,7 @@
     <p>No posts found matching your criteria</p>
   </div>
 
-  <div *ngIf="post && !editing && !showCreateOverlay" class="post-detail-section">
-    <mat-card class="post-detail-card">
-      <img mat-card-image [src]="post.image || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80'" alt="thumbnail" class="detail-image">
-      <mat-card-content>
-        <mat-chip-set class="category-chip">
-          <mat-chip highlighted>{{ post.category }}</mat-chip>
-        </mat-chip-set>
-        <h2 class="detail-title">{{ post.title }}</h2>
-        <h4 class="detail-subtitle">{{ post.caption }}</h4>
-        <p class="detail-description">{{ post.description }}</p>
-        <button mat-stroked-button (click)="post = null" class="close-detail">
-          <mat-icon>close</mat-icon>
-          Close
-        </button>
-      </mat-card-content>
-    </mat-card>
-  </div>
+
 
   <div *ngIf="showCreateOverlay || editing" class="overlay-backdrop" (click)="showCreateOverlay = false; editing = false">
     <mat-card class="overlay-card" (click)="$event.stopPropagation()">
@@ -108,7 +115,7 @@
         </mat-form-field>
       </mat-card-content>
       <mat-card-actions>
-        <button mat-stroked-button (click)="showCreateOverlay = false; editing = false; cancelEdit()">
+        <button mat-stroked-button color="accent" (click)="showCreateOverlay = false; editing = false; cancelEdit()">
           <mat-icon>close</mat-icon>
           Cancel
         </button>

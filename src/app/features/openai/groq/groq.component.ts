@@ -36,7 +36,11 @@ export class GroqComponent {
   async send() {
     if (!this.prompt.trim() && !this.imageFile) return;
 
-    await this.facade.askAI(this.prompt, this.imageFile ?? undefined);
+    await this.facade.askAI(
+      this.prompt, 
+      this.imageFile ?? undefined,
+      this.imagePreview ?? undefined
+);
 
     this.prompt = '';
     this.imageFile = null;

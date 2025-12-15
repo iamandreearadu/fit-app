@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { DailyUserData } from '../../../core/models/daily-user-data.model';
 import { MaterialModule } from '../../../core/material/material.module';
+import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
 
 @Component({
   standalone: true,
@@ -18,6 +19,8 @@ export class DailyUserDataComponent implements OnInit {
   public form: FormGroup;
 
   public facade = inject(UserFacade);
+    public groqFacade = inject(GroqAiFacade);
+
   private fb = inject(FormBuilder)
 
   public history = this.facade.history;
@@ -101,5 +104,6 @@ export class DailyUserDataComponent implements OnInit {
   public get isTodaySelected(): boolean {
     return this.form.get('date')?.value === this.facade.todayDate;
   }
+
 
 }

@@ -1,57 +1,46 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
-import { BlogPost } from '../../../core/models/blog.model';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../core/material/material.module';
-import { BlogService } from '../../../core/services/blog.service';
-import { Auth } from '@angular/fire/auth';
-import { ActivatedRoute } from '@angular/router';
 import { BlogFacade } from '../../../core/facade/blog.facade';
-
+import { Auth } from '@angular/fire/auth';
+import { RouterLink } from '@angular/router';
+import { BlogPost } from '../../../core/models/blog.model';
 
 @Component({
   selector: 'app-blog-content',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule],
+  imports: [CommonModule, FormsModule, MaterialModule, RouterLink],
   templateUrl: './blog-content.component.html',
   styleUrl: './blog-content.component.css'
 })
-export class BlogContentComponent {
-  @Input() post?: BlogPost | null;
+export class BlogContentComponent implements OnInit {
 
-  public blogSvc = inject(BlogService);
-  private auth = inject<Auth>(Auth);
-  private route = inject(ActivatedRoute);
-  public facade = inject(BlogFacade);
+  private auth = inject(Auth);
+  readonly facade = inject(BlogFacade);
 
   loading = false;
-  // list + filtering state
+
   posts: BlogPost[] = [];
   filtered: BlogPost[] = [];
-  searchTerm = '';
-  categories: string[] = [];
-  selectedCategory = 'all';
 
-  // inline create / edit form model
+  searchTerm = '';
+  selectedCategory = 'all';
+  categories: string[] = [];
+
   editing = false;
+  showCreateOverlay = false;
   editModel: Partial<BlogPost> = {};
 
-  // overlay / permission
-  showCreateOverlay = false;
   isOwner = false;
 
-
-   async ngOnInit(): Promise<void> {
-    this.facade.posts$.subscribe((posts) => {
+  async ngOnInit(): Promise<void> {
+    this.facade.posts$.subscribe(posts => {
       this.posts = posts;
       this.categories = this.facade.categories();
       this.applyFilters();
     });
-    this.facade.selectedPost$.subscribe((p) => {
-      this.post = p;
-    });
 
-    // Load posts
     this.loading = true;
     try {
       await this.facade.loadPosts();
@@ -59,61 +48,70 @@ export class BlogContentComponent {
       this.loading = false;
     }
 
-    // Dacă URL-ul conține un id, selectează postarea
-    if (!this.post) {
-      const id = this.route.snapshot.paramMap.get('id');
-      await this.facade.getPost(id);
-    }
-
-    // if admin authenticated
     const user = this.auth.currentUser;
     this.isOwner = !!user && user.email === 'andreea@gmail.com';
   }
 
   applyFilters(): void {
-    const term = (this.searchTerm || '').toLowerCase();
+    const term = this.searchTerm.toLowerCase();
+
     this.filtered = this.posts.filter(p => {
-      if (this.selectedCategory && this.selectedCategory !== 'all' && p.category !== this.selectedCategory) return false;
-      if (term) {
-        return (p.title || '').toLowerCase().includes(term) || (p.caption || '').toLowerCase().includes(term) || (p.description || '').toLowerCase().includes(term);
+      if (this.selectedCategory !== 'all' && p.category !== this.selectedCategory) {
+        return false;
       }
-      return true;
+
+      if (!term) return true;
+
+      return (
+        p.title?.toLowerCase().includes(term) ||
+        p.caption?.toLowerCase().includes(term) ||
+        p.description?.toLowerCase().includes(term)
+      );
     });
   }
 
   openCreate(): void {
     this.showCreateOverlay = true;
-    this.editModel = { title: '', caption: '', description: '', image: '', category: '', date: new Date().toISOString() };
+    this.editModel = {
+      title: '',
+      caption: '',
+      description: '',
+      image: '',
+      category: '',
+      date: new Date().toISOString()
+    };
   }
 
-  openEdit(p: BlogPost): void {
+  openEdit(post: BlogPost): void {
     this.editing = true;
-    this.editModel = { ...p };
+    this.showCreateOverlay = true;
+    this.editModel = { ...post };
   }
 
-
- async createOrUpdatePost(): Promise<void> {
-  this.loading = true;
+  async createOrUpdatePost(): Promise<void> {
+    this.loading = true;
     try {
       await this.facade.createOrUpdatePost(this.editModel);
     } finally {
       this.loading = false;
       this.editing = false;
-      this.editModel = {};
       this.showCreateOverlay = false;
+      this.editModel = {};
     }
-    
   }
 
-  async deletePost(uid?:string): Promise<void> {
-  const confirmed = confirm('Are you sure you want to delete this post? This action cannot be undone.');
-  if (!confirmed) return;
+  async deletePost(uid?: string): Promise<void> {
+    if (!uid) return;
+
+    const confirmed = confirm('Are you sure you want to delete this post?');
+    if (!confirmed) return;
+
     await this.facade.deletePost(uid);
   }
- 
+
   cancelEdit(): void {
     this.editing = false;
+    this.showCreateOverlay = false;
     this.editModel = {};
   }
 }
-

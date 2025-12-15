@@ -11,18 +11,16 @@ export class GrogAiService {
   private _conversations = signal<ChatConversation[]>([]);
   private _loading = signal(false);
 
-  // readonly exposures
   conversationId = this._conversationId.asReadonly();
   messages = this._messages.asReadonly();
   conversations = this._conversations.asReadonly();
   loading = this._loading.asReadonly();
 
-  // getters for imperative code
   get getConversationId(): string | null {
     return this._conversationId();
   }
 
-  // state mutations
+
   setConversationId(id: string | null) {
     this._conversationId.set(id);
   }
@@ -50,9 +48,6 @@ export class GrogAiService {
   clearMessages() {
     this._messages.set([]);
   }
-
-
-  // business logic can go here if needed
 
 
 }

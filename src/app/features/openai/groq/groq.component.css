@@ -5,7 +5,7 @@
 
 /* Container */
 .ai-container {
-  max-width: 750px;
+  max-width: 70%;
   margin: 2rem auto;
   padding: 0 1rem;
 }
@@ -120,12 +120,10 @@
   white-space: nowrap;
 }
 
-/* Flexible spacer pushes Send to the right */
 .flex-spacer {
   flex: 1;
 }
 
-/* Send button */
 .send-btn {
   width: 48px;
   height: 48px;
@@ -135,4 +133,31 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+
+.ai-message {
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.chat-image {
+  max-width: 100%;
+  border-radius: 12px;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+
+.chat-window {
+  flex: 1;              
+  overflow-y: auto;
+  margin-bottom: 1rem;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.chat-window::-webkit-scrollbar {
+  display: none;
 }

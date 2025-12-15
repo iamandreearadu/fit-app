@@ -2,21 +2,16 @@
 
   <h2 class="ai-title">AI Assistant</h2>
 
-  <div class="conv-list" *ngIf="facade.conversations() as convs">
-    <h3>Conversations</h3>
-
-    <button
-      *ngFor="let c of convs"
-      mat-stroked-button
-      class="conv-btn"
-      (click)="openConversation(c.id)">
-      {{ c.createdAt | date:'short' }}
-    </button>
-  </div>
 
   <div class="chat-window" *ngIf="facade.messages() as msgs">
     <div *ngFor="let msg of msgs" [ngClass]="msg.role === 'user' ? 'bubble user' : 'bubble ai'">
-      <p>{{ msg.content }}</p>
+      <p class="ai-message" >{{ msg.content }}</p>
+      <img
+      *ngIf="msg.imageUrl"
+      [src]="msg.imageUrl"
+      class="chat-image"
+      alt="uploaded image"
+    />
       <span class="time">{{ msg.timestamp | date:'shortTime' }}</span>
     </div>
   </div>

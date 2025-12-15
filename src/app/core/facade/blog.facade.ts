@@ -25,6 +25,10 @@ export class BlogFacade {
     return this._selectedPost();
  }
 
+  get loading() {
+    return this._loading();
+  }
+
   // observabile 
   posts$ = toObservable(this._posts);
   selectedPost$ = toObservable(this._selectedPost) ;

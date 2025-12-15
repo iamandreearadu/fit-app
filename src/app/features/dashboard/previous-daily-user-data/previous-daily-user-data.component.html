@@ -2,21 +2,47 @@
 
   <h2 class="title">Previous Days</h2>
 
-  <div class="timeline">
+  <div class="week-nav" *ngIf="currentWeek() as week">
+    <button
+      class="change-week-btn"
+      mat-stroked-button
+      (click)="prevWeek()"
+      [disabled]="currentWeekIndex() === weeks().length - 1">
+      <mat-icon>chevron_left</mat-icon>
+      Previous week
+    </button>
 
-    <!-- Days -->
-    <ng-container *ngFor="let d of history()">
+    <span class="week-label">
+      {{ week.start | date:'dd MMM' }} – {{ week.end | date:'dd MMM yyyy' }}
+    </span>
+
+    <button
+      class="change-week-btn"
+      mat-stroked-button
+      (click)="nextWeek()"
+      [disabled]="currentWeekIndex() === 0">
+      Next week
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+  <div class="timeline" *ngIf="currentWeek() as week">
+
+    <ng-container *ngFor="let d of week.days">
       <div class="timeline-item" (click)="openDay(d)">
 
         <mat-card class="day-card" appearance="outlined">
-
           <mat-card-content>
+
             <div class="day-header">
               <span class="day-date">
-                {{ d.date | date:'dd MMM yyyy' }}
+                {{ d.date | date:'EEEE, dd MMM yyyy' }}
               </span>
-          
-              <div class="day-meta">
+
+              <mat-icon class="arrow">chevron_right</mat-icon>
+            </div>
+
+            <div class="day-meta">
               <div class="meta-item">
                 <mat-icon>directions_walk</mat-icon>
                 <span>{{ d.steps || 0 }}</span>
@@ -26,15 +52,9 @@
                 <mat-icon>local_fire_department</mat-icon>
                 <span>{{ d.caloriesTotal || 0 }}</span>
               </div>
-             </div>
-                         
-              <mat-icon class="arrow">chevron_right</mat-icon>
-
             </div>
 
-        
           </mat-card-content>
-
         </mat-card>
 
       </div>
@@ -44,13 +64,11 @@
 
 </div>
 
+<div
+  *ngIf="showModal && selectedDay"
+  class="modal-backdrop"
+  (click)="closeModal()">
 
-<!-- MODAL BACKDROP -->
-<div *ngIf="selectedDay"
-     class="modal-backdrop"
-     (click)="closeModal()">
-
-  <!-- MODAL CARD -->
   <mat-card class="modal-card" (click)="$event.stopPropagation()">
 
     <mat-card-header>
@@ -93,13 +111,16 @@
 
     </mat-card-content>
 
-    <mat-card-actions>
-      <button mat-stroked-button color="primary" class="close-btn" (click)="closeModal()">
+    <mat-card-actions align="end">
+      <button
+        mat-stroked-button
+        color="accent"
+        class="close-btn"
+        (click)="closeModal()">
         <mat-icon>close</mat-icon>
         Close
       </button>
     </mat-card-actions>
 
   </mat-card>
-
 </div>

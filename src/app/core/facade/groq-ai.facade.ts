@@ -4,6 +4,7 @@ import { GroqAiService as GroqApiFirebaseService } from '../../api/groq-ai.servi
 import { GrogAiService as GrogCoreService } from '../services/grog-ai.service';
 import { ChatMessage } from '../models/groq-ai.model';
 
+
 @Injectable({ providedIn: 'root' })
 export class GroqAiFacade {
 
@@ -43,7 +44,7 @@ export class GroqAiFacade {
   // SAVE MESSAGE (LOCAL + FIREBASE)
   // ========================================================
 
-  private async saveMessage(role: 'user' | 'assistant', content: string) {
+  private async saveMessage(role: 'user' | 'assistant', content: string, imageUrl?: string): Promise<void> {
     let conversationId = this.state.getConversationId;
 
     if (!conversationId) {
@@ -54,6 +55,7 @@ export class GroqAiFacade {
     const message: ChatMessage = {
       role,
       content,
+      imageUrl,
       timestamp: Date.now(),
     };
 
@@ -66,11 +68,14 @@ export class GroqAiFacade {
   // MASTER FUNCTION: ASK AI (TEXT + IMAGE)
   // ========================================================
 
-  async askAI(prompt: string, file?: File): Promise<void> {
+  async askAI(prompt: string, file?: File, imagePreview?: string): Promise<void> {
     this.state.setLoading(true);
 
     try {
-      await this.saveMessage('user', prompt);
+      await this.saveMessage(
+        'user', 
+        prompt,
+        imagePreview);
 
       let aiResponse = '';
 
@@ -89,7 +94,6 @@ export class GroqAiFacade {
       this.state.setLoading(false);
     }
   }
-
 
   async deleteConversation(id: string): Promise<void> {
     if (!id) return;

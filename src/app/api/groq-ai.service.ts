@@ -9,6 +9,8 @@ import {
   orderBy,
   deleteDoc
 } from '@angular/fire/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 
 import { Auth } from '@angular/fire/auth';
 import { ChatConversation, ChatMessage } from '../core/models/groq-ai.model';
@@ -18,6 +20,7 @@ export class GroqAiService {
 
   private fs = inject(Firestore);
   private auth = inject(Auth);
+  private storage = getStorage();
 
   private getUserId(): string {
     const user = this.auth.currentUser;
@@ -40,9 +43,11 @@ export class GroqAiService {
     const uid = this.getUserId();
 
     const msgRef = collection(this.fs, `users/${uid}/conversations/${conversationId}/messages`);
+
     await addDoc(msgRef, {
       role: msg.role,
       content: msg.content,
+      imageUrl: msg.imageUrl ?? null, 
       timestamp: msg.timestamp
     });
   }
@@ -75,9 +80,25 @@ export class GroqAiService {
       id: d.id,
       role: d.data()['role'],
       content: d.data()['content'],
+      imageUrl: d.data()['imageUrl'] || undefined,
       timestamp: d.data()['timestamp']
     }));
   }
+
+  async uploadChatImage(
+  file: File,
+  conversationId: string
+): Promise<string> {
+
+  const uid = this.getUserId();
+  const path = `chat-images/${uid}/${conversationId}/${Date.now()}-${file.name}`;
+
+  const storageRef = ref(this.storage, path);
+
+  await uploadBytes(storageRef, file);
+  return await getDownloadURL(storageRef);
+}
+
 
   async deleteConversation(id: string): Promise<void> {
     const uid = this.getUserId();
