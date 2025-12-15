@@ -1,0 +1,72 @@
+  <mat-card class="upload-card"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)">
+
+    <div class="dropzone" [class.dragover]="isDragOver">
+      <mat-icon class="dz-icon">image</mat-icon>
+      <div class="dz-text">
+        <strong>Drag & drop</strong> your meal photo here
+      </div>
+
+      <button mat-stroked-button color="primary" type="button" class="dz-btn"
+              (click)="openFileDialog()" [disabled]="disabled || loading">
+        Choose
+      </button>
+
+      <input #fileInput type="file" accept="image/*" class="hidden-input" (change)="onFileChange($event)" />
+    </div>
+
+    <div *ngIf="preview" class="preview">
+      <img [src]="preview" alt="Meal preview">
+      <button mat-mini-fab class="remove-btn" type="button"
+              (click)="clear()" aria-label="Remove image" [disabled]="loading">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div *ngIf="result" class="macros-summary">
+      <div class="macros-grid">
+        <div class="macro stat">
+          <div class="label">Protein</div>
+          <div class="value">{{ result.protein_g | number:'1.0-0' }}<span class="unit"> g</span></div>
+        </div>
+        <div class="macro stat">
+          <div class="label">Carbs</div>
+          <div class="value">{{ result.carbs_g | number:'1.0-0' }}<span class="unit"> g</span></div>
+        </div>
+        <div class="macro stat">
+          <div class="label">Fats</div>
+          <div class="value">{{ result.fats_g | number:'1.0-0' }}<span class="unit"> g</span></div>
+        </div>
+        <div class="macro stat" *ngIf="result.calories_kcal != null">
+          <div class="label">Calories</div>
+          <div class="value">{{ result.calories_kcal | number:'1.0-0' }}<span class="unit"> kcal</span></div>
+        </div>
+      </div>
+
+      <div class="items" *ngIf="result.items?.length">
+        <span class="item-chip" *ngFor="let it of result.items"
+              matTooltip="Model confidence: cât de sigur e AI că alimentul este în imagine.">
+          {{ it.name }}
+          <small *ngIf="it.confidence != null">({{ it.confidence | number:'1.0-2' }})</small>
+        </span>
+      </div>
+    </div>
+  </mat-card>
+
+  <div class="btn-row split">
+    <button mat-flat-button color="primary" type="button"
+            (click)="analyze()" [disabled]="disabled || !file || loading">
+      {{ loading ? 'Analyzing…' : 'Analyze' }}
+    </button>
+
+    <span class="flex-spacer"></span>
+
+    <button *ngIf="result" mat-flat-button color="accent" type="button"
+            (click)="addToUser()" [disabled]="disabled || loading">
+      Add
+    </button>
+  </div>
+
+  <mat-hint *ngIf="errorMsg" class="error">{{ errorMsg }}</mat-hint>

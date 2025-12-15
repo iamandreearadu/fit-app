@@ -6,12 +6,21 @@
 
 <section *ngIf="!loading() && post()" class="post-page">
 
-  <div class="post-topbar">
-    <button mat-button routerLink="/blog" class="back-btn">
+<div class="post-topbar">
+  <div class="topbar-inner">
+    <button mat-stroked-button routerLink="/blog" class="back-btn">
       <mat-icon>arrow_back</mat-icon>
       Back to blog
     </button>
+
+    <span class="topbar-divider"></span>
+
+    <span class="topbar-title">
+      {{ post()!.title }}
+    </span>
   </div>
+</div>
+
 
   <div
     class="post-hero"
@@ -33,6 +42,22 @@
   </article>
 
 </section>
+
+<div class="post-topbar">
+  <div class="topbar-inner">
+    <button mat-stroked-button routerLink="/blog" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+      Back to blog
+    </button>
+
+    <span class="topbar-divider"></span>
+
+    <span class="topbar-title">
+      {{ post()!.title }}
+    </span>
+  </div>
+</div>
+
 
 <div *ngIf="!loading() && !post()" class="post-not-found">
   <mat-icon>error_outline</mat-icon>

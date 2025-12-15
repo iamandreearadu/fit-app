@@ -5,11 +5,14 @@ import { UserFacade } from '../../../core/facade/user.facade';
 import { DailyUserData } from '../../../core/models/daily-user-data.model';
 import { MaterialModule } from '../../../core/material/material.module';
 import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
+import { MealMacros } from '../../../core/models/meal-macros';
+import { AiMealAnalyzerComponent } from './ai-meal-analyzer/ai-meal-analyzer.component';
+import { AlertService } from '../../../shared/services/alert.service';
 
 @Component({
   standalone: true,
   selector: 'app-daily-user-data',
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
+  imports: [CommonModule, ReactiveFormsModule, MaterialModule, AiMealAnalyzerComponent],
   host: { class: 'd-block' },
   templateUrl: './daily-user-data.component.html',
   styleUrls: ['./daily-user-data.component.css']
@@ -19,11 +22,15 @@ export class DailyUserDataComponent implements OnInit {
   public form: FormGroup;
 
   public facade = inject(UserFacade);
-    public groqFacade = inject(GroqAiFacade);
+  public groqFacade = inject(GroqAiFacade);
+  public alerts = inject(AlertService);
 
   private fb = inject(FormBuilder)
 
   public history = this.facade.history;
+
+  public aiError: string | null = null;
+
 
   constructor() {
     this.form = this.buildForm();
@@ -34,7 +41,51 @@ export class DailyUserDataComponent implements OnInit {
     this.facade.loadDailyFromFireStore();
   }
 
-  // ========== Event handlers ==========
+   // ========== helpers numeric ==========
+  private num(v: unknown): number { 
+    const n = Number(v); return Number.isFinite(n) ? n : 0; 
+  }
+
+  private getNum(path: string): number { 
+    return this.num(this.form.get(path)?.value ?? 0); 
+  }
+
+  private setNum(path: string, value: number): void {
+    const c = this.form.get(path); if (c) c.setValue(Math.max(0, Math.round(value)));
+  }
+
+  private addNum(path: string, delta: number): void { 
+    this.setNum(path, this.getNum(path) + this.num(delta)); 
+  }
+
+  private estimateCaloriesFromMacros(p?: number, c?: number, f?: number): number {
+    return Math.max(0, Math.round(4 * this.num(p) + 4 * this.num(c) + 9 * this.num(f)));
+  }
+
+
+  // ========== handler from child component ==========
+  onMealAdded(res: MealMacros) {
+    const p = this.num(res.protein_g);
+    const c = this.num(res.carbs_g);
+    const f = this.num(res.fats_g);
+    const kcal = res.calories_kcal != null ? this.num(res.calories_kcal) : this.estimateCaloriesFromMacros(p, c, f);
+
+    if (p > 0) this.addNum('macrosPct.protein', p);
+    if (c > 0) this.addNum('macrosPct.carbs', c);
+    if (f > 0) this.addNum('macrosPct.fats', f);
+    if (kcal > 0) this.addNum('caloriesIntake', kcal);
+
+    this.form.markAsDirty();
+    this.alerts.success('Macros added successfully.');
+
+  }
+
+  onMealAddedError(msg: string) {
+  this.aiError = msg?.toString() || 'AI analysis failed.';
+}
+  
+
+// ========== Event handlers ==========
 
   public onDateChange(date: string) {
     this.facade.loadDailyFromFireStore(date);

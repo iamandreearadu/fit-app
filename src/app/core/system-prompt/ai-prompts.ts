@@ -132,3 +132,22 @@ FORMATTING RULES:
 - After each section title, start content on the next line.
 - Preserve line breaks exactly as specified.
 `;
+
+export const OUTPUT_FORMAT_PROMPT_FOR_MACROS = `
+Return ONLY a single JSON object. No prose, no markdown, no code fences.
+Schema:
+{
+  "protein_g": number,   // grams
+  "carbs_g": number,     // grams
+  "fats_g": number,      // grams
+  "calories_kcal": number, // total kcal for the plate
+  "items": [{"name": string, "confidence": number}]
+}
+Numbers only; if unknown, estimate best value.
+`;
+
+export const IMAGE_MACROS_PROMPT = `
+You are a nutrition assistant. Analyze the MEAL photo (single plate or multiple items).
+Return ONLY the JSON described by the schema. Do not include any additional text.
+Estimate macronutrients for THE WHOLE PLATE, not per 100g.
+`

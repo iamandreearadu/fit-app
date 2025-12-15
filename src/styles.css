@@ -7,6 +7,8 @@
   --white: #ffffff;
   --white-soft: rgba(255, 255, 255, 0.85);
   --white-fade: rgba(255, 255, 255, 0.08);
+  --effect-glow:  color-mix(in srgb, var(--surface) 85%, var(--primary-glow) 15%);
+
 }
 
 * {

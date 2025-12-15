@@ -36,7 +36,6 @@
   font-weight: 400;
 }
 
-/* LOADING BLOCK */
 .loading-block {
   display: flex;
   justify-content: center;
@@ -44,16 +43,12 @@
   padding: 60px;
 }
 
-/* Keep layout space during loading and show overlay */
 .daily-content-wrapper {
   position: relative;
-  /* ensure the main content keeps reasonable height while loading */
   min-height: 420px;
 }
 
-.daily-content-wrapper.loading {
-  /* optionally dim background when loading */
-}
+
 
 .loading-overlay {
   position: absolute;
@@ -75,7 +70,6 @@
   width: 100%;
 }
 
-/* CARDS GRID */
 .cards-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -110,7 +104,6 @@
   letter-spacing: 0.3px;
 }
 
-/* CARD CONTENT */
 .card-col mat-card-content {
   flex: 1;
   display: flex;
@@ -118,7 +111,6 @@
   gap: 16px;
 }
 
-/* DATE PILL */
 .date-pill {
   display: inline-block;
   padding: 8px 16px;
@@ -130,7 +122,6 @@
   margin-bottom: 8px;
 }
 
-/* TEXT */
 .full-width {
   width: 100%;
 }
@@ -143,7 +134,6 @@
   line-height: 1.5;
 }
 
-/* STAT ITEMS */
 .stat-row {
   display: flex;
   justify-content: space-between;
@@ -165,7 +155,7 @@
   font-weight: 600;
 }
 
-/* BUTTON ROW */
+
 .btn-row {
   display: flex;
   gap: 8px;
@@ -177,7 +167,6 @@
   min-width: 80px;
 }
 
-/* NET-ROW */
 .net-row {
   display: flex;
   justify-content: space-between;
@@ -197,7 +186,6 @@
   font-size: 15px;
 }
 
-/* SUCCESS / DANGER TEXT */
 .text-success {
   color: #4caf50;
   font-weight: 600;
@@ -208,7 +196,6 @@
   font-weight: 600;
 }
 
-/* BIG NUMBER */
 .big-number {
   font-size: 32px;
   font-weight: 700;
@@ -220,7 +207,6 @@
   border-radius: 12px;
 }
 
-/* MACROS FIELDSET */
 .macros-fieldset {
   border: none;
   padding: 0;
@@ -230,7 +216,6 @@
   gap: 12px;
 }
 
-/* PROGRESS BARS */
 .progress-header {
   display: flex;
   justify-content: space-between;
@@ -263,7 +248,6 @@
   background-color: #4caf50;
 }
 
-/* Percentage text */
 .progress-percentage {
   display: block;
   text-align: right;
@@ -286,7 +270,6 @@ mat-label{
 
 }
 
-/* ACTION ROW */
 .action-row {
   display: flex;
   gap: 16px;
@@ -304,7 +287,6 @@ mat-label{
   font-weight: 500;
 }
 
-/* Angular Material filled background */
 .daily-root ::ng-deep .mat-mdc-text-field-wrapper {
   background: rgba(255,255,255,0.05) !important;
   border-radius: 8px !important;
@@ -312,7 +294,6 @@ mat-label{
 
 
 
-/* RESPONSIVE */
 @media (max-width: 768px) {
   .daily-root {
     padding: 16px;

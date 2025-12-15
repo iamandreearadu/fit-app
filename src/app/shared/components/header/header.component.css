@@ -76,7 +76,7 @@
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
   color: var(--white) !important;
   font-weight: 500;
   transition: all 0.3s ease;

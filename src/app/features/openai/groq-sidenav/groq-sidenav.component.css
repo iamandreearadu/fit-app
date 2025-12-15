@@ -63,7 +63,7 @@ mat-list-item.active {
 }
 
 .delete-btn:hover {
-  color: #ff4f4f;
+  color: var(--primary);
 }
 
 mat-list-item.active .delete-btn {

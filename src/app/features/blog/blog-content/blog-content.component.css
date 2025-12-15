@@ -104,8 +104,12 @@
   margin: 18px 0;
 }
 
-.category-chip mat-chip {
+.category-chip .chip {
   background: var(--primary);
+}
+
+:host ::ng-deep .category-chip .mdc-evolution-chip__text-label {
+  color: var(--white-soft) !important;
 }
 
 .post-title {
@@ -130,13 +134,21 @@ mat-label{
 
 
 .post-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
   margin-top: auto;
   padding-top: 16px;
   border-top: 1px solid var(--white-fade);
 }
+
+.post-actions button{
+   background: var(--white-fade);
+   transition: all 0.2s ease;
+   color: var(--white);
+}
+
+.post-actions button:hover{
+  background: rgba(255, 255, 255, 0.15);
+}
+
 
 .admin-actions {
   position: absolute;

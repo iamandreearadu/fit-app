@@ -62,16 +62,15 @@
 
   <mat-card-content [routerLink]="['/blog', p.uid]">
     <mat-chip-set class="category-chip">
-      <mat-chip>{{ p.category }}</mat-chip>
+      <mat-chip class="chip">{{ p.category }}</mat-chip>
     </mat-chip-set>
 
     <h3 class="post-title">{{ p.title }}</h3>
     <p class="post-caption">{{ p.caption }}</p>
 
     <div class="post-actions">
-      <button mat-flat-button color="primary" [routerLink]="['/blog', p.uid]">
+      <button mat-icon-button  [routerLink]="['/blog', p.uid]">
         <mat-icon>visibility</mat-icon>
-        View
       </button>
     </div>
   </mat-card-content>

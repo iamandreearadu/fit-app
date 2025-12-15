@@ -3,6 +3,7 @@ import { GroqAiApiService } from '../../api/groq-ai-api.service';
 import { GroqAiService as GroqApiFirebaseService } from '../../api/groq-ai.service';
 import { GrogAiService as GrogCoreService } from '../services/grog-ai.service';
 import { ChatMessage } from '../models/groq-ai.model';
+import { MealMacros } from '../models/meal-macros';
 
 
 @Injectable({ providedIn: 'root' })
@@ -65,7 +66,7 @@ export class GroqAiFacade {
   }
 
   // ========================================================
-  // MASTER FUNCTION: ASK AI (TEXT + IMAGE)
+  // FUNCTION: ASK AI (TEXT + IMAGE)
   // ========================================================
 
   async askAI(prompt: string, file?: File, imagePreview?: string): Promise<void> {
@@ -95,6 +96,21 @@ export class GroqAiFacade {
     }
   }
 
+  // ========================================================
+  //  FUNCTION: EXTRACT MEAL MACROS FROM IMAGE
+  // ========================================================
+
+    async analyzeMeal(file: File): Promise<MealMacros> {
+    this.state.setLoading(true);
+    try {
+      return await this.groqService.analyzeMealImage(file);
+    } finally {
+      this.state.setLoading(false);
+    }
+  }
+
+
+
   async deleteConversation(id: string): Promise<void> {
     if (!id) return;
     this.state.setLoading(true);
@@ -112,4 +128,6 @@ export class GroqAiFacade {
       this.state.setLoading(false);
     }
   }
+
+
 }

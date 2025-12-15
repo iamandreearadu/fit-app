@@ -31,18 +31,18 @@
 }
 
 .change-week-btn {
-  color: var(--white);
-  border-color: var(--white-fade);
+  color: var(--white) !important;
+  border-color: var(--white-fade) !important;
 }
 
 .change-week-btn:disabled {
-  color: var(--white-fade);
-  border-color: var(--white-fade);
+  color: var(--white-fade) !important;
+  border-color: var(--white-fade) !important;
 }
 
 
 .week-label {
-  font-weight: 600;
+  font-weight: 600;  
   font-size: 16px;
   color: var(--white-soft);
 }
