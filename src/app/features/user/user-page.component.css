@@ -3,11 +3,7 @@
   max-width: calc(100% - 100px);
   width: 1400px;
   margin: 50px auto 32px auto;
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.04) 0%,
-    rgba(255,255,255,0.06) 100%
-  );
+  background: var(--background-fade);
   border-radius: 12px;
   box-shadow: 0 6px 24px rgba(0,0,0,0.35);
   min-height: 80vh;
@@ -53,7 +49,7 @@
 .sidebar {
   position: sticky;
   top: 24px;
-  background: rgba(255,255,255,0.05);
+  background: var(--background-fade);
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.35);
   overflow: hidden;
@@ -206,7 +202,7 @@
 
 /* CONTENT CARD */
 .content-card {
-  background: rgba(255,255,255,0.05);
+  background: var(--background-fade);
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.35);
   backdrop-filter: blur(8px);
@@ -253,7 +249,7 @@
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.03);
   border-radius: 8px;
   border-left: 4px solid var(--primary);
   transition: all 0.3s ease;

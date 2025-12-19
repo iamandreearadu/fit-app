@@ -6,6 +6,34 @@
     </div>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="profile-form">
+
+      <div class="avatar-row">
+        <div class="avatar-wrap">
+          <img
+            [src]="form.get('imageUrl')?.value || ''"
+            alt="Profile photo"
+            class="avatar-img clickable"
+            (click)="openImagePreview()"
+            (error)="onClearLink()"
+          />
+        </div>
+
+        <div class="avatar-actions">
+          <button mat-stroked-button class="primary" type="button" (click)="openFilePicker()">
+            <mat-icon>upload</mat-icon>
+            Upload Image
+          </button>
+
+          <button *ngIf="form.get('imageUrl')?.value"
+                  mat-stroked-button class="accent" type="button" (click)="onClearLink()">
+            <mat-icon>delete</mat-icon>
+            Clear
+          </button>
+          
+          <input #fileInput type="file" accept="image/*" (change)="onFilePicked($event)" hidden />
+        </div>
+      </div>
+
       <div class="form-row">
         <mat-form-field appearance="outline" class="form-field-half">
           <mat-label>Full Name</mat-label>
@@ -35,3 +63,14 @@
     </form>
   </mat-card-content>
 </mat-card>
+
+<ng-template #imagePreviewTpl>
+  <div class="md-img-dialog">
+    <figure class="md-img-shell">
+      <img class="md-img" [src]="form.get('imageUrl')?.value" alt="Profile preview" />
+      <button class="md-close" mat-icon-button mat-dialog-close aria-label="Close preview">
+        <mat-icon>close</mat-icon>
+      </button>
+    </figure>
+  </div>
+</ng-template>

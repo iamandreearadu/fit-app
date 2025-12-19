@@ -75,11 +75,7 @@
 
 .visual-card {
   padding: 24px;
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.05) 0%,
-    rgba(255,255,255,0.08) 100%
-  );
+  background: var(--background-fade);
   border-radius: 12px;
   border-left: 4px solid var(--primary);
   box-shadow: 0 4px 12px rgba(0,0,0,0.25);

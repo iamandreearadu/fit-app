@@ -2,12 +2,8 @@
   padding: 32px 24px 48px;
   max-width: calc(100% - 100px);
   width: 1400px;
-  margin: 40px auto 32px auto;
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.04) 0%,
-    rgba(255,255,255,0.06) 100%
-  );
+  margin: 40px auto 80px auto;
+  background: var(--background-fade);
   border-radius: 12px;
   box-shadow: 0 6px 24px rgba(0,0,0,0.35);
   min-height: 80vh;
@@ -75,7 +71,7 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-  background: rgba(255,255,255,0.04);
+  background: var(--background-fade);
   backdrop-filter: blur(10px);
   border-radius: 12px;
 }
@@ -139,17 +135,6 @@ mat-label{
   border-top: 1px solid var(--white-fade);
 }
 
-.post-actions button{
-   background: var(--white-fade);
-   transition: all 0.2s ease;
-   color: var(--white);
-}
-
-.post-actions button:hover{
-  background: rgba(255, 255, 255, 0.15);
-}
-
-
 .admin-actions {
   position: absolute;
   bottom: 10px;
@@ -159,15 +144,18 @@ mat-label{
   gap: 10px;
 }
 
-.admin-actions button {
-  transition: all 0.2s ease;
-   background: var(--white-fade)
+
+:host ::ng-deep .mat-mdc-icon-button {
+    transition: all 0.2s ease;
+  background: var(--white-fade);
+  padding: 0;
+  display: grid;
+  place-items: center;
 }
 
-.admin-actions button:hover {
+:host ::ng-deep .mat-mdc-icon-button:hover {
   background: rgba(255, 255, 255, 0.15);
 }
-
 
 
 .no-results {
@@ -243,15 +231,15 @@ mat-label{
   align-items: center;
   justify-content: center;
   padding: 20px;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(18px);
 }
 
 .overlay-card {
   width: 100%;
-  max-width: 700px;
-  max-height: 90vh;
+  max-width: 1000px;
+  max-height: 100vh;
   overflow-y: auto;
-  background: rgba(255,255,255,0.05);
+  background: var(--background-fade);
   border-radius: 12px;
   backdrop-filter: blur(12px);
   box-shadow: 0 6px 24px rgba(0,0,0,0.4);
@@ -285,6 +273,14 @@ mat-label{
   gap: 12px;
   justify-content: flex-end;
 }
+
+
+.overlay-card ::ng-deep .mdc-text-field--outlined{
+border: 1px solid var(--white-fade);
+background: var(--background-fade);
+
+}
+
 
 .full-width {
   width: 100%;

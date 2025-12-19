@@ -1,5 +1,26 @@
 
-/* NEW CHAT BUTTON */
+:host { display: block; height: 100%; }         
+.sidebar { display: flex; flex-direction: column; height: 100%; }
+
+.convo-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: none;
+  scrollbar-width: none;        
+  -ms-overflow-style: none;     
+}
+.convo-scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+mat-nav-list, .mdc-list, mat-list-item, .mat-mdc-list-item {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+mat-list-item, .mat-mdc-list-item {
+  min-width: 0;                 
+  display: flex;
+  align-items: center;
+}
+
 .new-chat-btn {
   width: 95%;
   margin: 0 5px 1rem 5px;
@@ -13,7 +34,6 @@
     margin-top: 4px;
 }
 
-/* LIST ITEMS */
 mat-list-item {
   color: var(--white-soft);
   cursor: pointer;
@@ -71,8 +91,7 @@ mat-list-item.active .delete-btn {
 }
 
 mat-list-item.active .delete-btn:hover {
-  color: #ff6b6b;
-
+  color: var(--accent)
 }
 
 

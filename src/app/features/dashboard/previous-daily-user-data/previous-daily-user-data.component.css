@@ -3,11 +3,7 @@
   max-width: calc(100% - 100px);
   width: 1400px;
   margin: 40px auto 140px auto;
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.04),
-    rgba(255,255,255,0.06)
-  );
+  background: var(--background-fade);
   border-radius: 12px;
   box-shadow: 0 6px 24px rgba(0,0,0,0.35);
   color: var(--white);
@@ -59,13 +55,9 @@
 }
 
 .day-card {
-  background: linear-gradient(
-    135deg,
-    var(--primary),
-    var(--primary-glow)
-  );
+  background: var(--background-fade);
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid   var(--white-fade);
   transition: transform .2s, box-shadow .2s;
 }
 

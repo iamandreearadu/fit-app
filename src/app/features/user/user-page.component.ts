@@ -25,15 +25,7 @@ export class UserPageComponent {
 
   public avatarUrl = computed(() => {
     const user = this.userStore.user();
-    const gender = user?.gender;
-
-    if (gender === 'female') {
-      return 'https://i.pravatar.cc/150?img=47';
-    } else if (gender === 'male') {
-      return 'https://i.pravatar.cc/150?img=12';
-    } else {
-      return 'https://i.pravatar.cc/150?img=68';
-    }
+    return user?.imageUrl ;
   });
 
   public displayName = computed(() => {

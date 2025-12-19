@@ -1,28 +1,32 @@
- <div class="sidebar-header">
-      <button mat-flat-button color="primary" class="new-chat-btn" (click)="newChat()">
-        <mat-icon>add</mat-icon>
-        New Chat
-      </button>
-    </div>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <button mat-flat-button color="primary" class="new-chat-btn" (click)="newChat()">
+      <mat-icon>add</mat-icon>
+      New Chat
+    </button>
+  </div>
 
+  <div class="convo-scroll">
     <mat-nav-list>
       <mat-list-item
         *ngFor="let conv of facade.conversations()"
         (click)="openConversation(conv.id)"
-        [class.active]="conv.id === facade.conversationId()"
-      >
+        [class.active]="conv.id === facade.conversationId()">
+
         <mat-icon matListIcon>chat</mat-icon>
 
         <div class="btn-caption" matLine>{{ conv.messages || 'Conversation' }}</div>
-        <div class="btn-caption" matLine class="small-date">
+        <div class="btn-caption small-date" matLine>
           {{ conv.createdAt | date:'short' }}
         </div>
 
-    <div class="delete-btn"
-      (click)="delete(conv.id); $event.stopPropagation()"
-      matTooltip="Delete conversation">
-    <mat-icon class="delete-icon">delete</mat-icon>
-  </div>
+        <div class="delete-btn"
+             (click)="delete(conv.id); $event.stopPropagation()"
+             matTooltip="Delete conversation">
+          <mat-icon class="delete-icon">delete</mat-icon>
+        </div>
 
       </mat-list-item>
     </mat-nav-list>
+  </div>
+</div>

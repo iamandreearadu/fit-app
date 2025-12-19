@@ -1,7 +1,7 @@
 .metrics-card {
   position: sticky;
   top: 24px;
-  background: rgba(255,255,255,0.05);
+  background:var(--background-fade);
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.35);
   backdrop-filter: blur(8px);
@@ -32,11 +32,7 @@
   align-items: center;
   padding: 12px;
   margin-bottom: 8px;
-  background: linear-gradient(
-    135deg,
-    rgba(255,255,255,0.05) 0%,
-    rgba(255,255,255,0.12) 100%
-  );
+  background:var(--background-fade);
   border-radius: 8px;
   transition: transform 0.2s ease;
 }
@@ -66,13 +62,13 @@
 .metric-value {
   font-size: 16px;
   font-weight: 700;
-  color: var(--white);
+  color: var(--primary);
 }
 
 .metric-value .unit {
   font-size: 12px;
   font-weight: 400;
-  color: var(--white-fade);
+  color: var(--white-soft);
   margin-left: 2px;
 }
 
@@ -83,10 +79,10 @@
   gap: 8px;
   margin-top: 16px;
   padding: 12px;
-  background: rgba(255, 215, 0, 0.15);
+  background: var(--accent-background);
   border-radius: 6px;
   font-size: 12px;
-  color: rgba(255, 215, 0, 0.85);
+  color: var(--accent);
 }
 
 .calculation-info mat-icon {

@@ -27,6 +27,7 @@ export class UserStore {
       id: current?.id ?? patch.id ?? 'local-' + Math.random().toString(36).slice(2, 9),
       email: patch.email ?? current?.email ?? '',
       fullName: patch.fullName ?? current?.fullName ?? '',
+      imageUrl: patch.imageUrl ?? current?.imageUrl ?? '',
       heightCm: patch.heightCm ?? current?.heightCm ?? 0,
       weightKg: patch.weightKg ?? current?.weightKg ?? 0,
       age: patch.age ?? current?.age ?? 0,

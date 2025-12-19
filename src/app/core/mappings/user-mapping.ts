@@ -6,6 +6,7 @@ export function mapFirestoreToProfile(fs: UserFirestore): UserProfile {
     id: fs.id,
     email: fs.email ?? '',
     fullName: fs.fullName ?? '',
+    imageUrl: fs.imageUrl ?? '',
     heightCm: fs.heightCm ?? 0,
     weightKg: fs.weightKg ?? 0,
     age: fs.age ?? 0,

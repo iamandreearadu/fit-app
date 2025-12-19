@@ -16,10 +16,6 @@
       <mat-icon class="nav-icon">home</mat-icon>
       <span>Home</span>
     </a>
-    <a *ngIf="accountFacade.authUser()" mat-button routerLink="/user-profile" class="nav-item" [class.active]="navService.isActive('/user-profile')">
-      <mat-icon class="nav-icon">person</mat-icon>
-      <span>Profile</span>
-    </a>
     <a *ngIf="accountFacade.authUser()" mat-button routerLink="/user-dashboard" class="nav-item" [class.active]="navService.isActive('/user-dashboard')">
       <mat-icon class="nav-icon">dashboard</mat-icon>
       <span>Dashboard</span>
@@ -37,7 +33,6 @@
 
   <span class="spacer"></span>
 
-  <!-- Authentication actions -->
   <div class="auth-actions">
     <ng-container *ngIf="!accountFacade.authUser(); else logged">
       <button mat-stroked-button routerLink="/login" class="login-btn">
@@ -51,7 +46,7 @@
     </ng-container>
 
     <ng-template #logged>
-      <div class="user-info">
+      <div class="user-info" routerLink="/user-profile" [class.active]="navService.isActive('/user-profile')">
         <div class="user-avatar">
           <img [src]="avatarUrl()" alt="User avatar" />
         </div>

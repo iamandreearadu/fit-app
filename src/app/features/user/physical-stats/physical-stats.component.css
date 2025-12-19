@@ -1,6 +1,6 @@
 .stats-card {
   position: relative;
-  background: rgba(255,255,255,0.05);
+  background:var(--background-fade);
   border-radius: 12px;
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 16px rgba(0,0,0,0.35);
@@ -85,6 +85,10 @@
 
 mat-label,mat-select{
   color: var(--white);
+}
+
+.stats-form ::ng-deep .mdc-text-field--outlined{
+border: 1px solid var(--white-fade);
 }
 
 

@@ -39,7 +39,7 @@
   border-radius: 16px;
   transition: all 0.3s ease;
   cursor: pointer;
-  background: var(--white-fade);
+  background: var(--background-fade);
   backdrop-filter: blur(10px);
 }
 

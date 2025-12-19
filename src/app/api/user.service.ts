@@ -16,6 +16,7 @@ export class UserService {
   private alerts = inject(AlertService);
   private auth = inject(Auth);
 
+
   constructor() {}
 
   private getAuthUser(): User | null {
@@ -46,6 +47,7 @@ export class UserService {
         age: d.age ?? null,
         email: d.email ?? null,
         fullName: d.fullName ?? null,
+        imageUrl: d.imageUrl ?? null,
         gender: d.gender ?? null,
         goal: d.goal ?? null,
         activity: d.activity ?? null,
@@ -75,6 +77,7 @@ export class UserService {
           age: profile.age,
           email: profile.email,
           fullName: profile.fullName,
+          imageUrl: profile.imageUrl,
           gender: profile.gender,
           goal: profile.goal,
           activity: profile.activity,
@@ -96,6 +99,7 @@ export class UserService {
       this.alerts.warn('Failed to save profile', String(err));
     }
   }
+
 
 
   // === Daily User Data ===
@@ -184,11 +188,9 @@ export class UserService {
         });
       });
 
-      // remove today's item from the history list (we want previous days only)
       const todayIso = new Date().toISOString().slice(0, 10);
       const filtered = items.filter(i => i.date !== todayIso);
 
-      // sort desc — cea mai recentă zi prima
       return filtered.sort((a,b) => b.date.localeCompare(a.date));
 
     } catch (err) {

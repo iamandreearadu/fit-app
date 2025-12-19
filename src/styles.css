@@ -7,7 +7,15 @@
   --white: #ffffff;
   --white-soft: rgba(255, 255, 255, 0.85);
   --white-fade: rgba(255, 255, 255, 0.08);
-  --effect-glow:  color-mix(in srgb, var(--surface) 85%, var(--primary-glow) 15%);
+  --accent: rgb(255, 64, 129);
+  --accent-background: rgb(255, 64, 129, 0.15);
+  /* --effect-glow:  color-mix(in srgb, var(--surface) 85%, var(--primary-glow) 15%); */
+  --background-fade: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.02)
+  );
+  
 
 }
 
@@ -56,6 +64,17 @@ app-root {
 
 .navbar {
   height: 12vh;
+}
+
+
+
+/* GLOBAL TEXT COLORS  */
+.primary{
+  color: var(--primary) !important;
+}
+
+.accent{
+  color: var(--accent) !important;
 }
 
 /* CUSTOM SCROLLBAR */

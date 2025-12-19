@@ -13,6 +13,7 @@ export interface UserFirestore {
   age: number | null;
   email: string | null;
   fullName: string | null;
+  imageUrl: string | null;
   gender: 'male' | 'female' | 'other' | null;
   goal: 'lose' | 'gain' | 'maintain' | null;
   activity: string | null;

@@ -43,13 +43,15 @@
             </mat-form-field>
 
             <div class="btn-row">
-              <button mat-stroked-button color="primary" type="button" (click)="adjustCaloriesBurned(200)">+200</button>
-              <button mat-stroked-button color="accent" type="button" (click)="adjustCaloriesBurned(-200)">−200</button>
+              <button mat-stroked-button class="primary" type="button" (click)="adjustCaloriesBurned(200)">+200</button>
+              <button mat-stroked-button class="accent" type="button" (click)="adjustCaloriesBurned(-200)">−200</button>
             </div>
 
             <div class="net-row">
               <span>Net calories:</span>
-              <span [class.text-success]="facade.dailyDataStats().netCalories < facade.dailyDataStats().totalCalories" [class.text-danger]="facade.dailyDataStats().netCalories > facade.dailyDataStats().totalCalories">{{ facade.dailyDataStats().netCalories }} kcal</span>
+              <!-- <span [class.text-success]="facade.dailyDataStats().netCalories < facade.dailyDataStats().totalCalories" [class.text-danger]="facade.dailyDataStats().netCalories > facade.dailyDataStats().totalCalories">{{ facade.dailyDataStats().netCalories }} kcal</span> -->
+              <span class="net-calories">{{ facade.dailyDataStats().netCalories }} kcal</span>
+ 
             </div>
           </mat-card-content>
         </mat-card>
@@ -98,9 +100,9 @@
             <div class="progress-percentage">{{ (facade.waterProgress() || 0) | number:'1.0-0' }}% complete</div>
 
             <div class="btn-row">
-              <button mat-stroked-button color="primary" (click)="facade.addWater(0.25)">+250 ml</button>
-              <button mat-stroked-button color="primary" (click)="facade.addWater(0.5)">+500 ml</button>
-              <button mat-stroked-button color="accent" (click)="facade.addWater(-0.25)">−250 ml</button>
+              <button mat-stroked-button class="primary" (click)="facade.addWater(0.25)">+250 ml</button>
+              <button mat-stroked-button class="primary" (click)="facade.addWater(0.5)">+500 ml</button>
+              <button mat-stroked-button class="accent" (click)="facade.addWater(-0.25)">−250 ml</button>
             </div>
 
             <div class="progress-header">
@@ -111,9 +113,9 @@
             <div class="progress-percentage">{{ facade.dailyDataStats().stepsProgress | number:'1.0-0' }}% complete</div>
 
             <div class="btn-row">
-              <button mat-stroked-button color="primary" (click)="facade.addSteps(500)">+500</button>
-              <button mat-stroked-button color="primary" (click)="facade.addSteps(1000)">+1000</button>
-              <button mat-stroked-button color="accent" (click)="facade.addSteps(-500)">−500</button>
+              <button mat-stroked-button class="primary" (click)="facade.addSteps(500)">+500</button>
+              <button mat-stroked-button class="primary" (click)="facade.addSteps(1000)">+1000</button>
+              <button mat-stroked-button class="accent" (click)="facade.addSteps(-500)">−500</button>
             </div>
           </mat-card-content>
         </mat-card>

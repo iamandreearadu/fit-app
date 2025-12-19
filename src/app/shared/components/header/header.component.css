@@ -149,16 +149,17 @@
 .user-info {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 12px;
+  gap: 16px;
+  padding: 6px 12px;
   background: var(--white-fade);
-  border-radius: 20px;
+  border-radius: 24px;
   backdrop-filter: blur(10px);
+  cursor: pointer;
 }
 
 .user-avatar {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   overflow: hidden;
   background: var(--white);
@@ -166,7 +167,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--white-fade);
 }
 
 .user-avatar img {
@@ -179,7 +180,7 @@
 .user-name {
   color: var(--white);
   font-weight: 500;
-  font-size: 12px;
+  font-size: 14px;
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;

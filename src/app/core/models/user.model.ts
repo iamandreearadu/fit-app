@@ -3,6 +3,7 @@ export interface UserProfile {
   email: string;
   fullName: string;
   heightCm: number; 
+  imageUrl?: string;
   weightKg: number;
   age: number;
   gender: Sex
