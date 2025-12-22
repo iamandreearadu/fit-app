@@ -12,7 +12,7 @@ import { MealMacros } from '../../../../core/models/meal-macros';
   styleUrl: './ai-meal-analyzer.component.css'
 })
 export class AiMealAnalyzerComponent {
- private groq = inject(GroqAiFacade);
+ private groqFacade = inject(GroqAiFacade);
 
   @Input() disabled = false;
   @Input() maxSizeMB = 8;
@@ -37,8 +37,7 @@ export class AiMealAnalyzerComponent {
   onFileChange(ev: Event) {
     const input = ev.target as HTMLInputElement;
     const f = input.files?.[0] ?? null;
-    this.setFile(f);
-
+    this.setFile(f);    
     // allow same-file reselection
     if (input) input.value = '';
   }
@@ -72,6 +71,10 @@ export class AiMealAnalyzerComponent {
     const r = new FileReader();
     r.onload = () => this.preview = String(r.result);
     r.readAsDataURL(f);
+
+    
+    // analyze directly upon selection
+    this.analyze();
   }
 
   clear() {
@@ -92,7 +95,7 @@ export class AiMealAnalyzerComponent {
     this.errorMsg = null;
 
     try {
-      const res = await this.groq.analyzeMeal(this.file);
+      const res = await this.groqFacade.analyzeMeal(this.file);
       // store locally for UI
           this.result = {
         protein_g: Number(res.protein_g ?? 0),
@@ -101,7 +104,6 @@ export class AiMealAnalyzerComponent {
         calories_kcal: res.calories_kcal != null ? Number(res.calories_kcal) : undefined,
         items: res.items
       };
-      // emit upward for daily-user-data accumulation
 
       this.analyzed.emit(this.result);
     } catch (e: any) {

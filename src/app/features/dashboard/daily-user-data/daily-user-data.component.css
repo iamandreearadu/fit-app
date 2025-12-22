@@ -201,6 +201,42 @@
   gap: 12px;
 }
 
+.delta-suffix{
+  position: absolute;
+  right: 300px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--primary);
+  align-self: center; 
+}
+
+.btn-analyze{
+  margin-top: 8px;
+}
+
+.btn-analyze button {
+  width: 100%;             
+  height: 56px;               
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: .4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;                  
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.btn-analyze button .mat-icon {
+  font-size: 22px;           
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
+}
+
 .progress-header {
   display: flex;
   justify-content: space-between;
@@ -279,7 +315,63 @@ mat-label{
   border-radius: 8px !important;
 }
 
+/* === MODAL OVERLAY === */
+.overlay-backdrop{
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(18px);
+  display: grid;
+  place-items: center;
+}
 
+.overlay-card{
+  width: min(92vw, 860px);
+  max-height: 90vh;
+  overflow: auto;
+  background: var(--background-fade);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  border: 1px solid var(--white-fade);
+  color: var(--white-soft);
+  box-shadow: 0 16px 48px rgba(0,0,0,.55);
+}
+
+.overlay-card mat-card-header{
+  margin-bottom: 24px;
+
+}
+.overlay-header{
+  display: flex; 
+  align-items: center; 
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--white-fade);
+}
+
+.overlay-header .mat-mdc-card-title{ 
+  color: var(--primary); 
+}
+
+.flex-spacer{ 
+  flex: 1 1 auto; 
+}
+
+.overlay-cancel-btn{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.5);
+  background: var(--surface);
+  opacity: 0.9;
+  color: var(--white);
+  height: 36px;
+  width: 36px;
+}
+
+.error{ 
+  color: var(--accent); 
+}
 
 @media (max-width: 768px) {
   .daily-root {
