@@ -1,8 +1,6 @@
 <mat-toolbar color="primary" class="modern-header">
-  <div class="logo-container" routerLink="/">
-    <div class="logo-icon">
-      <mat-icon>fitness_center</mat-icon>
-    </div>
+  <div class="logo-container" routerLink="/" (click)="closeMobileNav()">
+    <div class="logo-icon"><mat-icon>fitness_center</mat-icon></div>
     <div class="logo-text">
       <span class="logo-main">Fit</span>
       <span class="logo-accent">Track</span>
@@ -13,48 +11,94 @@
 
   <nav class="nav-links">
     <a mat-button routerLink="/" class="nav-item" [class.active]="navService.isActive('/')">
-      <mat-icon class="nav-icon">home</mat-icon>
-      <span>Home</span>
+      <mat-icon class="nav-icon">home</mat-icon><span>Home</span>
     </a>
     <a *ngIf="accountFacade.authUser()" mat-button routerLink="/user-dashboard" class="nav-item" [class.active]="navService.isActive('/user-dashboard')">
-      <mat-icon class="nav-icon">dashboard</mat-icon>
-      <span>Dashboard</span>
+      <mat-icon class="nav-icon">dashboard</mat-icon><span>Dashboard</span>
+    </a>
+    <a mat-button routerLink="/blog" class="nav-item" [class.active]="navService.isActive('/blog')">
+      <mat-icon class="nav-icon">article</mat-icon><span>Blog</span>
+    </a>
+    <a mat-button routerLink="/workouts" class="nav-item" [class.active]="navService.isActive('/workouts')">
+      <mat-icon class="nav-icon">fitness_center</mat-icon><span>Workouts</span>
     </a>
     <a mat-button routerLink="/openai" class="nav-item" [class.active]="navService.isActive('/openai')">
-      <mat-icon class="nav-icon">chat </mat-icon>
-      <span>AI Assistant</span>
-    </a>  
-
-    <a mat-button routerLink="/blog" class="nav-item" [class.active]="navService.isActive('/blog')">
-      <mat-icon class="nav-icon">article</mat-icon>
-      <span>Blog</span>
+      <mat-icon class="nav-icon">chat</mat-icon><span>AI Assistant</span>
     </a>
   </nav>
 
   <span class="spacer"></span>
 
-  <div class="auth-actions">
+  <div class="right-actions">
     <ng-container *ngIf="!accountFacade.authUser(); else logged">
       <button mat-stroked-button routerLink="/login" class="login-btn">
-        <mat-icon>login</mat-icon>
-        Login
+        <mat-icon>login</mat-icon><span>Login</span>
       </button>
       <button mat-raised-button routerLink="/register" class="register-btn">
-        <mat-icon>person_add</mat-icon>
-        Register
+        <mat-icon>person_add</mat-icon><span>Register</span>
       </button>
     </ng-container>
 
     <ng-template #logged>
-      <div class="user-info" routerLink="/user-profile" [class.active]="navService.isActive('/user-profile')">
-        <div class="user-avatar">
-          <img [src]="avatarUrl()" alt="User avatar" />
-        </div>
+      <button class="user-info btn-plain" mat-button [matMenuTriggerFor]="userMenu" aria-label="User menu">
+        <div class="user-avatar"><img [src]="avatarUrl()" alt="User avatar" /></div>
         <span class="user-name">{{ displayName() }}</span>
-      </div>
-      <button mat-icon-button aria-label="Logout" (click)="logout()" class="logout-btn">
-        <mat-icon>logout</mat-icon>
+        <mat-icon class="chev">expand_more</mat-icon>
       </button>
+
+      <mat-menu #userMenu="matMenu" xPosition="before" yPosition="below" panelClass="user-menu-dark">
+        <button mat-menu-item routerLink="/user-profile" (click)="closeMobileNav()">
+          <mat-icon>person</mat-icon><span>Profile</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon color="warn">logout</mat-icon><span>Logout</span>
+        </button>
+      </mat-menu>
     </ng-template>
+
+    <button class="mobile-toggle" mat-icon-button (click)="toggleMobileNav()" aria-label="Open menu">
+      <mat-icon>{{ mobileNavOpen ? 'close' : 'menu' }}</mat-icon>
+    </button>
   </div>
 </mat-toolbar>
+
+<!-- Full overlay menu -->
+<div class="overlay-backdrop" *ngIf="mobileNavOpen" (click)="closeMobileNav()"></div>
+<nav class="overlay-drawer" *ngIf="mobileNavOpen" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+  <header class="overlay-header">
+    <div class="overlay-title"><mat-icon>menu</mat-icon><span>Menu</span></div>
+    <button mat-icon-button (click)="closeMobileNav()" aria-label="Close menu">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="overlay-links">
+    <a routerLink="/" (click)="closeMobileNav()" [class.active]="navService.isActive('/')">
+      <mat-icon>home</mat-icon><span>Home</span>
+    </a>
+    <a *ngIf="accountFacade.authUser()" routerLink="/user-dashboard" (click)="closeMobileNav()" [class.active]="navService.isActive('/user-dashboard')">
+      <mat-icon>dashboard</mat-icon><span>Dashboard</span>
+    </a>
+    <a routerLink="/blog" (click)="closeMobileNav()" [class.active]="navService.isActive('/blog')">
+      <mat-icon>article</mat-icon><span>Blog</span>
+    </a>
+    <a routerLink="/workouts" (click)="closeMobileNav()" [class.active]="navService.isActive('/workouts')">
+      <mat-icon>fitness_center</mat-icon><span>Workouts</span>
+    </a>
+    <a routerLink="/openai" (click)="closeMobileNav()" [class.active]="navService.isActive('/openai')">
+      <mat-icon>chat</mat-icon><span>AI Assistant</span>
+    </a>
+
+    <ng-container *ngIf="accountFacade.authUser()">
+      <mat-divider></mat-divider>
+      <a routerLink="/user-profile" (click)="closeMobileNav()">
+        <div class="user-avatar"><img [src]="avatarUrl()" alt="User avatar" /></div>
+          <span>{{ displayName() }}</span>
+      </a>
+      <button class="overlay-logout" (click)="logout(); closeMobileNav()">
+        <mat-icon>logout</mat-icon><span>Logout</span>
+      </button>
+    </ng-container>
+  </div>
+</nav>

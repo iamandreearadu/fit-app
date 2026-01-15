@@ -1,162 +1,181 @@
-:host {
-  display: block;
-  color: var(--white-soft);
+:host{
+  display:block;
+  color:var(--white-soft);
+  width:100%;
 }
 
-/* Container */
-.ai-container {
-  max-width: 70%;
-  margin: 2rem auto;
-  padding: 0 1rem;
+.ai-container{
+  max-width:min(1100px, 100%);
+  width:100%;
+  margin:1.25rem auto 1.5rem;
+  padding:0 1rem;
+  box-sizing:border-box;
 }
 
-/* Title */
-.ai-title {
-  text-align: center;
-  font-size: 2rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--primary), #9e7bff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 2rem;
+.ai-title{
+  text-align:center;
+  font-size:2rem;
+  font-weight:700;
+  background:linear-gradient(135deg, var(--primary), #9e7bff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin:0 0 1.25rem 0;
 }
 
-/* Chat Window */
-.chat-window {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  max-height: 60vh;
-  overflow-y: auto;
+.chat-window{
+  display:flex;
+  flex-direction:column;
+  gap:0.9rem;
+  margin-bottom:1rem;
+  max-height:calc(100vh - 300px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
 }
-.ai-field textarea::placeholder, mat-label{
-  color: var(--white-soft);
-}
+.chat-window::-webkit-scrollbar{ display:none; }
 
-/* Bubbles */
-.bubble {
-  padding: 0.9rem 1.2rem;
-  border-radius: 12px;
-  max-width: 80%;
-  position: relative;
-  line-height: 1.5;
+.bubble{
+  padding:0.9rem 1.1rem;
+  border-radius:12px;
+  max-width:78%;
+  position:relative;
+  line-height:1.5;
+  word-break:break-word;
 }
-
-.bubble.user {
-  align-self: flex-end;
-  background: var(--primary);
-  color: var(--white);
-  box-shadow: 0 0 10px var(--primary-glow);
+.bubble.user{
+  align-self:flex-end;
+  background:var(--primary);
+  color:var(--white);
+  box-shadow:0 0 10px var(--primary-glow);
 }
-
-.bubble.ai {
-  align-self: flex-start;
-  background: var(--background-fade);
-  color: var(--white-soft);
-  border: 1px solid rgba(255,255,255,0.05);
+.bubble.ai{
+  align-self:flex-start;
+  background:var(--background-fade);
+  color:var(--white-soft);
+  border:1px solid rgba(255,255,255,0.05);
 }
 
-.time {
-  font-size: 0.7rem;
-  opacity: 0.6;
-  margin-top: 0.4rem;
+.time{
+  font-size:0.72rem;
+  opacity:0.65;
+  margin-top:0.35rem;
 }
 
-/* Input card */
-.ai-card {
-  background: var(--surface);
-  padding: 1.5rem;
-  border-radius: 18px;
-  border: 1px solid var(--white-fade);
-  box-shadow: 0 0 15px var(--primary-glow);
+.ai-card{
+  background:var(--surface);
+  padding:1rem;
+  border-radius:14px;
+  border:1px solid var(--white-fade);
+  box-shadow:0 0 12px var(--primary-glow);
+  position:sticky;
+  bottom:0;
+  z-index:1;
 }
 
-
-
-/* Conversation list */
-.conv-list {
-  margin-bottom: 2rem;
+.ai-field textarea::placeholder,
+.ai-field mat-label{
+  color:var(--white-soft);
 }
 
-.conv-btn {
-  width: 100%;
-  margin-bottom: 0.5rem;
-  color: var(--white-soft) !important;
+.conv-list{ margin-bottom:1rem; }
+.conv-btn{
+  width:100%;
+  margin-bottom:0.5rem;
+  color:var(--white-soft) !important;
 }
 
-
-
-/* HORIZONTAL INPUT ROW */
-.input-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-top: .5rem;
-  background: var(--background-fade);
-  padding: .75rem 1rem;
-  border-radius: 12px;
+.input-row{
+  display:flex;
+  align-items:center;
+  gap:0.75rem;
+  margin-top:0.5rem;
+  background:var(--background-fade);
+  padding:0.65rem 0.8rem;
+  border-radius:12px;
+  flex-wrap:wrap;
 }
 
-/* Upload Button */
-.upload-btn {
-  min-width: 48px !important;
-  width: 48px;
-  height: 48px;
-  padding: 0 !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.upload-btn,
+.send-btn{
+  width:46px;
+  height:46px;
+  min-width:46px !important;
+  padding:0 !important;
+  border-radius:12px;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
 }
 
-/* Filename style */
-.filename {
-  color: var(--white-soft);
-  font-size: 0.9rem;
-  max-width: 40%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.filename{
+  color:var(--white-soft);
+  font-size:0.9rem;
+  max-width:45%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 
-.flex-spacer {
-  flex: 1;
+.flex-spacer{ flex:1 1 auto; }
+
+.ai-message{
+  white-space:pre-wrap;
+  line-height:1.5;
 }
 
-.send-btn {
-  width: 48px;
-  height: 48px;
-  min-width: 48px !important;
-  padding: 0;
-  border-radius: 12px;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+.chat-image{
+  max-width:100%;
+  width:100%;
+  height:auto;
+  border-radius:12px;
+  margin-top:0.5rem;
+  display:block;
+  border:1px solid var(--white-fade);
 }
 
-
-.ai-message {
-  white-space: pre-wrap;
-  line-height: 1.5;
+:host, .ai-container, .chat-window{
+  overflow-x:hidden;
 }
 
-.chat-image {
-  max-width: 100%;
-  border-radius: 12px;
-  margin-top: 0.5rem;
-  display: block;
+@media (max-width: 992px){
+  .ai-container{ padding:0 0.75rem; }
+  .bubble{ max-width:82%; }
 }
 
-
-.chat-window {
-  flex: 1;              
-  overflow-y: auto;
-  margin-bottom: 1rem;
-
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+@media (max-width: 768px){
+  .ai-container{
+    max-width:100%;
+    padding:0 10px;
+    margin:12px auto;
+  }
+  .ai-title{ font-size:1.6rem; margin-bottom:0.9rem; }
+  .chat-window{
+    max-height:calc(100vh - 260px);
+    gap:0.75rem;
+  }
+  .bubble{ max-width:96%; }
+  .ai-card{
+    padding:0.75rem;
+    border-radius:12px;
+    box-shadow:none;
+    border-color:var(--white-fade);
+  }
+  .input-row{
+    gap:0.6rem;
+    padding:0.55rem 0.6rem;
+  }
+  .upload-btn, .send-btn{
+    width:42px; height:42px; min-width:42px !important;
+  }
+  .filename{ max-width:65vw; font-size:0.85rem; }
 }
 
-.chat-window::-webkit-scrollbar {
-  display: none;
+@media (max-width: 480px){
+  .ai-title{ font-size:1.4rem; }
+  .bubble{ padding:0.8rem 1rem; }
+  .upload-btn, .send-btn{
+    width:40px; height:40px; min-width:40px !important;
+  }
+  .filename{ max-width:60vw; }
 }

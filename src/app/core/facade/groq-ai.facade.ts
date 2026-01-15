@@ -109,8 +109,6 @@ export class GroqAiFacade {
     }
   }
 
-
-
   async deleteConversation(id: string): Promise<void> {
     if (!id) return;
     this.state.setLoading(true);

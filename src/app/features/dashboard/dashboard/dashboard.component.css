@@ -3,17 +3,11 @@
   max-width: calc(100% - 100px);
   width: 1400px;
   margin: 50px auto 40px auto;
-  /* background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.04) 0%,
-    rgba(255,255,255,0.06) 100%
-  ); */
   background: var(--background-fade);
   border-radius: 12px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
 }
 
-/* HEADER */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -31,7 +25,6 @@
   letter-spacing: -0.5px;
 }
 
-/* CARDS GRID */
 .dashboard-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -39,10 +32,8 @@
   margin-bottom: 24px;
 }
 
-/* CARD */
 .stat-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  /* background: rgba(255,255,255,0.04); */
   background: var(--background-fade);
   border-radius: 12px;
   overflow: hidden;
@@ -55,7 +46,6 @@
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
 }
 
-/* TITLE inside card */
 .stat-card ::ng-deep .mat-mdc-card-title {
   font-size: 14px;
   font-weight: 500;
@@ -67,7 +57,6 @@
   padding-top: 12px;
 }
 
-/* STAT VALUES */
 .stat-value {
   font-size: 36px;
   font-weight: 700;
@@ -90,7 +79,6 @@
   line-height: 1.5;
 }
 
-/* RESPONSIVE */
 @media (max-width: 768px) {
   .dashboard-root {
     padding: 16px;

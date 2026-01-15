@@ -1,15 +1,26 @@
 <div class="page-wrapper">
   <app-header></app-header>
-  <mat-sidenav-container class="chat-layout-container">
 
-  <mat-sidenav mode="side" opened class="sidebar">
-    <app-groq-sidenav></app-groq-sidenav>
-  </mat-sidenav>
+  <mat-sidenav-container class="chat-layout">
+    <mat-sidenav
+      class="sidebar"
+      [mode]="isHandset ? 'over' : 'side'"
+      [opened]="isHandset ? sidebarOpen : true"
+      (closedStart)="sidebarOpen = false">
+      <app-groq-sidenav></app-groq-sidenav>
+    </mat-sidenav>
 
-  <mat-sidenav-content class="chat-content">
+    <mat-sidenav-content class="chat-content">
+      <div class="mobile-topbar" *ngIf="isHandset">
+        <button mat-stroked-button class="btn-chats" (click)="openSidebar()">
+          <mat-icon>menu</mat-icon>
+          Chats
+        </button>
+      </div>
+
       <app-groq></app-groq>
-  </mat-sidenav-content>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 
-</mat-sidenav-container>
   <app-footer></app-footer>
 </div>

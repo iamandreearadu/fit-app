@@ -9,6 +9,7 @@ import { DashboardPageComponent } from './features/dashboard/dashboard-page.comp
 import { HomePageComponent } from './features/home/home-page.component';
 import { OpenaiComponent } from './features/openai/openai.component';
 import { BlogPostDetailComponent } from './features/blog/blog-post-detail/blog-post-detail.component';
+import { WorkoutsComponent } from './features/workouts/workouts.component';
 
 export const routes: Routes = [
 
@@ -25,10 +26,11 @@ export const routes: Routes = [
         path: ':id',
         loadComponent: () => 
           import('./features/blog/blog-post-detail/blog-post-detail.component')
-        .then(m => m.BlogPostDetailComponent  )
+        .then(m => m.BlogPostDetailComponent)
       }
     ]
   },
+  { path: 'workouts', component: WorkoutsComponent},
   { path: 'openai', component: OpenaiComponent },
 
   { path: 'user-profile', component: UserPageComponent, canActivate: [AuthGuard] },

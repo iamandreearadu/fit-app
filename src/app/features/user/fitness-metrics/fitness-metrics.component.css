@@ -1,117 +1,45 @@
-.metrics-card {
-  position: sticky;
-  top: 24px;
-  background:var(--background-fade);
+.metrics-card{
+  position: sticky; top: 24px;
+  background: var(--background-fade);
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.35);
   backdrop-filter: blur(8px);
 }
 
-/* TITLE */
-.metrics-card ::ng-deep .mat-mdc-card-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--primary);
-  padding-left: 12px;
-  padding-top: 12px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid var(--white-fade);
-  margin-bottom: 16px;
+.metrics-card ::ng-deep .mat-mdc-card-title{
+  font-size: 20px; font-weight: 700; color: var(--primary);
+  padding: 12px 12px 14px; border-bottom: 2px solid var(--white-fade); margin-bottom: 12px;
 }
 
-/* CONTENT */
-.metrics-card ::ng-deep .mat-mdc-card-content {
-  padding: 20px;
-  color: var(--white-soft);
-}
+.metrics-card ::ng-deep .mat-mdc-card-content{ padding: 16px; color: var(--white-soft); }
 
-/* METRIC ITEM */
-.metric-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  margin-bottom: 8px;
-  background:var(--background-fade);
-  border-radius: 8px;
-  transition: transform 0.2s ease;
+.metric-item{
+  display:flex; justify-content:space-between; align-items:center;
+  padding: 12px; margin-bottom: 8px; background: var(--background-fade);
+  border-radius: 8px; transition: transform .15s ease;
 }
+.metric-item:hover{ transform: translateX(4px); }
 
-.metric-item:hover {
-  transform: translateX(4px);
+.metric-label{ display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color: var(--white-soft); }
+.metric-label mat-icon{ font-size:20px; width:20px; height:20px; color: var(--primary); }
+
+.metric-value{ font-size:16px; font-weight:800; color: var(--primary); }
+.metric-value .unit{ font-size:12px; font-weight:400; color: var(--white-soft); margin-left: 2px; }
+
+.calculation-info{
+  display:flex; align-items:center; gap:8px; margin-top:12px;
+  padding: 10px; background: var(--accent-background); border-radius: 6px;
+  font-size:12px; color: var(--accent);
 }
+.calculation-info mat-icon{ font-size:16px; width:16px; height:16px; }
 
-/* LABEL */
-.metric-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--white-soft);
+.no-data-card ::ng-deep .mat-mdc-card-content{
+  text-align:center; padding: 32px 20px; color: var(--white-soft);
 }
+.no-data-card mat-icon{ font-size:48px; width:48px; height:48px; color: var(--white-fade); margin-bottom: 12px; }
+.no-data-card p{ margin: 8px 0; color: var(--white-soft); }
+.no-data-card .hint{ font-size:13px; color: var(--white-fade); }
 
-.metric-label mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-  color: var(--primary);
-}
-
-/* VALUE */
-.metric-value {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.metric-value .unit {
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--white-soft);
-  margin-left: 2px;
-}
-
-/* CALCULATION INFO (amber glass) */
-.calculation-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 16px;
-  padding: 12px;
-  background: var(--accent-background);
-  border-radius: 6px;
-  font-size: 12px;
-  color: var(--accent);
-}
-
-.calculation-info mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
-}
-
-/* NO DATA CARD */
-.no-data-card ::ng-deep .mat-mdc-card-content {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--white-soft);
-}
-
-.no-data-card mat-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
-  color: var(--white-fade);
-  margin-bottom: 16px;
-}
-
-.no-data-card p {
-  margin: 8px 0;
-  color: var(--white-soft);
-}
-
-.no-data-card .hint {
-  font-size: 13px;
-  color: var(--white-fade);
+@media (max-width: 1024px){
+  .metrics-card{ position: static; }
 }

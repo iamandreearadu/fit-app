@@ -49,7 +49,7 @@ export class GroqAiApiService {
     // ---------------- CHAT IMAGE ----------------
 
     
-     async analyzeImage(prompt: string, file: File): Promise<string> {
+  async analyzeImage(prompt: string, file: File): Promise<string> {
     const base64 = await this.fileToBase64(file);
 
     const res = await this.sendRequest({
@@ -86,7 +86,7 @@ export class GroqAiApiService {
       text,
       AiResponseType.FOOD_IMAGE || AiResponseType.GENERIC_IMAGE
     );
-  }
+  }  
 
 
 
@@ -98,7 +98,6 @@ export class GroqAiApiService {
       model: 'meta-llama/llama-4-scout-17b-16e-instruct',
       messages: [
         { role: 'system', content: OUTPUT_FORMAT_PROMPT_FOR_MACROS },
-        { role: 'system', content: BASE_SYSTEM_PROMPT },
         { role: 'system', content: IMAGE_MACROS_PROMPT },
         {
           role: 'user',
@@ -152,6 +151,24 @@ export class GroqAiApiService {
         return text.trim();
       }
 
+   private validateGenericImageResponse(text: string): string {
+          if (!text || text.length < 20) {
+            return `
+        TITLE:
+        Image analysis unavailable
+
+        DESCRIPTION:
+        The image could not be reliably analyzed.
+
+        INSIGHTS:
+        - No clear fitness or health-related details detected.
+
+        `.trim();
+          }
+        return text.trim();
+}
+
+
 
   private validateFoodImageResponse(text: string): string {
       if (!text || text.length < 40) {
@@ -176,7 +193,7 @@ export class GroqAiApiService {
           return text.trim();
         }
 
-        private validateResponse(
+  private validateResponse(
           text: string,
           type: AiResponseType
         ): string {
@@ -191,28 +208,9 @@ export class GroqAiApiService {
             default:
               return this.validateGenericHealthResponse(text);
           }
-        }
+        }      
 
-        private validateGenericImageResponse(text: string): string {
-          if (!text || text.length < 20) {
-            return `
-        TITLE:
-        Image analysis unavailable
-
-        DESCRIPTION:
-        The image could not be reliably analyzed.
-
-        INSIGHTS:
-        - No clear fitness or health-related details detected.
-
-        `.trim();
-          }
-
-        return text.trim();
-}
-
-
-
+  
     private foodFallback(reason?: string): string {
         console.warn('[AI FOOD IMAGE FALLBACK]', reason);
 
@@ -228,9 +226,6 @@ export class GroqAiApiService {
 
     `.trim();
       }
-
-
-
 
   // ========== HELPERS ==========
 

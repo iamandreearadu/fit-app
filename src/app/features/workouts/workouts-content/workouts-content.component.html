@@ -1,0 +1,162 @@
+<div *ngIf="loading()" class="loading-container">
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>
+
+<div *ngIf="!loading()" class="workouts-root">
+  <div class="section-header">
+    <h2 class="section-title">Workouts</h2>
+    <p class="section-subtitle">Choose a training plan that fits your goals</p>
+  </div>
+
+  <div class="controls-row">
+    <mat-form-field appearance="outline" class="search-field dense">
+      <mat-label>Search</mat-label>
+      <input matInput placeholder="Find plans, perks, goals"
+             [ngModel]="search()" (ngModelChange)="search.set($event)" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="select-field dense">
+      <mat-label>Type</mat-label>
+      <mat-select [ngModel]="type()" (ngModelChange)="type.set($event)">
+        <mat-option value="all">All</mat-option>
+        <mat-option value="home">Home</mat-option>
+        <mat-option value="gym">Gym</mat-option>
+        <mat-option value="hybrid">Hybrid</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="select-field dense">
+      <mat-label>Level</mat-label>
+      <mat-select [ngModel]="level()" (ngModelChange)="level.set($event)">
+        <mat-option value="all">All</mat-option>
+        <mat-option value="beginner">Beginner</mat-option>
+        <mat-option value="intermediate">Intermediate</mat-option>
+        <mat-option value="advanced">Advanced</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="select-field dense">
+      <mat-label>Sort</mat-label>
+      <mat-select [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+        <mat-option value="popular">Popular</mat-option>
+        <mat-option value="price-asc">Price (Low → High)</mat-option>
+        <mat-option value="price-desc">Price (High → Low)</mat-option>
+        <mat-option value="weeks-asc">Duration (Short → Long)</mat-option>
+        <mat-option value="weeks-desc">Duration (Long → Short)</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="mobile-actions">
+    <button mat-stroked-button class="btn-filter" (click)="openFilters()">
+      <mat-icon>tune</mat-icon>
+      Filters
+    </button>
+
+    <mat-form-field appearance="outline" class="search-field mobile dense">
+      <mat-label>Search</mat-label>
+      <input matInput placeholder="Find plans, perks, goals"
+             [ngModel]="search()" (ngModelChange)="search.set($event)" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div class="grid">
+    <mat-card *ngFor="let p of filtered()" class="plan-card">
+      <div class="img-holder" [style.background-image]="'url(' + (p.image || '') + ')'"></div>
+
+      <mat-card-content>
+        <div class="chip-row">
+          <mat-chip-set>
+            <mat-chip class="chip">{{ p.type | titlecase }}</mat-chip>
+            <mat-chip class="chip">{{ p.level | titlecase }}</mat-chip>
+            <mat-chip class="chip">{{ p.weeks }} weeks</mat-chip>
+          </mat-chip-set>
+        </div>
+
+        <h3 class="plan-title">{{ p.title }}</h3>
+        <p class="plan-subtitle">{{ p.subtitle }}</p>
+
+        <ul class="perks">
+          <li *ngFor="let perk of p.perks">
+            <mat-icon>check_circle</mat-icon>
+            <span>{{ perk }}</span>
+          </li>
+        </ul>
+      </mat-card-content>
+
+      <mat-divider></mat-divider>
+
+      <mat-card-actions class="card-actions">
+        <div class="price">
+          <span class="currency">$</span>{{ p.price }}
+          <span class="per">/ one-time</span>
+        </div>
+        <span class="flex-spacer"></span>
+        <button mat-flat-button class="btn-primary" (click)="buy(p)">
+          <mat-icon>shopping_cart</mat-icon>
+          Buy
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div *ngIf="filtered().length === 0" class="no-results">
+    <mat-icon>search_off</mat-icon>
+    <p>No plans match your criteria</p>
+  </div>
+
+  <div *ngIf="showFiltersOverlay()" class="overlay-backdrop" (click)="closeFilters()"></div>
+
+  <mat-card *ngIf="showFiltersOverlay()" class="overlay-card" (click)="$event.stopPropagation()">
+  <mat-card-header>
+    <mat-card-title>Filters</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <mat-form-field appearance="outline" class="full-width dense">
+      <mat-label>Type</mat-label>
+      <mat-select [ngModel]="type()" (ngModelChange)="type.set($event)">
+        <mat-option value="all">All</mat-option>
+        <mat-option value="home">Home</mat-option>
+        <mat-option value="gym">Gym</mat-option>
+        <mat-option value="hybrid">Hybrid</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width dense">
+      <mat-label>Level</mat-label>
+      <mat-select [ngModel]="level()" (ngModelChange)="level.set($event)">
+        <mat-option value="all">All</mat-option>
+        <mat-option value="beginner">Beginner</mat-option>
+        <mat-option value="intermediate">Intermediate</mat-option>
+        <mat-option value="advanced">Advanced</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width dense">
+      <mat-label>Sort</mat-label>
+      <mat-select [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+        <mat-option value="popular">Popular</mat-option>
+        <mat-option value="price-asc">Price (Low → High)</mat-option>
+        <mat-option value="price-desc">Price (High → Low)</mat-option>
+        <mat-option value="weeks-asc">Duration (Short → Long)</mat-option>
+        <mat-option value="weeks-desc">Duration (Long → Short)</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-stroked-button color="accent" (click)="resetFilters()">
+      <mat-icon>restart_alt</mat-icon>
+      Reset
+    </button>
+    <span class="flex-spacer"></span>
+    <button mat-flat-button color="primary" (click)="closeFilters()">
+      <mat-icon>check</mat-icon>
+      Apply
+    </button>
+  </mat-card-actions>
+</mat-card>
+</div>

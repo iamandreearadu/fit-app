@@ -77,6 +77,12 @@ app-root {
   color: var(--accent) !important;
 }
 
+/* GLOBAL BUTTONS  */
+.btn-primary{
+  background-color: var(--primary) !important;
+  color: var(--white-soft) !important;
+}
+
 /* CUSTOM SCROLLBAR */
 ::-webkit-scrollbar {
   width: 14px;

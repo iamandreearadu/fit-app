@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AccountFacade } from '../../../core/facade/account.facade';
@@ -18,6 +18,18 @@ export class HeaderComponent {
   public navService = inject(NavigationService);
   public userStore = inject(UserStore);
   private router = inject(Router);
+  mobileNavOpen = false;
+
+  toggleMobileNav(): void {
+  this.mobileNavOpen = !this.mobileNavOpen;
+  }
+
+  closeMobileNav(): void {
+  this.mobileNavOpen = false;
+  }
+
+ @HostListener('document:keydown.escape')
+  onEsc(): void { this.closeMobileNav(); }
 
   public avatarUrl = computed(() => {
     const user = this.userStore.user();
