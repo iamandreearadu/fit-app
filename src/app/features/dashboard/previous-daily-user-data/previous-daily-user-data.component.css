@@ -95,39 +95,57 @@
   font-size: 18px;
 }
 
-.modal-backdrop {
+
+html:has(.modal-backdrop),
+body:has(.modal-backdrop){
+  overflow: hidden;
+  overscroll-behavior: none; 
+  touch-action: none;
+}
+
+.modal-backdrop{
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(6px);
+  z-index: 1000;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
 }
 
-.modal-card {
-  width: 90%;
-  max-width: 450px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 18px;
+.modal-card{
+  width: min(680px, 94vw);
+  max-height: min(90vh, 720px);
+  background: var(--surface);
   border: 1px solid var(--white-fade);
-  padding: 20px;
-  color: var(--white);
-  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0,0,0,.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
+
+.modal-content{
+  overflow: auto;   
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 16px 8px;
+  overscroll-behavior: contain; 
+}
+
+@media (max-width: 640px){
+  .modal-card{
+    width: 94vw;
+    max-height: 90vh;
+  }
+}
+
 
 .modal-title {
   font-size: 22px;
   font-weight: 700;
 }
 
-.modal-content {
-  margin-top: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
 
 .modal-row {
   display: flex;
@@ -138,4 +156,54 @@
 
 .close-btn {
   margin-top: 20px;
+}
+
+.stats-grid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.stat{
+  background: var(--background-fade);
+  border: 1px solid var(--white-fade);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: grid;
+  gap: 8px;
+  transition: transform .15s ease;
+}
+.stat:hover{ transform: translateY(-1px); }
+
+.stat .label{
+  font-size: 12px;
+  color: var(--white-soft);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+.stat .value{
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.stat .value-text{
+  color: var(--white);   
+  font-weight: 700;
+}
+.stat .unit{
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--white-soft);
+}
+
+@media (max-width: 1024px){
+  .stats-grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 640px){
+  .stats-grid{ grid-template-columns: 1fr; }
 }

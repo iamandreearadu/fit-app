@@ -27,18 +27,12 @@
   </div>
 
   <div class="timeline" *ngIf="currentWeek() as week">
-
     <ng-container *ngFor="let d of week.days">
       <div class="timeline-item" (click)="openDay(d)">
-
         <mat-card class="day-card" appearance="outlined">
           <mat-card-content>
-
             <div class="day-header">
-              <span class="day-date">
-                {{ d.date | date:'EEEE, dd MMM yyyy' }}
-              </span>
-
+              <span class="day-date">{{ d.date | date:'EEEE, dd MMM yyyy' }}</span>
               <mat-icon class="arrow">chevron_right</mat-icon>
             </div>
 
@@ -53,22 +47,15 @@
                 <span>{{ d.caloriesTotal || 0 }}</span>
               </div>
             </div>
-
           </mat-card-content>
         </mat-card>
-
       </div>
     </ng-container>
-
   </div>
 
 </div>
 
-<div
-  *ngIf="showModal && selectedDay"
-  class="modal-backdrop"
-  (click)="closeModal()">
-
+<div *ngIf="showModal && selectedDay" class="modal-backdrop" (click)="closeModal()">
   <mat-card class="modal-card" (click)="$event.stopPropagation()">
 
     <mat-card-header>
@@ -79,44 +66,57 @@
 
     <mat-card-content class="modal-content">
 
-      <div class="modal-row">
-        <span>Steps</span>
-        <strong>{{ selectedDay.steps }}</strong>
-      </div>
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="label">Steps</div>
+          <div class="value">{{ selectedDay.steps || 0 }}</div>
+        </div>
 
-      <div class="modal-row">
-        <span>Calories Intake</span>
-        <strong>{{ selectedDay.caloriesIntake }}</strong>
-      </div>
+        <div class="stat">
+          <div class="label">Calories Intake</div>
+          <div class="value">{{ selectedDay.caloriesIntake || 0 }}<span class="unit"> kcal</span></div>
+        </div>
 
-      <div class="modal-row">
-        <span>Calories Burned</span>
-        <strong>{{ selectedDay.caloriesBurned }}</strong>
-      </div>
+        <div class="stat">
+          <div class="label">Calories Burned</div>
+          <div class="value">{{ selectedDay.caloriesBurned || 0 }}<span class="unit"> kcal</span></div>
+        </div>
 
-      <div class="modal-row">
-        <span>Total Calories</span>
-        <strong>{{ selectedDay.caloriesTotal }}</strong>
-      </div>
+        <div class="stat">
+          <div class="label">Total Calories</div>
+          <div class="value">{{ selectedDay.caloriesTotal || 0 }}<span class="unit"> kcal</span></div>
+        </div>
 
-      <div class="modal-row">
-        <span>Water Consumed (L)</span>
-        <strong>{{ selectedDay.waterConsumedL }}</strong>
-      </div>
+        <div class="stat">
+          <div class="label">Water Consumed</div>
+          <div class="value">{{ selectedDay.waterConsumedL || 0 }}<span class="unit"> L</span></div>
+        </div>
 
-      <div class="modal-row">
-        <span>Activity</span>
-        <strong>{{ selectedDay.activityType }}</strong>
+        <div class="stat">
+          <div class="label">Activity</div>
+          <div class="value value-text">{{ selectedDay.activityType || '-' }}</div>
+        </div>
+
+        <ng-container *ngIf="selectedDay.macrosPct as m">
+          <div class="stat">
+  <div class="label">Protein</div>
+  <div class="value">{{ (m.protein) | number:'1.0-0' }}<span class="unit"> g</span></div>
+</div>
+<div class="stat">
+  <div class="label">Carbs</div>
+  <div class="value">{{ (m.carbs)   | number:'1.0-0' }}<span class="unit"> g</span></div>
+</div>
+<div class="stat">
+  <div class="label">Fats</div>
+  <div class="value">{{ (m.fats)    | number:'1.0-0' }}<span class="unit"> g</span></div>
+</div>
+        </ng-container>
       </div>
 
     </mat-card-content>
 
     <mat-card-actions align="end">
-      <button
-        mat-stroked-button
-        color="accent"
-        class="close-btn"
-        (click)="closeModal()">
+      <button mat-stroked-button color="accent" class="close-btn" (click)="closeModal()">
         <mat-icon>close</mat-icon>
         Close
       </button>
