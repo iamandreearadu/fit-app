@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "fit-app-3ec79"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }

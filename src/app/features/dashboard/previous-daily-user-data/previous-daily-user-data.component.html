@@ -72,6 +72,17 @@
           <div class="value">{{ selectedDay.steps || 0 }}</div>
         </div>
 
+             <div class="stat">
+          <div class="label">Water Consumed</div>
+          <div class="value">{{ selectedDay.waterConsumedL || 0 }}<span class="unit"> L</span></div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Activity</div>
+          <div class="value value-text">{{ selectedDay.activityType || '-' }}</div>
+        </div>
+
+
         <div class="stat">
           <div class="label">Calories Intake</div>
           <div class="value">{{ selectedDay.caloriesIntake || 0 }}<span class="unit"> kcal</span></div>
@@ -83,22 +94,13 @@
         </div>
 
         <div class="stat">
-          <div class="label">Total Calories</div>
+          <div class="label">Net Calories</div>
           <div class="value">{{ selectedDay.caloriesTotal || 0 }}<span class="unit"> kcal</span></div>
         </div>
 
-        <div class="stat">
-          <div class="label">Water Consumed</div>
-          <div class="value">{{ selectedDay.waterConsumedL || 0 }}<span class="unit"> L</span></div>
-        </div>
-
-        <div class="stat">
-          <div class="label">Activity</div>
-          <div class="value value-text">{{ selectedDay.activityType || '-' }}</div>
-        </div>
-
+   
         <ng-container *ngIf="selectedDay.macrosPct as m">
-          <div class="stat">
+    <div class="stat">
   <div class="label">Protein</div>
   <div class="value">{{ (m.protein) | number:'1.0-0' }}<span class="unit"> g</span></div>
 </div>

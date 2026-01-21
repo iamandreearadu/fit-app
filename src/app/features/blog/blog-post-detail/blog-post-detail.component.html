@@ -6,28 +6,23 @@
 
 <section *ngIf="!loading() && post()" class="post-page">
 
-<div class="post-topbar">
-  <div class="topbar-inner">
-    <button mat-stroked-button routerLink="/blog" class="back-btn">
-      <mat-icon>arrow_back</mat-icon>
-      Back to blog
-    </button>
+  <div class="post-topbar">
+    <div class="topbar-inner">
+      <button mat-stroked-button routerLink="/blog" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+        <span class="hide-xs">Back to blog</span>
+      </button>
 
-    <span class="topbar-divider"></span>
+      <span class="topbar-divider"></span>
 
-    <span class="topbar-title">
-      {{ post()!.title }}
-    </span>
+      <span class="topbar-title" [title]="post()!.title">
+        {{ post()!.title }}
+      </span>
+    </div>
   </div>
-</div>
 
-
-  <div
-    class="post-hero"
-    [style.background-image]="'url(' + post()!.image + ')'"
-  >
+  <div class="post-hero" [style.background-image]="'url(' + post()!.image + ')'">
     <div class="hero-overlay"></div>
-
     <div class="hero-content">
       <mat-chip class="category-chip">{{ post()!.category }}</mat-chip>
       <h1 class="hero-title">{{ post()!.title }}</h1>
@@ -40,32 +35,12 @@
       {{ post()!.description }}
     </p>
   </article>
-
 </section>
-
-<div class="post-topbar">
-  <div class="topbar-inner">
-    <button mat-stroked-button routerLink="/blog" class="back-btn">
-      <mat-icon>arrow_back</mat-icon>
-      Back to blog
-    </button>
-
-    <span class="topbar-divider"></span>
-
-    <span class="topbar-title">
-      {{ post()!.title }}
-    </span>
-  </div>
-</div>
-
 
 <div *ngIf="!loading() && !post()" class="post-not-found">
   <mat-icon>error_outline</mat-icon>
   <p>Article not found</p>
-
-  <button mat-stroked-button routerLink="/blog">
-    Back to blog
-  </button>
+  <button mat-stroked-button routerLink="/blog">Back to blog</button>
 </div>
 
 <app-footer></app-footer>
