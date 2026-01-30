@@ -149,7 +149,7 @@
     padding:0 10px;
     margin:12px auto;
   }
-  .ai-title{ font-size:1.6rem; margin-bottom:0.9rem; }
+  .section-title{ font-size:1.6rem; margin-bottom:0.9rem; }
   .chat-window{
     max-height:calc(100vh - 260px);
     gap:0.75rem;
@@ -172,7 +172,7 @@
 }
 
 @media (max-width: 480px){
-  .ai-title{ font-size:1.4rem; }
+  .section-title{ font-size:1.4rem; }
   .bubble{ padding:0.8rem 1rem; }
   .upload-btn, .send-btn{
     width:40px; height:40px; min-width:40px !important;

@@ -11,7 +11,7 @@
   <div class="controls-row">
     <mat-form-field appearance="outline" class="search-field dense">
       <mat-label>Search</mat-label>
-      <input matInput placeholder="Find plans, perks, goals"
+      <input matInput 
              [ngModel]="search()" (ngModelChange)="search.set($event)" />
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
@@ -56,7 +56,7 @@
 
     <mat-form-field appearance="outline" class="search-field mobile dense">
       <mat-label>Search</mat-label>
-      <input matInput placeholder="Find plans, perks, goals"
+      <input matInput 
              [ngModel]="search()" (ngModelChange)="search.set($event)" />
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>

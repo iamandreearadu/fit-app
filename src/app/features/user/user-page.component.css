@@ -14,8 +14,6 @@
   padding-bottom: 16px;
   border-bottom: 2px solid var(--white-fade);
 }
-.section-title{ margin:0 0 6px; font-size:28px; font-weight:700; color:var(--white); letter-spacing:-.5px; }
-.section-subtitle{ margin:0; font-size:15px; color:var(--white-soft); }
 
 .user-layout{
   display:grid;
@@ -111,7 +109,7 @@
 .feature-list li:hover{ transform: translateX(6px); box-shadow:0 4px 12px rgba(124,77,255,.25); }
 .feature-list mat-icon{ color:var(--primary); font-size:24px; width:24px; height:24px; }
 .coming-soon{ font-size:15px; color:var(--white-soft); margin-bottom:16px; font-weight:600; }
-span{ color: var(--white-soft); }
+span{ color: var(--white-soft);font-size: 14px; }
 
 @media (max-width: 1024px){
   .user-layout{ grid-template-columns: 1fr; }

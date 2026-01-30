@@ -9,14 +9,6 @@
   color: var(--white);
 }
 
-.title {
-  margin: 32px 0;
-  font-size: 32px;
-  font-weight: 700;
-  text-align: center;
-  border-bottom: 2px solid var(--white-fade);
-  padding-bottom: 24px;
-}
 
 .week-nav {
   display: flex;

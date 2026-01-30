@@ -27,8 +27,6 @@
 *::after{ box-sizing: border-box; }
 
 .section-header{ margin-bottom: 16px; }
-.section-title{ margin: 0 0 4px 0; }
-.section-subtitle{ margin: 0; color: var(--white-soft); opacity: .85; }
 
 .controls-row{
   display:grid;
@@ -38,6 +36,10 @@
   align-items: end;
   max-width: 100%;
   margin-inline: auto;
+}
+
+mat-label{
+  color:var(--white-soft)
 }
 
 .dense .mat-mdc-form-field-infix{

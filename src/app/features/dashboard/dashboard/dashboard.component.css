@@ -1,11 +1,21 @@
-.dashboard-root {
+/* .dashboard-root {
   padding: 32px 24px;
   max-width: calc(100% - 100px);
   width: 1400px;
-  margin: 50px auto 40px auto;
+  margin: 50px auto 40px auto; 
   background: var(--background-fade);
   border-radius: 12px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35); 
+  align-items: center;
+} */
+
+.dashboard-root {
+  padding: 0;
+  max-width: calc(100% - 100px);
+  width: 1400px;
+  margin: 32px auto 0 auto;
+  border-radius: 12px;
+  align-items: center;
 }
 
 .dashboard-header {
@@ -27,9 +37,9 @@
 
 .dashboard-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .stat-card {
@@ -39,6 +49,7 @@
   overflow: hidden;
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  padding: 12px 0
 }
 
 .stat-card:hover {
@@ -47,41 +58,36 @@
 }
 
 .stat-card ::ng-deep .mat-mdc-card-title {
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 500;
+  line-height: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--white-soft);
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   padding-left: 12px;
   padding-top: 12px;
 }
 
 .stat-value {
-  font-size: 36px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--primary);
-  line-height: 1.2;
+  line-height: 1;
   margin-bottom: 8px;
 }
 
 .stat-value .muted {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--white-soft);
-  margin-left: 4px;
 }
 
-.help-text {
-  font-size: 13px;
-  color: var(--white-soft);
-  margin: 12px 0 0 0;
-  line-height: 1.5;
-}
 
 @media (max-width: 768px) {
   .dashboard-root {
-    padding: 16px;
+    padding: 16px auto;
+    background-color: none;
   }
 
   .dashboard-header h2 {
@@ -89,10 +95,18 @@
   }
 
   .dashboard-cards {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3,1fr);
+    gap:12px
   }
 
-  .stat-value {
-    font-size: 28px;
+    .stat-value {
+    font-size: 18px; 
   }
+
+  .stat-value .muted {
+    font-size: 10px;
+    margin-top: 4px;
+    display: block;
+  }
+
 }

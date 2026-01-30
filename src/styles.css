@@ -66,6 +66,25 @@ app-root {
   height: 12vh;
 }
 
+/* GLOBAL TEXT  */
+
+.section-title {
+  margin: 0 0 2px 0;
+  font-size:22px;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: -0.5px;
+  text-align:center;
+}
+
+.section-subtitle{  
+  color: var(--white-soft); 
+  font-size:14px;
+  margin-top:0;
+  margin-bottom: 6px;
+  text-align: center; 
+}
+
 
 
 /* GLOBAL TEXT COLORS  */

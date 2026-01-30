@@ -18,13 +18,19 @@
 
 .brand-section{ padding-right: 20px; }
 
-.brand-logo{
+.brand-logo {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
 }
-.logo-icon{ font-size:36px; width:36px; height:36px; color:var(--white); text-shadow:0 2px 8px rgba(0,0,0,0.4); }
+
+.brand-logo-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  display: block;
+}
+
 .brand-logo h3{ margin:0; font-size:28px; font-weight:700; color:var(--white); text-shadow:0 2px 8px rgba(0,0,0,0.4); }
 
 .brand-description{ color:var(--white-soft); line-height:1.6; margin-bottom:24px; font-size:14px; }

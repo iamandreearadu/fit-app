@@ -15,16 +15,22 @@
 }
 .logo-container:hover{ background: var(--white-fade); }
 
-.logo-icon{
-  width: 34px; height: 34px; background: var(--white);
-  border-radius: 10px; display:flex; align-items:center; justify-content:center;
-  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+
+.logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
 }
-.logo-icon mat-icon{
-  font-size: 18px;
-  background: var(--primary);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+
+.logo-img {
+  width: 34px;
+  height: 34px;
+  object-fit: fill;
 }
+
+
 .logo-text{ display:flex; align-items: baseline; gap: 2px; }
 .logo-main{ font-size: 20px; font-weight: 800; color: var(--white); letter-spacing: -.5px; }
 .logo-accent{ font-size: 20px; font-weight: 300; color: var(--white-soft); letter-spacing: -.5px; }
@@ -227,7 +233,7 @@
 }
 @media (max-width:968px){
   .modern-header{ height:72px; }
-  .logo-text{ display:none; }
+  /* .logo-text{ display:none; } */
   .nav-links{ display:none; }
   .user-name{ display:none; }
   .login-btn span, .register-btn span{ display:none; }
