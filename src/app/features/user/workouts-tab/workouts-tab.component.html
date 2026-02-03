@@ -1,0 +1,279 @@
+<div class="tab-content">
+
+  <div class="toolbar">
+    <div class="left">
+      <h3 class="title">Workouts</h3>
+      <p class="subtitle">Create your own workouts</p>
+    </div>
+
+    <div class="right">
+      <button type="button" mat-raised-button color="primary" class="btn" (click)="openCreate()">
+        <mat-icon>add</mat-icon>
+        New workout
+      </button>
+    </div>
+  </div>
+
+  <div class="filters">
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" />
+      <button type="button" *ngIf="searchTerm" matSuffix mat-icon-button (click)="searchTerm=''; applyFilters()" aria-label="Clear">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>Type</mat-label>
+      <mat-select [(ngModel)]="selectedType" (selectionChange)="applyFilters()">
+        <mat-option value="all">All</mat-option>
+        <mat-option *ngFor="let t of types" [value]="t">{{ t }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="loading" *ngIf="loading">
+      <mat-progress-spinner mode="indeterminate" diameter="28"></mat-progress-spinner>
+    </div>
+  </div>
+
+  <mat-card class="content-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>sports_gymnastics</mat-icon>
+      <mat-card-title>Your workouts</mat-card-title>
+      <mat-card-subtitle>Templates you can reuse anytime</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="filtered.length === 0" class="empty">
+        No workouts yet. Click “New workout”.
+      </div>
+
+      <div class="list" *ngIf="filtered.length > 0">
+        <div class="row-wrap" *ngFor="let w of filtered">
+
+          <div class="row clickable" (click)="togglePreview(w)">
+            <div class="row-main">
+              <div class="row-top">
+                <div class="row-title">{{ w.title }}</div>
+
+                <div class="row-actions compact">
+                  <button
+                    type="button"
+                    mat-icon-button
+                    class="icon-btn small-icon"
+                    (click)="stop($event); togglePreview(w)"
+                    aria-label="Preview">
+                    <mat-icon>{{ isExpanded(w) ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+
+                  <button
+                    type="button"
+                    mat-icon-button
+                    class="icon-btn small-icon"
+                    (click)="stop($event); openEdit(w)"
+                    aria-label="Edit">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+
+                  <button
+                    type="button"
+                    mat-icon-button
+                    class="icon-btn small-icon"
+                    (click)="stop($event); delete(w.uid)"
+                    aria-label="Delete">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <div class="row-meta">
+                <span class="pill">{{ w.type }}</span>
+                <span class="pill subtle">{{ w.durationMin }} min</span>
+                <span class="pill subtle">{{ w.caloriesEstimateKcal }} kcal</span>
+
+                <span class="pill subtle" *ngIf="w.type !== 'Cardio'">
+                  {{ (w.exercises?.length ?? 0) }} exercises
+                </span>
+
+                <span class="pill subtle" *ngIf="w.type === 'Cardio'">
+                  {{ w.cardio?.km ?? 0 }} km • {{ w.cardio?.incline ?? 0 }}% incline
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="preview" *ngIf="isExpanded(w)">
+            <div class="preview-line cardio" *ngIf="w.type === 'Cardio'">
+              <span class="p-name">Cardio</span>
+              <span class="p-meta">{{ w.cardio?.km ?? 0 }} km</span>
+              <span class="p-meta">{{ w.cardio?.incline ?? 0 }}% incline</span>
+              <span class="p-notes" *ngIf="w.cardio?.notes">{{ w.cardio?.notes }}</span>
+            </div>
+
+            <ng-container *ngIf="w.type !== 'Cardio'">
+              <div class="preview-line" *ngFor="let ex of (w.exercises ?? [])">
+                <span class="p-name">{{ ex.name }}</span>
+                <span class="p-meta">{{ ex.sets }} x</span>
+                <span class="p-meta">{{ ex.reps }} reps</span>
+                <span class="p-meta">{{ ex.weightKg }} kg</span>
+                <span class="p-notes" *ngIf="ex.notes">{{ ex.notes }}</span>
+              </div>
+
+              <div class="preview-empty" *ngIf="(w.exercises?.length ?? 0) === 0">
+                No exercises added.
+              </div>
+            </ng-container>
+          </div>
+
+        </div>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+  <div class="overlay" *ngIf="showEditor" (click)="cancel()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div class="mh-left">
+          <div class="mh-title">{{ editing ? 'Edit workout' : 'New workout' }}</div>
+          <div class="mh-subtitle">Set details • Add exercises • Or cardio fields</div>
+        </div>
+
+        <button type="button" mat-icon-button class="icon-btn" (click)="cancel()" aria-label="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body" [formGroup]="form">
+
+        <div class="section">
+
+          <div class="grid-2">
+            <mat-form-field appearance="outline" >
+              <mat-label>Title</mat-label>
+              <input matInput formControlName="title" placeholder="e.g. Pull Day A" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" >
+              <mat-label>Type</mat-label>
+              <mat-select formControlName="type">
+                <mat-option *ngFor="let t of types" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" >
+              <mat-label>Time (min)</mat-label>
+              <input matInput type="number" formControlName="durationMin" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" >
+              <mat-label>Estimated calories (kcal)</mat-label>
+              <input matInput type="number" formControlName="caloriesEstimateKcal" />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="section" *ngIf="isCardio()" formGroupName="cardio">
+          <div class="grid-2">
+            <mat-form-field appearance="outline">
+              <mat-label>Km</mat-label>
+              <input matInput type="number" formControlName="km" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Incline (%)</mat-label>
+              <input matInput type="number" formControlName="incline" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class=" span-2">
+              <mat-label>Notes</mat-label>
+              <textarea matInput rows="2" formControlName="notes"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="section" *ngIf="!isCardio()">
+          <div class="section-head">
+                    
+          </div>
+
+          <div formArrayName="exercises" class="ex-list">
+            <div class="ex-item" *ngFor="let ex of exercises.controls; let i = index" [formGroupName]="i">
+              <div class="ex-top">
+                <div class="ex-label">Exercise {{ i + 1 }}</div>
+
+                <button
+                  type="button"
+                  mat-icon-button
+                  class="icon-btn"
+                  (click)="removeExercise(i)"
+                  [disabled]="exercises.length <= 1"
+                  aria-label="Remove">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+
+              <div class="grid-2 tight">
+                <mat-form-field appearance="outline" class=" span-2">
+                  <mat-label>Name</mat-label>
+                  <input matInput formControlName="name" placeholder="e.g. Lat Pulldown" />
+                </mat-form-field>
+
+                <div class="grid-3 span-2">
+                  <mat-form-field appearance="outline" >
+                    <mat-label>Sets</mat-label>
+                    <input matInput type="number" formControlName="sets" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" >
+                    <mat-label>Reps</mat-label>
+                    <input matInput type="number" formControlName="reps" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" >
+                    <mat-label>Weight (kg)</mat-label>
+                    <input matInput type="number" formControlName="weightKg" />
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class=" span-2">
+                  <mat-label>Notes</mat-label>
+                  <textarea matInput rows="1" formControlName="notes"></textarea>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+              <button type="button" mat-stroked-button class="small-btn accent" (click)="addExercise()">
+              <mat-icon>add</mat-icon>
+              Add
+            </button>
+          </div>
+           
+
+        </div>
+
+        <div class="section">
+          <div class="section-title">Workout notes</div>
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>Notes (optional)</mat-label>
+            <textarea matInput rows="1" formControlName="notes"></textarea>
+          </mat-form-field>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" mat-stroked-button class="small-btn accent" (click)="cancel()">Cancel</button>
+        <button type="button" mat-raised-button color="primary" class="small-btn" (click)="save()">
+          <mat-icon>save</mat-icon>
+          Save
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -73,9 +73,9 @@
   z-index:1;
 }
 
-.ai-field textarea::placeholder,
-.ai-field mat-label{
-  color:var(--white-soft);
+.ai-field textarea::placeholder{
+  color:var(--white-fade);
+  font-size: 12px;
 }
 
 .conv-list{ margin-bottom:1rem; }
@@ -121,7 +121,8 @@
 
 .ai-message{
   white-space:pre-wrap;
-  line-height:1.5;
+  line-height:1.3;
+  font-size: 13px;
 }
 
 .chat-image{

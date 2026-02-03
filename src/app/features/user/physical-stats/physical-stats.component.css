@@ -27,10 +27,30 @@
 .two-col{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 .actions{ display:flex; justify-content:flex-end; padding-top:14px; margin-top:6px; border-top:1px solid var(--white-fade); }
-.actions button{ min-width:180px; height:46px; font-size:15px; font-weight:600; }
+.actions button{ min-width:180px; height:46px;  }
 
-mat-label, mat-select{ color: var(--white); }
+mat-label, mat-select{ color: var(--white);font-size: 13px; }
 .stats-form ::ng-deep .mdc-text-field--outlined{ border:1px solid var(--white-fade); }
+
+:host ::ng-deep .mat-mdc-form-field .mdc-floating-label {
+  color: var(--white-soft) !important;
+  font-size: 14px !important;
+}
+
+:host ::ng-deep input.mat-mdc-input-element,
+:host ::ng-deep textarea.mat-mdc-input-element {
+  color: var(--white) !important;
+  font-size: 14px !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field.mat-focused
+.mdc-notched-outline__leading,
+:host ::ng-deep .mat-mdc-form-field.mat-focused
+.mdc-notched-outline__notch,
+:host ::ng-deep .mat-mdc-form-field.mat-focused
+.mdc-notched-outline__trailing {
+  border-color: var(--primary) !important;
+}
 
 @media (max-width: 768px){
   .two-col{ grid-template-columns: 1fr; }

@@ -21,6 +21,9 @@
 .change-week-btn {
   color: var(--white) !important;
   border-color: var(--white-fade) !important;
+  font-size: 10px;
+  font-weight: 10;
+  line-height: 1;
 }
 
 .change-week-btn:disabled {
@@ -30,8 +33,8 @@
 
 
 .week-label {
-  font-weight: 600;  
-  font-size: 16px;
+  font-weight: 400;  
+  font-size: 14px;
   color: var(--white-soft);
 }
 
@@ -67,7 +70,7 @@
 
 .day-date {
   font-weight: 600;
-  font-size: 18px;
+  font-size: 15px;
 }
 
 .day-meta {
@@ -75,6 +78,7 @@
   display: flex;
   gap: 20px;
 }
+
 
 .meta-item {
   display: flex;
@@ -184,8 +188,9 @@ body:has(.modal-backdrop){
   gap: 4px;
 }
 .stat .value-text{
-  color: var(--white);   
-  font-weight: 700;
+  color: var(--primary);
+  font-weight: 400;
+  font-size: 16px;
 }
 .stat .unit{
   font-size: 12px;

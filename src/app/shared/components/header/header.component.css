@@ -150,9 +150,8 @@
   transition: transform .15s ease, background .15s ease, border-color .15s ease;
 }
 .overlay-links a.active{
-  border-color: var(--primary);
-  background: var(--primary-glow);
-  color: var(--white-soft);
+  
+  color: var(--primary);
 }
 .overlay-links a:hover,
 .overlay-links button:hover{
@@ -207,7 +206,8 @@
 
 .user-name{
   color: var(--white);
-  font-weight: 600; font-size: 14px;
+  font-weight: 600; 
+  font-size: 12px;
   max-width: 220px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   margin-left: 10px;

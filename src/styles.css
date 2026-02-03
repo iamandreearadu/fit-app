@@ -102,6 +102,11 @@ app-root {
   color: var(--white-soft) !important;
 }
 
+ button{ 
+  font-size: 12px !important;
+  font-weight: 400 !important;
+ }
+
 /* CUSTOM SCROLLBAR */
 ::-webkit-scrollbar {
   width: 14px;
@@ -156,3 +161,4 @@ mat-select {
 .mat-mdc-option:hover:not(.mdc-list-item--disabled) {
   color: var(--primary);
 }
+

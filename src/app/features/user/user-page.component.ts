@@ -8,11 +8,12 @@ import { PhysicalTabComponent } from './physical-tab/physical-tab.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { AccountFacade } from '../../core/facade/account.facade';
 import { UserStore } from '../../core/store/user.store';
+import { WorkoutsTabComponent } from './workouts-tab/workouts-tab.component';
 
 @Component({
   standalone: true,
   selector: 'app-user-page',
-  imports: [CommonModule, RouterModule, MaterialModule, HeaderComponent, ProfileTabComponent, PhysicalTabComponent, FooterComponent],
+  imports: [CommonModule, RouterModule, MaterialModule, HeaderComponent, ProfileTabComponent, PhysicalTabComponent,WorkoutsTabComponent, FooterComponent],
   templateUrl: './user-page.component.html',
   styleUrl: './user-page.component.css'
 })

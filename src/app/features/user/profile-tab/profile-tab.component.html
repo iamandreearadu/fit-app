@@ -19,13 +19,13 @@
         </div>
 
         <div class="avatar-actions">
-          <button mat-stroked-button class="primary" type="button" (click)="openFilePicker()">
+          <button mat-stroked-button color="primary" type="button" (click)="openFilePicker()">
             <mat-icon>upload</mat-icon>
             Upload Image
           </button>
 
           <button *ngIf="form.get('imageUrl')?.value"
-                  mat-stroked-button class="accent" type="button" (click)="onClearLink()">
+                  mat-stroked-button color="accent" type="button" (click)="onClearLink()">
             <mat-icon>delete</mat-icon>
             Clear
           </button>

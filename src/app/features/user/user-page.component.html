@@ -106,25 +106,7 @@
     <main class="content">
       <app-profile-tab *ngIf="activeTab === 'profile'"></app-profile-tab>
       <app-physical-tab *ngIf="activeTab === 'physical'"></app-physical-tab>
-
-      <div *ngIf="activeTab === 'workouts'" class="tab-content">
-        <mat-card class="content-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar>sports_gymnastics</mat-icon>
-            <mat-card-title>Workout Plans</mat-card-title>
-            <mat-card-subtitle>Create and manage your workout routines</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <p class="coming-soon">Feature coming soon! Here you'll be able to:</p>
-            <ul class="feature-list">
-              <li><mat-icon>check_circle</mat-icon> Create custom workout plans</li>
-              <li><mat-icon>check_circle</mat-icon> Browse pre-made workout templates</li>
-              <li><mat-icon>check_circle</mat-icon> Track your workout history</li>
-              <li><mat-icon>check_circle</mat-icon> Set exercise reminders</li>
-            </ul>
-          </mat-card-content>
-        </mat-card>
-      </div>
+      <app-workouts-tab *ngIf="activeTab === 'workouts'"></app-workouts-tab>
 
       <!-- Nutrition Plans Tab -->
       <div *ngIf="activeTab === 'nutrition'" class="tab-content">
