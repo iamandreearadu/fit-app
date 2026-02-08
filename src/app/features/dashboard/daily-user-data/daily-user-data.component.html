@@ -51,7 +51,7 @@
               <span>Net calories:</span>
               <!-- <span [class.text-success]="facade.dailyDataStats().netCalories < facade.dailyDataStats().totalCalories" [class.text-danger]="facade.dailyDataStats().netCalories > facade.dailyDataStats().totalCalories">{{ facade.dailyDataStats().netCalories }} kcal</span> -->
               <span class="net-calories">{{ facade.dailyDataStats().netCalories }} kcal</span>
- 
+
             </div>
           </mat-card-content>
         </mat-card>
@@ -78,8 +78,8 @@
                 <input matInput type="number" formControlName="fats" min="0">
               </mat-form-field>
             </fieldset>
-            
-<!-- 
+
+<!--
             <app-ai-meal-analyzer
               [disabled]="groqFacade.loading()"
               (added)="onMealAdded($event)"
@@ -133,7 +133,7 @@
       </div>
 
       <div class="action-row">
-        <button mat-flat-button color="primary" class="primary-button" (click)="onSaveData()">Save</button>
+        <!-- <button mat-flat-button color="primary" class="primary-button" (click)="onSaveData()">Save</button> -->
         <button *ngIf="isTodaySelected" color="accent" mat-stroked-button class="stroke-button" (click)="onReset()">Reset</button>
       </div>
 
