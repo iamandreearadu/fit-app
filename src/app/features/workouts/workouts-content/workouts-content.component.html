@@ -8,63 +8,95 @@
     <p class="section-subtitle">Choose a training plan that fits your goals</p>
   </div>
 
-  <div class="controls-row">
-    <mat-form-field appearance="outline" class="search-field dense">
+  <div class="two-col">
+    <aside class="sidebar">
+      <div class="controls-row">
+        <mat-form-field appearance="outline" class="search-field dense full">
+          <mat-label>Search</mat-label>
+          <input matInput
+                 [ngModel]="search()" (ngModelChange)="search.set($event)" />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="select-field dense full">
+          <mat-label>Type</mat-label>
+          <mat-select [ngModel]="type()" (ngModelChange)="type.set($event)">
+            <mat-option value="all">All</mat-option>
+            <mat-option value="home">Home</mat-option>
+            <mat-option value="gym">Gym</mat-option>
+            <mat-option value="hybrid">Hybrid</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="select-field dense full">
+          <mat-label>Level</mat-label>
+          <mat-select [ngModel]="level()" (ngModelChange)="level.set($event)">
+            <mat-option value="all">All</mat-option>
+            <mat-option value="beginner">Beginner</mat-option>
+            <mat-option value="intermediate">Intermediate</mat-option>
+            <mat-option value="advanced">Advanced</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="side-actions">
+          <button mat-stroked-button class="btn-filter" (click)="resetFilters()">
+            <mat-icon>restart_alt</mat-icon>
+            Reset
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-col">
+      <div class="top-bar">
+        <div class="results-info">
+          Showing {{ startIndex() }}–{{ endIndex() }} of {{ totalCount() }} results
+        </div>
+
+        <div class="top-controls" *ngIf="!isMobile()">
+          <mat-form-field appearance="outline" class="compact">
+            <mat-label>Show</mat-label>
+            <mat-select [ngModel]="pageSize()" (ngModelChange)="setPageSize($event)">
+              <mat-option [value]="6">6 Items</mat-option>
+              <mat-option [value]="12">12 Items</mat-option>
+              <mat-option [value]="24">24 Items</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="compact">
+            <mat-label>Sort</mat-label>
+            <mat-select [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+              <mat-option value="popular">Latest</mat-option>
+              <mat-option value="price-asc">Price (Low → High)</mat-option>
+              <mat-option value="price-desc">Price (High → Low)</mat-option>
+              <mat-option value="weeks-asc">Duration (Short → Long)</mat-option>
+              <mat-option value="weeks-desc">Duration (Long → Short)</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+  <div class="mobile-actions">
+
+    <mat-form-field appearance="outline" class="search-field mobile">
       <mat-label>Search</mat-label>
-      <input matInput 
+      <input matInput
              [ngModel]="search()" (ngModelChange)="search.set($event)" />
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="select-field dense">
-      <mat-label>Type</mat-label>
-      <mat-select [ngModel]="type()" (ngModelChange)="type.set($event)">
-        <mat-option value="all">All</mat-option>
-        <mat-option value="home">Home</mat-option>
-        <mat-option value="gym">Gym</mat-option>
-        <mat-option value="hybrid">Hybrid</mat-option>
-      </mat-select>
-    </mat-form-field>
 
-    <mat-form-field appearance="outline" class="select-field dense">
-      <mat-label>Level</mat-label>
-      <mat-select [ngModel]="level()" (ngModelChange)="level.set($event)">
-        <mat-option value="all">All</mat-option>
-        <mat-option value="beginner">Beginner</mat-option>
-        <mat-option value="intermediate">Intermediate</mat-option>
-        <mat-option value="advanced">Advanced</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="select-field dense">
-      <mat-label>Sort</mat-label>
-      <mat-select [ngModel]="sort()" (ngModelChange)="sort.set($event)">
-        <mat-option value="popular">Popular</mat-option>
-        <mat-option value="price-asc">Price (Low → High)</mat-option>
-        <mat-option value="price-desc">Price (High → Low)</mat-option>
-        <mat-option value="weeks-asc">Duration (Short → Long)</mat-option>
-        <mat-option value="weeks-desc">Duration (Long → Short)</mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
-
-  <div class="mobile-actions">
     <button mat-stroked-button class="btn-filter" (click)="openFilters()">
       <mat-icon>tune</mat-icon>
       Filters
     </button>
-
-    <mat-form-field appearance="outline" class="search-field mobile dense">
-      <mat-label>Search</mat-label>
-      <input matInput 
-             [ngModel]="search()" (ngModelChange)="search.set($event)" />
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
   </div>
 
-  <div class="grid">
-    <mat-card *ngFor="let p of filtered()" class="plan-card">
-      <div class="img-holder" [style.background-image]="'url(' + (p.image || '') + ')'"></div>
+      <div class="grid">
+        <mat-card *ngFor="let p of paged()" class="plan-card small">
+      <div class="img-holder">
+        <img [src]="p.image || fallbackImage" (error)="onImgError($event)" alt="{{p.title}}">
+      </div>
 
       <mat-card-content>
         <div class="chip-row">
@@ -99,7 +131,24 @@
           Buy
         </button>
       </mat-card-actions>
-    </mat-card>
+        </mat-card>
+      </div>
+
+      <div class="pagination-row" *ngIf="totalCount() > pageSize()">
+        <button mat-icon-button (click)="setPage(page()-1)" [disabled]="page()===1">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <ng-container *ngFor="let num of pages()">
+          <button mat-button (click)="setPage(num)" [color]="(page()===num)?'primary':''">{{ num }}</button>
+        </ng-container>
+
+        <button mat-icon-button (click)="setPage(page()+1)" [disabled]="page()===totalPages()">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+    </main>
   </div>
 
   <div *ngIf="filtered().length === 0" class="no-results">

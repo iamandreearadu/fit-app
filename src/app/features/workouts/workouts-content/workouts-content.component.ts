@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../core/material/material.module';
@@ -18,6 +18,15 @@ export class WorkoutsContentComponent {
     { id:'gym-12w', title:'Gym Strength 12W', subtitle:'Compound lifts focus', image:'https://images.unsplash.com/photo-1674834727149-00812f907676?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', type:'gym', level:'intermediate', weeks:12, price:49, perks:['Periodization','Accessory work','Deload weeks'] },
     { id:'gym-24w', title:'3 Months Muscle Plan', subtitle:'Hypertrophy split', image:'https://images.unsplash.com/photo-1674834727149-00812f907676?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', type:'gym', level:'advanced', weeks:12, price:59, perks:['Push/Pull/Legs','RPE-based','Nutrition tips'] },
     { id:'hyb-8w', title:'Hybrid Athlete 8W', subtitle:'Strength + Conditioning', image:'https://images.unsplash.com/photo-1674834727149-00812f907676?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', type:'hybrid', level:'intermediate', weeks:8, price:35, perks:['2× strength, 2× cardio','Mobility add-ons','Pacing guides'] },
+    { id:'home-6w', title:'Quick Home Shred', subtitle:'6-week fat loss', image:'https://images.unsplash.com/photo-1554284126-aa88f22d8aff?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.0.3', type:'home', level:'intermediate', weeks:6, price:25, perks:['30 min HIIT','No equipment','Meal plan'] },
+    { id:'gym-8w', title:'Strength Starter 8W', subtitle:'Beginner gym program', image:'https://images.unsplash.com/photo-1546484959-f2d77af46b5a?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.0.3', type:'gym', level:'beginner', weeks:8, price:29, perks:['Technique focus','3× weekly','Coaching tips'] },
+    { id:'hyb-12w', title:'Endurance Hybrid 12W', subtitle:'Run + strength', image:'https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.0.3', type:'hybrid', level:'intermediate', weeks:12, price:42, perks:['Run training','Strength 2× week','Recovery'] },
+    { id:'gym-4w', title:'Beginner Gym 4W', subtitle:'Intro to compound lifts', image:'https://images.unsplash.com/photo-1534258936925-c58eea6b5f6a?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.0.3', type:'gym', level:'beginner', weeks:4, price:15, perks:['3× week','Form cues','Short sessions'] },
+    { id:'home-10w', title:'Bodyweight Builder 10W', subtitle:'Progressive bodyweight', image:'https://images.unsplash.com/photo-1526403224743-1c5e13fa0b6d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.0.3', type:'home', level:'advanced', weeks:10, price:34, perks:['Strength progression','Skill work','Flexibility'] },
+    { id:'hyb-4w', title:'Conditioning Blitz 4W', subtitle:'Short conditioning block', image:'https://images.unsplash.com/photo-1517964101974-5ef3b74a6b6e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.0.3', type:'hybrid', level:'beginner', weeks:4, price:12, perks:['High intensity','Quick sessions','Minimal gear'] },
+    { id:'home-16w', title:'Progressive Home 16W', subtitle:'Long-term home plan', image:'https://images.unsplash.com/photo-1545156521-8f1f2b1dbf06?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.0.3', type:'home', level:'advanced', weeks:16, price:69, perks:['Periodization','Advanced progressions','Nutrition guide'] },
+    { id:'gym-20w', title:'Mass Builder 20W', subtitle:'Hypertrophy long-term', image:'https://images.unsplash.com/photo-1514512364185-5f7b8a5cfa55?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.0.3', type:'gym', level:'advanced', weeks:20, price:99, perks:['Volume cycles','Accessory plan','Support'] },
+    { id:'hyb-6w', title:'Hybrid Strength 6W', subtitle:'Strength + mobility', image:'https://images.unsplash.com/photo-1513288616311-3a1a9f6b9b2a?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.0.3', type:'hybrid', level:'intermediate', weeks:6, price:27, perks:['Strength sessions','Mobility','Short cardio'] },
   ]);
  loading = signal<boolean>(false);
   showFiltersOverlay = signal<boolean>(false);
@@ -26,6 +35,22 @@ export class WorkoutsContentComponent {
   type = signal<'all'|'home'|'gym'|'hybrid'>('all');
   level = signal<'all'|'beginner'|'intermediate'|'advanced'>('all');
   sort = signal<'popular'|'price-asc'|'price-desc'|'weeks-asc'|'weeks-desc'>('popular');
+  // Responsive flag
+  isMobile = signal<boolean>(false);
+  // Pagination
+  page = signal<number>(1);
+  pageSize = signal<number>(6);
+
+  totalCount = computed(() => this.filtered().length);
+  totalPages = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.pageSize())));
+  paged = computed(() => {
+    const start = (this.page() - 1) * this.pageSize();
+    const end = start + this.pageSize();
+    return this.filtered().slice(start, end);
+  });
+  startIndex = computed(() => (this.page() - 1) * this.pageSize() + 1);
+  endIndex = computed(() => Math.min(this.totalCount(), this.page() * this.pageSize()));
+  pages = computed(() => Array.from({ length: this.totalPages() }, (_, i) => i + 1));
 
   filtered = computed(() => {
     let list = [...this.allPlans()];
@@ -63,5 +88,52 @@ export class WorkoutsContentComponent {
   }
   buy(p: WorkoutPlan) {
     alert(`Buying "${p.title}" — $${p.price}`);
+  }
+
+  setPage(n: number) {
+    const t = this.totalPages();
+    if (n < 1) n = 1;
+    if (n > t) n = t;
+    this.page.set(n);
+    // scroll to top of list when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  setPageSize(size: number) {
+    this.pageSize.set(size);
+    this.page.set(1);
+  }
+
+  // Image fallback for plans without a valid image
+  public fallbackImage = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="%23222"/><text x="50%" y="50%" fill="%23fff" font-family="Arial,Helvetica,sans-serif" font-size="28" text-anchor="middle" dominant-baseline="middle">No image</text></svg>';
+
+  public onImgError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    if (img && img.src !== this.fallbackImage) {
+      img.src = this.fallbackImage;
+    }
+  }
+
+  constructor() {
+    // Reset to first page whenever a filter/search/sort changes so mobile/desktop stay in sync
+    effect(() => { this.search(); this.page.set(1); });
+    effect(() => { this.type(); this.page.set(1); });
+    effect(() => { this.level(); this.page.set(1); });
+    effect(() => { this.sort(); this.page.set(1); });
+
+    // Setup responsive listener for mobile breakpoint (<=640px)
+    if (typeof window !== 'undefined' && 'matchMedia' in window) {
+      const mq = window.matchMedia('(max-width: 640px)');
+      this.isMobile.set(mq.matches);
+      const handle = (e: MediaQueryListEvent) => this.isMobile.set(e.matches);
+      if ('addEventListener' in mq) {
+        // modern API
+        mq.addEventListener('change', handle);
+      } else if ('addListener' in mq) {
+        // legacy
+        // @ts-ignore
+        mq.addListener(handle);
+      }
+    }
   }
 }
