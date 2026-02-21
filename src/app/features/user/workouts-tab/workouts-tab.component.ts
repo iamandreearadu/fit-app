@@ -4,6 +4,8 @@ import { MaterialModule } from '../../../core/material/material.module';
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
 import { WorkoutTemplate, WorkoutType } from '../../../core/models/workouts-tab.model';
+import { UserStore } from '../../../core/store/user.store';
+import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
 
 @Component({
   selector: 'app-workouts-tab',
@@ -15,8 +17,11 @@ import { WorkoutTemplate, WorkoutType } from '../../../core/models/workouts-tab.
 export class WorkoutsTabComponent implements OnInit {
   readonly facade = inject(WorkoutsTabFacade);
   private fb = inject(FormBuilder);
+  private userStore = inject(UserStore);
+  private groqFacade = inject(GroqAiFacade);
 
   loading = false;
+  aiCalories: Record<string, { loading: boolean; result: string | null }> = {};
 
   templates: WorkoutTemplate[] = [];
   filtered: WorkoutTemplate[] = [];
@@ -100,6 +105,29 @@ isExpanded(w: any): boolean {
 
 stop(e: Event): void {
   e.stopPropagation();
+}
+
+clearAiResult(uid: string, event: Event): void {
+  event.stopPropagation();
+  if (uid) delete this.aiCalories[uid];
+}
+
+async estimateCalories(w: WorkoutTemplate, event: Event): Promise<void> {
+  event.stopPropagation();
+  const uid = w.uid;
+  if (!uid) return;
+
+  const user = this.userStore.user();
+  if (!user) return;
+
+  this.aiCalories[uid] = { loading: true, result: null };
+
+  try {
+    const result = await this.groqFacade.calculateWorkoutCalories(user, w);
+    this.aiCalories[uid] = { loading: false, result };
+  } catch {
+    this.aiCalories[uid] = { loading: false, result: 'Could not estimate calories. Please try again.' };
+  }
 }
 
 

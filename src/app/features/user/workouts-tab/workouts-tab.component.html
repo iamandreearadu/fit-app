@@ -123,6 +123,42 @@
                 No exercises added.
               </div>
             </ng-container>
+
+            <!-- AI Calorie Estimate -->
+            <div class="ai-section">
+              <button
+                type="button"
+                mat-stroked-button
+                class="ai-btn"
+                (click)="estimateCalories(w, $event)"
+                [disabled]="aiCalories[w.uid ?? '']?.loading">
+                <mat-progress-spinner
+                  *ngIf="aiCalories[w.uid ?? '']?.loading"
+                  mode="indeterminate"
+                  diameter="14"
+                  class="btn-spinner">
+                </mat-progress-spinner>
+                <mat-icon *ngIf="!aiCalories[w.uid ?? '']?.loading">auto_awesome</mat-icon>
+                {{ aiCalories[w.uid ?? '']?.loading ? 'Calculating...' : 'Estimate calories with AI' }}
+              </button>
+
+              <div class="ai-result" *ngIf="aiCalories[w.uid ?? '']?.result && !aiCalories[w.uid ?? '']?.loading">
+                <div class="ai-result-header">
+                  <mat-icon class="ai-icon">auto_awesome</mat-icon>
+                  <span class="ai-label">AI Estimate</span>
+                  <button
+                    type="button"
+                    mat-icon-button
+                    class="ai-close-btn"
+                    (click)="clearAiResult(w.uid ?? '', $event)"
+                    aria-label="Close">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+                <div class="ai-result-text">{{ aiCalories[w.uid ?? '']?.result }}</div>
+              </div>
+            </div>
+
           </div>
 
         </div>

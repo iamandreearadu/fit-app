@@ -5,9 +5,11 @@ import { AuthenticationUser } from '../models/authentication-user.model';
 export class AuthenticationStore {
 
   private readonly _authUser = signal<AuthenticationUser | null>(null);
+  private readonly _loading = signal<boolean>(false);
+
 
   public authUser = this._authUser.asReadonly();
-  public loading = signal<boolean>(false);
+  public loading = this._loading.asReadonly();
 
   constructor() { }
 
@@ -16,7 +18,7 @@ export class AuthenticationStore {
   }
 
   public setLoading(flag: boolean) {
-    this.loading.set(flag);
+    this._loading.set(flag);
   }
 
   public clear() {

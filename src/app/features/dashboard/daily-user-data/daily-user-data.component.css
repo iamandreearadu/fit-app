@@ -1,4 +1,12 @@
 
+.workout-option-meta {
+  font-size: 11px;
+  opacity: 0.6;
+  margin-left: 2px;
+  color:var(--primary) !important;
+}
+
+
 .daily-root {
   padding: 24px;
   max-width: calc(100% - 100px);
@@ -106,6 +114,19 @@
 
 .full-width {
   width: 100%;
+}
+
+.cdk-overlay-pane
+.mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  color: var(--primary);
+}
+
+.cdk-overlay-pane .mat-mdc-optgroup-label {
+  color: var(--primary) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 

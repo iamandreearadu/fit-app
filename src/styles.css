@@ -66,6 +66,15 @@ app-root {
   height: 12vh;
 }
 
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px;
+}
+
+
 /* GLOBAL TEXT  */
 
 .section-title {
@@ -160,5 +169,13 @@ mat-select {
 .cdk-overlay-pane
 .mat-mdc-option:hover:not(.mdc-list-item--disabled) {
   color: var(--primary);
+}
+
+.cdk-overlay-pane .mat-mdc-optgroup-label {
+  color: var(--primary) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 

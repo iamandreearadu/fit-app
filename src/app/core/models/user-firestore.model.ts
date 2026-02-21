@@ -5,7 +5,7 @@ export interface UserMetricsFirestore {
   goalCalories: number | null;
   tdee: number | null;
   waterL: number | null;
-  lastCalculatedAt: string | null;   // "2025-11-27"
+  lastCalculatedAt: string | null;
 }
 
 export interface UserFirestore {
@@ -23,6 +23,6 @@ export interface UserFirestore {
 
   metrics: UserMetricsFirestore | null;
 
-  metricsUpdatedAt: any | null;  // Firestore Timestamp
-  updatedAt: any | null;         // Firestore Timestamp
+  metricsUpdatedAt: any | null;
+  updatedAt: any | null;
 }

@@ -8,6 +8,7 @@ import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
 import { MealMacros } from '../../../core/models/meal-macros';
 import { AiMealAnalyzerComponent } from './ai-meal-analyzer/ai-meal-analyzer.component';
 import { AlertService } from '../../../shared/services/alert.service';
+import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
 
 import { from, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -28,13 +29,13 @@ export class DailyUserDataComponent implements OnInit {
   public facade = inject(UserFacade);
   public groqFacade = inject(GroqAiFacade);
   public alerts = inject(AlertService);
-  private fb = inject(FormBuilder)
+  public workoutsFacade = inject(WorkoutsTabFacade);
+  private fb = inject(FormBuilder);
 
   public history = this.facade.history;
 
   public showAnalyzeOverlay = false;
   public analyzeError: string | null = null;
-
 
   public autoSaveStatus: 'idle' | 'saving' | 'saved' | 'error' = 'idle';
   private isPatchingFromBackend = false;
@@ -44,10 +45,12 @@ export class DailyUserDataComponent implements OnInit {
     this.form = this.buildForm();
     this.setupDailyEffect();
     this.setupAutoSave();
+    this.setupWorkoutAutoFill();
   }
 
   ngOnInit(): void {
     this.facade.loadDailyFromFireStore();
+    this.workoutsFacade.loadTemplates();
   }
 
   openMealAnalyze(): void {
@@ -69,6 +72,22 @@ export class DailyUserDataComponent implements OnInit {
     this.alerts.error('Macros analysis failed.');
   }
 
+  // ===================== WORKOUT AUTO-FILL =====================
+
+  private setupWorkoutAutoFill(): void {
+    this.form.get('activityType')?.valueChanges.pipe(
+      takeUntilDestroyed(),
+      filter((v): v is string => typeof v === 'string' && v.startsWith('workout:'))
+    ).subscribe(value => {
+      const uid = value.replace('workout:', '');
+      const template = this.workoutsFacade.templates.find(t => t.uid === uid);
+      if (template && template.caloriesEstimateKcal > 0) {
+        this.form.get('caloriesBurned')?.setValue(template.caloriesEstimateKcal);
+        this.form.markAsDirty();
+      }
+    });
+  }
+
   // ===================== AUTOSAVE =====================
 
   private setupAutoSave(): void {
@@ -84,21 +103,16 @@ export class DailyUserDataComponent implements OnInit {
       distinctUntilChanged((a, b) => a.serialized === b.serialized),
       switchMap(({ patch, serialized }) => {
         if (this.lastSavedSerialized === serialized) {
-          // Nothing new to save (coalesced/duplicate) — skip.
           return of(null);
         }
-        // Reserve this serialized snapshot so intermediate store updates
-        // (caused by the save) won't trigger another save for the same data.
         this.lastSavedSerialized = serialized;
         this.autoSaveStatus = 'saving';
         return from(this.facade.saveDailyToFireStore(patch)).pipe(
           tap(() => {
             this.autoSaveStatus = 'saved';
-            // Consider form synced with backend.
             this.form.markAsPristine();
           }),
           catchError(err => {
-            // Clear the reservation so user can retry saving.
             this.lastSavedSerialized = null;
             this.autoSaveStatus = 'error';
             console.error('Autosave failed', err);
@@ -108,7 +122,6 @@ export class DailyUserDataComponent implements OnInit {
       })
     ).subscribe();
   }
-
 
   private applyMealToForm(meal: MealMacros) {
     const macros = this.form.get('macrosPct') as FormGroup;
@@ -136,7 +149,6 @@ export class DailyUserDataComponent implements OnInit {
     this.form.markAsDirty();
   }
 
-  // Helpers for UI buttons that increment water (ml) and steps.
   public adjustWaterMl(deltaMl: number): void {
     const ctrl = this.form.get('waterConsumedL');
     if (!ctrl) return;
@@ -155,21 +167,20 @@ export class DailyUserDataComponent implements OnInit {
     this.form.markAsDirty();
   }
 
-
   public onDateChange(date: string) {
     this.autoSaveStatus = 'idle';
     this.facade.loadDailyFromFireStore(date);
   }
 
-  // public async onSaveData(): Promise<void> {
-  //   if (this.form.invalid) {
-  //     this.form.markAllAsTouched();
-  //     return;
-  //   }
-  //   const patch = this.form.getRawValue() as Partial<DailyUserData>;
-  //   await this.facade.saveDailyToFireStore(patch);
-  //   this.autoSaveStatus = 'saved';
-  // }
+  public async onSaveData(): Promise<void> {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    const patch = this.form.getRawValue() as Partial<DailyUserData>;
+    await this.facade.saveDailyToFireStore(patch);
+    this.autoSaveStatus = 'saved';
+  }
 
   public async onReset(): Promise<void> {
     const date = this.form.get('date')?.value;
@@ -178,7 +189,6 @@ export class DailyUserDataComponent implements OnInit {
     this.form.markAsPristine();
     this.autoSaveStatus = 'idle';
   }
-
 
   private buildForm(): FormGroup {
     const v = this.facade.dailyDataValidation.getControlValidators();

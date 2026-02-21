@@ -1,11 +1,4 @@
 <div class="dashboard-root">
-  <!-- <div class="dashboard-header">
-    <h2>Dashboard</h2>
-    <mat-chip-set>
-      <mat-chip class="btn-primary" highlighted>{{ facade.todayDate }}</mat-chip>
-    </mat-chip-set>
-  </div> -->
-
   <ng-container *ngIf="user() as u; else noData">
     <ng-container *ngIf="metrics() as m">
 

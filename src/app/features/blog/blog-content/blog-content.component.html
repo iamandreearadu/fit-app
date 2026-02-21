@@ -74,17 +74,13 @@
       </button>
     </div>
   </mat-card-content>
-
 </mat-card>
 
   </div>
-
   <div *ngIf="filtered.length === 0" class="no-results">
     <mat-icon>search_off</mat-icon>
     <p>No posts found matching your criteria</p>
   </div>
-
-
 
   <div *ngIf="showCreateOverlay || editing" class="overlay-backdrop" (click)="showCreateOverlay = false; editing = false">
     <mat-card class="overlay-card" (click)="$event.stopPropagation()">

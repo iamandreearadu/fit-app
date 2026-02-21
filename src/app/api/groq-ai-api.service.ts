@@ -6,6 +6,8 @@ import { GroqChatResponse } from '../core/models/groq-ai.model';
 import { BASE_SYSTEM_PROMPT, IMAGE_FOOD_PROMPT, IMAGE_GENERIC_PROMPT, IMAGE_MACROS_PROMPT, OUTPUT_FORMAT_PROMPT, OUTPUT_FORMAT_PROMPT_FOR_MACROS } from '../core/system-prompt/ai-prompts';
 import { MealMacros } from '../core/models/meal-macros';
 import { AlertService } from '../shared/services/alert.service';
+import { UserProfile } from '../core/models/user.model';
+import { WorkoutTemplate } from '../core/models/workouts-tab.model';
 
 export enum AiResponseType {
   FOOD_IMAGE = 'food_image',
@@ -89,6 +91,53 @@ export class GroqAiApiService {
   }  
 
 
+
+  // ---------------- WORKOUT CALORIE ESTIMATE ----------------
+
+  async calculateWorkoutCalories(user: UserProfile, workout: WorkoutTemplate): Promise<string> {
+    let workoutDetails = '';
+
+    if (workout.type === 'Cardio') {
+      workoutDetails = `Distance: ${workout.cardio?.km ?? 0} km, Incline: ${workout.cardio?.incline ?? 0}%`;
+      if (workout.cardio?.notes) workoutDetails += `, Notes: ${workout.cardio.notes}`;
+    } else {
+      const exList = (workout.exercises ?? [])
+        .map(e => `  - ${e.name}: ${e.sets} sets x ${e.reps} reps @ ${e.weightKg} kg`)
+        .join('\n');
+      workoutDetails = exList || '  - No exercises listed';
+    }
+
+    const prompt = `You are a certified fitness expert and exercise physiologist.
+
+User profile:
+- Weight: ${user.weightKg} kg, Height: ${user.heightCm} cm, Age: ${user.age}
+- Gender: ${user.gender}, Activity level: ${user.activity}, Goal: ${user.goal}
+
+Workout: "${workout.title}" (${workout.type}, ${workout.durationMin} minutes)
+${workoutDetails}
+
+Based on the user's body metrics and the workout details above, estimate the calories burned.
+Respond with:
+1. A calorie range (e.g. "320–400 kcal")
+2. A brief explanation (2–3 sentences) mentioning the user's weight, workout type, and intensity factors.
+Be specific and practical. Do not add disclaimers or generic advice.`;
+
+    const res = await this.sendRequest({
+      model: 'llama-3.1-8b-instant',
+      messages: [
+        { role: 'system', content: 'You are a certified fitness expert. Give direct, specific calorie estimates based on exercise science and the user data provided.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.4,
+      max_completion_tokens: 300
+    });
+
+    const text = this.extractText(res);
+    if (!text || text.length < 20) {
+      return 'Could not estimate calories at this time. Please try again.';
+    }
+    return text.trim();
+  }
 
    // ---------------- IMAGE & EXTRACT MACROS ----------------
   async analyzeMealImage(file: File): Promise<MealMacros> {

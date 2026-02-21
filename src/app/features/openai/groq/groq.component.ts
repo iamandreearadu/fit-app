@@ -12,14 +12,20 @@ import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
 })
 export class GroqComponent {
 
-  facade = inject(GroqAiFacade);
-
+  facade = inject(GroqAiFacade);   
+  
+  loading = false;
   prompt = '';
   imageFile: File | null = null;
   imagePreview: string | null = null;
 
   async ngOnInit() {
+    this.loading = true;
+    try {
     await this.facade.loadConversations();
+    } finally {
+      this.loading = false;
+    }
   }
 
   onFileSelected(event: any) {

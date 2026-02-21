@@ -22,11 +22,21 @@
             <mat-form-field appearance="fill" class="full-width ">
               <mat-label>Activity Type</mat-label>
               <mat-select formControlName="activityType" class="activity-select">
-                <mat-option value="strength-training">Strength Training</mat-option>
-                <mat-option value="cardio">Cardio</mat-option>
-                <mat-option value="hiit-training">HIIT Training</mat-option>
-                <mat-option value="active-rest-day">Active Rest Day</mat-option>
-                <mat-option value="rest-day">Rest Day</mat-option>
+                <mat-optgroup label="Standard">
+                  <mat-option value="strength-training">Strength Training</mat-option>
+                  <mat-option value="cardio">Cardio</mat-option>
+                  <mat-option value="hiit-training">HIIT Training</mat-option>
+                  <mat-option value="active-rest-day">Active Rest Day</mat-option>
+                  <mat-option value="rest-day">Rest Day</mat-option>
+                </mat-optgroup>
+
+                <mat-optgroup label="My Workouts" *ngIf="workoutsFacade.templates.length > 0">
+                  <mat-option
+                    *ngFor="let w of workoutsFacade.templates"
+                    [value]="'workout:' + w.uid">
+                    {{ w.title }}<span class="workout-option-meta"> · {{ w.type }} · {{ w.durationMin }} min<ng-container *ngIf="w.caloriesEstimateKcal > 0"> · {{ w.caloriesEstimateKcal }} kcal</ng-container></span>
+                  </mat-option>
+                </mat-optgroup>
               </mat-select>
             </mat-form-field>
 

@@ -309,11 +309,9 @@ mat-divider{ border-color: var(--white-fade) !important; opacity: .8; }
     background-position: center top;
   }
   .price{ font-size: 20px; }
-  /* hide inline top controls (sort/show) on mobile — use overlay Filters button instead */
   .top-controls{ display: none; }
 }
 
-/* Tablet: collapse two-column into stacked layout */
 @media (max-width: 1000px) and (min-width: 641px) {
   .two-col{ grid-template-columns: 1fr; }
   .sidebar{ order: -1; width: 100%; padding: 12px 0 8px; }
@@ -323,7 +321,6 @@ mat-divider{ border-color: var(--white-fade) !important; opacity: .8; }
   .plan-card.small .img-holder{ height: 160px; }
 }
 
-/* Small tablets / large phones: ensure filters stack and top-bar wraps */
 @media (max-width: 900px) {
   .sidebar .controls-row{ gap:10px; }
   .top-bar{ flex-direction: column; align-items: flex-start; gap:10px; }
@@ -332,7 +329,6 @@ mat-divider{ border-color: var(--white-fade) !important; opacity: .8; }
   .pagination-row{ flex-wrap:wrap; gap:8px; }
 }
 
-/* Mobile: move sidebar filters into a compact card-like block above list */
 @media (max-width: 640px){
   .two-col{ grid-template-columns: 1fr; }
   .sidebar{ padding: 8px 0 12px; }

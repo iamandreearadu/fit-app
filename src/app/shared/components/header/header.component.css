@@ -47,7 +47,9 @@
   white-space: nowrap;
   
 }
-.nav-item:hover{ background: var(--white-fade); }
+.nav-item:hover{ 
+  background: var(--white-fade); 
+}
 .nav-item.active{ 
   color:var(--primary) !important;
  }

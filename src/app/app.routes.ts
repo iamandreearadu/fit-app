@@ -1,43 +1,72 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './features/auth/login/login.component';
-import { RegisterComponent } from './features/auth/register/register.component';
-import { BlogComponent } from './features/blog/blog.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { GuestGuard } from './core/guards/guest.guard';
-import { UserPageComponent } from './features/user/user-page.component';
-import { DashboardPageComponent } from './features/dashboard/dashboard-page.component';
-import { HomePageComponent } from './features/home/home-page.component';
-import { OpenaiComponent } from './features/openai/openai.component';
-import { BlogPostDetailComponent } from './features/blog/blog-post-detail/blog-post-detail.component';
-import { WorkoutsComponent } from './features/workouts/workouts.component';
 
 export const routes: Routes = [
 
-  { path: '', component: HomePageComponent },
-  { path: 'blog', 
+  {
+    path: '',
+    loadComponent: () =>
+      import('./features/home/home-page.component')
+      .then(m => m.HomePageComponent)
+  },
+  {
+    path: 'blog',
     children: [
       {
         path: '',
-        loadComponent: () => 
+        loadComponent: () =>
           import('./features/blog/blog.component')
-        .then(m => m.BlogComponent)
+          .then(m => m.BlogComponent)
       },
       {
         path: ':id',
-        loadComponent: () => 
+        loadComponent: () =>
           import('./features/blog/blog-post-detail/blog-post-detail.component')
-        .then(m => m.BlogPostDetailComponent)
+          .then(m => m.BlogPostDetailComponent)
       }
     ]
   },
-  { path: 'workouts', component: WorkoutsComponent},
-  { path: 'openai', component: OpenaiComponent },
-
-  { path: 'user-profile', component: UserPageComponent, canActivate: [AuthGuard] },
-  { path: 'user-dashboard', component: DashboardPageComponent, canActivate: [AuthGuard] },
-
-  { path: 'login', component: LoginComponent, canActivate: [GuestGuard] },
-  { path: 'register', component: RegisterComponent, canActivate: [GuestGuard] },
+  {
+    path: 'workouts',
+    loadComponent: () =>
+      import('./features/workouts/workouts.component')
+      .then(m => m.WorkoutsComponent)
+  },
+  {
+    path: 'openai',
+    loadComponent: () =>
+      import('./features/openai/openai.component')
+      .then(m => m.OpenaiComponent)
+  },
+  {
+    path: 'user-profile',
+    loadComponent: () =>
+      import('./features/user/user-page.component')
+      .then(m => m.UserPageComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'user-dashboard',
+    loadComponent: () =>
+      import('./features/dashboard/dashboard-page.component')
+      .then(m => m.DashboardPageComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/login/login.component')
+      .then(m => m.LoginComponent),
+    canActivate: [GuestGuard]
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./features/auth/register/register.component')
+      .then(m => m.RegisterComponent),
+    canActivate: [GuestGuard]
+  },
 
   { path: '**', redirectTo: '' },
 ];

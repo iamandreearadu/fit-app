@@ -1,4 +1,9 @@
-<div class="ai-container">
+<div *ngIf="loading" class="loading-container">
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>
+
+
+<div *ngIf="!loading" class="ai-container">
 
   <h2 class="section-title">AI Assistant</h2>
 

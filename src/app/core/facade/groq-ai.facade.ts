@@ -4,6 +4,8 @@ import { GroqAiService as GroqApiFirebaseService } from '../../api/groq-ai.servi
 import { GrogAiService as GrogCoreService } from '../services/grog-ai.service';
 import { ChatMessage } from '../models/groq-ai.model';
 import { MealMacros } from '../models/meal-macros';
+import { UserProfile } from '../models/user.model';
+import { WorkoutTemplate } from '../models/workouts-tab.model';
 
 
 @Injectable({ providedIn: 'root' })
@@ -107,6 +109,14 @@ export class GroqAiFacade {
     } finally {
       this.state.setLoading(false);
     }
+  }
+
+  // ========================================================
+  //  FUNCTION: ESTIMATE WORKOUT CALORIES
+  // ========================================================
+
+  async calculateWorkoutCalories(user: UserProfile, workout: WorkoutTemplate): Promise<string> {
+    return this.groqService.calculateWorkoutCalories(user, workout);
   }
 
   async deleteConversation(id: string): Promise<void> {
