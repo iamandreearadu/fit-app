@@ -21,14 +21,14 @@ export class WorkoutsTabComponent implements OnInit {
   private groqFacade = inject(GroqAiFacade);
 
   loading = false;
-  aiCalories: Record<string, { loading: boolean; result: string | null }> = {};
+  aiCalories: Partial<Record<string, { loading: boolean; result: string | null }>> = {};
 
   templates: WorkoutTemplate[] = [];
   filtered: WorkoutTemplate[] = [];
 
   searchTerm = '';
   selectedType: 'all' | WorkoutType = 'all';
-  types: WorkoutType[] = ['Strength', 'Circuit', 'HIIT', 'Crossfit', 'Cardio', 'Other'];
+  types: WorkoutType[] = ['Strength', 'Circuit', 'HIIT', 'Crossfit', 'Cardio','Other'];
   expandedUid: string | null = null;
 
   showEditor = false;

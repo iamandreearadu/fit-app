@@ -77,6 +77,7 @@ export class DailyUserDataComponent implements OnInit {
   private setupWorkoutAutoFill(): void {
     this.form.get('activityType')?.valueChanges.pipe(
       takeUntilDestroyed(),
+      filter(() => !this.isPatchingFromBackend),
       filter((v): v is string => typeof v === 'string' && v.startsWith('workout:'))
     ).subscribe(value => {
       const uid = value.replace('workout:', '');
@@ -94,8 +95,9 @@ export class DailyUserDataComponent implements OnInit {
     const serialize = (v: unknown) => JSON.stringify(v ?? {});
     this.form.valueChanges.pipe(
       takeUntilDestroyed(),
+      filter(() => !this.isPatchingFromBackend),
       debounceTime(1200),
-      filter(() => this.form.valid && !this.isPatchingFromBackend),
+      filter(() => this.form.valid),
       map(() => {
         const patch = this.form.getRawValue() as Partial<DailyUserData>;
         return { patch, serialized: serialize(patch) };
