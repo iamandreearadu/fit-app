@@ -161,6 +161,7 @@ export class DailyUserDataComponent implements OnInit {
     const next = Math.max(0, +(current + deltaMl / 1000).toFixed(3));
     ctrl.setValue(next);
     this.form.markAsDirty();
+    this.facade.addWater(deltaMl / 1000); // actualizare imediata UI (effect sare re-patch pt ca form.dirty=true)
   }
 
   public adjustSteps(delta: number): void {
@@ -170,6 +171,7 @@ export class DailyUserDataComponent implements OnInit {
     const next = Math.max(0, Math.round(current + delta));
     ctrl.setValue(next);
     this.form.markAsDirty();
+    this.facade.addSteps(delta); // actualizare imediata UI
   }
 
   public onDateChange(date: string) {

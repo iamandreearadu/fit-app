@@ -114,15 +114,15 @@
           <mat-card-content>
             <div class="progress-header">
               <span class="progress-label">Water Intake</span>
-              <span class="progress-value">{{ facade.dailyDataStats().waterConsumedL | number:'1.1-1' }} L / {{ facade.waterTargetFromMetrics() | number:'1.1-1' }} L</span>
+              <span class="progress-value">{{ facade.dailyDataStats().waterConsumedL | number:'1.2-2' }} L / {{ facade.waterTargetFromMetrics() | number:'1.1-1' }} L</span>
             </div>
             <mat-progress-bar mode="determinate" [value]="facade.waterProgress()" class="custom-progress"></mat-progress-bar>
             <div class="progress-percentage">{{ (facade.waterProgress() || 0) | number:'1.0-0' }}% complete</div>
 
             <div class="btn-row">
-              <button mat-stroked-button class="primary" (click)="facade.addWater(0.25)">+250 ml</button>
-              <button mat-stroked-button class="primary" (click)="facade.addWater(0.5)">+500 ml</button>
-              <button mat-stroked-button class="accent" (click)="facade.addWater(-0.25)">−250 ml</button>
+              <button mat-stroked-button class="primary" (click)="adjustWaterMl(250)">+250 ml</button>
+              <button mat-stroked-button class="primary" (click)="adjustWaterMl(500)">+500 ml</button>
+              <button mat-stroked-button class="accent" (click)="adjustWaterMl(-250)">−250 ml</button>
             </div>
 
             <div class="progress-header">
@@ -133,9 +133,9 @@
             <div class="progress-percentage">{{ facade.dailyDataStats().stepsProgress | number:'1.0-0' }}% complete</div>
 
             <div class="btn-row">
-              <button mat-stroked-button class="primary" (click)="facade.addSteps(500)">+500</button>
-              <button mat-stroked-button class="primary" (click)="facade.addSteps(1000)">+1000</button>
-              <button mat-stroked-button class="accent" (click)="facade.addSteps(-500)">−500</button>
+              <button mat-stroked-button class="primary" (click)="adjustSteps(500)">+500</button>
+              <button mat-stroked-button class="primary" (click)="adjustSteps(1000)">+1000</button>
+              <button mat-stroked-button class="accent" (click)="adjustSteps(-500)">−500</button>
             </div>
           </mat-card-content>
         </mat-card>
