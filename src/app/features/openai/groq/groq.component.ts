@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, ViewChild, effect, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../core/material/material.module';
 import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
@@ -10,14 +10,37 @@ import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
   templateUrl: './groq.component.html',
   styleUrl: './groq.component.css'
 })
-export class GroqComponent {
+export class GroqComponent implements AfterViewChecked {
 
-  facade = inject(GroqAiFacade);   
-  
+  facade = inject(GroqAiFacade);
+
+  @ViewChild('chatWindow') private chatWin!: ElementRef<HTMLElement>;
+
   loading = false;
   prompt = '';
   imageFile: File | null = null;
   imagePreview: string | null = null;
+
+  private shouldScroll = false;
+
+  constructor() {
+    effect(() => {
+      this.facade.messages();
+      this.shouldScroll = true;
+    });
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.shouldScroll) {
+      this.scrollToBottom();
+      this.shouldScroll = false;
+    }
+  }
+
+  private scrollToBottom(): void {
+    const el = this.chatWin?.nativeElement;
+    if (el) el.scrollTop = el.scrollHeight;
+  }
 
   async ngOnInit() {
     this.loading = true;

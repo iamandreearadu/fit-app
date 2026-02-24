@@ -150,6 +150,15 @@ app-root {
 
 
 
+/* FORM FIELD LABELS */
+.mat-mdc-form-field .mdc-floating-label {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.mat-mdc-form-field.mat-focused .mdc-floating-label {
+  color: var(--primary) !important;
+}
+
 /* DROPDOWNS AND SELECTS  */
 mat-select {
   color: var(--white-soft) !important;

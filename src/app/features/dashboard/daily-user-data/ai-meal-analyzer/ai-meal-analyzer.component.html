@@ -1,72 +1,98 @@
-  <mat-card class="upload-card"
-            (dragover)="onDragOver($event)"
-            (dragleave)="onDragLeave($event)"
-            (drop)="onDrop($event)">
+<div class="analyzer-root">
 
-    <div class="dropzone" [class.dragover]="isDragOver">
-      <mat-icon class="dz-icon">image</mat-icon>
+  <!-- ── DROPZONE ── -->
+  <div class="dropzone"
+       [class.dragover]="isDragOver"
+       (dragover)="onDragOver($event)"
+       (dragleave)="onDragLeave($event)"
+       (drop)="onDrop($event)">
+
+    <ng-container *ngIf="!preview">
+      <mat-icon class="dz-icon">add_photo_alternate</mat-icon>
       <div class="dz-text">
-        <strong>Drag & drop</strong> your meal photo here
+        <span class="dz-primary">Drag & drop your meal photo</span>
+        <span class="dz-sub">or click the button to choose a file</span>
       </div>
-
-      <button mat-stroked-button color="primary" type="button" class="dz-btn"
+      <button mat-stroked-button class="dz-btn" type="button"
               (click)="openFileDialog()" [disabled]="disabled || loading">
-        Choose
+        Choose file
       </button>
+    </ng-container>
 
-      <input #fileInput type="file" accept="image/*" class="hidden-input" (change)="onFileChange($event)" />
-    </div>
-
-    <div *ngIf="preview" class="preview">
-      <img [src]="preview" alt="Meal preview">
-      <button mat-mini-fab class="remove-btn" type="button"
-              (click)="clear()" aria-label="Remove image" [disabled]="loading">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-
-    <div *ngIf="result" class="macros-summary">
-      <div class="macros-grid">
-        <div class="macro stat">
-          <div class="label">Protein</div>
-          <div class="value">{{ result.protein_g | number:'1.0-0' }}<span class="unit"> g</span></div>
-        </div>
-        <div class="macro stat">
-          <div class="label">Carbs</div>
-          <div class="value">{{ result.carbs_g | number:'1.0-0' }}<span class="unit"> g</span></div>
-        </div>
-        <div class="macro stat">
-          <div class="label">Fats</div>
-          <div class="value">{{ result.fats_g | number:'1.0-0' }}<span class="unit"> g</span></div>
-        </div>
-        <div class="macro stat" *ngIf="result.calories_kcal != null">
-          <div class="label">Calories</div>
-          <div class="value">{{ result.calories_kcal | number:'1.0-0' }}<span class="unit"> kcal</span></div>
+    <ng-container *ngIf="preview">
+      <div class="preview-wrap">
+        <img [src]="preview" alt="Meal preview" class="preview-img">
+        <button mat-mini-fab class="remove-btn" type="button"
+                (click)="clear()" [disabled]="loading" aria-label="Remove image">
+          <mat-icon>close</mat-icon>
+        </button>
+        <div *ngIf="loading" class="analyzing-overlay">
+          <mat-progress-spinner mode="indeterminate" diameter="36"></mat-progress-spinner>
+          <span>Analyzing…</span>
         </div>
       </div>
+    </ng-container>
 
-      <div class="items" *ngIf="result.items?.length">
-        <span class="item-chip" *ngFor="let it of result.items"
-              matTooltip="Model confidence: cât de sigur e AI că alimentul este în imagine.">
-          {{ it.name }}
-          <small *ngIf="it.confidence != null">({{ it.confidence | number:'1.0-2' }})</small>
-        </span>
+    <input #fileInput type="file" accept="image/*" class="hidden-input" (change)="onFileChange($event)">
+  </div>
+
+  <!-- ── MACROS RESULT ── -->
+  <div *ngIf="result" class="result-block">
+
+    <div class="result-header">
+      <mat-icon class="result-icon">auto_awesome</mat-icon>
+      <span>AI Analysis Result</span>
+    </div>
+
+    <div class="macros-grid">
+      <div class="macro-tile">
+        <span class="macro-dot dot-protein"></span>
+        <div class="macro-body">
+          <span class="macro-value">{{ result.protein_g | number:'1.0-0' }}<span class="macro-unit"> g</span></span>
+          <span class="macro-label">Protein</span>
+        </div>
+      </div>
+      <div class="macro-tile">
+        <span class="macro-dot dot-carbs"></span>
+        <div class="macro-body">
+          <span class="macro-value">{{ result.carbs_g | number:'1.0-0' }}<span class="macro-unit"> g</span></span>
+          <span class="macro-label">Carbs</span>
+        </div>
+      </div>
+      <div class="macro-tile">
+        <span class="macro-dot dot-fats"></span>
+        <div class="macro-body">
+          <span class="macro-value">{{ result.fats_g | number:'1.0-0' }}<span class="macro-unit"> g</span></span>
+          <span class="macro-label">Fats</span>
+        </div>
+      </div>
+      <div class="macro-tile" *ngIf="result.calories_kcal != null">
+        <span class="macro-dot dot-cal"></span>
+        <div class="macro-body">
+          <span class="macro-value">{{ result.calories_kcal | number:'1.0-0' }}<span class="macro-unit"> kcal</span></span>
+          <span class="macro-label">Calories</span>
+        </div>
       </div>
     </div>
-  </mat-card>
 
-  <div class="btn-row split">
-    <!-- <button mat-flat-button color="primary" type="button"
-            (click)="analyze()" [disabled]="disabled || !file || loading">
-      {{ loading ? 'Analyzing…' : 'Analyze' }}
-    </button> -->
+    <div class="items-row" *ngIf="result.items?.length">
+      <span class="item-chip" *ngFor="let it of result.items"
+            matTooltip="Model confidence">
+        {{ it.name }}
+        <small *ngIf="it.confidence != null">({{ it.confidence | number:'1.0-2' }})</small>
+      </span>
+    </div>
 
-    <span class="flex-spacer"></span>
-
-    <button *ngIf="result" mat-flat-button color="accent" type="button"
+    <button mat-flat-button class="btn-add" type="button"
             (click)="addToUser()" [disabled]="disabled || loading">
-      Add
+      <mat-icon>add_circle</mat-icon>
+      Add to Today
     </button>
   </div>
 
-  <mat-hint *ngIf="errorMsg" class="error">{{ errorMsg }}</mat-hint>
+  <div *ngIf="errorMsg" class="error-msg">
+    <mat-icon>error_outline</mat-icon>
+    {{ errorMsg }}
+  </div>
+
+</div>

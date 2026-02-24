@@ -12,10 +12,11 @@
 
     <mat-sidenav-content class="chat-content">
       <div class="mobile-topbar" *ngIf="isHandset">
-        <button mat-stroked-button class="btn-chats" (click)="openSidebar()">
+        <button mat-stroked-button class="btn-chats" type="button" (click)="openSidebar()">
           <mat-icon>menu</mat-icon>
-          Chats
+          <span>Chats</span>
         </button>
+        <span class="mobile-brand">AI Assistant</span>
       </div>
 
       <app-groq></app-groq>

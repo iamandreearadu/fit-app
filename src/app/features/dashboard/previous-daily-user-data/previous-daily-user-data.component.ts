@@ -56,7 +56,10 @@ export class PreviousDailyUserDataComponent implements OnInit {
     map.get(key)!.days.push(day);
   });
 
-  return Array.from(map.values());
+  const weeks = Array.from(map.values());
+  // sort days within each week Mon → Sun
+  weeks.forEach(w => w.days.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+  return weeks;
 });
 
 

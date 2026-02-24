@@ -1,112 +1,158 @@
 .dashboard-root {
-  padding: 0;
-  max-width: calc(100% - 100px);
-  width: 1400px;
-  margin: 32px auto 0 auto;
-  border-radius: 12px;
-  align-items: center;
+  max-width: min(1400px, calc(100% - 80px));
+  margin: 24px auto 0;
 }
 
-.dashboard-header {
+/* ── PROFILE STRIP ── */
+.profile-strip {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-  gap: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px 8px;
+  overflow-x: auto;
 }
 
-.dashboard-header h2 {
-  margin: 0;
-  font-size: 32px;
-  font-weight: 600;
-  color: var(--white);
-  letter-spacing: -0.5px;
+.profile-stat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  padding: 0 28px;
+  min-width: 160px;
 }
 
-.dashboard-cards {
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto 16px auto;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+.ps-sep {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
-.stat-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  background: var(--background-fade);
-  border-radius: 12px;
-  overflow: hidden;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-  padding: 12px 0;
+.ps-icon {
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+  opacity: 0.85;
+  flex-shrink: 0;
 }
 
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+.ps-purple { color: var(--primary); }
+.ps-pink   { color: var(--accent);  }
+.ps-blue   { color: #29b6f6;        }
+
+.ps-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.stat-card ::ng-deep .mat-mdc-card-title {
-  font-size: 10px;
-  font-weight: 500;
-  line-height: 12px;
+.ps-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.ps-value {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.ps-unit {
+  font-size: 12px;
+  color: var(--white-soft);
+  opacity: 0.65;
+}
+
+.ps-label {
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--white-soft);
-  margin-bottom: 8px;
-  padding-left: 12px;
-  padding-top: 12px;
+  opacity: 0.6;
+  font-weight: 500;
 }
 
-.stat-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--primary);
-  line-height: 1;
-  margin-bottom: 8px;
-}
-
-.stat-value .muted {
-  font-size: 12px;
-  font-weight: 400;
+/* ── NO DATA ── */
+.no-data-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
   color: var(--white-soft);
+  font-size: 14px;
 }
 
-@media (max-width: 1024px) {
-  .dashboard-root {
-    padding: 0 24px;
-  }
-
-  .dashboard-cards {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
+.no-data-banner mat-icon {
+  color: var(--white-soft);
+  opacity: 0.45;
 }
 
+.no-data-banner a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .dashboard-root {
+    max-width: 100%;
+    margin: 12px auto 0;
     padding: 0 16px;
   }
 
-  .dashboard-header h2 {
-    font-size: 24px;
+  .profile-strip {
+    padding: 14px 4px;
   }
 
-  .dashboard-cards {
+  .profile-stat {
+    padding: 0 14px;
+    min-width: 110px;
+    gap: 10px;
+  }
+
+  .ps-value { font-size: 20px; }
+  .ps-icon  { font-size: 22px; width: 22px; height: 22px; }
+  .ps-label { font-size: 10px; }
+  .ps-unit  { font-size: 11px; }
+}
+
+@media (max-width: 480px) {
+  .dashboard-root {
+    padding: 0 12px;
+  }
+
+  .profile-strip {
+    display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    padding: 12px;
+    gap: 8px;
   }
 
-  .stat-value {
-    font-size: 18px;
+  .ps-sep { display: none; }
+
+  .profile-stat {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 12px 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    min-width: 0;
+    gap: 6px;
   }
 
-  .stat-value .muted {
-    font-size: 10px;
-    margin-top: 4px;
-    display: block;
+  .ps-value-row {
+    justify-content: center;
   }
+
+  .ps-value { font-size: 18px; }
+  .ps-icon  { font-size: 20px; width: 20px; height: 20px; }
 }

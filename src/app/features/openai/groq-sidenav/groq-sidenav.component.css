@@ -1,97 +1,178 @@
-
-:host { display: block; height: 100%; }         
-.sidebar { display: flex; flex-direction: column; height: 100%; }
-
-.convo-scroll {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  overflow-x: none;
-  scrollbar-width: none;        
-  -ms-overflow-style: none;     
+:host {
+  display: block;
+  height: 100%;
 }
-.convo-scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
-mat-nav-list, .mdc-list, mat-list-item, .mat-mdc-list-item {
-  max-width: 100%;
-  box-sizing: border-box;
+.sidenav-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
-mat-list-item, .mat-mdc-list-item {
-  min-width: 0;                 
+
+/* ── HEADER ── */
+.sidenav-hdr {
   display: flex;
   align-items: center;
+  gap: 10px;
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid var(--white-fade);
+  flex-shrink: 0;
 }
 
-.new-chat-btn {
-  width: 95%;
-  margin: 0 5px 1rem 5px;
-  border-radius: 12px;
-  font-weight: 600;
-}
-
-.btn-caption{
-    font-size: 0.875rem;
-    color: var(--white-soft);
-    margin-top: 4px;
-}
-
-mat-list-item {
-  color: var(--white-soft);
-  cursor: pointer;
-  border-radius: 8px;
-  margin: 4px 8px;
-  padding: 6px 8px;
-  transition: background 0.25s ease, color 0.25s ease;
-}
-
-mat-list-item:hover {
-  background: rgba(255,255,255,0.08);
-}
-
-mat-list-item.active {
-  background: rgba(124, 77, 255, 0.35);
-  color: var(--white);
-}
-
-.small-date {
-  font-size: 0.75rem;
-  color: var(--white-soft);
-}
-
-.chat-content {
-  padding: 0;
-  background: var(--surface);
-}
-
-.delete-btn {
-  margin-left: auto;
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.45);
-  transition: background 0.25s ease, color 0.25s ease;
-}
-
-.delete-btn mat-icon {
-  font-size: 20px;
-  position: absolute;
-  right: 20px;
-  top: 30%;
-}
-
-.delete-btn:hover {
+.sidenav-logo-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
   color: var(--primary);
 }
 
-mat-list-item.active .delete-btn {
-  color: rgba(255, 255, 255, 0.85);
+.sidenav-brand {
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), #9e7bff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-mat-list-item.active .delete-btn:hover {
-  color: var(--accent)
+/* ── NEW CHAT ── */
+.sidenav-action {
+  padding: 12px 12px 8px;
+  flex-shrink: 0;
 }
 
+.new-chat-btn {
+  width: 100% !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--primary) 0%, #5e35b1 100%) !important;
+  color: var(--white) !important;
+  box-shadow: 0 4px 16px var(--primary-glow) !important;
+  transition: opacity 0.2s ease;
+}
 
+.new-chat-btn:hover { opacity: 0.88; }
+
+/* ── SCROLL AREA ── */
+.convo-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 8px 16px;
+}
+
+.convo-scroll::-webkit-scrollbar { display: none; }
+
+/* ── EMPTY STATE ── */
+.convo-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: var(--white-soft);
+  opacity: 0.4;
+  font-size: 13px;
+  text-align: center;
+}
+
+.convo-empty mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+/* ── CONVERSATION LIST ── */
+.convo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.convo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--white-soft);
+  border: 1px solid transparent;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  outline: none;
+}
+
+.convo-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--white);
+}
+
+.convo-item.active {
+  background: rgba(124, 77, 255, 0.15);
+  color: var(--white);
+  border-color: rgba(124, 77, 255, 0.28);
+}
+
+.convo-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  opacity: 0.55;
+  color: var(--primary);
+  transition: opacity 0.2s ease;
+}
+
+.convo-item.active .convo-icon { opacity: 1; }
+
+.convo-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.convo-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.convo-date {
+  font-size: 11px;
+  color: var(--white-soft);
+  opacity: 0.5;
+  margin-top: 2px;
+}
+
+/* ── DELETE BUTTON ── */
+.del-btn {
+  width: 30px !important;
+  height: 30px !important;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.25) !important;
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.del-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.convo-item:hover .del-btn,
+.convo-item.active .del-btn {
+  opacity: 1;
+}
+
+.del-btn:hover {
+  color: var(--accent) !important;
+}
