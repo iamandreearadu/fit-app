@@ -34,7 +34,7 @@ export const routes: Routes = [
       .then(m => m.WorkoutsComponent)
   },
   {
-    path: 'openai',
+    path: 'ai-assistant',
     loadComponent: () =>
       import('./features/openai/openai.component')
       .then(m => m.OpenaiComponent)

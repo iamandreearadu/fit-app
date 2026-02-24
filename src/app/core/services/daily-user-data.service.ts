@@ -11,15 +11,16 @@ export class DailyUserDataService {
   // ----------------- STATE (signals) -----------------
 
   private readonly _daily = signal<DailyUserData | null>(null);
-  readonly daily = this._daily.asReadonly();
+  private readonly _loading = signal(false);
+  private readonly _history = signal<DailyUserData[]>([]);
 
-  readonly loading = signal(false);
+  readonly daily = this._daily.asReadonly();
+  readonly loading = this._loading.asReadonly();
+  readonly history = this._history.asReadonly();
 
   readonly stats = computed<DailyUserDataStats>(() =>
     this.computeStats(this._daily())
   );
-
- readonly history = signal<DailyUserData[]>([]);
 
 
   // ----------------- PUBLIC API -----------------
@@ -50,8 +51,12 @@ export class DailyUserDataService {
     });
   }
 
-  public setHistory(list: DailyUserData[]) {
-    this.history.set(list);
+  public setLoading(flag: boolean): void {
+    this._loading.set(flag);
+  }
+
+  public setHistory(list: DailyUserData[]): void {
+    this._history.set(list);
   }
 
   // ----------------- PUBLIC API (mutations) -----------------
@@ -96,7 +101,7 @@ export class DailyUserDataService {
   }
 
   private caloriesTotal(intake: number, burned: number): number {
-    return intake - burned;
+    return Math.max(0, intake - burned);
   }
 
   private buildComplete(
@@ -133,7 +138,7 @@ export class DailyUserDataService {
         );
 
     const caloriesBurned = Number(patch.caloriesBurned ?? existing?.caloriesBurned ?? 0);
-//
+
     const result: DailyUserData = {
       date: baseDate,
       activityType: patch.activityType ?? existing?.activityType ?? 'Rest Day',

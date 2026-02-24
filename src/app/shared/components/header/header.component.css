@@ -109,17 +109,6 @@
   background: rgba(124,77,255,.15);
 }
 
-.user-menu-dark .mat-mdc-menu-content{
-  background: var(--background-fade);
-  color: var(--white);
-  border: 1px solid var(--white-fade);
-  border-radius: 12px;
-  padding: 6px 0;
-}
-.user-menu-dark .mat-mdc-menu-panel{ box-shadow: 0 14px 38px rgba(0,0,0,.45); }
-.user-menu-dark .mat-mdc-menu-item{ color: var(--white-soft); }
-.user-menu-dark .mat-mdc-menu-item:hover{ background: rgba(255,255,255,0.06); color: var(--white); }
-.user-menu-dark .mat-mdc-menu-item .mat-icon{ margin-right: 10px; }
 
 .overlay-backdrop{
   position: fixed; inset: 0; z-index: 1000;

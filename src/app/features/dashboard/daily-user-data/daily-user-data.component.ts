@@ -72,7 +72,46 @@ export class DailyUserDataComponent implements OnInit {
     this.alerts.error('Macros analysis failed.');
   }
 
-  // ===================== WORKOUT AUTO-FILL =====================
+ 
+
+  // ===================== AUTOSAVE =====================
+
+  
+ private setupAutoSave(): void {
+    this.form.valueChanges.pipe(
+      takeUntilDestroyed(),
+      filter(() => !this.isPatchingFromBackend),
+      debounceTime(1200),
+      filter(() => this.form.valid),
+      map(() => {
+        const patch = this.form.getRawValue() as Partial<DailyUserData>;
+        return { patch, serialized: JSON.stringify(patch) };
+      }),
+      distinctUntilChanged((a, b) => a.serialized === b.serialized),
+      filter(({ serialized }) => serialized !== this.lastSavedSerialized),
+      tap(({ serialized }) => {
+        this.lastSavedSerialized = serialized;
+        this.autoSaveStatus = 'saving';
+      }),
+      switchMap(({ patch }) =>
+        from(this.facade.saveDailyToFireStore(patch)).pipe(
+          tap(() => {
+            this.autoSaveStatus = 'saved';
+            this.form.markAsPristine();
+          }),
+          catchError(err => {
+            this.lastSavedSerialized = null;
+            this.autoSaveStatus = 'error';
+            console.error('Autosave failed', err);
+            return of(null);
+          })
+        )
+      )
+    ).subscribe();
+  }
+
+
+   // ===================== WORKOUT AUTO-FILL =====================
 
   private setupWorkoutAutoFill(): void {
     this.form.get('activityType')?.valueChanges.pipe(
@@ -87,42 +126,6 @@ export class DailyUserDataComponent implements OnInit {
         this.form.markAsDirty();
       }
     });
-  }
-
-  // ===================== AUTOSAVE =====================
-
-  private setupAutoSave(): void {
-    const serialize = (v: unknown) => JSON.stringify(v ?? {});
-    this.form.valueChanges.pipe(
-      takeUntilDestroyed(),
-      filter(() => !this.isPatchingFromBackend),
-      debounceTime(1200),
-      filter(() => this.form.valid),
-      map(() => {
-        const patch = this.form.getRawValue() as Partial<DailyUserData>;
-        return { patch, serialized: serialize(patch) };
-      }),
-      distinctUntilChanged((a, b) => a.serialized === b.serialized),
-      switchMap(({ patch, serialized }) => {
-        if (this.lastSavedSerialized === serialized) {
-          return of(null);
-        }
-        this.lastSavedSerialized = serialized;
-        this.autoSaveStatus = 'saving';
-        return from(this.facade.saveDailyToFireStore(patch)).pipe(
-          tap(() => {
-            this.autoSaveStatus = 'saved';
-            this.form.markAsPristine();
-          }),
-          catchError(err => {
-            this.lastSavedSerialized = null;
-            this.autoSaveStatus = 'error';
-            console.error('Autosave failed', err);
-            return of(null);
-          })
-        );
-      })
-    ).subscribe();
   }
 
   private applyMealToForm(meal: MealMacros) {

@@ -4,7 +4,6 @@
     <p class="section-subtitle">Track your daily activities, nutrition, and progress</p>
   </div>
 
-  <!-- Keep the form in the DOM to preserve layout height; show an overlay spinner while loading -->
   <div class="daily-content-wrapper" [class.loading]="facade.dailyDataLoading()">
     <form [formGroup]="form" class="daily-form" novalidate>
 
@@ -34,7 +33,7 @@
                   <mat-option
                     *ngFor="let w of workoutsFacade.templates"
                     [value]="'workout:' + w.uid">
-                    {{ w.title }}<span class="workout-option-meta"> · {{ w.type }} · {{ w.durationMin }} min<ng-container *ngIf="w.caloriesEstimateKcal > 0"> · {{ w.caloriesEstimateKcal }} kcal</ng-container></span>
+                    {{ w.title }}<span class="workout-option-meta"> · {{ w.type }}</span>
                   </mat-option>
                 </mat-optgroup>
               </mat-select>

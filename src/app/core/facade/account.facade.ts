@@ -86,7 +86,7 @@ export class AccountFacade {
       if (u) {
         this.ls.set(this.authKey, u);
 
-        var newProfile = {
+        const newProfile = {
           fullName: creds.fullName || '',
           email: creds.email,
         };

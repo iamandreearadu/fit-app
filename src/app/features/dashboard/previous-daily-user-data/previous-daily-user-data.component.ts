@@ -3,6 +3,7 @@ import { UserFacade } from '../../../core/facade/user.facade';
 import { DailyUserData } from '../../../core/models/daily-user-data.model';
 import { CommonModule, NgFor } from '@angular/common';
 import { MaterialModule } from '../../../core/material/material.module';
+import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
 
 interface WeekGroup {
   start: Date;
@@ -20,6 +21,7 @@ interface WeekGroup {
 export class PreviousDailyUserDataComponent implements OnInit {
 
   public facade = inject(UserFacade);
+  public workoutsTabFacade = inject(WorkoutsTabFacade);
 
   history = this.facade.history;
 
@@ -91,9 +93,25 @@ export class PreviousDailyUserDataComponent implements OnInit {
     this.showModal = false;
   }
 
+  resolveActivityLabel(activityType: string | undefined): string {
+    if (!activityType) return '-';
+    if (activityType.startsWith('workout:')) {
+      const uid = activityType.replace('workout:', '');
+      return this.workoutsTabFacade.templates.find(t => t.uid === uid)?.title ?? 'My Workout';
+    }
+    const labels: Record<string, string> = {
+      'strength-training': 'Strength Training',
+      'cardio': 'Cardio',
+      'hiit-training': 'HIIT Training',
+      'active-rest-day': 'Active Rest Day',
+      'rest-day': 'Rest Day',
+    };
+    return labels[activityType] ?? activityType;
+  }
+
   private getMonday(date: Date): Date {
     const d = new Date(date);
-    const day = d.getDay() || 7; // duminică → 7
+    const day = d.getDay() || 7;
     if (day !== 1) {
       d.setDate(d.getDate() - day + 1);
     }

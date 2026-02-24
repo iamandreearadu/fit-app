@@ -96,7 +96,7 @@ export class UserFacade {
   // ========== Daily User Data operations ==========
 
   public async loadDailyFromFireStore(dateIso?: string): Promise<void> {
-    this.dailyUserSrv.loading.set(true);
+    this.dailyUserSrv.setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       const d = await this.userSrv.getDailyForDate(dateIso ?? this.todayDate);
@@ -105,12 +105,12 @@ export class UserFacade {
 
       this.userMetricsSrv.updateWaterConsumed(d?.waterConsumedL ?? 0);
     } finally {
-      this.dailyUserSrv.loading.set(false);
+      this.dailyUserSrv.setLoading(false);
     }
   }
 
   public async saveDailyToFireStore(patch: Partial<DailyUserData>): Promise<void> {
-    this.dailyUserSrv.loading.set(true);
+    this.dailyUserSrv.setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       this.dailyUserSrv.setDailyFromPatch(patch);
@@ -123,7 +123,7 @@ export class UserFacade {
 
       await this.userSrv.saveDailyForDate(current.date, current);
     } finally {
-      this.dailyUserSrv.loading.set(false);
+      this.dailyUserSrv.setLoading(false);
     }
   }
 
@@ -149,7 +149,7 @@ export class UserFacade {
   }
 
   public async saveUserProfile(patch: Partial<UserProfile>): Promise<void> {
-    this.userStore.loading.set(true);
+    this.userStore.setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -166,7 +166,7 @@ export class UserFacade {
 
       await this.userSrv.saveUserProfile(current, metrics);
     } finally {
-      this.userStore.loading.set(false);
+      this.userStore.setLoading(false);
     }
   }
 

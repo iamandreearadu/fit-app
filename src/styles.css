@@ -179,3 +179,54 @@ mat-select {
   text-transform: uppercase;
 }
 
+
+/* USER MENU DROPDOWN */
+.cdk-overlay-pane.user-menu-dark .mat-mdc-menu-panel,
+.mat-mdc-menu-panel.user-menu-dark {
+  background: #13131a !important;
+  border: 1px solid rgba(124, 77, 255, 0.25) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(124, 77, 255, 0.08) !important;
+  min-width: 200px !important;
+  overflow: hidden !important;
+}
+
+.cdk-overlay-pane.user-menu-dark .mat-mdc-menu-content,
+.mat-mdc-menu-panel.user-menu-dark .mat-mdc-menu-content {
+  padding: 6px !important;
+}
+
+.cdk-overlay-pane.user-menu-dark .mat-mdc-menu-item,
+.mat-mdc-menu-panel.user-menu-dark .mat-mdc-menu-item {
+  border-radius: 10px !important;
+  margin: 2px 0 !important;
+  color: var(--white-soft) !important;
+  font-size: 13px !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.cdk-overlay-pane.user-menu-dark .mat-mdc-menu-item:hover,
+.mat-mdc-menu-panel.user-menu-dark .mat-mdc-menu-item:hover {
+  background: rgba(124, 77, 255, 0.12) !important;
+  color: var(--white) !important;
+}
+
+.cdk-overlay-pane.user-menu-dark .mat-mdc-menu-item .mat-icon,
+.mat-mdc-menu-panel.user-menu-dark .mat-mdc-menu-item .mat-icon {
+  color: var(--white-soft) !important;
+  margin-right: 10px !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.cdk-overlay-pane.user-menu-dark .mat-mdc-menu-item:hover .mat-icon,
+.mat-mdc-menu-panel.user-menu-dark .mat-mdc-menu-item:hover .mat-icon {
+  color: var(--primary) !important;
+}
+
+.cdk-overlay-pane.user-menu-dark .mat-divider,
+.mat-mdc-menu-panel.user-menu-dark .mat-divider {
+  border-color: rgba(124, 77, 255, 0.2) !important;
+  margin: 4px 0 !important;
+}

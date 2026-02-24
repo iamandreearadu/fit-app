@@ -8,8 +8,10 @@ import { UserProfile } from '../models/user.model';
 export class UserStore {
 
   private readonly _user = signal<UserProfile | null>(null);
-  public loading = signal<boolean>(false);
+  private readonly _loading = signal<boolean>(false);
+
   public user = this._user.asReadonly();
+  public loading = this._loading.asReadonly();
 
   constructor() {}
 
@@ -18,7 +20,7 @@ export class UserStore {
   }
 
   public setLoading(flag: boolean) {
-    this.loading.set(flag);
+    this._loading.set(flag);
   }
 
   public patchUser(patch: Partial<UserProfile>) {

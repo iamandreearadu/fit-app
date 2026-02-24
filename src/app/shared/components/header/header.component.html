@@ -25,7 +25,7 @@
     <a mat-button routerLink="/workouts" class="nav-item" [class.active]="navService.isActive('/workouts')">
       <mat-icon class="nav-icon">fitness_center</mat-icon><span>Workouts</span>
     </a>
-    <a mat-button routerLink="/openai" class="nav-item" [class.active]="navService.isActive('/openai')">
+    <a mat-button routerLink="/ai-assistant" class="nav-item" [class.active]="navService.isActive('/ai-assistant')">
       <mat-icon class="nav-icon">chat</mat-icon><span>AI Assistant</span>
     </a>
   </nav>
@@ -89,7 +89,7 @@
     <a routerLink="/workouts" (click)="closeMobileNav()" [class.active]="navService.isActive('/workouts')">
       <mat-icon>fitness_center</mat-icon><span>Workouts</span>
     </a>
-    <a routerLink="/openai" (click)="closeMobileNav()" [class.active]="navService.isActive('/openai')">
+    <a routerLink="/ai-assistant" (click)="closeMobileNav()" [class.active]="navService.isActive('/ai-assistant')">
       <mat-icon>chat</mat-icon><span>AI Assistant</span>
     </a>
 
