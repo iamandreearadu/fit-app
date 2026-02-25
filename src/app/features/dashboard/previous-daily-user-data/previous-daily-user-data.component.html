@@ -51,13 +51,15 @@
           <span class="ds-value">{{ d.steps || 0 | number:'1.0-0' }}</span>
         </div>
         <div class="day-stat">
-          <mat-icon class="ds-icon" style="color:var(--accent)">local_fire_department</mat-icon>
-          <span class="ds-value">{{ d.caloriesTotal || 0 }}</span>
+          <!-- <mat-icon class="ds-icon" style="color:#29b6f6">water_drop</mat-icon> -->
+          <mat-icon class="ds-icon" style="color:#a78bfa">restaurant</mat-icon>
+          <span class="ds-value">{{ (d.caloriesIntake || 0) | number }}</span>
         </div>
         <div class="day-stat">
-          <mat-icon class="ds-icon" style="color:#29b6f6">water_drop</mat-icon>
-          <span class="ds-value">{{ (d.waterConsumedL || 0) | number:'1.1-1' }} L</span>
+          <mat-icon class="ds-icon" style="color:var(--accent)">local_fire_department</mat-icon>
+          <span class="ds-value">{{ d.caloriesBurned || 0 }}</span>
         </div>
+    
       </div>
 
     </div>

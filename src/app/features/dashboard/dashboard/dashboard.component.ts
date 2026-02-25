@@ -15,7 +15,7 @@ export class DashboardComponent {
   public facade = inject(UserFacade);
 
   public metrics = this.facade.metrics;
-  public user    = this.facade.user;
+  public user = this.facade.user;
 
   public readonly today = new Date();
 

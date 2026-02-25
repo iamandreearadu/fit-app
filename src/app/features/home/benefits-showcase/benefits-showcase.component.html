@@ -1,40 +1,46 @@
-<section class="benefits-section">
-  <div class="benefits-content">
-    <div class="benefits-text">
-      <h2 class="section-title">Why Choose FitApp?</h2>
-      <p class="section-subtitle">Join thousands of users who are already achieving their fitness goals</p>
+<section class="bs-section">
+  <div class="bs-inner">
 
-      <div class="benefits-list">
-        <div *ngFor="let benefit of benefits" class="benefit-item">
-          <mat-icon>check_circle</mat-icon>
-          <span>{{ benefit }}</span>
+    <!-- Left: text + list + CTA -->
+    <div class="bs-left">
+      <span class="bs-tag">Why FitApp</span>
+      <h2 class="bs-title">
+        Built for Real<br>
+        <span class="bs-accent">Fitness Progress</span>
+      </h2>
+      <p class="bs-subtitle">Join thousands of users already achieving their fitness goals</p>
+
+      <ul class="bs-list">
+        <li *ngFor="let b of benefits" class="bs-item">
+          <div class="bs-check">
+            <mat-icon>check</mat-icon>
+          </div>
+          <span>{{ b }}</span>
+        </li>
+      </ul>
+
+      <ng-container *ngIf="!accountFacade.authUser()">
+        <a class="bs-cta" routerLink="/register">
+          Start Your Journey
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </ng-container>
+    </div>
+
+    <!-- Right: visual cards -->
+    <div class="bs-right">
+      <div class="bs-card" *ngFor="let c of visualCards">
+        <div class="bs-card-icon"
+             [style.background]="c.color + '1a'"
+             [style.border-color]="c.color + '40'">
+          <mat-icon [style.color]="c.color">{{ c.icon }}</mat-icon>
+        </div>
+        <div class="bs-card-body">
+          <div class="bs-card-title">{{ c.title }}</div>
+          <div class="bs-card-text">{{ c.text }}</div>
         </div>
       </div>
-
-      <div class="benefits-cta" *ngIf="!accountFacade.authUser()">
-        <button mat-flat-button color="primary" routerLink="/register" class="large-cta">
-          Start Your Journey Today
-          <mat-icon>arrow_forward</mat-icon>
-        </button>
-      </div>
     </div>
 
-    <div class="benefits-visual">
-      <div class="visual-card">
-        <mat-icon>insights</mat-icon>
-        <h3>Track Everything</h3>
-        <p>Monitor your progress with detailed analytics and insights</p>
-      </div>
-      <div class="visual-card">
-        <mat-icon>verified</mat-icon>
-        <h3>Proven Results</h3>
-        <p>Science-backed metrics and calculations for accurate tracking</p>
-      </div>
-      <div class="visual-card">
-        <mat-icon>security</mat-icon>
-        <h3>Your Data is Safe</h3>
-        <p>Secure cloud storage with Firebase ensures your data is protected</p>
-      </div>
-    </div>
   </div>
 </section>

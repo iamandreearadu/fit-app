@@ -1,211 +1,152 @@
-<div *ngIf="loading()" class="loading-container">
-  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+<div *ngIf="loading()" class="wo-loading">
+  <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
 </div>
 
-<div *ngIf="!loading()" class="workouts-root">
+<div *ngIf="!loading()" class="wo-root">
+
+  <!-- ── HEADER ── -->
   <div class="section-header">
-    <h2 class="section-title">Workouts</h2>
+    <h2 class="section-title">Workout Plans</h2>
     <p class="section-subtitle">Choose a training plan that fits your goals</p>
   </div>
 
-  <div class="two-col">
-    <aside class="sidebar">
-      <div class="controls-row">
-        <mat-form-field appearance="outline" class="search-field dense full">
-          <mat-label>Search</mat-label>
-          <input matInput
-                 [ngModel]="search()" (ngModelChange)="search.set($event)" />
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+  <!-- ── BACKDROP DIVS ── -->
+  <div *ngIf="showTypeDropdown"  class="drop-bd" (click)="showTypeDropdown=false"></div>
+  <div *ngIf="showLevelDropdown" class="drop-bd" (click)="showLevelDropdown=false"></div>
+  <div *ngIf="showSortDropdown"  class="drop-bd" (click)="showSortDropdown=false"></div>
 
-        <mat-form-field appearance="outline" class="select-field dense full">
-          <mat-label>Type</mat-label>
-          <mat-select [ngModel]="type()" (ngModelChange)="type.set($event)">
-            <mat-option value="all">All</mat-option>
-            <mat-option value="home">Home</mat-option>
-            <mat-option value="gym">Gym</mat-option>
-            <mat-option value="hybrid">Hybrid</mat-option>
-          </mat-select>
-        </mat-form-field>
+  <!-- ── CONTROLS BAR ── -->
+  <div class="controls-bar">
 
-        <mat-form-field appearance="outline" class="select-field dense full">
-          <mat-label>Level</mat-label>
-          <mat-select [ngModel]="level()" (ngModelChange)="level.set($event)">
-            <mat-option value="all">All</mat-option>
-            <mat-option value="beginner">Beginner</mat-option>
-            <mat-option value="intermediate">Intermediate</mat-option>
-            <mat-option value="advanced">Advanced</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <div class="side-actions">
-          <button mat-stroked-button class="btn-filter" (click)="resetFilters()">
-            <mat-icon>restart_alt</mat-icon>
-            Reset
-          </button>
-        </div>
-      </div>
-    </aside>
-
-    <main class="main-col">
-      <div class="top-bar">
-        <div class="results-info">
-          Showing {{ startIndex() }}–{{ endIndex() }} of {{ totalCount() }} results
-        </div>
-
-        <div class="top-controls" *ngIf="!isMobile()">
-          <mat-form-field appearance="outline" class="compact">
-            <mat-label>Show</mat-label>
-            <mat-select [ngModel]="pageSize()" (ngModelChange)="setPageSize($event)">
-              <mat-option [value]="6">6 Items</mat-option>
-              <mat-option [value]="12">12 Items</mat-option>
-              <mat-option [value]="24">24 Items</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="compact">
-            <mat-label>Sort</mat-label>
-            <mat-select [ngModel]="sort()" (ngModelChange)="sort.set($event)">
-              <mat-option value="popular">Latest</mat-option>
-              <mat-option value="price-asc">Price (Low → High)</mat-option>
-              <mat-option value="price-desc">Price (High → Low)</mat-option>
-              <mat-option value="weeks-asc">Duration (Short → Long)</mat-option>
-              <mat-option value="weeks-desc">Duration (Long → Short)</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </div>
-
-  <div class="mobile-actions">
-
-    <mat-form-field appearance="outline" class="search-field mobile">
-      <mat-label>Search</mat-label>
-      <input matInput
+    <div class="search-wrap">
+      <mat-icon class="search-ico">search</mat-icon>
+      <input class="search-input" placeholder="Search plans…"
              [ngModel]="search()" (ngModelChange)="search.set($event)" />
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
+    </div>
 
+    <!-- Type dropdown -->
+    <div class="drop-wrap">
+      <button class="drop-trigger" type="button"
+              (click)="showTypeDropdown=!showTypeDropdown; showLevelDropdown=false; showSortDropdown=false">
+        <span class="drop-label">{{ type() === 'all' ? 'All types' : (type() | titlecase) }}</span>
+        <mat-icon class="drop-chevron">{{ showTypeDropdown ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+      <div *ngIf="showTypeDropdown" class="drop-panel" (click)="$event.stopPropagation()">
+        <button class="drop-opt" [class.drop-opt-active]="type()==='all'"    (click)="type.set('all');    showTypeDropdown=false">All types</button>
+        <button class="drop-opt" [class.drop-opt-active]="type()==='home'"   (click)="type.set('home');   showTypeDropdown=false">Home</button>
+        <button class="drop-opt" [class.drop-opt-active]="type()==='gym'"    (click)="type.set('gym');    showTypeDropdown=false">Gym</button>
+        <button class="drop-opt" [class.drop-opt-active]="type()==='hybrid'" (click)="type.set('hybrid'); showTypeDropdown=false">Hybrid</button>
+      </div>
+    </div>
 
-    <button mat-stroked-button class="btn-filter" (click)="openFilters()">
-      <mat-icon>tune</mat-icon>
-      Filters
+    <!-- Level dropdown -->
+    <div class="drop-wrap">
+      <button class="drop-trigger" type="button"
+              (click)="showLevelDropdown=!showLevelDropdown; showTypeDropdown=false; showSortDropdown=false">
+        <span class="drop-label">{{ level() === 'all' ? 'All levels' : (level() | titlecase) }}</span>
+        <mat-icon class="drop-chevron">{{ showLevelDropdown ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+      <div *ngIf="showLevelDropdown" class="drop-panel" (click)="$event.stopPropagation()">
+        <button class="drop-opt" [class.drop-opt-active]="level()==='all'"          (click)="level.set('all');          showLevelDropdown=false">All levels</button>
+        <button class="drop-opt" [class.drop-opt-active]="level()==='beginner'"     (click)="level.set('beginner');     showLevelDropdown=false">Beginner</button>
+        <button class="drop-opt" [class.drop-opt-active]="level()==='intermediate'" (click)="level.set('intermediate'); showLevelDropdown=false">Intermediate</button>
+        <button class="drop-opt" [class.drop-opt-active]="level()==='advanced'"     (click)="level.set('advanced');     showLevelDropdown=false">Advanced</button>
+      </div>
+    </div>
+
+    <!-- Sort dropdown -->
+    <div class="drop-wrap">
+      <button class="drop-trigger" type="button"
+              (click)="showSortDropdown=!showSortDropdown; showTypeDropdown=false; showLevelDropdown=false">
+        <span class="drop-label">{{ sortLabel() }}</span>
+        <mat-icon class="drop-chevron">{{ showSortDropdown ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+      <div *ngIf="showSortDropdown" class="drop-panel" (click)="$event.stopPropagation()">
+        <button class="drop-opt" [class.drop-opt-active]="sort()==='popular'"    (click)="sort.set('popular');    showSortDropdown=false">Popular</button>
+        <button class="drop-opt" [class.drop-opt-active]="sort()==='price-asc'"  (click)="sort.set('price-asc');  showSortDropdown=false">Price ↑</button>
+        <button class="drop-opt" [class.drop-opt-active]="sort()==='price-desc'" (click)="sort.set('price-desc'); showSortDropdown=false">Price ↓</button>
+        <button class="drop-opt" [class.drop-opt-active]="sort()==='weeks-asc'"  (click)="sort.set('weeks-asc');  showSortDropdown=false">Duration ↑</button>
+        <button class="drop-opt" [class.drop-opt-active]="sort()==='weeks-desc'" (click)="sort.set('weeks-desc'); showSortDropdown=false">Duration ↓</button>
+      </div>
+    </div>
+
+    <!-- Reset -->
+    <button class="btn-reset" type="button" (click)="resetFilters()"
+            *ngIf="search() || type() !== 'all' || level() !== 'all' || sort() !== 'popular'">
+      <mat-icon>restart_alt</mat-icon>
     </button>
+
   </div>
 
-      <div class="grid">
-        <mat-card *ngFor="let p of paged()" class="plan-card small">
-      <div class="img-holder">
-        <img [src]="p.image || fallbackImage" (error)="onImgError($event)" alt="{{p.title}}">
+  <!-- ── INFO BAR ── -->
+  <div class="info-bar">
+    <span class="results-count">{{ startIndex() }}–{{ endIndex() }} of {{ totalCount() }} plans</span>
+    <div class="page-size-group">
+      <button *ngFor="let s of pageSizeOptions" type="button"
+              class="ps-btn" [class.ps-btn-active]="pageSize() === s"
+              (click)="setPageSize(s)">{{ s }}</button>
+    </div>
+  </div>
+
+  <!-- ── CARDS GRID ── -->
+  <div class="plans-grid">
+    <div class="plan-card" *ngFor="let p of paged()">
+
+      <div class="pc-img" [style.background-image]="'url(' + p.image + ')'">
+        <div class="pc-img-overlay"></div>
+        <div class="pc-badges">
+          <span class="pc-badge" [ngClass]="'type-' + p.type">{{ p.type | titlecase }}</span>
+          <span class="pc-badge" [ngClass]="'lvl-' + p.level">{{ p.level | titlecase }}</span>
+        </div>
       </div>
 
-      <mat-card-content>
-        <div class="chip-row">
-          <mat-chip-set>
-            <mat-chip class="chip">{{ p.type | titlecase }}</mat-chip>
-            <mat-chip class="chip">{{ p.level | titlecase }}</mat-chip>
-            <mat-chip class="chip">{{ p.weeks }} weeks</mat-chip>
-          </mat-chip-set>
+      <div class="pc-body">
+        <div class="pc-weeks">
+          <mat-icon class="pc-weeks-ico">schedule</mat-icon>
+          {{ p.weeks }} weeks
         </div>
-
-        <h3 class="plan-title">{{ p.title }}</h3>
-        <p class="plan-subtitle">{{ p.subtitle }}</p>
-
-        <ul class="perks">
+        <h3 class="pc-title">{{ p.title }}</h3>
+        <p class="pc-subtitle">{{ p.subtitle }}</p>
+        <ul class="pc-perks">
           <li *ngFor="let perk of p.perks">
             <mat-icon>check_circle</mat-icon>
             <span>{{ perk }}</span>
           </li>
         </ul>
-      </mat-card-content>
+      </div>
 
-      <mat-divider></mat-divider>
-
-      <mat-card-actions class="card-actions">
-        <div class="price">
-          <span class="currency">$</span>{{ p.price }}
-          <span class="per">/ one-time</span>
+      <div class="pc-footer">
+        <div class="pc-price">
+          <span class="pc-currency">$</span>{{ p.price }}
+          <span class="pc-per">/ one-time</span>
         </div>
-        <span class="flex-spacer"></span>
-        <button mat-flat-button class="btn-primary" (click)="buy(p)">
+        <button type="button" class="btn-buy" (click)="buy(p)">
           <mat-icon>shopping_cart</mat-icon>
           Buy
         </button>
-      </mat-card-actions>
-        </mat-card>
       </div>
 
-      <div class="pagination-row" *ngIf="totalCount() > pageSize()">
-        <button mat-icon-button (click)="setPage(page()-1)" [disabled]="page()===1">
-          <mat-icon>chevron_left</mat-icon>
-        </button>
-
-        <ng-container *ngFor="let num of pages()">
-          <button mat-button (click)="setPage(num)" [color]="(page()===num)?'primary':''">{{ num }}</button>
-        </ng-container>
-
-        <button mat-icon-button (click)="setPage(page()+1)" [disabled]="page()===totalPages()">
-          <mat-icon>chevron_right</mat-icon>
-        </button>
-      </div>
-
-    </main>
+    </div>
   </div>
 
+  <!-- ── NO RESULTS ── -->
   <div *ngIf="filtered().length === 0" class="no-results">
     <mat-icon>search_off</mat-icon>
     <p>No plans match your criteria</p>
   </div>
 
-  <div *ngIf="showFiltersOverlay()" class="overlay-backdrop" (click)="closeFilters()"></div>
-
-  <mat-card *ngIf="showFiltersOverlay()" class="overlay-card" (click)="$event.stopPropagation()">
-  <mat-card-header>
-    <mat-card-title>Filters</mat-card-title>
-  </mat-card-header>
-
-  <mat-card-content>
-    <mat-form-field appearance="outline" class="full-width dense">
-      <mat-label>Type</mat-label>
-      <mat-select [ngModel]="type()" (ngModelChange)="type.set($event)">
-        <mat-option value="all">All</mat-option>
-        <mat-option value="home">Home</mat-option>
-        <mat-option value="gym">Gym</mat-option>
-        <mat-option value="hybrid">Hybrid</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width dense">
-      <mat-label>Level</mat-label>
-      <mat-select [ngModel]="level()" (ngModelChange)="level.set($event)">
-        <mat-option value="all">All</mat-option>
-        <mat-option value="beginner">Beginner</mat-option>
-        <mat-option value="intermediate">Intermediate</mat-option>
-        <mat-option value="advanced">Advanced</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width dense">
-      <mat-label>Sort</mat-label>
-      <mat-select [ngModel]="sort()" (ngModelChange)="sort.set($event)">
-        <mat-option value="popular">Popular</mat-option>
-        <mat-option value="price-asc">Price (Low → High)</mat-option>
-        <mat-option value="price-desc">Price (High → Low)</mat-option>
-        <mat-option value="weeks-asc">Duration (Short → Long)</mat-option>
-        <mat-option value="weeks-desc">Duration (Long → Short)</mat-option>
-      </mat-select>
-    </mat-form-field>
-  </mat-card-content>
-
-  <mat-card-actions>
-    <button mat-stroked-button color="accent" (click)="resetFilters()">
-      <mat-icon>restart_alt</mat-icon>
-      Reset
+  <!-- ── PAGINATION ── -->
+  <div class="pagination-row" *ngIf="totalPages() > 1">
+    <button type="button" class="pag-btn" (click)="setPage(page()-1)" [disabled]="page()===1">
+      <mat-icon>chevron_left</mat-icon>
     </button>
-    <span class="flex-spacer"></span>
-    <button mat-flat-button color="primary" (click)="closeFilters()">
-      <mat-icon>check</mat-icon>
-      Apply
+    <button type="button" class="pag-btn"
+            *ngFor="let num of pages()"
+            [class.pag-btn-active]="page()===num"
+            (click)="setPage(num)">{{ num }}</button>
+    <button type="button" class="pag-btn" (click)="setPage(page()+1)" [disabled]="page()===totalPages()">
+      <mat-icon>chevron_right</mat-icon>
     </button>
-  </mat-card-actions>
-</mat-card>
+  </div>
+
 </div>

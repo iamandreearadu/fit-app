@@ -11,7 +11,7 @@ import { UserFacade } from './user.facade';
 @Injectable({ providedIn: 'root' })
 export class AccountFacade {
 
-  private store = inject(AuthenticationStore);
+  private authStore = inject(AuthenticationStore);
   private ls = inject(LocalStorageService);
 
   private svc = inject(AccountService);
@@ -23,11 +23,11 @@ export class AccountFacade {
   // ========== Getters ==========
 
   get loading() {
-    return this.store.loading;
+    return this.authStore.loading;
   }
 
   get authUser() {
-    return this.store.authUser;
+    return this.authStore.authUser;
   }
 
   get authValidation() {
@@ -42,7 +42,7 @@ export class AccountFacade {
   public async init(): Promise<void> {
     const fromLs = this.ls.get<AuthenticationUser>('auth_v1');
     if (fromLs) {
-      this.store.setAuth(fromLs);
+      this.authStore.setAuth(fromLs);
       await this.userFacade.loadCurrentUserFromFireStore(fromLs.id);
     }
   }
@@ -51,14 +51,14 @@ export class AccountFacade {
   // ========== Actions ==========
 
   public async login(creds: AuthCredentials): Promise<boolean> {
-    this.store.setLoading(true);
+    this.authStore.setLoading(true);
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const u = await this.svc.login(creds);
 
-      this.store.setAuth(u);
+      this.authStore.setAuth(u);
 
       if (u) {
         this.ls.set(this.authKey, u);
@@ -69,19 +69,19 @@ export class AccountFacade {
 
       return false;
     } finally {
-      this.store.setLoading(false);
+      this.authStore.setLoading(false);
     }
   }
 
   public async register(creds: AuthCredentials & { fullName?: string }): Promise<boolean> {
-    this.store.setLoading(true);
+    this.authStore.setLoading(true);
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const u = await this.svc.register(creds);
 
-      this.store.setAuth(u);
+      this.authStore.setAuth(u);
 
       if (u) {
         this.ls.set(this.authKey, u);
@@ -97,21 +97,21 @@ export class AccountFacade {
 
       return false;
     } finally {
-      this.store.setLoading(false);
+      this.authStore.setLoading(false);
     }
   }
 
   public async logout(): Promise<void> {
-    this.store.setLoading(true);
+    this.authStore.setLoading(true);
 
     try {
       await this.svc.logout();
 
-      this.store.clear();
+      this.authStore.clear();
       this.ls.remove(this.authKey);
 
     } finally {
-      this.store.setLoading(false);
+      this.authStore.setLoading(false);
     }
   }
 }

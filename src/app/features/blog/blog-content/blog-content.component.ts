@@ -28,6 +28,8 @@ export class BlogContentComponent implements OnInit {
   selectedCategory = 'all';
   categories: string[] = [];
 
+  showCategoryDropdown = false;
+
   editing = false;
   showCreateOverlay = false;
   editModel: Partial<BlogPost> = {};

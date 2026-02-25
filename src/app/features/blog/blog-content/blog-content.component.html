@@ -1,124 +1,147 @@
-<div *ngIf="loading" class="loading-container">
-  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+<div *ngIf="loading" class="blog-loading">
+  <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
 </div>
 
 <div *ngIf="!loading" class="blog-root">
+
+  <!-- ── HEADER ── -->
   <div class="section-header">
-    <h2 class="section-title">Blog Posts</h2>
-    <p class="section-subtitle">Explore articles, tips, and insights</p>
+    <h2 class="section-title">Blog</h2>
+    <p class="section-subtitle">Explore articles, tips & insights</p>
   </div>
 
-  <div class="controls-row">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Search</mat-label>
-      <input matInput placeholder="Search in title, subtitle or description" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" />
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
+  <!-- ── CONTROLS BAR ── -->
+  <div *ngIf="showCategoryDropdown" class="cat-bd" (click)="showCategoryDropdown = false"></div>
 
-    <mat-form-field appearance="outline" class="category-field">
-      <mat-label>Category</mat-label>
-      <mat-select [(ngModel)]="selectedCategory" (selectionChange)="applyFilters()">
-        <mat-option value="all">All categories</mat-option>
-        <mat-option *ngFor="let c of categories" [value]="c">{{ c }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+  <div class="controls-bar">
 
-    <div class="actions">
-      <button *ngIf="isOwner" mat-flat-button color="primary" (click)="openCreate()">
-        <mat-icon>add</mat-icon>
-        New Post
-      </button>
+    <div class="search-wrap">
+      <mat-icon class="search-ico">search</mat-icon>
+      <input class="search-input" placeholder="Search posts…"
+             [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" />
     </div>
+
+    <!-- Category dropdown -->
+    <div class="cat-wrap">
+      <button class="cat-trigger" type="button"
+              (click)="showCategoryDropdown = !showCategoryDropdown">
+        <mat-icon class="cat-ico">category</mat-icon>
+        <span class="cat-label">{{ selectedCategory === 'all' ? 'All categories' : selectedCategory }}</span>
+        <mat-icon class="cat-chevron">{{ showCategoryDropdown ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+
+      <div *ngIf="showCategoryDropdown" class="cat-panel" (click)="$event.stopPropagation()">
+        <button class="cat-opt" type="button"
+                [class.cat-opt-active]="selectedCategory === 'all'"
+                (click)="selectedCategory='all'; applyFilters(); showCategoryDropdown=false">
+          <mat-icon class="cat-opt-ico">apps</mat-icon>
+          All categories
+        </button>
+        <button *ngFor="let c of categories" class="cat-opt" type="button"
+                [class.cat-opt-active]="selectedCategory === c"
+                (click)="selectedCategory=c; applyFilters(); showCategoryDropdown=false">
+          <mat-icon class="cat-opt-ico">label</mat-icon>
+          {{ c }}
+        </button>
+      </div>
+    </div>
+
+    <button *ngIf="isOwner" class="btn-new-post" type="button" (click)="openCreate()">
+      <mat-icon>add</mat-icon>
+      New Post
+    </button>
+
   </div>
 
+  <!-- ── POSTS GRID ── -->
   <div class="posts-grid">
+    <div *ngFor="let p of filtered" class="post-card">
 
-    <mat-card *ngFor="let p of filtered" class="post-card" >
+      <div class="admin-actions" *ngIf="isOwner">
+        <button mat-icon-button class="admin-btn" type="button"
+                (click)="openEdit(p)" aria-label="Edit">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button class="admin-btn admin-btn-del" type="button"
+                (click)="deletePost(p.uid)" aria-label="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
 
-  <div *ngIf="isOwner" class="admin-actions">
-    <button
-      mat-icon-button
-      (click)="openEdit(p)"
-      aria-label="Edit post"
-    >
-      <mat-icon>edit</mat-icon>
-    </button>
+      <div class="post-img"
+           [style.background-image]="'url(' + (p.image || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80') + ')'"
+           [routerLink]="['/blog', p.uid]">
+        <div class="post-img-overlay"></div>
+      </div>
 
-    <button
-      mat-icon-button
-      (click)="deletePost(p.uid)"
-      aria-label="Delete post"
-      color="accent"
-    >
-      <mat-icon>delete</mat-icon>
-    </button>
-  </div>
+      <div class="post-body" [routerLink]="['/blog', p.uid]">
+        <span class="post-category">{{ p.category }}</span>
+        <h3 class="post-title">{{ p.title }}</h3>
+        <p class="post-caption">{{ p.caption }}</p>
+        <div class="post-footer">
+          <span class="read-more">
+            Read article
+            <mat-icon class="rm-icon">arrow_forward</mat-icon>
+          </span>
+        </div>
+      </div>
 
-  <div 
-    class="img-holder"
-    [style.background-image]="'url(' + (p.image || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80') + ')'"
-    [routerLink]="['/blog', p.uid]"
-    ></div>
-
-  <mat-card-content [routerLink]="['/blog', p.uid]">
-    <mat-chip-set class="category-chip">
-      <mat-chip class="chip">{{ p.category }}</mat-chip>
-    </mat-chip-set>
-
-    <h3 class="post-title">{{ p.title }}</h3>
-    <p class="post-caption">{{ p.caption }}</p>
-
-    <div class="post-actions">
-      <button mat-icon-button  [routerLink]="['/blog', p.uid]">
-        <mat-icon>visibility</mat-icon>
-      </button>
     </div>
-  </mat-card-content>
-</mat-card>
-
   </div>
+
+  <!-- ── NO RESULTS ── -->
   <div *ngIf="filtered.length === 0" class="no-results">
-    <mat-icon>search_off</mat-icon>
-    <p>No posts found matching your criteria</p>
+    <mat-icon>article</mat-icon>
+    <p>No posts found</p>
   </div>
 
-  <div *ngIf="showCreateOverlay || editing" class="overlay-backdrop" (click)="showCreateOverlay = false; editing = false">
-    <mat-card class="overlay-card" (click)="$event.stopPropagation()">
-      <mat-card-header>
-        <mat-card-title>{{ editModel.id ? 'Edit Post' : 'Create New Post' }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-form-field appearance="outline" class="full-width">
+  <!-- ── CREATE / EDIT MODAL ── -->
+  <div *ngIf="showCreateOverlay || editing" class="modal-bg" (click)="cancelEdit()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+
+      <div class="modal-head">
+        <div class="modal-icon-wrap">
+          <mat-icon>{{ editModel.id ? 'edit' : 'add_circle' }}</mat-icon>
+        </div>
+        <span class="modal-title">{{ editModel.id ? 'Edit Post' : 'New Post' }}</span>
+        <button mat-icon-button class="modal-close" type="button" (click)="cancelEdit()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-fields">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-f">
           <mat-label>Title</mat-label>
           <input matInput [(ngModel)]="editModel.title" />
         </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-f">
           <mat-label>Subtitle</mat-label>
           <input matInput [(ngModel)]="editModel.caption" />
         </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-f">
           <mat-label>Category</mat-label>
           <input matInput [(ngModel)]="editModel.category" />
         </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-f">
           <mat-label>Image URL</mat-label>
           <input matInput [(ngModel)]="editModel.image" />
         </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-f">
           <mat-label>Description</mat-label>
-          <textarea matInput rows="6" [(ngModel)]="editModel.description"></textarea>
+          <textarea matInput rows="7" [(ngModel)]="editModel.description"></textarea>
         </mat-form-field>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-stroked-button color="accent" (click)="showCreateOverlay = false; editing = false; cancelEdit()">
-          <mat-icon>close</mat-icon>
+      </div>
+
+      <div class="modal-actions">
+        <button mat-stroked-button class="btn-cancel" type="button" (click)="cancelEdit()">
           Cancel
         </button>
-        <button mat-flat-button class="btn-primary" (click)="createOrUpdatePost()">
-          <mat-icon>save</mat-icon>
-          Save
+        <button mat-flat-button class="btn-save" type="button" (click)="createOrUpdatePost()">
+          <mat-icon>save</mat-icon> Save
         </button>
-      </mat-card-actions>
-    </mat-card>
+      </div>
+
+    </div>
   </div>
+
 </div>

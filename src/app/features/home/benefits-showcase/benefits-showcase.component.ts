@@ -13,6 +13,7 @@ import { AccountFacade } from '../../../core/facade/account.facade';
 })
 export class BenefitsShowcaseComponent {
   public accountFacade = inject(AccountFacade);
+
   benefits = [
     'Real-time fitness metrics calculation',
     'Daily activity and nutrition logging',
@@ -20,5 +21,26 @@ export class BenefitsShowcaseComponent {
     'Secure cloud data storage',
     'Mobile-friendly responsive design',
     'Expert health and fitness content'
+  ];
+
+  visualCards = [
+    {
+      icon: 'insights',
+      color: '#7C4DFF',
+      title: 'Track Everything',
+      text: 'Monitor your progress with detailed analytics and personalized insights'
+    },
+    {
+      icon: 'verified',
+      color: '#ff4081',
+      title: 'Proven Results',
+      text: 'Science-backed metrics and calculations for accurate, reliable tracking'
+    },
+    {
+      icon: 'security',
+      color: '#7C4DFF',
+      title: 'Your Data is Safe',
+      text: 'Secure Firebase cloud storage ensures your data is always protected'
+    }
   ];
 }

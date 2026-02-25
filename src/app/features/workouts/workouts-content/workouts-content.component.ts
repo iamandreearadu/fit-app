@@ -32,6 +32,12 @@ export class WorkoutsContentComponent implements OnInit {
   loading = signal<boolean>(false);
   showFiltersOverlay = signal<boolean>(false);
 
+  showTypeDropdown = false;
+  showLevelDropdown = false;
+  showSortDropdown = false;
+
+  readonly pageSizeOptions = [6, 12, 24];
+
   search = signal<string>('');
   type = signal<'all'|'home'|'gym'|'hybrid'>('all');
   level = signal<'all'|'beginner'|'intermediate'|'advanced'>('all');
@@ -81,6 +87,17 @@ export class WorkoutsContentComponent implements OnInit {
 
   openFilters(): void { this.showFiltersOverlay.set(true); }
   closeFilters(): void { this.showFiltersOverlay.set(false); }
+
+  sortLabel(): string {
+    const map: Record<string, string> = {
+      popular:    'Popular',
+      'price-asc':  'Price ↑',
+      'price-desc': 'Price ↓',
+      'weeks-asc':  'Duration ↑',
+      'weeks-desc': 'Duration ↓'
+    };
+    return map[this.sort()] ?? 'Sort';
+  }
   resetFilters(): void {
     this.search.set('');
     this.type.set('all');

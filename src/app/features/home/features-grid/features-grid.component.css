@@ -1,94 +1,110 @@
-/* Features Section */
-.features-section {
-  padding: 150px 24px;
-  background: linear-gradient(to bottom, var(--surface) 0%, #141418 100%);
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── Section ── */
+.fg-section {
+  padding: 100px 24px;
+  background: linear-gradient(180deg, #0d0d14 0%,var(--surface) 100%);
 }
 
-/* Header */
-.section-header {
+/* ── Header ── */
+.fg-head {
   text-align: center;
-  margin-bottom: 48px;
+  max-width: 620px;
+  margin: 0 auto 60px;
 }
 
-.section-title {
-  font-size: 36px;
+.fg-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(124,77,255,.14);
+  border: 1px solid rgba(124,77,255,.28);
+  border-radius: 999px;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--white);
-  margin: 0 0 16px;
+  color: #a78bfa;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
 }
 
-.section-subtitle {
-  font-size: 18px;
-  color: var(--white-soft);
+.fg-title {
+  font-size: clamp(26px, 3.5vw, 42px);
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 12px;
+  letter-spacing: -.5px;
+}
+
+.fg-subtitle {
+  font-size: 16px;
+  color: rgba(255,255,255,.55);
   margin: 0;
+  line-height: 1.65;
 }
 
-/* GRID */
-.features-grid {
+/* ── Grid ── */
+.fg-grid {
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
 }
 
-/* CARD */
-.feature-card {
-  text-align: center;
-  padding: 32px 24px;
-  border-radius: 16px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  background: var(--background-fade);
-  backdrop-filter: blur(10px);
+/* ── Card ── */
+.fg-card {
+  padding: 28px 24px;
+  background:  rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 20px;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
 }
 
-.feature-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 32px var(--primary-glow);
+.fg-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255,255,255,.13);
+  box-shadow: 0 16px 40px rgba(0,0,0,.35);
 }
 
-/* ICON */
-.feature-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 20px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-glow) 100%);
-  border-radius: 50%;
+/* ── Icon wrap ── */
+.fg-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  border: 1px solid transparent;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 18px;
 }
 
-.feature-icon mat-icon {
-  font-size: 40px;
-  width: 40px;
-  height: 40px;
-  color: var(--white);
+.fg-icon-wrap mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
 }
 
-/* Title inside card */
-.feature-card mat-card-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--white);
-  margin-bottom: 12px;
+/* ── Text ── */
+.fg-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
 }
 
-/* Text inside card */
-.feature-card mat-card-content p {
-  color: var(--white-soft);
-  line-height: 1.6;
-  margin: 0;
+.fg-card-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,.5);
+  line-height: 1.65;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .section-title {
-    font-size: 28px;
-  }
+/* ── Responsive ── */
+@media (max-width: 968px) {
+  .fg-section { padding: 72px 20px; }
+  .fg-grid { grid-template-columns: repeat(2, 1fr); }
+}
 
-  .features-grid {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 540px) {
+  .fg-grid { grid-template-columns: 1fr; }
+  .fg-head { margin-bottom: 36px; }
 }

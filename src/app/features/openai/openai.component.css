@@ -1,4 +1,3 @@
-/* ─── HOST ─── */
 :host {
   display: block;
 }
@@ -8,7 +7,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  height: 100dvh; /* dynamic: accounts for mobile browser chrome */
+  height: 100dvh; 
   overflow: hidden;
 }
 
@@ -36,19 +35,16 @@
   border-right: 1px solid var(--white-fade);
 }
 
-/* ─── MATERIAL OVERRIDES ─── */
 ::ng-deep .mat-sidenav {
   background: color-mix(in srgb, var(--surface) 94%, #fff 6%) !important;
 }
 
-/* mat-drawer-content is position:absolute — only block scroll, keep it as block */
 ::ng-deep .mat-drawer-content,
 ::ng-deep .mat-sidenav-content {
   overflow: hidden !important;
 }
 
 /* ─── MAIN CONTENT AREA (mat-sidenav-content) ─── */
-/* display:flex allows topbar + app-groq to share height correctly */
 .main-content {
   display: flex;
   flex-direction: column;

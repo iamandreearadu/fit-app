@@ -1,18 +1,21 @@
-<section class="features-section">
-  <div class="section-header">
-    <h2 class="section-title">Powerful Features</h2>
-    <p class="section-subtitle">Everything you need to track and improve your fitness</p>
+<section class="fg-section">
+
+  <div class="fg-head">
+    <span class="fg-tag">Platform Features</span>
+    <h2 class="fg-title">Everything You Need</h2>
+    <p class="fg-subtitle">A complete toolkit to track, improve, and achieve your fitness goals</p>
   </div>
 
-  <div class="features-grid">
-    <mat-card *ngFor="let feature of features" class="feature-card">
-      <div class="feature-icon">
-        <mat-icon>{{ feature.icon }}</mat-icon>
+  <div class="fg-grid">
+    <div class="fg-card" *ngFor="let f of features">
+      <div class="fg-icon-wrap"
+           [style.background]="f.color + '1a'"
+           [style.border-color]="f.color + '40'">
+        <mat-icon [style.color]="f.color">{{ f.icon }}</mat-icon>
       </div>
-      <mat-card-title>{{ feature.title }}</mat-card-title>
-      <mat-card-content>
-        <p>{{ feature.description }}</p>
-      </mat-card-content>
-    </mat-card>
+      <div class="fg-card-title">{{ f.title }}</div>
+      <div class="fg-card-desc">{{ f.description }}</div>
+    </div>
   </div>
+
 </section>
