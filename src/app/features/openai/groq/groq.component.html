@@ -1,73 +1,66 @@
-<!-- ── INITIAL LOAD ── -->
-<div *ngIf="loading" class="chat-loading">
-  <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
-  <span class="loading-label">Loading conversation…</span>
+<!-- ── LOADING ── -->
+<div *ngIf="loading" class="state-center">
+  <mat-progress-spinner mode="indeterminate" diameter="36"></mat-progress-spinner>
 </div>
 
-<!-- ── MAIN CHAT UI ── -->
-<div *ngIf="!loading" class="chat-root">
+<!-- ── CHAT UI ── -->
+<ng-container *ngIf="!loading">
 
-  <!-- Messages area -->
-  <div class="chat-window" #chatWindow>
+  <!-- Messages -->
+  <div class="messages" #chatWindow>
 
     <!-- Empty state -->
-    <div *ngIf="!facade.messages().length" class="empty-state">
-      <mat-icon class="es-icon">auto_awesome</mat-icon>
-      <div class="es-title">AI Assistant</div>
-      <div class="es-sub">Ask anything about fitness, nutrition, workouts or health.</div>
+    <div *ngIf="!facade.messages().length" class="empty">
+      <mat-icon class="empty-icon">auto_awesome</mat-icon>
+      <p class="empty-title">AI Assistant</p>
+      <p class="empty-hint">Ask anything about fitness, nutrition or health.</p>
     </div>
 
     <!-- Bubbles -->
-    <ng-container *ngFor="let msg of facade.messages()">
-      <div [ngClass]="msg.role === 'user' ? 'bubble user' : 'bubble ai'">
-        <p class="msg-text">{{ msg.content }}</p>
-        <img *ngIf="msg.imageUrl" [src]="msg.imageUrl" class="msg-img" alt="Uploaded image">
-        <span class="msg-time">{{ msg.timestamp | date:'shortTime' }}</span>
+    <div *ngFor="let msg of facade.messages()"
+         [class]="msg.role === 'user' ? 'msg msg-user' : 'msg msg-ai'">
+      <div class="bubble">
+        <p class="bubble-text">{{ msg.content }}</p>
+        <img *ngIf="msg.imageUrl" [src]="msg.imageUrl" class="bubble-img" alt="image">
+        <span class="bubble-time">{{ msg.timestamp | date:'HH:mm' }}</span>
       </div>
-    </ng-container>
+    </div>
 
-    <!-- Typing indicator -->
-    <div *ngIf="facade.loading()" class="bubble ai typing-bubble">
-      <span class="dot"></span>
-      <span class="dot"></span>
-      <span class="dot"></span>
+    <!-- AI typing -->
+    <div *ngIf="facade.loading()" class="msg msg-ai">
+      <div class="bubble typing">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
     </div>
 
   </div>
 
-  <!-- ── INPUT BAR ── -->
+  <!-- Input bar -->
   <div class="input-bar">
+    <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)">
 
-    <button mat-icon-button class="upload-btn" type="button"
-            (click)="fileInput.click()"
-            [disabled]="facade.loading()"
-            matTooltip="Upload image">
+    <button mat-icon-button class="btn-icon" (click)="fileInput.click()"
+            [disabled]="facade.loading()" matTooltip="Attach image">
       <mat-icon>add_photo_alternate</mat-icon>
     </button>
 
-    <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)">
-
-    <div class="textarea-wrap">
-      <textarea
-        class="chat-textarea"
-        rows="1"
-        [(ngModel)]="prompt"
-        (keydown)="onKeyDown($event)"
-        placeholder="Message AI Assistant…"
-        [disabled]="facade.loading()">
-      </textarea>
-      <div *ngIf="imageFile" class="file-chip">
-        <mat-icon class="file-chip-icon">image</mat-icon>
-        <span class="file-chip-name">{{ imageFile.name }}</span>
+    <div class="input-wrap">
+      <textarea class="input-field" [(ngModel)]="prompt"
+                (keydown)="onKeyDown($event)"
+                placeholder="Message…"
+                rows="1"
+                [disabled]="facade.loading()"></textarea>
+      <div *ngIf="imageFile" class="attach-chip">
+        <mat-icon>image</mat-icon>
+        <span>{{ imageFile.name }}</span>
       </div>
     </div>
 
-    <button mat-icon-button class="send-btn" type="button"
+    <button mat-icon-button class="btn-send"
             [disabled]="facade.loading() || (!prompt.trim() && !imageFile)"
             (click)="send()">
       <mat-icon>{{ facade.loading() ? 'hourglass_empty' : 'send' }}</mat-icon>
     </button>
-
   </div>
 
-</div>
+</ng-container>

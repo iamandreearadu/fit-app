@@ -71,7 +71,9 @@
 
     <div class="modal-hdr">
       <div class="modal-hdr-left">
-        <mat-icon class="modal-hdr-icon">event</mat-icon>
+        <div class="modal-hdr-icon-wrap">
+          <mat-icon>event</mat-icon>
+        </div>
         <div>
           <div class="modal-date">{{ selectedDay.date | date:'EEEE' }}</div>
           <div class="modal-date-full">{{ selectedDay.date | date:'dd MMMM yyyy' }}</div>

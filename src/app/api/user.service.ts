@@ -155,7 +155,7 @@ export class UserService {
         { merge: true }
       );
 
-      this.alerts.success('Daily data saved');
+      // this.alerts.success('Daily data saved');
     } catch (err) {
       this.alerts.warn('Failed to save daily data', String(err));
     }

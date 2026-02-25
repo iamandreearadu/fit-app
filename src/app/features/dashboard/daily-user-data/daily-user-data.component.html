@@ -1,275 +1,275 @@
 <div class="daily-root">
 
-  <div class="section-header">
-    <h2 class="section-title">Daily Tracker</h2>
-    <p class="section-subtitle">Track your daily activities, nutrition, and progress</p>
-  </div>
+  <!-- Picker backdrop (closes picker when clicking outside) -->
+  <div *ngIf="showActivityPicker" class="picker-bd" (click)="showActivityPicker = false"></div>
 
-  <div class="daily-content-wrapper">
-    <form [formGroup]="form" novalidate>
+  <form [formGroup]="form" novalidate>
 
-      <!-- ── CONTROL BAR ── -->
-      <div class="control-bar">
-        <div class="control-group">
-          <mat-icon class="ctrl-icon">calendar_today</mat-icon>
-          <mat-form-field appearance="outline" class="bar-field" subscriptSizing="dynamic">
-            <mat-label>Date</mat-label>
-            <input matInput type="date" formControlName="date">
-          </mat-form-field>
+    <!-- ── CONTROL BAR ── -->
+    <div class="ctrl-wrap">
+      <div class="ctrl-bar">
+
+        <div class="ctrl-section">
+          <mat-icon class="ctrl-ico">calendar_today</mat-icon>
+          <div class="ctrl-body">
+            <span class="ctrl-lbl">Today</span>
+            <span class="ctrl-val">{{ facade.todayDate | date:'EEE, d MMM' }}</span>
+          </div>
         </div>
 
-        <div class="control-group control-group--activity">
-          <mat-icon class="ctrl-icon">bolt</mat-icon>
-          <mat-form-field appearance="outline" class="bar-field" subscriptSizing="dynamic">
-            <mat-label>Activity</mat-label>
-            <mat-select formControlName="activityType">
-              <mat-optgroup label="Standard">
-                <mat-option value="strength-training">Strength Training</mat-option>
-                <mat-option value="cardio">Cardio</mat-option>
-                <mat-option value="hiit-training">HIIT Training</mat-option>
-                <mat-option value="active-rest-day">Active Rest Day</mat-option>
-                <mat-option value="rest-day">Rest Day</mat-option>
-              </mat-optgroup>
-              <mat-optgroup label="My Workouts" *ngIf="workoutsFacade.templates.length > 0">
-                <mat-option *ngFor="let w of workoutsFacade.templates" [value]="'workout:' + w.uid">
-                  {{ w.title }}<span class="workout-option-meta"> · {{ w.type }}</span>
-                </mat-option>
-              </mat-optgroup>
-            </mat-select>
-          </mat-form-field>
+        <div class="ctrl-sep"></div>
+
+        <div class="ctrl-section ctrl-grow" (click)="showActivityPicker = !showActivityPicker">
+          <mat-icon class="ctrl-ico">{{ currentActivityDisplay.icon }}</mat-icon>
+          <div class="ctrl-body">
+            <span class="ctrl-lbl">Activity</span>
+            <span class="ctrl-val">{{ currentActivityDisplay.label }}</span>
+          </div>
+          <mat-icon class="ctrl-chevron">{{ showActivityPicker ? 'expand_less' : 'expand_more' }}</mat-icon>
         </div>
 
-        <button *ngIf="isTodaySelected" mat-stroked-button class="reset-btn" type="button" (click)="onReset()">
-          <mat-icon>restart_alt</mat-icon> Reset
+        <div class="ctrl-sep"></div>
+
+        <button class="ctrl-section ctrl-ai" type="button"
+                (click)="openMealAnalyze()" [disabled]="groqFacade.loading()">
+          <div class="ctrl-ai-icon">
+            <mat-icon>auto_awesome</mat-icon>
+          </div>
+          <div class="ctrl-body">
+            <span class="ctrl-lbl">AI</span>
+            <span class="ctrl-val">Analyze</span>
+          </div>
         </button>
+
+        <div class="ctrl-end">
+          <span class="save-badge"
+                [class.sb-visible]="autoSaveStatus !== 'idle'"
+                [class.sb-saving]="autoSaveStatus === 'saving'"
+                [class.sb-saved]="autoSaveStatus === 'saved'"
+                [class.sb-error]="autoSaveStatus === 'error'">
+            <mat-icon *ngIf="autoSaveStatus === 'saving'">sync</mat-icon>
+            <mat-icon *ngIf="autoSaveStatus === 'saved'">check_circle</mat-icon>
+            <mat-icon *ngIf="autoSaveStatus === 'error'">error_outline</mat-icon>
+          </span>
+          <button mat-icon-button class="btn-reset" type="button"
+                  (click)="onReset()" matTooltip="Reset today">
+            <mat-icon>restart_alt</mat-icon>
+          </button>
+        </div>
+
       </div>
 
-      <!-- ── STATS STRIP ── -->
-      <div class="stats-strip">
-        <div class="stat-tile">
-          <mat-icon class="tile-icon tile-purple">restaurant</mat-icon>
-          <div class="tile-body">
-            <span class="tile-value tile-purple">{{ facade.dailyDataStats().totalCalories }}</span>
-            <span class="tile-label">Calories In</span>
-          </div>
-        </div>
-
-        <div class="stat-sep"></div>
-
-        <div class="stat-tile">
-          <mat-icon class="tile-icon tile-pink">local_fire_department</mat-icon>
-          <div class="tile-body">
-            <span class="tile-value tile-pink">{{ facade.dailyDataStats().caloriesBurned }}</span>
-            <span class="tile-label">Burned</span>
-          </div>
-        </div>
-
-        <div class="stat-sep"></div>
-
-        <div class="stat-tile stat-tile--highlight">
-          <mat-icon class="tile-icon tile-white">trending_up</mat-icon>
-          <div class="tile-body">
-            <span class="tile-value tile-white">{{ facade.dailyDataStats().netCalories }}</span>
-            <span class="tile-label">Net Calories</span>
-          </div>
-        </div>
-
-        <div class="stat-sep"></div>
-
-        <div class="stat-tile">
-          <mat-icon class="tile-icon tile-blue">water_drop</mat-icon>
-          <div class="tile-body">
-            <span class="tile-value tile-blue">{{ facade.dailyDataStats().waterConsumedL | number:'1.1-1' }}</span>
-            <span class="tile-label">Water / {{ facade.waterTargetFromMetrics() | number:'1.1-1' }} L</span>
-          </div>
-        </div>
-
-        <div class="stat-sep"></div>
-
-        <div class="stat-tile">
-          <mat-icon class="tile-icon tile-green">directions_walk</mat-icon>
-          <div class="tile-body">
-            <span class="tile-value tile-green">{{ facade.dailyDataStats().steps | number:'1.0-0' }}</span>
-            <span class="tile-label">Steps / {{ facade.dailyDataStats().stepTarget | number:'1.0-0' }}</span>
-          </div>
-        </div>
+      <!-- ── ACTIVITY PICKER PANEL ── -->
+      <div *ngIf="showActivityPicker" class="act-panel" (click)="$event.stopPropagation()">
+        <div class="act-group-lbl">Standard</div>
+        <button *ngFor="let opt of activityOptions" class="act-opt" type="button"
+                [class.act-active]="form.get('activityType')?.value === opt.value"
+                (click)="selectActivity(opt.value)">
+          <mat-icon class="act-ico">{{ opt.icon }}</mat-icon>
+          <span>{{ opt.label }}</span>
+        </button>
+        <ng-container *ngIf="workoutsFacade.templates.length > 0">
+          <div class="act-divider"></div>
+          <div class="act-group-lbl">My Workouts</div>
+          <button *ngFor="let w of workoutsFacade.templates" class="act-opt" type="button"
+                  [class.act-active]="form.get('activityType')?.value === 'workout:' + w.uid"
+                  (click)="selectActivity('workout:' + w.uid)">
+            <mat-icon class="act-ico">sports</mat-icon>
+            <span>{{ w.title }}</span>
+          </button>
+        </ng-container>
       </div>
-
-      <!-- ── CARDS GRID ── -->
-      <div class="cards-row">
-
-        <!-- CARD: Nutrition -->
-        <mat-card class="card-col">
-          <div class="card-hdr">
-            <mat-icon class="hdr-icon hdr-purple">restaurant_menu</mat-icon>
-            <span>Nutrition</span>
-          </div>
-          <mat-card-content class="card-body">
-
-            <div class="calorie-display">
-              <span class="calorie-number tile-purple">{{ facade.dailyDataStats().totalCalories }}</span>
-              <span class="calorie-unit">kcal estimated</span>
-            </div>
-
-            <fieldset formGroupName="macrosPct" class="macros-fieldset">
-              <div class="macro-row">
-                <span class="macro-dot dot-protein"></span>
-                <mat-form-field appearance="outline" class="macro-field" subscriptSizing="dynamic">
-                  <mat-label>Protein (g)</mat-label>
-                  <input matInput type="number" formControlName="protein" min="0">
-                </mat-form-field>
-              </div>
-              <div class="macro-row">
-                <span class="macro-dot dot-carbs"></span>
-                <mat-form-field appearance="outline" class="macro-field" subscriptSizing="dynamic">
-                  <mat-label>Carbs (g)</mat-label>
-                  <input matInput type="number" formControlName="carbs" min="0">
-                </mat-form-field>
-              </div>
-              <div class="macro-row">
-                <span class="macro-dot dot-fats"></span>
-                <mat-form-field appearance="outline" class="macro-field" subscriptSizing="dynamic">
-                  <mat-label>Fats (g)</mat-label>
-                  <input matInput type="number" formControlName="fats" min="0">
-                </mat-form-field>
-              </div>
-            </fieldset>
-
-            <div class="spacer"></div>
-
-            <button mat-flat-button class="btn-analyze" type="button"
-                    (click)="openMealAnalyze()" [disabled]="groqFacade.loading()">
-              <mat-icon>auto_awesome</mat-icon>
-              Analyze Meal with AI
-            </button>
-
-          </mat-card-content>
-        </mat-card>
-
-        <!-- CARD: Calories Burned -->
-        <mat-card class="card-col">
-          <div class="card-hdr">
-            <mat-icon class="hdr-icon hdr-pink">local_fire_department</mat-icon>
-            <span>Calories Burned</span>
-          </div>
-          <mat-card-content class="card-body">
-
-            <div class="burn-display">
-              <span class="burn-number tile-pink">{{ facade.dailyDataStats().caloriesBurned }}</span>
-              <span class="burn-unit">kcal</span>
-            </div>
-
-            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
-              <mat-label>Enter manually</mat-label>
-              <input matInput type="number" min="0" formControlName="caloriesBurned" placeholder="0">
-              <mat-icon matSuffix>edit</mat-icon>
-            </mat-form-field>
-
-            <div class="btn-row">
-              <button mat-stroked-button class="primary" type="button" (click)="adjustCaloriesBurned(200)">+200</button>
-              <button mat-stroked-button class="primary" type="button" (click)="adjustCaloriesBurned(100)">+100</button>
-              <button mat-stroked-button class="accent" type="button" (click)="adjustCaloriesBurned(-100)">−100</button>
-              <button mat-stroked-button class="accent" type="button" (click)="adjustCaloriesBurned(-200)">−200</button>
-            </div>
-
-            <div class="spacer"></div>
-
-            <div class="net-chip">
-              <div class="net-chip-label">
-                <mat-icon>calculate</mat-icon>
-                Net Calories
-              </div>
-              <span class="net-chip-value">{{ facade.dailyDataStats().netCalories }} kcal</span>
-            </div>
-
-          </mat-card-content>
-        </mat-card>
-
-        <!-- CARD: Water & Steps -->
-        <mat-card class="card-col">
-          <div class="card-hdr">
-            <mat-icon class="hdr-icon hdr-blue">self_improvement</mat-icon>
-            <span>Hydration & Steps</span>
-          </div>
-          <mat-card-content class="card-body">
-
-            <!-- Water -->
-            <div class="progress-block">
-              <div class="progress-top">
-                <div class="progress-label-row">
-                  <mat-icon class="mini-icon tile-blue">water_drop</mat-icon>
-                  <span>Water</span>
-                </div>
-                <span class="progress-fraction tile-blue">
-                  {{ facade.dailyDataStats().waterConsumedL | number:'1.2-2' }} / {{ facade.waterTargetFromMetrics() | number:'1.1-1' }} L
-                </span>
-              </div>
-
-              <mat-progress-bar mode="determinate" [value]="facade.waterProgress()" class="prog-bar water-bar"></mat-progress-bar>
-
-              <div class="progress-pct">{{ (facade.waterProgress() || 0) | number:'1.0-0' }}% complete</div>
-
-              <div class="btn-row">
-                <button mat-stroked-button class="primary" type="button" (click)="adjustWaterMl(250)">+250 ml</button>
-                <button mat-stroked-button class="primary" type="button" (click)="adjustWaterMl(500)">+500 ml</button>
-                <button mat-stroked-button class="accent" type="button" (click)="adjustWaterMl(-250)">−250 ml</button>
-              </div>
-            </div>
-
-            <div class="section-divider"></div>
-
-            <!-- Steps -->
-            <div class="progress-block">
-              <div class="progress-top">
-                <div class="progress-label-row">
-                  <mat-icon class="mini-icon tile-green">directions_walk</mat-icon>
-                  <span>Steps</span>
-                </div>
-                <span class="progress-fraction tile-green">
-                  {{ facade.dailyDataStats().steps | number:'1.0-0' }} / {{ facade.dailyDataStats().stepTarget | number:'1.0-0' }}
-                </span>
-              </div>
-
-              <mat-progress-bar mode="determinate" [value]="facade.dailyDataStats().stepsProgress" class="prog-bar steps-bar"></mat-progress-bar>
-
-              <div class="progress-pct">{{ facade.dailyDataStats().stepsProgress | number:'1.0-0' }}% complete</div>
-
-              <div class="btn-row">
-                <button mat-stroked-button class="primary" type="button" (click)="adjustSteps(500)">+500</button>
-                <button mat-stroked-button class="primary" type="button" (click)="adjustSteps(1000)">+1000</button>
-                <button mat-stroked-button class="accent" type="button" (click)="adjustSteps(-500)">−500</button>
-              </div>
-            </div>
-
-          </mat-card-content>
-        </mat-card>
-
-      </div>
-    </form>
-
-    <div *ngIf="facade.dailyDataLoading()" class="loading-overlay">
-      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
     </div>
+
+    <!-- ── STATS BAR ── -->
+    <div class="stats-bar">
+
+      <div class="sbar-item">
+        <mat-icon class="sbar-ico si-purple">restaurant</mat-icon>
+        <span class="sbar-val sv-purple">{{ facade.dailyDataStats().totalCalories }}</span>
+        <span class="sbar-lbl">Cal In</span>
+      </div>
+
+      <div class="sbar-sep"></div>
+
+      <div class="sbar-item">
+        <mat-icon class="sbar-ico si-orange">local_fire_department</mat-icon>
+        <span class="sbar-val sv-orange">{{ facade.dailyDataStats().caloriesBurned }}</span>
+        <span class="sbar-lbl">Burned</span>
+      </div>
+
+      <div class="sbar-sep"></div>
+
+      <div class="sbar-item sbar-net">
+        <mat-icon class="sbar-ico si-white">balance</mat-icon>
+        <span class="sbar-val sv-white">{{ facade.dailyDataStats().netCalories }}</span>
+        <span class="sbar-lbl">Net Cal</span>
+      </div>
+
+      <div class="sbar-sep"></div>
+
+      <div class="sbar-item">
+        <mat-icon class="sbar-ico si-blue">water_drop</mat-icon>
+        <span class="sbar-val sv-blue">{{ facade.dailyDataStats().waterConsumedL | number:'1.2-2' }} L</span>
+        <span class="sbar-lbl">Water</span>
+      </div>
+
+      <div class="sbar-sep"></div>
+
+      <div class="sbar-item">
+        <mat-icon class="sbar-ico si-green">directions_walk</mat-icon>
+        <span class="sbar-val sv-green">{{ facade.dailyDataStats().steps | number:'1.0-0' }}</span>
+        <span class="sbar-lbl">Steps</span>
+      </div>
+
+    </div>
+
+    <!-- ── CONTENT GRID ── -->
+    <div class="content-grid">
+
+      <!-- NUTRITION -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-icon-wrap ci-purple">
+              <mat-icon>restaurant_menu</mat-icon>
+            </div>
+            <span class="card-title">Nutrition</span>
+          </div>
+          <span class="card-badge b-purple">{{ facade.dailyDataStats().totalCalories }} kcal</span>
+        </div>
+
+        <fieldset formGroupName="macrosPct" class="macros-list">
+          <div class="macro-row">
+            <span class="mdot d-protein"></span>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mf">
+              <mat-label>Protein (g)</mat-label>
+              <input matInput type="number" formControlName="protein" min="0">
+            </mat-form-field>
+          </div>
+          <div class="macro-row">
+            <span class="mdot d-carbs"></span>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mf">
+              <mat-label>Carbs (g)</mat-label>
+              <input matInput type="number" formControlName="carbs" min="0">
+            </mat-form-field>
+          </div>
+          <div class="macro-row">
+            <span class="mdot d-fats"></span>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mf">
+              <mat-label>Fats (g)</mat-label>
+              <input matInput type="number" formControlName="fats" min="0">
+            </mat-form-field>
+          </div>
+        </fieldset>
+
+      </div>
+
+      <!-- CALORIES BURNED -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-icon-wrap ci-orange">
+              <mat-icon>local_fire_department</mat-icon>
+            </div>
+            <span class="card-title">Calories Burned</span>
+          </div>
+          <span class="card-badge b-orange">{{ facade.dailyDataStats().caloriesBurned }} kcal</span>
+        </div>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-f">
+          <mat-label>Manual entry</mat-label>
+          <input matInput type="number" min="0" formControlName="caloriesBurned">
+          <mat-icon matSuffix>edit</mat-icon>
+        </mat-form-field>
+
+        <div class="adj-row">
+          <button mat-stroked-button class="ab ab-p" type="button" (click)="adjustCaloriesBurned(200)">+200</button>
+          <button mat-stroked-button class="ab ab-p" type="button" (click)="adjustCaloriesBurned(100)">+100</button>
+          <button mat-stroked-button class="ab ab-m" type="button" (click)="adjustCaloriesBurned(-100)">−100</button>
+          <button mat-stroked-button class="ab ab-m" type="button" (click)="adjustCaloriesBurned(-200)">−200</button>
+        </div>
+
+        <div class="net-row">
+          <span class="net-label"><mat-icon>calculate</mat-icon> Net Calories</span>
+          <span class="net-value">{{ facade.dailyDataStats().netCalories }} kcal</span>
+        </div>
+      </div>
+
+      <!-- HYDRATION & STEPS -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-icon-wrap ci-blue">
+              <mat-icon>self_improvement</mat-icon>
+            </div>
+            <span class="card-title">Hydration & Steps</span>
+          </div>
+        </div>
+
+        <!-- Water -->
+        <div class="track">
+          <div class="track-header">
+            <span class="track-name"><mat-icon class="t-icon t-blue">water_drop</mat-icon> Water</span>
+            <span class="track-frac t-blue">
+              {{ facade.dailyDataStats().waterConsumedL | number:'1.2-2' }} / {{ facade.waterTargetFromMetrics() | number:'1.1-1' }} L
+            </span>
+          </div>
+          <mat-progress-bar class="pbar pbar-blue" mode="determinate" [value]="facade.waterProgress()"></mat-progress-bar>
+          <div class="adj-row">
+            <button mat-stroked-button class="ab ab-p" type="button" (click)="adjustWaterMl(500)">+500 ml</button>
+            <button mat-stroked-button class="ab ab-p" type="button" (click)="adjustWaterMl(250)">+250 ml</button>
+            <button mat-stroked-button class="ab ab-m" type="button" (click)="adjustWaterMl(-250)">−250 ml</button>
+          </div>
+        </div>
+
+        <div class="track-divider"></div>
+
+        <!-- Steps -->
+        <div class="track">
+          <div class="track-header">
+            <span class="track-name"><mat-icon class="t-icon t-green">directions_walk</mat-icon> Steps</span>
+            <span class="track-frac t-green">
+              {{ facade.dailyDataStats().steps | number:'1.0-0' }} / {{ facade.dailyDataStats().stepTarget | number:'1.0-0' }}
+            </span>
+          </div>
+          <mat-progress-bar class="pbar pbar-green" mode="determinate" [value]="facade.dailyDataStats().stepsProgress"></mat-progress-bar>
+          <div class="adj-row">
+            <button mat-stroked-button class="ab ab-p" type="button" (click)="adjustSteps(1000)">+1 000</button>
+            <button mat-stroked-button class="ab ab-p" type="button" (click)="adjustSteps(500)">+500</button>
+            <button mat-stroked-button class="ab ab-m" type="button" (click)="adjustSteps(-500)">−500</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </form>
+
+  <!-- Loading overlay -->
+  <div *ngIf="facade.dailyDataLoading()" class="load-overlay">
+    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
   </div>
 
-  <!-- ── ANALYZE MODAL ── -->
-  <div *ngIf="showAnalyzeOverlay" class="overlay-backdrop" (click)="closeMealAnalyze()">
-    <mat-card class="overlay-card" (click)="$event.stopPropagation()">
-      <mat-card-header>
-        <mat-card-title>Analyze Meal</mat-card-title>
-        <span class="flex-spacer"></span>
-        <button mat-mini-fab class="overlay-close-btn" type="button" (click)="closeMealAnalyze()">
+  <!-- Analyze Modal -->
+  <div *ngIf="showAnalyzeOverlay" class="modal-bg" (click)="closeMealAnalyze()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-icon-wrap">
+          <mat-icon>auto_awesome</mat-icon>
+        </div>
+        <span class="modal-title">Analyze Meal with AI</span>
+        <button mat-icon-button class="modal-close" type="button" (click)="closeMealAnalyze()">
           <mat-icon>close</mat-icon>
         </button>
-      </mat-card-header>
-      <mat-card-content>
-        <app-ai-meal-analyzer
-          (added)="onAnalyzerAdded($event)"
-          (error)="onAnalyzerError($event)">
-        </app-ai-meal-analyzer>
-        <mat-hint *ngIf="analyzeError" class="error-hint">{{ analyzeError }}</mat-hint>
-      </mat-card-content>
-    </mat-card>
+      </div>
+      <app-ai-meal-analyzer
+        (added)="onAnalyzerAdded($event)"
+        (error)="onAnalyzerError($event)">
+      </app-ai-meal-analyzer>
+      <div *ngIf="analyzeError" class="modal-err">{{ analyzeError }}</div>
+    </div>
   </div>
 
 </div>

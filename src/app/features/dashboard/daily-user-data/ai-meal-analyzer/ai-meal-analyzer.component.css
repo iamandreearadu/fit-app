@@ -270,12 +270,14 @@
 @media (max-width: 600px) {
   .dropzone {
     grid-template-columns: 1fr;
+    justify-items: center;
     text-align: center;
     padding: 20px 16px;
+    gap: 12px;
   }
 
-  .dz-icon { margin: 0 auto; }
-  .dz-btn  { justify-self: center; }
+  .dz-text { align-items: center; }
+  .dz-btn  { width: 100%; justify-content: center; }
 
   .macros-grid {
     grid-template-columns: repeat(2, 1fr);

@@ -1,44 +1,71 @@
 <div class="dashboard-root">
+
   <ng-container *ngIf="user() as u; else noData">
     <ng-container *ngIf="metrics() as m">
 
-      <div class="profile-strip">
-        <div class="profile-stat">
-          <mat-icon class="ps-icon ps-purple">monitor_weight</mat-icon>
-          <div class="ps-body">
-            <div class="ps-value-row">
-              <span class="ps-value ps-purple">{{ u.weightKg }}</span>
-              <span class="ps-unit">kg</span>
-            </div>
-            <span class="ps-label">Current Weight</span>
+      <div class="hero-card">
+
+        <!-- ── LEFT: greeting + goal + BMI ── -->
+        <div class="hero-left">
+          <div class="greeting-row">
+            <span class="greeting-text">{{ greeting }},</span>
+            <span class="greeting-name">{{ firstName }}!</span>
+          </div>
+          <span class="hero-date">{{ today | date:'EEEE, d MMMM' }}</span>
+          <div class="hero-meta">
+            <span class="goal-badge" [ngClass]="goalClass">{{ goalLabel }}</span>
+            <span *ngIf="bmi" class="bmi-chip">
+              BMI <span class="bmi-val">{{ bmi | number:'1.1-1' }}</span>
+            </span>
           </div>
         </div>
 
-        <div class="ps-sep"></div>
+        <div class="hero-divider"></div>
 
-        <div class="profile-stat">
-          <mat-icon class="ps-icon ps-pink">local_fire_department</mat-icon>
-          <div class="ps-body">
-            <div class="ps-value-row">
-              <span class="ps-value ps-pink">{{ m.goalCalories }}</span>
-              <span class="ps-unit">kcal / day</span>
+        <!-- ── RIGHT: stats column ── -->
+        <div class="hero-right">
+
+          <div class="hero-stat">
+            <!-- <div class="hs-icon-wrap hs-purple">
+              <mat-icon>monitor_weight</mat-icon>
+            </div> -->
+            <div class="hs-body">
+              <span class="hs-label">Current Weight</span>
+              <div class="hs-value-row">
+                <span class="hs-value hs-c-purple">{{ u.weightKg }}</span>
+                <span class="hs-unit">kg</span>
+              </div>
             </div>
-            <span class="ps-label">Goal Calories</span>
           </div>
+
+          <div class="hero-stat">
+            <!-- <div class="hs-icon-wrap hs-pink">
+              <mat-icon>local_fire_department</mat-icon>
+            </div> -->
+            <div class="hs-body">
+              <span class="hs-label">Goal Calories</span>
+              <div class="hs-value-row">
+                <span class="hs-value hs-c-pink">{{ m.goalCalories }}</span>
+                <span class="hs-unit">kcal</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-stat">
+            <!-- <div class="hs-icon-wrap hs-blue">
+              <mat-icon>water_drop</mat-icon>
+            </div> -->
+            <div class="hs-body">
+              <span class="hs-label">Water Target</span>
+              <div class="hs-value-row">
+                <span class="hs-value hs-c-blue">{{ m.waterL | number:'1.1-1' }}</span>
+                <span class="hs-unit">L</span>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <div class="ps-sep"></div>
-
-        <div class="profile-stat">
-          <mat-icon class="ps-icon ps-blue">water_drop</mat-icon>
-          <div class="ps-body">
-            <div class="ps-value-row">
-              <span class="ps-value ps-blue">{{ m.waterL | number:'1.1-1' }}</span>
-              <span class="ps-unit">L / day</span>
-            </div>
-            <span class="ps-label">Water Target</span>
-          </div>
-        </div>
       </div>
 
     </ng-container>
@@ -50,4 +77,5 @@
       <span>No profile data yet. Go to <a routerLink="/user-profile">Profile</a> to add your information.</span>
     </div>
   </ng-template>
+
 </div>

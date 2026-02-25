@@ -1,75 +1,84 @@
 :host {
-  display: block;
-  height: 100%;
-}
-
-.sidenav-root {
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
 }
 
-/* ── HEADER ── */
-.sidenav-hdr {
+/* ─── SHELL ─── */
+.sidenav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ─── HEADER ─── */
+.sidenav-head {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 20px 16px 14px;
+  padding: 18px 16px 14px;
   border-bottom: 1px solid var(--white-fade);
   flex-shrink: 0;
 }
 
-.sidenav-logo-icon {
-  font-size: 22px;
-  width: 22px;
-  height: 22px;
+.head-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
   color: var(--primary);
 }
 
-.sidenav-brand {
-  font-size: 16px;
+.head-title {
+  font-size: 15px;
   font-weight: 700;
   background: linear-gradient(135deg, var(--primary), #9e7bff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* ── NEW CHAT ── */
+/* ─── NEW CHAT BUTTON ─── */
 .sidenav-action {
   padding: 12px 12px 8px;
   flex-shrink: 0;
 }
 
-.new-chat-btn {
+.new-btn {
   width: 100% !important;
-  height: 42px !important;
-  border-radius: 12px !important;
-  font-weight: 600 !important;
+  height: 38px !important;
+  border-radius: 10px !important;
+  border-color: rgba(124, 77, 255, 0.4) !important;
+  color: var(--primary) !important;
   font-size: 13px !important;
+  font-weight: 600 !important;
   display: flex !important;
   align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, var(--primary) 0%, #5e35b1 100%) !important;
-  color: var(--white) !important;
-  box-shadow: 0 4px 16px var(--primary-glow) !important;
-  transition: opacity 0.2s ease;
+  gap: 4px;
+  transition: background 0.2s, border-color 0.2s;
 }
 
-.new-chat-btn:hover { opacity: 0.88; }
+.new-btn:hover {
+  background: rgba(124, 77, 255, 0.08) !important;
+  border-color: var(--primary) !important;
+}
 
-/* ── SCROLL AREA ── */
-.convo-scroll {
+/* ─── CONVERSATION LIST ─── */
+.convo-list {
   flex: 1 1 auto;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding: 4px 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.convo-scroll::-webkit-scrollbar { display: none; }
+.convo-list::-webkit-scrollbar { display: none; }
 
-/* ── EMPTY STATE ── */
+/* ─── EMPTY STATE ─── */
 .convo-empty {
   display: flex;
   flex-direction: column;
@@ -77,89 +86,73 @@
   gap: 8px;
   padding: 40px 16px;
   color: var(--white-soft);
-  opacity: 0.4;
-  font-size: 13px;
+  opacity: 0.35;
+  font-size: 12px;
   text-align: center;
 }
 
 .convo-empty mat-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
 }
 
-/* ── CONVERSATION LIST ── */
-.convo-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
+/* ─── CONVERSATION ITEM ─── */
 .convo-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 8px 10px 12px;
+  gap: 8px;
+  padding: 9px 8px 9px 12px;
   border-radius: 10px;
   cursor: pointer;
   color: var(--white-soft);
   border: 1px solid transparent;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   outline: none;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  min-width: 0;
 }
 
 .convo-item:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--white);
 }
 
 .convo-item.active {
-  background: rgba(124, 77, 255, 0.15);
+  background: rgba(124, 77, 255, 0.12);
+  border-color: rgba(124, 77, 255, 0.25);
   color: var(--white);
-  border-color: rgba(124, 77, 255, 0.28);
 }
 
-.convo-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  opacity: 0.55;
-  color: var(--primary);
-  transition: opacity 0.2s ease;
-}
-
-.convo-item.active .convo-icon { opacity: 1; }
-
-.convo-body {
-  flex: 1;
+/* ─── CONVERSATION TEXT ─── */
+.convo-text {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
-.convo-title {
+.convo-name {
   font-size: 13px;
   font-weight: 500;
-  color: inherit;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: inherit;
 }
 
 .convo-date {
   font-size: 11px;
   color: var(--white-soft);
-  opacity: 0.5;
+  opacity: 0.45;
   margin-top: 2px;
 }
 
-/* ── DELETE BUTTON ── */
+/* ─── DELETE BUTTON ─── */
 .del-btn {
-  width: 30px !important;
-  height: 30px !important;
+  width: 28px !important;
+  height: 28px !important;
   flex-shrink: 0;
-  color: rgba(255, 255, 255, 0.25) !important;
+  color: rgba(255, 255, 255, 0.2) !important;
   opacity: 0;
-  transition: opacity 0.2s ease, color 0.2s ease;
+  transition: opacity 0.15s, color 0.15s;
 }
 
 .del-btn mat-icon {
@@ -174,5 +167,5 @@
 }
 
 .del-btn:hover {
-  color: var(--accent) !important;
+  color: #ff5252 !important;
 }

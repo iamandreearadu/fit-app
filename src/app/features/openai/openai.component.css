@@ -1,83 +1,94 @@
+/* ─── HOST ─── */
 :host {
   display: block;
-  width: 100%;
 }
 
-.page-wrapper {
+/* ─── PAGE SHELL ─── */
+.page-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-}
-
-.chat-layout {
-  flex: 1 1 auto;
-  width: 100%;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
-  background: var(--surface);
-  box-shadow: none;
+  height: 100vh;
+  height: 100dvh; /* dynamic: accounts for mobile browser chrome */
   overflow: hidden;
 }
 
-.sidebar {
-  width: 300px;
-  max-width: 28vw;
+/* ─── CHAT SHELL: fills space between header & footer ─── */
+.chat-shell {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ─── SIDENAV CONTAINER ─── */
+.sidenav-container {
+  position: absolute !important;
+  inset: 0;
   background: var(--surface);
-  color: var(--white-soft);
+  border: none;
+  border-radius: 0;
+}
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 280px;
+  background: color-mix(in srgb, var(--surface) 94%, #fff 6%);
   border-right: 1px solid var(--white-fade);
 }
 
-.chat-content {
-  background: var(--surface);
-  overflow: hidden;
+/* ─── MATERIAL OVERRIDES ─── */
+::ng-deep .mat-sidenav {
+  background: color-mix(in srgb, var(--surface) 94%, #fff 6%) !important;
+}
+
+/* mat-drawer-content is position:absolute — only block scroll, keep it as block */
+::ng-deep .mat-drawer-content,
+::ng-deep .mat-sidenav-content {
+  overflow: hidden !important;
+}
+
+/* ─── MAIN CONTENT AREA (mat-sidenav-content) ─── */
+/* display:flex allows topbar + app-groq to share height correctly */
+.main-content {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
 }
 
-/* ── MOBILE TOPBAR ── */
-.mobile-topbar {
+/* ─── MOBILE TOPBAR ─── */
+.topbar {
   display: none;
   align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
+  gap: 10px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--white-fade);
-  background: rgba(255, 255, 255, 0.02);
+  background: color-mix(in srgb, var(--surface) 94%, #fff 6%);
   flex-shrink: 0;
+  min-height: 50px;
 }
 
-.btn-chats {
-  border-color: var(--white-fade) !important;
+.menu-btn {
   color: var(--white-soft) !important;
-  border-radius: 10px !important;
-  display: inline-flex !important;
-  align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 12px !important;
-  font-weight: 600;
-  font-size: 13px;
 }
 
-.mobile-brand {
-  font-size: 16px;
+.topbar-title {
+  font-size: 15px;
   font-weight: 700;
   background: linear-gradient(135deg, var(--primary), #9e7bff);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-::ng-deep .mat-sidenav {
-  background: var(--surface) !important;
-}
-
+/* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
   .sidebar {
-    width: 76vw;
-    max-width: 76vw;
+    width: 80vw;
+    max-width: 300px;
   }
 
-  .mobile-topbar {
+  .topbar {
     display: flex;
   }
 }

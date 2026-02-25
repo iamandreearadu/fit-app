@@ -1,27 +1,28 @@
-<div class="page-wrapper">
+<div class="page-shell">
   <app-header></app-header>
 
-  <mat-sidenav-container class="chat-layout">
-    <mat-sidenav
-      class="sidebar"
-      [mode]="isHandset ? 'over' : 'side'"
-      [opened]="isHandset ? sidebarOpen : true"
-      (closedStart)="sidebarOpen = false">
-      <app-groq-sidenav></app-groq-sidenav>
-    </mat-sidenav>
+  <div class="chat-shell">
+    <mat-sidenav-container class="sidenav-container">
 
-    <mat-sidenav-content class="chat-content">
-      <div class="mobile-topbar" *ngIf="isHandset">
-        <button mat-stroked-button class="btn-chats" type="button" (click)="openSidebar()">
-          <mat-icon>menu</mat-icon>
-          <span>Chats</span>
-        </button>
-        <span class="mobile-brand">AI Assistant</span>
-      </div>
+      <mat-sidenav
+        class="sidebar"
+        [mode]="isHandset ? 'over' : 'side'"
+        [opened]="isHandset ? sidebarOpen : true"
+        (closedStart)="sidebarOpen = false">
+        <app-groq-sidenav></app-groq-sidenav>
+      </mat-sidenav>
 
-      <app-groq></app-groq>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
+      <mat-sidenav-content class="main-content">
+        <div class="topbar" *ngIf="isHandset">
+          <button mat-icon-button class="menu-btn" (click)="openSidebar()">
+            <mat-icon>menu</mat-icon>
+          </button>
+          <span class="topbar-title">AI Assistant</span>
+        </div>
+        <app-groq></app-groq>
+      </mat-sidenav-content>
 
-  <app-footer></app-footer>
+    </mat-sidenav-container>
+  </div>
+
 </div>

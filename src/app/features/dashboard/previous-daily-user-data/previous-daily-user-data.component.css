@@ -1,15 +1,32 @@
 .previous-root {
   padding: 24px;
-  max-width: min(1400px, calc(100% - 80px));
-  margin: 32px auto 80px;
+  /* max-width: min(1400px, calc(100% - 80px)); */
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 /* ── HEADER ── */
 .section-header {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 36px;
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--white-fade);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0 0 6px;
+}
+
+.section-subtitle {
+  font-size: 13px;
+  color: rgba(255,255,255,.35);
+  margin: 0;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .04em;
 }
 
 /* ── WEEK NAV ── */
@@ -19,32 +36,33 @@
   justify-content: space-between;
   gap: 16px;
   padding: 14px 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--white-fade);
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
   border-radius: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
+  transition: border-color .2s;
 }
+
+.week-nav:hover { border-color: rgba(255,255,255,.13); }
 
 .nav-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  border-color: var(--white-fade) !important;
+  border-color: rgba(255,255,255,.08) !important;
   color: var(--white-soft) !important;
   border-radius: 10px !important;
   height: 38px;
   padding: 0 14px;
-  transition: border-color 0.2s ease, color 0.2s ease;
+  transition: border-color .2s, color .2s;
 }
 
 .nav-btn:not([disabled]):hover {
-  border-color: rgba(124, 77, 255, 0.4) !important;
-  color: var(--primary) !important;
+border-color: rgba(255,255,255,.13);
+  color: #a78bfa !important;
 }
 
-.nav-btn:disabled {
-  opacity: 0.3 !important;
-}
+.nav-btn:disabled { opacity: .3 !important; }
 
 .nav-label {
   font-size: 12px;
@@ -64,8 +82,8 @@
   font-size: 18px;
   width: 18px;
   height: 18px;
-  color: var(--primary);
-  opacity: 0.8;
+  color: #a78bfa;
+  opacity: .8;
 }
 
 /* ── EMPTY STATE ── */
@@ -74,11 +92,11 @@
   align-items: center;
   gap: 12px;
   padding: 32px 24px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed var(--white-fade);
-  border-radius: 16px;
+  background: rgba(255,255,255,.02);
+  border: 1px dashed rgba(255,255,255,.08);
+  border-radius: 20px;
   color: var(--white-soft);
-  opacity: 0.6;
+  opacity: .6;
   font-size: 14px;
 }
 
@@ -86,7 +104,7 @@
   font-size: 28px;
   width: 28px;
   height: 28px;
-  opacity: 0.5;
+  opacity: .5;
 }
 
 /* ── DAY GRID ── */
@@ -97,9 +115,9 @@
 }
 
 .day-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--white-fade);
-  border-radius: 16px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px;
   padding: 16px 14px;
   cursor: pointer;
   display: flex;
@@ -107,15 +125,14 @@
   align-items: center;
   text-align: center;
   gap: 4px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color .2s, box-shadow .2s, transform .2s;
   outline: none;
 }
 
 .day-card:hover,
 .day-card:focus-visible {
-  border-color: rgba(124, 77, 255, 0.35);
-  box-shadow: 0 4px 20px var(--primary-glow);
-  transform: translateY(-3px);
+ border-color: rgba(255,255,255,.13);
+transform: translateY(-3px);
 }
 
 .day-date-block {
@@ -126,11 +143,11 @@
 }
 
 .day-weekday {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  color: var(--primary);
+  color: #a78bfa;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: .06em;
 }
 
 .day-date-num {
@@ -141,18 +158,17 @@
 }
 
 .day-month {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
-  color: var(--white-soft);
-  opacity: 0.65;
+  color: rgba(255,255,255,.35);
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: .04em;
 }
 
 .day-divider {
   width: 100%;
   height: 1px;
-  background: var(--white-fade);
+  background: rgba(255,255,255,.07);
   margin: 8px 0 4px;
 }
 
@@ -194,7 +210,7 @@ body:has(.modal-backdrop) {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0,0,0,.7);
   backdrop-filter: blur(14px);
   display: grid;
   place-items: center;
@@ -205,10 +221,10 @@ body:has(.modal-backdrop) {
 .modal-card {
   width: min(680px, 100%);
   max-height: min(90vh, 760px);
-  background: #11111a;
-  border: 1px solid rgba(124, 77, 255, 0.2);
-  border-radius: 20px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+  background: #16161d;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 24px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.7);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -219,7 +235,7 @@ body:has(.modal-backdrop) {
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid var(--white-fade);
+  border-bottom: 1px solid rgba(255,255,255,.07);
   flex-shrink: 0;
 }
 
@@ -229,12 +245,31 @@ body:has(.modal-backdrop) {
   gap: 14px;
 }
 
+.modal-hdr-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(124,77,255,.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-hdr-icon-wrap mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #a78bfa;
+}
+
+/* keep old class for backwards compat */
 .modal-hdr-icon {
   font-size: 28px;
   width: 28px;
   height: 28px;
-  color: var(--primary);
-  opacity: 0.8;
+  color: #a78bfa;
+  opacity: .8;
 }
 
 .modal-date {
@@ -245,12 +280,11 @@ body:has(.modal-backdrop) {
 
 .modal-date-full {
   font-size: 13px;
-  color: var(--white-soft);
-  opacity: 0.65;
+  color: rgba(255,255,255,.35);
 }
 
 .modal-close-btn {
-  background: rgba(255, 255, 255, 0.07) !important;
+  background: rgba(255,255,255,.06) !important;
   color: var(--white) !important;
   height: 36px;
   width: 36px;
@@ -265,7 +299,10 @@ body:has(.modal-backdrop) {
   padding: 20px 24px;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+
+.modal-body::-webkit-scrollbar { display: none; }
 
 /* ── STATS GRID ── */
 .stats-grid {
@@ -279,34 +316,38 @@ body:has(.modal-backdrop) {
   flex-direction: column;
   gap: 6px;
   padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--white-fade);
-  border-radius: 12px;
-  transition: transform 0.15s ease;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  transition: border-color .2s, transform .15s;
 }
 
 .stat-tile:hover {
+  border-color: rgba(255,255,255,.13);
   transform: translateY(-1px);
 }
 
 .stat-tile--highlight {
-  background: rgba(124, 77, 255, 0.07);
-  border-color: rgba(124, 77, 255, 0.2);
+  background: rgba(124,77,255,.07);
+  border-color: rgba(124,77,255,.2);
+}
+
+.stat-tile--highlight:hover {
+  border-color: rgba(124,77,255,.35);
 }
 
 .st-label {
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--white-soft);
-  opacity: 0.65;
-  font-weight: 500;
+  letter-spacing: .04em;
+  color: rgba(255,255,255,.35);
+  font-weight: 600;
 }
 
 .st-value {
   font-size: 20px;
   font-weight: 700;
-  color: var(--primary);
+  color: #a78bfa;
   display: inline-flex;
   align-items: baseline;
   gap: 3px;
@@ -323,10 +364,10 @@ body:has(.modal-backdrop) {
 .st-unit {
   font-size: 12px;
   font-weight: 400;
-  color: var(--white-soft);
-  opacity: 0.6;
+  color: rgba(255,255,255,.35);
 }
 
+/* ── MACRO DOTS ── */
 .macro-label-row {
   display: flex;
   align-items: center;
@@ -340,21 +381,21 @@ body:has(.modal-backdrop) {
   flex-shrink: 0;
 }
 
-.dot-protein { background: var(--primary); }
-.dot-carbs   { background: #29b6f6; }
-.dot-fats    { background: #ffb74d; }
+.dot-protein { background: #a78bfa; }
+.dot-carbs   { background: #38bdf8; }
+.dot-fats    { background: var(--accent); }
 
 /* ── MODAL FOOTER ── */
 .modal-footer {
   padding: 16px 24px;
-  border-top: 1px solid var(--white-fade);
+  border-top: 1px solid rgba(255,255,255,.07);
   display: flex;
   justify-content: flex-end;
   flex-shrink: 0;
 }
 
 .close-btn {
-  border-color: rgba(255, 64, 129, 0.35) !important;
+  border-color: rgba(255,64,129,.35) !important;
   color: var(--accent) !important;
   border-radius: 10px !important;
   display: flex;
@@ -367,44 +408,30 @@ body:has(.modal-backdrop) {
   .previous-root {
     padding: 16px;
     max-width: 100%;
-    margin: 16px auto 60px;
   }
 
-  .week-nav {
-    padding: 12px 14px;
-  }
-
+  .week-nav { padding: 12px 14px; }
   .nav-label { display: none; }
-
   .week-badge { font-size: 13px; }
 
-  /* On tablet keep horizontal but allow wrap */
   .day-grid {
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 10px;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 480px) {
-  .previous-root {
-    padding: 12px;
-    margin: 8px auto 48px;
-  }
+  .previous-root { padding: 12px; }
 
   .section-header {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     padding-bottom: 14px;
   }
 
-  .week-nav {
-    padding: 10px 12px;
-  }
+  .week-nav { padding: 10px 12px; }
 
-  /* Mobile: one card per row, vertical, compact */
   .day-grid {
     grid-template-columns: 1fr;
     gap: 8px;
@@ -419,51 +446,29 @@ body:has(.modal-backdrop) {
   }
 
   .day-date-block {
-    display: flex;
     flex-direction: row;
     align-items: baseline;
     gap: 8px;
     width: 100%;
   }
 
-  .day-weekday {
-    font-size: 10px;
-    order: 0;
-  }
+  .day-weekday  { font-size: 10px; order: 0; }
+  .day-date-num { font-size: 20px; order: 1; }
+  .day-month    { font-size: 11px; order: 2; }
 
-  .day-date-num {
-    font-size: 20px;
-    order: 1;
-  }
+  .day-divider { margin: 6px 0 4px; }
 
-  .day-month {
-    font-size: 11px;
-    order: 2;
-    opacity: 0.55;
-  }
-
-  .day-divider {
-    width: 100%;
-    height: 1px;
-    margin: 6px 0 4px;
-  }
-
-  /* Stats in a single row on mobile */
   .day-stats {
     flex-direction: row;
     gap: 16px;
     width: 100%;
   }
 
-  .day-stat {
-    justify-content: flex-start;
-  }
-
+  .day-stat { justify-content: flex-start; }
   .ds-value { font-size: 13px; }
 
-  /* Modal */
   .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
   }
 

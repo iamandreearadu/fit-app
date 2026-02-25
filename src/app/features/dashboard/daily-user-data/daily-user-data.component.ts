@@ -36,6 +36,33 @@ export class DailyUserDataComponent implements OnInit {
 
   public showAnalyzeOverlay = false;
   public analyzeError: string | null = null;
+  public showActivityPicker = false;
+
+  public readonly activityOptions = [
+    { value: 'strength-training', label: 'Strength Training', icon: 'fitness_center' },
+    { value: 'cardio',            label: 'Cardio',            icon: 'directions_run' },
+    { value: 'hiit-training',     label: 'HIIT Training',     icon: 'flash_on' },
+    { value: 'active-rest-day',   label: 'Active Rest Day',   icon: 'self_improvement' },
+    { value: 'rest-day',          label: 'Rest Day',          icon: 'bedtime' },
+  ];
+
+  public get currentActivityDisplay(): { label: string; icon: string } {
+    const val = this.form.get('activityType')?.value ?? '';
+    const found = this.activityOptions.find(o => o.value === val);
+    if (found) return found;
+    if (val.startsWith('workout:')) {
+      const uid = val.replace('workout:', '');
+      const t = this.workoutsFacade.templates.find(t => t.uid === uid);
+      if (t) return { label: t.title, icon: 'sports' };
+    }
+    return { label: 'Select activity', icon: 'bolt' };
+  }
+
+  public selectActivity(value: string): void {
+    this.form.get('activityType')?.setValue(value);
+    this.form.markAsDirty();
+    this.showActivityPicker = false;
+  }
 
   public autoSaveStatus: 'idle' | 'saving' | 'saved' | 'error' = 'idle';
   private isPatchingFromBackend = false;
@@ -161,7 +188,7 @@ export class DailyUserDataComponent implements OnInit {
     const next = Math.max(0, +(current + deltaMl / 1000).toFixed(3));
     ctrl.setValue(next);
     this.form.markAsDirty();
-    this.facade.addWater(deltaMl / 1000); // actualizare imediata UI (effect sare re-patch pt ca form.dirty=true)
+    this.facade.addWater(deltaMl / 1000); // actualizare imediata UI 
   }
 
   public adjustSteps(delta: number): void {
@@ -172,11 +199,6 @@ export class DailyUserDataComponent implements OnInit {
     ctrl.setValue(next);
     this.form.markAsDirty();
     this.facade.addSteps(delta); // actualizare imediata UI
-  }
-
-  public onDateChange(date: string) {
-    this.autoSaveStatus = 'idle';
-    this.facade.loadDailyFromFireStore(date);
   }
 
   public async onSaveData(): Promise<void> {
@@ -236,7 +258,4 @@ export class DailyUserDataComponent implements OnInit {
     });
   }
 
-  public get isTodaySelected(): boolean {
-    return this.form.get('date')?.value === this.facade.todayDate;
-  }
 }

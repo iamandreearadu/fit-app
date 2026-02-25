@@ -1,51 +1,47 @@
-
-<div class="sidenav-root">
+<div class="sidenav">
 
   <!-- Header -->
-  <div class="sidenav-hdr">
-    <mat-icon class="sidenav-logo-icon">auto_awesome</mat-icon>
-    <span class="sidenav-brand">AI Chats</span>
+  <div class="sidenav-head">
+    <mat-icon class="head-icon">auto_awesome</mat-icon>
+    <span class="head-title">AI Chats</span>
   </div>
 
   <!-- New Chat -->
   <div class="sidenav-action">
-    <button mat-flat-button class="new-chat-btn" type="button" (click)="newChat()">
+    <button mat-stroked-button class="new-btn" (click)="newChat()">
       <mat-icon>add</mat-icon>
-      New Chat
+      New conversation
     </button>
   </div>
 
-  <!-- Conversation List -->
-  <div class="convo-scroll">
+  <!-- Conversation list -->
+  <div class="convo-list">
 
     <div class="convo-empty" *ngIf="!facade.conversations().length">
       <mat-icon>chat_bubble_outline</mat-icon>
       <span>No conversations yet</span>
     </div>
 
-    <div class="convo-list">
-      <div class="convo-item"
-           *ngFor="let conv of facade.conversations()"
-           [class.active]="conv.id === facade.conversationId()"
-           (click)="openConversation(conv.id)"
-           role="button"
-           tabindex="0">
+    <div class="convo-item"
+         *ngFor="let conv of facade.conversations()"
+         [class.active]="conv.id === facade.conversationId()"
+         (click)="openConversation(conv.id)"
+         role="button"
+         tabindex="0">
 
-        <mat-icon class="convo-icon">chat</mat-icon>
-
-        <div class="convo-body">
-          <div class="convo-title">{{ conv.messages || 'Conversation' }}</div>
-          <div class="convo-date">{{ conv.createdAt | date:'dd MMM, HH:mm' }}</div>
-        </div>
-
-        <button mat-icon-button class="del-btn" type="button"
-                (click)="delete(conv.id); $event.stopPropagation()"
-                matTooltip="Delete">
-          <mat-icon>delete</mat-icon>
-        </button>
-
+      <div class="convo-text">
+        <div class="convo-name">{{ conv.messages || 'New conversation' }}</div>
+        <div class="convo-date">{{ conv.createdAt | date:'dd MMM · HH:mm' }}</div>
       </div>
+
+      <button mat-icon-button class="del-btn"
+              (click)="delete(conv.id); $event.stopPropagation()"
+              matTooltip="Delete">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+
     </div>
 
   </div>
+
 </div>
