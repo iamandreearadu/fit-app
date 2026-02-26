@@ -150,7 +150,7 @@
   gap: 8px;
   padding: 4px 10px 4px 4px;
   border-radius: 999px;
-  background: rgba(255,255,255,.06);
+  background: rgba(255,255,255,.01);
   border: 1px solid rgba(255,255,255,.1);
   cursor: pointer;
   transition: background .18s, border-color .18s;
@@ -431,8 +431,8 @@
   .hdr-btn-primary { display: none; }
   .hdr-username { display: none; }
   .hdr-chev { font-size: 14px; width: 14px; height: 14px; }
-  .hdr-user { padding: 4px 8px 4px 4px; border-radius: 999px; gap: 4px; }
-  .hdr-avatar { width: 34px; height: 34px; }
+  .hdr-user { padding: 4px 14px 4px 8px; border-radius: 999px; gap: 10px; }
+  .hdr-avatar { width: 34px; height: 34px; border-radius: 50%; }
   .hdr-toggle { display: inline-flex; }
 }
 

@@ -169,6 +169,10 @@ mat-select {
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
   color: var(--white-soft);
+  scrollbar-width: none;
+}
+.cdk-overlay-pane .mat-mdc-select-panel::-webkit-scrollbar {
+  display: none;
 }
 
 .cdk-overlay-pane .mat-mdc-option {
@@ -189,53 +193,59 @@ mat-select {
 }
 
 
-/* USER MENU DROPDOWN */
-.cdk-overlay-pane.user-menu-dark .mat-mdc-menu-panel,
-.mat-mdc-menu-panel.user-menu-dark {
-  background: #13131a !important;
-  border: 1px solid rgba(124, 77, 255, 0.25) !important;
+/* USER MENU DROPDOWN  */
+.mat-mdc-menu-panel,
+.mat-mdc-menu-surface,
+.mdc-menu-surface {
+  --mdc-menu-container-color: #0D0D10 !important;
+  background: #0D0D10 !important;
+  background-color: #0D0D10 !important;
+}
+
+.mat-mdc-menu-panel {
   border-radius: 14px !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(124, 77, 255, 0.08) !important;
   min-width: 200px !important;
   overflow: hidden !important;
 }
 
-.cdk-overlay-pane.user-menu-dark .mat-mdc-menu-content,
-.mat-mdc-menu-panel.user-menu-dark .mat-mdc-menu-content {
+.mat-mdc-menu-content {
   padding: 6px !important;
+  background: #0D0D10 !important;
 }
 
-.cdk-overlay-pane.user-menu-dark .mat-mdc-menu-item,
-.mat-mdc-menu-panel.user-menu-dark .mat-mdc-menu-item {
+.mat-mdc-menu-item {
   border-radius: 10px !important;
-  margin: 2px 0 !important;
-  color: var(--white-soft) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
   font-size: 13px !important;
-  transition: background 0.15s ease, color 0.15s ease !important;
 }
 
-.cdk-overlay-pane.user-menu-dark .mat-mdc-menu-item:hover,
-.mat-mdc-menu-panel.user-menu-dark .mat-mdc-menu-item:hover {
-  background: rgba(124, 77, 255, 0.12) !important;
-  color: var(--white) !important;
+.mat-mdc-menu-item:hover:not([disabled]) {
+  color: #fff !important;
 }
 
-.cdk-overlay-pane.user-menu-dark .mat-mdc-menu-item .mat-icon,
-.mat-mdc-menu-panel.user-menu-dark .mat-mdc-menu-item .mat-icon {
-  color: var(--white-soft) !important;
+.mat-mdc-menu-item .mat-icon {
+  color: rgba(255, 255, 255, 0.6) !important;
   margin-right: 10px !important;
   font-size: 18px !important;
   width: 18px !important;
   height: 18px !important;
 }
 
-.cdk-overlay-pane.user-menu-dark .mat-mdc-menu-item:hover .mat-icon,
-.mat-mdc-menu-panel.user-menu-dark .mat-mdc-menu-item:hover .mat-icon {
-  color: var(--primary) !important;
+.mat-mdc-menu-item:hover .mat-icon {
+  color: #7C4DFF !important;
 }
 
-.cdk-overlay-pane.user-menu-dark .mat-divider,
-.mat-mdc-menu-panel.user-menu-dark .mat-divider {
-  border-color: rgba(124, 77, 255, 0.2) !important;
+.mat-mdc-menu-panel .mat-divider {
   margin: 4px 0 !important;
+}
+
+/* MAT-OPTION */
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled)
+  .mdc-list-item__primary-text {
+  color: #7C4DFF !important;
+}
+
+.mat-pseudo-checkbox-checked.mat-pseudo-checkbox-minimal::after {
+  color: #7C4DFF !important;
 }

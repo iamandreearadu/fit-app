@@ -1,68 +1,78 @@
-<mat-card class="profile-card">
-  <mat-card-title>Basic Information</mat-card-title>
-  <mat-card-content>
-    <div *ngIf="facade.loading()" class="loader-overlay">
-      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-    </div>
+<div class="card">
+  <div *ngIf="facade.loading()" class="loader-overlay">
+    <mat-progress-spinner mode="indeterminate" [diameter]="36"></mat-progress-spinner>
+  </div>
 
+  <div class="card-hdr">
+    <span class="card-tag">Account</span>
+    <h3 class="card-title">Basic Information</h3>
+  </div>
+
+  <div class="card-body">
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="profile-form">
 
-      <div class="avatar-row">
-        <div class="avatar-wrap">
-          <img
-            [src]="form.get('imageUrl')?.value || ''"
-            alt="Profile photo"
-            class="avatar-img clickable"
-            (click)="openImagePreview()"
-            (error)="onClearLink()"
-          />
+      <!-- Avatar section -->
+      <div class="avatar-section">
+        <div class="av-wrap">
+          <img [src]="form.get('imageUrl')?.value || ''"
+               alt="Profile photo"
+               class="av-img"
+               [class.clickable]="form.get('imageUrl')?.value"
+               (click)="openImagePreview()"
+               (error)="onClearLink()" />
+          <button class="av-cam" type="button" (click)="openFilePicker()" title="Change photo">
+            <mat-icon>photo_camera</mat-icon>
+          </button>
         </div>
-
-        <div class="avatar-actions">
-          <button mat-stroked-button color="primary" type="button" (click)="openFilePicker()">
-            <mat-icon>upload</mat-icon>
-            Upload Image
-          </button>
-
-          <button *ngIf="form.get('imageUrl')?.value"
-                  mat-stroked-button color="accent" type="button" (click)="onClearLink()">
-            <mat-icon>delete</mat-icon>
-            Clear
-          </button>
-          
+        <div class="av-meta">
+          <p class="av-name">{{ form.get('fullName')?.value || 'Your Name' }}</p>
+          <p class="av-hint">JPG or PNG · max 1.5 MB</p>
+          <div class="av-btns">
+            <button class="btn-ghost" type="button" (click)="openFilePicker()">
+              <mat-icon>upload</mat-icon>Upload photo
+            </button>
+            <button *ngIf="form.get('imageUrl')?.value"
+                    class="btn-ghost danger" type="button" (click)="onClearLink()">
+              <mat-icon>delete_outline</mat-icon>Remove
+            </button>
+          </div>
           <input #fileInput type="file" accept="image/*" (change)="onFilePicked($event)" hidden />
         </div>
       </div>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="form-field-half">
-          <mat-label>Full Name</mat-label>
-          <input matInput formControlName="fullName">
-          <mat-icon matPrefix>person</mat-icon>
-          <mat-error *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">
-            {{ formErrors.getMessage(form.get('fullName')?.errors) }}
-          </mat-error>
-        </mat-form-field>
+      <!-- Fields -->
+      <div class="fields-grid">
+        <div class="field-group">
+          <label class="f-label"><mat-icon>person</mat-icon>Full Name</label>
+          <mat-form-field appearance="outline" class="f-field">
+            <input matInput formControlName="fullName" placeholder="Your full name" />
+            <mat-error *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">
+              {{ formErrors.getMessage(form.get('fullName')?.errors) }}
+            </mat-error>
+          </mat-form-field>
+        </div>
 
-        <mat-form-field appearance="outline" class="form-field-half">
-          <mat-label>Email Address</mat-label>
-          <input matInput formControlName="email" type="email">
-          <mat-icon matPrefix>email</mat-icon>
-          <mat-error *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
-            {{ formErrors.getMessage(form.get('email')?.errors) }}
-          </mat-error>
-        </mat-form-field>
+        <div class="field-group">
+          <label class="f-label"><mat-icon>email</mat-icon>Email Address</label>
+          <mat-form-field appearance="outline" class="f-field">
+            <input matInput formControlName="email" type="email" placeholder="your@email.com" />
+            <mat-error *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+              {{ formErrors.getMessage(form.get('email')?.errors) }}
+            </mat-error>
+          </mat-form-field>
+        </div>
       </div>
 
-      <div class="actions">
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
-          <mat-icon>save</mat-icon>
-          Save Changes
+      <!-- Actions -->
+      <div class="form-actions">
+        <button class="btn-primary" type="submit" [disabled]="form.invalid">
+          <mat-icon>save</mat-icon>Save Changes
         </button>
       </div>
+
     </form>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>
 
 <ng-template #imagePreviewTpl>
   <div class="md-img-dialog">

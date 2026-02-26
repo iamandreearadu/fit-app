@@ -1,76 +1,86 @@
 <ng-container *ngIf="metrics() as m; else noData">
-  <mat-card class="metrics-card">
-    <mat-card-title>Fitness Metrics</mat-card-title>
-    <mat-card-content>
-      <div class="metric-item">
-        <div class="metric-label">
-          <mat-icon>calculate</mat-icon>
-          <span>BMI</span>
+  <div class="fm-card">
+
+    <div class="fm-header">
+      <span class="fm-tag">Calculated Metrics</span>
+      <h3 class="fm-title">Fitness Metrics</h3>
+    </div>
+
+    <div class="fm-body">
+
+      <div class="fm-item">
+        <div class="fm-icon" style="background:rgba(124,77,255,.12);border-color:rgba(124,77,255,.25)">
+          <mat-icon style="color:#7C4DFF">calculate</mat-icon>
         </div>
-        <div class="metric-value">{{ m.bmi ?? '—' }}</div>
+        <span class="fm-label">BMI</span>
+        <span class="fm-value">{{ m.bmi ?? '—' }}</span>
       </div>
 
-      <div class="metric-item">
-        <div class="metric-label">
-          <mat-icon>category</mat-icon>
-          <span>BMI Category</span>
+      <div class="fm-item">
+        <div class="fm-icon" style="background:rgba(255,64,129,.1);border-color:rgba(255,64,129,.25)">
+          <mat-icon style="color:#ff4081">category</mat-icon>
         </div>
-        <div class="metric-value">{{ m.bmiCat ?? '—' }}</div>
+        <span class="fm-label">BMI Category</span>
+        <span class="fm-value">{{ m.bmiCat ?? '—' }}</span>
       </div>
 
-      <div class="metric-item">
-        <div class="metric-label">
-          <mat-icon>local_fire_department</mat-icon>
-          <span>BMR</span>
+      <div class="fm-item">
+        <div class="fm-icon" style="background:rgba(124,77,255,.12);border-color:rgba(124,77,255,.25)">
+          <mat-icon style="color:#7C4DFF">local_fire_department</mat-icon>
         </div>
-        <div class="metric-value">{{ m.bmr ?? '—' }} <span class="unit">kcal</span></div>
+        <span class="fm-label">BMR</span>
+        <span class="fm-value">{{ m.bmr ?? '—' }}<span class="fm-unit"> kcal</span></span>
       </div>
 
-      <div class="metric-item">
-        <div class="metric-label">
-          <mat-icon>flash_on</mat-icon>
-          <span>TDEE</span>
+      <div class="fm-item">
+        <div class="fm-icon" style="background:rgba(255,64,129,.1);border-color:rgba(255,64,129,.25)">
+          <mat-icon style="color:#ff4081">flash_on</mat-icon>
         </div>
-        <div class="metric-value">{{ m.tdee ?? '—' }} <span class="unit">kcal</span></div>
+        <span class="fm-label">TDEE</span>
+        <span class="fm-value">{{ m.tdee ?? '—' }}<span class="fm-unit"> kcal</span></span>
       </div>
 
-      <div class="metric-item">
-        <div class="metric-label">
-          <mat-icon>water_drop</mat-icon>
-          <span>Water Target</span>
+      <div class="fm-item">
+        <div class="fm-icon" style="background:rgba(124,77,255,.12);border-color:rgba(124,77,255,.25)">
+          <mat-icon style="color:#7C4DFF">water_drop</mat-icon>
         </div>
-        <div class="metric-value">{{ m.waterL ?? '—' }} <span class="unit">L</span></div>
+        <span class="fm-label">Water Target</span>
+        <span class="fm-value">{{ m.waterL ?? '—' }}<span class="fm-unit"> L</span></span>
       </div>
 
-      <div class="metric-item">
-        <div class="metric-label">
-          <mat-icon>restaurant</mat-icon>
-          <span>Goal Calories</span>
+      <div class="fm-item">
+        <div class="fm-icon" style="background:rgba(255,64,129,.1);border-color:rgba(255,64,129,.25)">
+          <mat-icon style="color:#ff4081">restaurant</mat-icon>
         </div>
-        <div class="metric-value">{{ m.goalCalories ?? '—' }} <span class="unit">kcal</span></div>
+        <span class="fm-label">Goal Calories</span>
+        <span class="fm-value">{{ m.goalCalories ?? '—' }}<span class="fm-unit"> kcal</span></span>
       </div>
 
-      <div class="metric-item">
-        <div class="metric-label">
-          <mat-icon>emoji_events</mat-icon>
-          <span>Ideal Weight</span>
+      <div class="fm-item">
+        <div class="fm-icon" style="background:rgba(124,77,255,.12);border-color:rgba(124,77,255,.25)">
+          <mat-icon style="color:#7C4DFF">emoji_events</mat-icon>
         </div>
-        <div class="metric-value">{{ m.idealWeightKgRange ? (m.idealWeightKgRange.min + ' - ' + m.idealWeightKgRange.max) : '—' }} <span class="unit">kg</span></div>
+        <span class="fm-label">Ideal Weight</span>
+        <span class="fm-value">
+          {{ m.idealWeightKgRange ? (m.idealWeightKgRange.min + ' – ' + m.idealWeightKgRange.max) : '—' }}
+          <span class="fm-unit"> kg</span>
+        </span>
       </div>
 
-      <div class="calculation-info">
-        <mat-icon>info</mat-icon>
-        <span>Last updated: {{ m.lastCalculatedAt }}</span>
-      </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
+
+    <div class="fm-info">
+      <mat-icon>schedule</mat-icon>
+      <span>Last updated: {{ m.lastCalculatedAt }}</span>
+    </div>
+
+  </div>
 </ng-container>
+
 <ng-template #noData>
-  <mat-card class="no-data-card">
-    <mat-card-content>
-      <mat-icon>info_outline</mat-icon>
-      <p>No metrics available</p>
-      <p class="hint">Complete your physical stats to see your fitness metrics</p>
-    </mat-card-content>
-  </mat-card>
+  <div class="fm-empty">
+    <mat-icon>info_outline</mat-icon>
+    <p>No metrics available</p>
+    <p class="fm-hint">Complete your physical stats to see your fitness metrics</p>
+  </div>
 </ng-template>

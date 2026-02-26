@@ -1,59 +1,154 @@
-.stats-card{
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── Form field theme (CSS custom properties) ── */
+:host {
+  --mdc-outlined-text-field-outline-color: rgba(255,255,255,.12);
+  --mdc-outlined-text-field-hover-outline-color: rgba(255,255,255,.22);
+  --mdc-outlined-text-field-focus-outline-color: #7C4DFF;
+  --mdc-outlined-text-field-input-text-color: #fff;
+  --mdc-outlined-text-field-label-text-color: rgba(255,255,255,.45);
+  --mdc-outlined-text-field-focus-label-text-color: #7C4DFF;
+  --mdc-outlined-text-field-container-shape: 10px;
+  --mdc-outlined-text-field-caret-color: #7C4DFF;
+  --mdc-outlined-text-field-error-focus-outline-color: #ff4081;
+  --mdc-outlined-text-field-error-outline-color: rgba(255,64,129,.55);
+  --mdc-outlined-text-field-error-label-text-color: #ff4081;
+  --mdc-outlined-text-field-input-text-placeholder-color: rgba(255,255,255,.28);
+  --mat-form-field-error-text-color: #ff4081;
+  --mat-select-trigger-text-color: #fff;
+  --mat-select-arrow-color: rgba(255,255,255,.45);
+  --mdc-circular-progress-active-indicator-color: #7C4DFF;
+}
+
+/* ── Card ── */
+.card {
   position: relative;
-  background: var(--background-fade);
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.card-hdr {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.card-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(255,64,129,.1);
+  border: 1px solid rgba(255,64,129,.25);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ff4081;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.card-body { padding: 20px 24px 24px; }
+
+/* ── Loader ── */
+.loader-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Form ── */
+.stats-form { display: flex; flex-direction: column; gap: 0; }
+
+.form-section {
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.form-section:last-of-type { border-bottom: none; }
+
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+.sec-head mat-icon { font-size: 16px; width: 16px; height: 16px; color: #7C4DFF; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.field-group { display: flex; flex-direction: column; gap: 6px; }
+
+.f-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.48);
+  letter-spacing: .03em;
+}
+
+.f-field { width: 100%; }
+
+/* Suffix (cm/kg/yrs) */
+.f-suffix {
+  font-size: 12px;
+  color: rgba(255,255,255,.35);
+  font-weight: 500;
+  margin-right: 10px;
+}
+
+/* hide floating label gap */
+:host ::ng-deep .f-field .mdc-notched-outline__notch { border-top: none !important; }
+
+/* ── Buttons ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 26px;
+  background: #7C4DFF;
+  color: #fff;
+  border: none;
   border-radius: 12px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .2s, transform .2s;
+  letter-spacing: .02em;
+}
+.btn-primary mat-icon { font-size: 18px; width: 18px; height: 18px; }
+.btn-primary:hover:not(:disabled) { opacity: .85; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: .38; cursor: not-allowed; }
+
+/* ── Form actions ── */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 20px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(255,255,255,.06);
 }
 
-.stats-card ::ng-deep .mat-mdc-card-title{
-  font-size: 22px; font-weight: 700; color: var(--primary);
-  padding: 12px 12px 14px; border-bottom:2px solid var(--white-fade); margin-bottom:18px;
-}
-
-.stats-card ::ng-deep .mat-mdc-card-content{ padding: 20px; color: var(--white-soft); }
-
-.loader-overlay{
-  position:absolute; inset:0; background:rgba(0,0,0,.55); z-index:100;
-  display:flex; align-items:center; justify-content:center; border-radius:12px; backdrop-filter: blur(4px);
-}
-
-.stats-form{ display:flex; flex-direction:column; gap: 18px; }
-.form-section{ display:flex; flex-direction:column; gap:14px; }
-.section-label{
-  margin:0 0 6px; font-size:16px; font-weight:700; color:var(--white);
-  text-transform:uppercase; letter-spacing:.5px; padding-left:4px;
-}
-.two-col{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-.actions{ display:flex; justify-content:flex-end; padding-top:14px; margin-top:6px; border-top:1px solid var(--white-fade); }
-.actions button{ min-width:180px; height:46px;  }
-
-mat-label, mat-select{ color: var(--white);font-size: 13px; }
-.stats-form ::ng-deep .mdc-text-field--outlined{ border:1px solid var(--white-fade); }
-
-:host ::ng-deep .mat-mdc-form-field .mdc-floating-label {
-  color: var(--white-soft) !important;
-  font-size: 14px !important;
-}
-
-:host ::ng-deep input.mat-mdc-input-element,
-:host ::ng-deep textarea.mat-mdc-input-element {
-  color: var(--white) !important;
-  font-size: 14px !important;
-}
-
-:host ::ng-deep .mat-mdc-form-field.mat-focused
-.mdc-notched-outline__leading,
-:host ::ng-deep .mat-mdc-form-field.mat-focused
-.mdc-notched-outline__notch,
-:host ::ng-deep .mat-mdc-form-field.mat-focused
-.mdc-notched-outline__trailing {
-  border-color: var(--primary) !important;
-}
-
-@media (max-width: 768px){
-  .two-col{ grid-template-columns: 1fr; }
-  .actions{ justify-content: stretch; }
-  .actions button{ width:100%; }
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .two-col { grid-template-columns: 1fr; gap: 12px; }
+  .card-body { padding: 16px 18px 20px; }
+  .form-actions { justify-content: stretch; }
+  .btn-primary { width: 100%; justify-content: center; }
 }

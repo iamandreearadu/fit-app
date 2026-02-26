@@ -60,11 +60,9 @@
 }
 
 @media (max-width: 480px) {
-  .stats-inner {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 18px 28px;
-  }
-  .stat-divider { display: none; }
-  .stat-item { min-width: 72px; }
+  .stats-strip { padding: 16px 12px; }
+  .stats-inner { gap: 0; justify-content: space-evenly; }
+  .stat-value { font-size: 18px; }
+  .stat-label { font-size: 10px; }
+  .stat-divider { height: 24px; }
 }

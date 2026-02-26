@@ -174,10 +174,10 @@
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
-  .bs-section { padding: 72px 20px; }
+  .bs-section { padding: 100px 20px; }
   .bs-inner {
     grid-template-columns: 1fr;
     gap: 40px;
   }
-  .bs-right { order: -1; }
+  .bs-right { order: 1; }
 }

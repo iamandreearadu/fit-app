@@ -1,97 +1,243 @@
-.profile-card{
-  margin: 0 auto;
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── Form field theme (CSS custom properties) ── */
+:host {
+  --mdc-outlined-text-field-outline-color: rgba(255,255,255,.12);
+  --mdc-outlined-text-field-hover-outline-color: rgba(255,255,255,.22);
+  --mdc-outlined-text-field-focus-outline-color: #7C4DFF;
+  --mdc-outlined-text-field-input-text-color: #fff;
+  --mdc-outlined-text-field-label-text-color: rgba(255,255,255,.45);
+  --mdc-outlined-text-field-focus-label-text-color: #7C4DFF;
+  --mdc-outlined-text-field-container-shape: 10px;
+  --mdc-outlined-text-field-caret-color: #7C4DFF;
+  --mdc-outlined-text-field-error-focus-outline-color: #ff4081;
+  --mdc-outlined-text-field-error-outline-color: rgba(255,64,129,.55);
+  --mdc-outlined-text-field-error-label-text-color: #ff4081;
+  --mdc-outlined-text-field-input-text-placeholder-color: rgba(255,255,255,.28);
+  --mat-form-field-error-text-color: #ff4081;
+  --mdc-circular-progress-active-indicator-color: #7C4DFF;
+}
+
+/* ── Card ── */
+.card {
   position: relative;
-  background: var(--background-fade);
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.card-hdr {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.card-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(124,77,255,.12);
+  border: 1px solid rgba(124,77,255,.25);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #7C4DFF;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.card-body { padding: 24px; }
+
+/* ── Loader ── */
+.loader-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Avatar section ── */
+.avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.av-wrap {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+}
+
+.av-img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(124,77,255,.45);
+  display: block;
+  background: rgba(255,255,255,.05);
+}
+.av-img.clickable { cursor: zoom-in; }
+.av-img.clickable:hover { opacity: .88; }
+
+.av-cam {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.15);
+  background: #13131a;
+  color: rgba(255,255,255,.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.av-cam:hover { background: #7C4DFF; color: #fff; border-color: #7C4DFF; }
+.av-cam mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+.av-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.av-name { font-size: 16px; font-weight: 700; color: #fff; margin: 0; }
+.av-hint { font-size: 12px; color: rgba(255,255,255,.35); margin: 0 0 8px; }
+
+.av-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Buttons ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 26px;
+  background: #7C4DFF;
+  color: #fff;
+  border: none;
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-  backdrop-filter: blur(8px);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .2s, transform .2s;
+  letter-spacing: .02em;
+}
+.btn-primary mat-icon { font-size: 18px; width: 18px; height: 18px; }
+.btn-primary:hover:not(:disabled) { opacity: .85; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: .38; cursor: not-allowed; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: transparent;
+  color: rgba(255,255,255,.65);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s;
+}
+.btn-ghost mat-icon { font-size: 16px; width: 16px; height: 16px; }
+.btn-ghost:hover { background: rgba(255,255,255,.07); color: #fff; border-color: rgba(255,255,255,.25); }
+.btn-ghost.danger { color: rgba(255,64,129,.75); border-color: rgba(255,64,129,.25); }
+.btn-ghost.danger:hover { background: rgba(255,64,129,.1); color: #ff4081; border-color: rgba(255,64,129,.5); }
+
+/* ── Form fields ── */
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-bottom: 20px;
 }
 
-.profile-card ::ng-deep .mat-mdc-card-title{
-  font-size: 22px; font-weight: 700; color: var(--primary);
-  padding: 12px 12px 14px; border-bottom: 2px solid var(--white-fade);
-  margin-bottom: 18px;
+.field-group { display: flex; flex-direction: column; gap: 6px; }
+
+.f-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.5);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.f-label mat-icon { font-size: 14px; width: 14px; height: 14px; color: #7C4DFF; }
+
+.f-field { width: 100%; }
+
+/* hide the floating label space since we use external labels */
+:host ::ng-deep .f-field .mat-mdc-form-field-subscript-wrapper {
+  margin-top: 2px;
+}
+:host ::ng-deep .f-field .mdc-notched-outline__notch { border-top: none !important; }
+
+/* ── Form actions ── */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.06);
 }
 
-.profile-card ::ng-deep .mat-mdc-card-content{ padding: 20px; color: var(--white-soft); }
-.profile-card ::ng-deep .mdc-text-field--outlined{ border:1px solid var(--white-fade); }
-
-.loader-overlay{
-  position:absolute; inset:0; background:rgba(0,0,0,.55); z-index:100;
-  display:flex; align-items:center; justify-content:center; border-radius:12px; backdrop-filter: blur(4px);
+/* ── Image preview dialog ── */
+.md-img-dialog { max-width: 95vw; max-height: 88vh; display: grid; place-items: center; }
+.md-img-shell {
+  position: relative;
+  max-width: 95vw;
+  max-height: 88vh;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 14px 48px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08);
+  overflow: hidden;
 }
-
-.avatar-row{
-  display:grid; grid-template-columns: auto 1fr; align-items:center; gap:14px; margin-bottom: 14px;
+.md-img {
+  display: block;
+  max-width: 95vw;
+  max-height: 88vh;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background: var(--surface);
 }
-.avatar-wrap{
-  position:relative; width:96px; height:96px; border-radius:50%; overflow:hidden;
-  border:2px solid var(--white-fade); background:var(--surface);
+.md-close.mat-mdc-icon-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 50%;
+  background: var(--surface);
+  color: #fff;
 }
-.avatar-img{ width:100%; height:100%; object-fit:cover; }
-.avatar-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap;  }
+::ng-deep .image-preview-dialog-panel .mdc-dialog__surface { background: transparent; box-shadow: none; }
 
-.profile-form{ display:flex; flex-direction:column; gap:18px; }
-.form-row{ display:grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-.full-width{ width:100%; }
-
-.profile-card input,
-.profile-card textarea,
-.profile-card select,
-.profile-card .mat-mdc-input-element{ color: var(--white-soft) !important; }
-.profile-card input::placeholder,
-.profile-card textarea::placeholder{ color: var(--white-fade); }
-
-.actions{
-  display:flex; justify-content:flex-end; padding-top:14px; margin-top:6px; border-top:1px solid var(--white-fade);
-}
-.actions button{ min-width:160px; height:46px; font-size:12px; font-weight:400; }
-
-mat-label{ color: var(--white-soft); }
-
-.avatar-img.clickable{ cursor: zoom-in; transition: transform 120ms ease; }
-.avatar-img.clickable:hover{ transform: scale(1.02); }
-
-.md-img-dialog{ max-width:95vw; max-height:88vh; display:grid; place-items:center; }
-.md-img-shell{
-  position:relative; max-width:95vw; max-height:88vh; border-radius:12px;
-  background:var(--surface); box-shadow:0 14px 48px rgba(0,0,0,.6), 0 0 0 1px var(--white-fade); overflow:hidden;
-}
-.md-img{
-  display:block; max-width:95vw; max-height:88vh; width:100%; height:auto;
-  object-fit:contain; background:var(--surface);
-}
-.md-close.mat-mdc-icon-button{
-  position:absolute; top:8px; right:8px; width:40px; height:40px; padding:0;
-  display:grid; place-items:center; border:1px solid var(--white-fade); border-radius:999px;
-  background:var(--surface); color:var(--white); box-shadow:0 6px 18px rgba(0,0,0,.45);
-}
-::ng-deep .image-preview-dialog-panel .mdc-dialog__surface{ background:transparent; box-shadow:none; }
-
-
-:host ::ng-deep .mat-mdc-form-field .mdc-floating-label {
-  color: var(--white-soft) !important;
-  font-size: 14px !important;
-}
-
-:host ::ng-deep input.mat-mdc-input-element,
-:host ::ng-deep textarea.mat-mdc-input-element {
-  color: var(--white) !important;
-  font-size: 14px !important;
-}
-
-:host ::ng-deep .mat-mdc-form-field.mat-focused
-.mdc-notched-outline__leading,
-:host ::ng-deep .mat-mdc-form-field.mat-focused
-.mdc-notched-outline__notch,
-:host ::ng-deep .mat-mdc-form-field.mat-focused
-.mdc-notched-outline__trailing {
-  border-color: var(--primary) !important;
-}
-
-@media (max-width: 768px){
-  .avatar-row{ grid-template-columns: 1fr; gap:10px; }
-  .form-row{ grid-template-columns: 1fr; }
-  .actions{ justify-content: stretch; }
-  .actions button{ width:100%; }
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .avatar-section { flex-direction: column; align-items: flex-start; gap: 16px; padding: 16px; }
+  .fields-grid { grid-template-columns: 1fr; gap: 14px; }
+  .form-actions { justify-content: stretch; }
+  .btn-primary { width: 100%; justify-content: center; }
 }

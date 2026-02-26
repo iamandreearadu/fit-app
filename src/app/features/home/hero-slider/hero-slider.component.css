@@ -108,35 +108,33 @@
 }
 
 /* ── CTA ── */
-.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 
-.btn-primary {
+.btn-text-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 14px 32px;
-  /* background: linear-gradient(135deg, #7C4DFF, #ff4081); */
-  background: var(--primary);
-  color: #fff;
-  border-radius: 12px;
+  gap: 7px;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
+  color: var(--primary);
   text-decoration: none;
-  letter-spacing: .03em;
-  transition: opacity .2s, transform .2s, box-shadow .2s;
-  /* box-shadow: 0 4px 24px rgba(124,77,255,.45); */
+  letter-spacing: .02em;
+  transition: gap .2s ease, opacity .2s;
 }
 
-.btn-primary:hover {
-  opacity: .88;
-  transform: translateY(-2px);
-  /* box-shadow: 0 8px 32px rgba(124,77,255,.55); */
-}
-
-.btn-primary mat-icon {
+.btn-text-link mat-icon {
   font-size: 18px;
   width: 18px;
   height: 18px;
+  transition: transform .2s ease;
+}
+
+.btn-text-link:hover {
+  opacity: .82;
+}
+
+.btn-text-link:hover mat-icon {
+  transform: translateX(4px);
 }
 
 /* ── Right panel – motivation cards ── */

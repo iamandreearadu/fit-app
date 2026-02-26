@@ -2,215 +2,179 @@
   <app-header></app-header>
 
   <div class="page-content">
+    <div class="up-root">
 
-    <div class="user-page-root">
-  <div class="section-header">
-    <h2 class="section-title">User Settings</h2>
-    <p class="section-subtitle">Manage your profile and fitness information</p>
-  </div>
+      <!-- Mobile tab scroll row -->
+      <div class="mob-tabs">
+        <button class="mob-tab" [class.active]="activeTab === 'profile'" (click)="setActiveTab('profile')" type="button">
+          <mat-icon>person</mat-icon><span>Profile</span>
+        </button>
+        <button class="mob-tab" [class.active]="activeTab === 'physical'" (click)="setActiveTab('physical')" type="button">
+          <mat-icon>fitness_center</mat-icon><span>Physical</span>
+        </button>
+        <button class="mob-tab" [class.active]="activeTab === 'workouts'" (click)="setActiveTab('workouts')" type="button">
+          <mat-icon>sports_gymnastics</mat-icon><span>Workouts</span>
+        </button>
+        <button class="mob-tab" [class.active]="activeTab === 'nutrition'" (click)="setActiveTab('nutrition')" type="button">
+          <mat-icon>restaurant</mat-icon><span>Nutrition</span>
+        </button>
+        <button class="mob-tab" [class.active]="activeTab === 'progress'" (click)="setActiveTab('progress')" type="button">
+          <mat-icon>trending_up</mat-icon><span>Progress</span>
+        </button>
+        <button class="mob-tab" [class.active]="activeTab === 'goals'" (click)="setActiveTab('goals')" type="button">
+          <mat-icon>flag</mat-icon><span>Goals</span>
+        </button>
+        <button class="mob-tab" [class.active]="activeTab === 'settings'" (click)="setActiveTab('settings')" type="button">
+          <mat-icon>settings</mat-icon><span>Settings</span>
+        </button>
+        <button class="mob-tab" [class.active]="activeTab === 'notifications'" (click)="setActiveTab('notifications')" type="button">
+          <mat-icon>notifications</mat-icon><span>Alerts</span>
+        </button>
+      </div>
 
-  <div class="user-layout">
-    <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
-      <div class="sidebar-header">
-        <div class="user-profile" *ngIf="!sidebarCollapsed">
-          <div class="user-avatar-small">
-            <img [src]="avatarUrl()" alt="User avatar" />
+      <div class="up-layout">
+
+        <!-- Sidebar (desktop) -->
+        <aside class="up-sidebar" [class.collapsed]="sidebarCollapsed">
+          <div class="sb-user">
+            <div class="sb-avatar">
+              <img [src]="avatarUrl()" alt="Avatar" />
+            </div>
+            <div class="sb-info" *ngIf="!sidebarCollapsed">
+              <span class="sb-name">{{ displayName() }}</span>
+              <span class="sb-email">{{ displayEmail() }}</span>
+            </div>
+            <button class="sb-toggle" (click)="toggleSidebar()" type="button">
+              <mat-icon>{{ sidebarCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+            </button>
           </div>
-          <div class="user-details">
-            <span class="user-fullname">{{ displayName() }}</span>
-            <span class="user-email">{{ displayEmail() }}</span>
+
+          <nav class="sb-nav">
+            <button class="sb-item" [class.active]="activeTab === 'profile'" (click)="setActiveTab('profile')" type="button">
+              <mat-icon>person</mat-icon>
+              <span *ngIf="!sidebarCollapsed">Profile</span>
+            </button>
+            <button class="sb-item" [class.active]="activeTab === 'physical'" (click)="setActiveTab('physical')" type="button">
+              <mat-icon>fitness_center</mat-icon>
+              <span *ngIf="!sidebarCollapsed">Physical &amp; Metrics</span>
+            </button>
+            <button class="sb-item" [class.active]="activeTab === 'workouts'" (click)="setActiveTab('workouts')" type="button">
+              <mat-icon>sports_gymnastics</mat-icon>
+              <span *ngIf="!sidebarCollapsed">My Workouts</span>
+            </button>
+            <button class="sb-item" [class.active]="activeTab === 'nutrition'" (click)="setActiveTab('nutrition')" type="button">
+              <mat-icon>restaurant</mat-icon>
+              <span *ngIf="!sidebarCollapsed">Nutrition Plans</span>
+            </button>
+            <button class="sb-item" [class.active]="activeTab === 'progress'" (click)="setActiveTab('progress')" type="button">
+              <mat-icon>trending_up</mat-icon>
+              <span *ngIf="!sidebarCollapsed">Progress</span>
+            </button>
+            <button class="sb-item" [class.active]="activeTab === 'goals'" (click)="setActiveTab('goals')" type="button">
+              <mat-icon>flag</mat-icon>
+              <span *ngIf="!sidebarCollapsed">Goals</span>
+            </button>
+            <button class="sb-item" [class.active]="activeTab === 'settings'" (click)="setActiveTab('settings')" type="button">
+              <mat-icon>settings</mat-icon>
+              <span *ngIf="!sidebarCollapsed">Settings</span>
+            </button>
+            <button class="sb-item" [class.active]="activeTab === 'notifications'" (click)="setActiveTab('notifications')" type="button">
+              <mat-icon>notifications</mat-icon>
+              <span *ngIf="!sidebarCollapsed">Notifications</span>
+            </button>
+          </nav>
+        </aside>
+
+        <!-- Main content -->
+        <main class="up-content">
+          <app-profile-tab *ngIf="activeTab === 'profile'"></app-profile-tab>
+          <app-physical-tab *ngIf="activeTab === 'physical'"></app-physical-tab>
+          <app-workouts-tab *ngIf="activeTab === 'workouts'"></app-workouts-tab>
+
+          <!-- Nutrition -->
+          <div *ngIf="activeTab === 'nutrition'" class="cs-card">
+            <div class="cs-icon-wrap" style="background:rgba(255,64,129,.1);border-color:rgba(255,64,129,.25)">
+              <mat-icon style="color:#ff4081">restaurant</mat-icon>
+            </div>
+            <div class="cs-title">Nutrition Plans</div>
+            <div class="cs-subtitle">Plan your meals and track your nutrition intake</div>
+            <ul class="cs-list">
+              <li><mat-icon>check</mat-icon>Create custom meal plans</li>
+              <li><mat-icon>check</mat-icon>Track macronutrients</li>
+              <li><mat-icon>check</mat-icon>Log your daily meals</li>
+              <li><mat-icon>check</mat-icon>Get personalized nutrition recommendations</li>
+            </ul>
+            <span class="cs-badge">Coming Soon</span>
           </div>
-        </div>
-        <div class="user-avatar-collapsed" *ngIf="sidebarCollapsed">
-          <img [src]="avatarUrl()" alt="User avatar" />
-        </div>
-        <button mat-icon-button (click)="toggleSidebar()" class="toggle-btn" [attr.aria-label]="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
-          <mat-icon>{{ sidebarCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
-        </button>
-      </div>
-      <nav class="sidebar-nav">
-        <button
-          mat-button
-          [class.active]="activeTab === 'profile'"
-          (click)="setActiveTab('profile')"
-          class="nav-item"
-          [attr.title]="'Profile'">
-          <mat-icon>person</mat-icon>
-          <span *ngIf="!sidebarCollapsed">Profile</span>
-        </button>
-        <button
-          mat-button
-          [class.active]="activeTab === 'physical'"
-          (click)="setActiveTab('physical')"
-          class="nav-item"
-          [attr.title]="'Physical & Metrics'">
-          <mat-icon>fitness_center</mat-icon>
-          <span *ngIf="!sidebarCollapsed">Physical & Metrics</span>
-        </button>
-        <button
-          mat-button
-          [class.active]="activeTab === 'workouts'"
-          (click)="setActiveTab('workouts')"
-          class="nav-item"
-          [attr.title]="'Workout Plans'">
-          <mat-icon>sports_gymnastics</mat-icon>
-          <span *ngIf="!sidebarCollapsed">My Workouts</span>
-        </button>
-        <button
-          mat-button
-          [class.active]="activeTab === 'nutrition'"
-          (click)="setActiveTab('nutrition')"
-          class="nav-item"
-          [attr.title]="'Nutrition Plans'">
-          <mat-icon>restaurant</mat-icon>
-          <span *ngIf="!sidebarCollapsed">Nutrition Plans</span>
-        </button>
-        <button
-          mat-button
-          [class.active]="activeTab === 'progress'"
-          (click)="setActiveTab('progress')"
-          class="nav-item"
-          [attr.title]="'Progress Tracking'">
-          <mat-icon>trending_up</mat-icon>
-          <span *ngIf="!sidebarCollapsed">Progress Tracking</span>
-        </button>
-        <button
-          mat-button
-          [class.active]="activeTab === 'goals'"
-          (click)="setActiveTab('goals')"
-          class="nav-item"
-          [attr.title]="'Goals'">
-          <mat-icon>flag</mat-icon>
-          <span *ngIf="!sidebarCollapsed">Goals</span>
-        </button>
-        <button
-          mat-button
-          [class.active]="activeTab === 'settings'"
-          (click)="setActiveTab('settings')"
-          class="nav-item"
-          [attr.title]="'Settings'">
-          <mat-icon>settings</mat-icon>
-          <span *ngIf="!sidebarCollapsed">Settings</span>
-        </button>
-        <button
-          mat-button
-          [class.active]="activeTab === 'notifications'"
-          (click)="setActiveTab('notifications')"
-          class="nav-item"
-          [attr.title]="'Notifications'">
-          <mat-icon>notifications</mat-icon>
-          <span *ngIf="!sidebarCollapsed">Notifications</span>
-        </button>
-      </nav>
-    </aside>
 
-    <main class="content">
-      <app-profile-tab *ngIf="activeTab === 'profile'"></app-profile-tab>
-      <app-physical-tab *ngIf="activeTab === 'physical'"></app-physical-tab>
-      <app-workouts-tab *ngIf="activeTab === 'workouts'"></app-workouts-tab>
-
-      <!-- Nutrition Plans Tab -->
-      <div *ngIf="activeTab === 'nutrition'" class="tab-content">
-        <mat-card class="content-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar>restaurant</mat-icon>
-            <mat-card-title>Nutrition Plans</mat-card-title>
-            <mat-card-subtitle>Plan your meals and track your nutrition</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <p class="coming-soon">Feature coming soon! Here you'll be able to:</p>
-            <ul class="feature-list">
-              <li><mat-icon>check_circle</mat-icon> Create meal plans</li>
-              <li><mat-icon>check_circle</mat-icon> Track macronutrients</li>
-              <li><mat-icon>check_circle</mat-icon> Log your daily meals</li>
-              <li><mat-icon>check_circle</mat-icon> Get personalized nutrition recommendations</li>
+          <!-- Progress -->
+          <div *ngIf="activeTab === 'progress'" class="cs-card">
+            <div class="cs-icon-wrap">
+              <mat-icon style="color:#7C4DFF">trending_up</mat-icon>
+            </div>
+            <div class="cs-title">Progress Tracking</div>
+            <div class="cs-subtitle">Monitor your fitness journey over time</div>
+            <ul class="cs-list">
+              <li><mat-icon>check</mat-icon>View weight progress charts</li>
+              <li><mat-icon>check</mat-icon>Track body measurements over time</li>
+              <li><mat-icon>check</mat-icon>Upload progress photos</li>
+              <li><mat-icon>check</mat-icon>Generate progress reports</li>
             </ul>
-          </mat-card-content>
-        </mat-card>
+            <span class="cs-badge">Coming Soon</span>
+          </div>
+
+          <!-- Goals -->
+          <div *ngIf="activeTab === 'goals'" class="cs-card">
+            <div class="cs-icon-wrap" style="background:rgba(255,64,129,.1);border-color:rgba(255,64,129,.25)">
+              <mat-icon style="color:#ff4081">flag</mat-icon>
+            </div>
+            <div class="cs-title">Fitness Goals</div>
+            <div class="cs-subtitle">Set and achieve your fitness milestones</div>
+            <ul class="cs-list">
+              <li><mat-icon>check</mat-icon>Set short-term and long-term goals</li>
+              <li><mat-icon>check</mat-icon>Track goal completion</li>
+              <li><mat-icon>check</mat-icon>Get milestone notifications</li>
+              <li><mat-icon>check</mat-icon>Share achievements</li>
+            </ul>
+            <span class="cs-badge">Coming Soon</span>
+          </div>
+
+          <!-- Settings -->
+          <div *ngIf="activeTab === 'settings'" class="cs-card">
+            <div class="cs-icon-wrap">
+              <mat-icon style="color:#7C4DFF">settings</mat-icon>
+            </div>
+            <div class="cs-title">Account Settings</div>
+            <div class="cs-subtitle">Manage your account preferences and security</div>
+            <ul class="cs-list">
+              <li><mat-icon>check</mat-icon>Change password</li>
+              <li><mat-icon>check</mat-icon>Manage privacy settings</li>
+              <li><mat-icon>check</mat-icon>Configure notification preferences</li>
+              <li><mat-icon>check</mat-icon>Delete account</li>
+            </ul>
+            <span class="cs-badge">Coming Soon</span>
+          </div>
+
+          <!-- Notifications -->
+          <div *ngIf="activeTab === 'notifications'" class="cs-card">
+            <div class="cs-icon-wrap" style="background:rgba(255,64,129,.1);border-color:rgba(255,64,129,.25)">
+              <mat-icon style="color:#ff4081">notifications</mat-icon>
+            </div>
+            <div class="cs-title">Notifications</div>
+            <div class="cs-subtitle">Stay updated with your fitness activity</div>
+            <ul class="cs-list">
+              <li><mat-icon>check</mat-icon>View all notifications</li>
+              <li><mat-icon>check</mat-icon>Mark notifications as read</li>
+              <li><mat-icon>check</mat-icon>Filter by notification type</li>
+              <li><mat-icon>check</mat-icon>Clear notification history</li>
+            </ul>
+            <span class="cs-badge">Coming Soon</span>
+          </div>
+
+        </main>
       </div>
 
-      <!-- Progress Tracking Tab -->
-      <div *ngIf="activeTab === 'progress'" class="tab-content">
-        <mat-card class="content-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar>trending_up</mat-icon>
-            <mat-card-title>Progress Tracking</mat-card-title>
-            <mat-card-subtitle>Monitor your fitness journey</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <p class="coming-soon">Feature coming soon! Here you'll be able to:</p>
-            <ul class="feature-list">
-              <li><mat-icon>check_circle</mat-icon> View weight progress charts</li>
-              <li><mat-icon>check_circle</mat-icon> Track body measurements over time</li>
-              <li><mat-icon>check_circle</mat-icon> Upload progress photos</li>
-              <li><mat-icon>check_circle</mat-icon> Generate progress reports</li>
-            </ul>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      <!-- Goals Tab -->
-      <div *ngIf="activeTab === 'goals'" class="tab-content">
-        <mat-card class="content-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar>flag</mat-icon>
-            <mat-card-title>Fitness Goals</mat-card-title>
-            <mat-card-subtitle>Set and achieve your fitness milestones</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <p class="coming-soon">Feature coming soon! Here you'll be able to:</p>
-            <ul class="feature-list">
-              <li><mat-icon>check_circle</mat-icon> Set short-term and long-term goals</li>
-              <li><mat-icon>check_circle</mat-icon> Track goal completion</li>
-              <li><mat-icon>check_circle</mat-icon> Get milestone notifications</li>
-              <li><mat-icon>check_circle</mat-icon> Share achievements with friends</li>
-            </ul>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      <!-- Settings Tab -->
-      <div *ngIf="activeTab === 'settings'" class="tab-content">
-        <mat-card class="content-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar>settings</mat-icon>
-            <mat-card-title>Account Settings</mat-card-title>
-            <mat-card-subtitle>Manage your account preferences</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <p class="coming-soon">Feature coming soon! Here you'll be able to:</p>
-            <ul class="feature-list">
-              <li><mat-icon>check_circle</mat-icon> Change password</li>
-              <li><mat-icon>check_circle</mat-icon> Manage privacy settings</li>
-              <li><mat-icon>check_circle</mat-icon> Configure notification preferences</li>
-              <li><mat-icon>check_circle</mat-icon> Delete account</li>
-            </ul>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      <!-- Notifications Tab -->
-      <div *ngIf="activeTab === 'notifications'" class="tab-content">
-        <mat-card class="content-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar>notifications</mat-icon>
-            <mat-card-title>Notifications</mat-card-title>
-            <mat-card-subtitle>Stay updated with your fitness activity</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <p class="coming-soon">Feature coming soon! Here you'll be able to:</p>
-            <ul class="feature-list">
-              <li><mat-icon>check_circle</mat-icon> View all notifications</li>
-              <li><mat-icon>check_circle</mat-icon> Mark notifications as read</li>
-              <li><mat-icon>check_circle</mat-icon> Filter by notification type</li>
-              <li><mat-icon>check_circle</mat-icon> Clear notification history</li>
-            </ul>
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </main>
-  </div>
-</div>
+    </div>
   </div>
 
   <app-footer></app-footer>

@@ -1,45 +1,122 @@
-.metrics-card{
-  position: sticky; top: 24px;
-  background: var(--background-fade);
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── Card ── */
+.fm-card {
+  position: sticky;
+  top: 24px;
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.fm-header {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.fm-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(124,77,255,.12);
+  border: 1px solid rgba(124,77,255,.25);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #7C4DFF;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.fm-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+/* ── Metric items ── */
+.fm-body {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  gap: 6px;
+}
+
+.fm-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-  backdrop-filter: blur(8px);
+  transition: background .18s;
+}
+.fm-item:hover { background: rgba(255,255,255,.04); }
+
+.fm-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.fm-icon mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+.fm-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,.55);
 }
 
-.metrics-card ::ng-deep .mat-mdc-card-title{
-  font-size: 20px; font-weight: 700; color: var(--primary);
-  padding: 12px 12px 14px; border-bottom: 2px solid var(--white-fade); margin-bottom: 12px;
+.fm-value {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  white-space: nowrap;
+}
+.fm-unit {
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255,255,255,.4);
 }
 
-.metrics-card ::ng-deep .mat-mdc-card-content{ padding: 16px; color: var(--white-soft); }
-
-.metric-item{
-  display:flex; justify-content:space-between; align-items:center;
-  padding: 12px; margin-bottom: 8px; background: var(--background-fade);
-  border-radius: 8px; transition: transform .15s ease;
+/* ── Info footer ── */
+.fm-info {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 16px 16px;
+  padding: 10px 12px;
+  background: rgba(255,64,129,.07);
+  border: 1px solid rgba(255,64,129,.15);
+  border-radius: 10px;
+  font-size: 11px;
+  color: rgba(255,255,255,.5);
 }
-.metric-item:hover{ transform: translateX(4px); }
+.fm-info mat-icon { font-size: 14px; width: 14px; height: 14px; color: #ff4081; flex-shrink: 0; }
 
-.metric-label{ display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color: var(--white-soft); }
-.metric-label mat-icon{ font-size:20px; width:20px; height:20px; color: var(--primary); }
-
-.metric-value{ font-size:16px; font-weight:800; color: var(--primary); }
-.metric-value .unit{ font-size:12px; font-weight:400; color: var(--white-soft); margin-left: 2px; }
-
-.calculation-info{
-  display:flex; align-items:center; gap:8px; margin-top:12px;
-  padding: 10px; background: var(--accent-background); border-radius: 6px;
-  font-size:12px; color: var(--accent);
+/* ── Empty state ── */
+.fm-empty {
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 20px;
+  padding: 40px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
-.calculation-info mat-icon{ font-size:16px; width:16px; height:16px; }
+.fm-empty mat-icon { font-size: 44px; width: 44px; height: 44px; color: rgba(255,255,255,.18); margin-bottom: 4px; }
+.fm-empty p { margin: 0; font-size: 15px; font-weight: 600; color: rgba(255,255,255,.6); }
+.fm-hint { font-size: 13px !important; color: rgba(255,255,255,.35) !important; }
 
-.no-data-card ::ng-deep .mat-mdc-card-content{
-  text-align:center; padding: 32px 20px; color: var(--white-soft);
-}
-.no-data-card mat-icon{ font-size:48px; width:48px; height:48px; color: var(--white-fade); margin-bottom: 12px; }
-.no-data-card p{ margin: 8px 0; color: var(--white-soft); }
-.no-data-card .hint{ font-size:13px; color: var(--white-fade); }
-
-@media (max-width: 1024px){
-  .metrics-card{ position: static; }
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .fm-card { position: static; }
 }

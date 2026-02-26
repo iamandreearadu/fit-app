@@ -1,10 +1,12 @@
-.physical-layout{
+*, *::before, *::after { box-sizing: border-box; }
+
+.physical-layout {
   display: grid;
-  grid-template-columns: 1.25fr .75fr;
-  gap: 18px;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 20px;
   align-items: start;
 }
 
-@media (max-width: 1024px){
-  .physical-layout{ grid-template-columns: 1fr; }
+@media (max-width: 1024px) {
+  .physical-layout { grid-template-columns: 1fr; }
 }

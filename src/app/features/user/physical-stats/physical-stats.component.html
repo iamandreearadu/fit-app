@@ -1,91 +1,118 @@
-<mat-card class="stats-card">
-  <mat-card-title>Physical Stats & Goals</mat-card-title>
-  <mat-card-content>
-    <div *ngIf="facade.loading()" class="loader-overlay">
-      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-    </div>
+<div class="card">
+  <div *ngIf="facade.loading()" class="loader-overlay">
+    <mat-progress-spinner mode="indeterminate" [diameter]="36"></mat-progress-spinner>
+  </div>
 
+  <div class="card-hdr">
+    <span class="card-tag">Health Data</span>
+    <h3 class="card-title">Physical Stats &amp; Goals</h3>
+  </div>
+
+  <div class="card-body">
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="stats-form">
-      <div class="form-section">
-        <h4 class="section-label">Body Measurements</h4>
-        <div class="two-col">
-          <mat-form-field appearance="outline">
-            <mat-label>Height (cm)</mat-label>
-            <input matInput type="number" formControlName="heightCm">
-            <mat-icon matPrefix>height</mat-icon>
-            <mat-error *ngIf="form.get('heightCm')?.touched && form.get('heightCm')?.invalid">
-              {{ formErrors.getMessage(form.get('heightCm')?.errors) }}
-            </mat-error>
-          </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Weight (kg)</mat-label>
-            <input matInput type="number" formControlName="weightKg">
-            <mat-icon matPrefix>monitor_weight</mat-icon>
-            <mat-error *ngIf="form.get('weightKg')?.touched && form.get('weightKg')?.invalid">
-              {{ formErrors.getMessage(form.get('weightKg')?.errors) }}
-            </mat-error>
-          </mat-form-field>
+      <!-- Body Measurements -->
+      <div class="form-section">
+        <div class="sec-head">
+          <mat-icon>straighten</mat-icon>
+          <span>Body Measurements</span>
+        </div>
+        <div class="two-col">
+          <div class="field-group">
+            <label class="f-label">Height</label>
+            <mat-form-field appearance="outline" class="f-field">
+              <input matInput type="number" formControlName="heightCm" placeholder="e.g. 175" />
+              <span matSuffix class="f-suffix">cm</span>
+              <mat-error *ngIf="form.get('heightCm')?.touched && form.get('heightCm')?.invalid">
+                {{ formErrors.getMessage(form.get('heightCm')?.errors) }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="f-label">Weight</label>
+            <mat-form-field appearance="outline" class="f-field">
+              <input matInput type="number" formControlName="weightKg" placeholder="e.g. 70" />
+              <span matSuffix class="f-suffix">kg</span>
+              <mat-error *ngIf="form.get('weightKg')?.touched && form.get('weightKg')?.invalid">
+                {{ formErrors.getMessage(form.get('weightKg')?.errors) }}
+              </mat-error>
+            </mat-form-field>
+          </div>
         </div>
       </div>
 
+      <!-- Personal Details -->
       <div class="form-section">
-        <h4 class="section-label">Personal Details</h4>
+        <div class="sec-head">
+          <mat-icon>person_outline</mat-icon>
+          <span>Personal Details</span>
+        </div>
         <div class="two-col">
-          <mat-form-field appearance="outline">
-            <mat-label>Age</mat-label>
-            <input matInput type="number" formControlName="age">
-            <mat-icon matPrefix>cake</mat-icon>
-            <mat-error *ngIf="form.get('age')?.touched && form.get('age')?.invalid">
-              {{ formErrors.getMessage(form.get('age')?.errors) }}
-            </mat-error>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="f-label">Age</label>
+            <mat-form-field appearance="outline" class="f-field">
+              <input matInput type="number" formControlName="age" placeholder="e.g. 28" />
+              <span matSuffix class="f-suffix">yrs</span>
+              <mat-error *ngIf="form.get('age')?.touched && form.get('age')?.invalid">
+                {{ formErrors.getMessage(form.get('age')?.errors) }}
+              </mat-error>
+            </mat-form-field>
+          </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Gender</mat-label>
-            <mat-select formControlName="gender">
-              <mat-option value="male">Male</mat-option>
-              <mat-option value="female">Female</mat-option>
-              <mat-option value="other">Other</mat-option>
-            </mat-select>
-            <mat-icon matPrefix>wc</mat-icon>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="f-label">Gender</label>
+            <mat-form-field appearance="outline" class="f-field">
+              <mat-select formControlName="gender">
+                <mat-option value="male">Male</mat-option>
+                <mat-option value="female">Female</mat-option>
+                <mat-option value="other">Other</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
         </div>
       </div>
 
+      <!-- Fitness Profile -->
       <div class="form-section">
-        <h4 class="section-label">Fitness Profile</h4>
+        <div class="sec-head">
+          <mat-icon>sports_gymnastics</mat-icon>
+          <span>Fitness Profile</span>
+        </div>
         <div class="two-col">
-          <mat-form-field appearance="outline">
-            <mat-label>Activity Level</mat-label>
-            <mat-select formControlName="activity">
-              <mat-option value="sedentary">Sedentary</mat-option>
-              <mat-option value="light">Light</mat-option>
-              <mat-option value="moderate">Moderate</mat-option>
-              <mat-option value="active">Active</mat-option>
-              <mat-option value="athlete">Athlete</mat-option>
-            </mat-select>
-            <mat-icon matPrefix>directions_run</mat-icon>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="f-label">Activity Level</label>
+            <mat-form-field appearance="outline" class="f-field">
+              <mat-select formControlName="activity">
+                <mat-option value="sedentary">Sedentary</mat-option>
+                <mat-option value="light">Light</mat-option>
+                <mat-option value="moderate">Moderate</mat-option>
+                <mat-option value="active">Active</mat-option>
+                <mat-option value="athlete">Athlete</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Goal</mat-label>
-            <mat-select formControlName="goal">
-              <mat-option value="maintain">Maintain Weight</mat-option>
-              <mat-option value="lose">Lose Weight</mat-option>
-              <mat-option value="gain">Gain Weight</mat-option>
-            </mat-select>
-            <mat-icon matPrefix>flag</mat-icon>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="f-label">Goal</label>
+            <mat-form-field appearance="outline" class="f-field">
+              <mat-select formControlName="goal">
+                <mat-option value="maintain">Maintain Weight</mat-option>
+                <mat-option value="lose">Lose Weight</mat-option>
+                <mat-option value="gain">Gain Weight</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
         </div>
       </div>
 
-      <div class="actions">
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
-          <mat-icon>save</mat-icon>
-          Save Physical Stats
+      <!-- Actions -->
+      <div class="form-actions">
+        <button class="btn-primary" type="submit" [disabled]="form.invalid">
+          <mat-icon>save</mat-icon>Save Physical Stats
         </button>
       </div>
+
     </form>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>
