@@ -1,0 +1,268 @@
+<div class="tab-content">
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="left">
+      <h3 class="title">My Meals</h3>
+      <p class="subtitle">Track your daily nutrition and meal plans</p>
+    </div>
+    <div class="right">
+      <button type="button" class="btn-primary" (click)="openCreate()">
+        <mat-icon>add</mat-icon>New meal
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>Search meals</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" />
+      <button type="button" *ngIf="searchTerm" matSuffix mat-icon-button (click)="searchTerm=''; applyFilters()" aria-label="Clear">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field type-field">
+      <mat-label>Meal type</mat-label>
+      <mat-icon matPrefix>filter_list</mat-icon>
+      <mat-select [(ngModel)]="selectedType" (selectionChange)="applyFilters()">
+        <mat-option value="all">All types</mat-option>
+        <mat-option *ngFor="let t of types" [value]="t">{{ t }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="loading" *ngIf="loading">
+      <mat-progress-spinner mode="indeterminate" diameter="24"></mat-progress-spinner>
+    </div>
+  </div>
+
+  <!-- Content card -->
+  <div class="content-card">
+    <div class="card-hdr">
+      <div class="card-hdr-icon"><mat-icon>restaurant</mat-icon></div>
+      <div>
+        <div class="card-title">Your meals</div>
+        <div class="card-subtitle">Custom meals with food items and macros</div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="filtered.length === 0" class="empty">
+        <mat-icon>restaurant_menu</mat-icon>
+        <p>No meals yet</p>
+        <span>Click "New meal" to log your first meal</span>
+      </div>
+
+      <div class="list" *ngIf="filtered.length > 0">
+        <div class="row-wrap" *ngFor="let m of filtered">
+
+          <div class="row clickable" (click)="togglePreview(m)">
+            <div class="row-type-bar"></div>
+            <div class="row-main">
+              <div class="row-top">
+                <div class="row-title">{{ m.name }}</div>
+                <div class="row-actions">
+                  <!-- <button type="button" class="icon-btn-round"
+                    (click)="stop($event); togglePreview(m)" [title]="isExpanded(m) ? 'Collapse' : 'Expand'">
+                    <mat-icon>{{ isExpanded(m) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                  </button> -->
+                  <button type="button" class="icon-btn-round"
+                    (click)="stop($event); openEdit(m)" title="Edit">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button type="button" class="icon-btn-round danger"
+                    (click)="stop($event); deleteMeal(m.uid)" title="Delete">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <div class="row-meta">
+                <span class="pill type-pill">{{ m.type }}</span>
+                <!-- <span class="pill subtle"><mat-icon>calendar_today</mat-icon>{{ m.date }}</span> -->
+                <span class="pill subtle"><mat-icon>local_fire_department</mat-icon>{{ m.totalCalories }} kcal</span>
+                <!-- <span class="pill subtle"><mat-icon>set_meal</mat-icon>{{ m.items.length }} items</span> -->
+              </div>
+
+              <div class="macro-row">
+                <span class="macro-chip protein">P {{ m.totalProtein_g | number:'1.0-1' }}g</span>
+                <span class="macro-chip carbs">C {{ m.totalCarbs_g | number:'1.0-1' }}g</span>
+                <span class="macro-chip fats">F {{ m.totalFats_g | number:'1.0-1' }}g</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded food items -->
+          <div class="preview" *ngIf="isExpanded(m)">
+            <div class="preview-head">
+              <span class="p-col">Food</span>
+              <span class="p-col right">g</span>
+              <span class="p-col right">kcal</span>
+              <span class="p-col right">Protein</span>
+              <span class="p-col right">Carbs</span>
+              <span class="p-col right">Fats</span>
+            </div>
+
+            <div class="preview-line" *ngFor="let item of m.items">
+              <span class="p-name">{{ item.name }}</span>
+              <span class="p-meta right">{{ item.grams }}</span>
+              <span class="p-meta right">{{ item.calories }}</span>
+              <span class="p-meta right">{{ item.protein_g | number:'1.0-1' }}g</span>
+              <span class="p-meta right">{{ item.carbs_g | number:'1.0-1' }}g</span>
+              <span class="p-meta right">{{ item.fats_g | number:'1.0-1' }}g</span>
+            </div>
+
+            <div class="preview-empty" *ngIf="(m.items.length) === 0">No food items added yet.</div>
+
+            <div class="preview-total" *ngIf="(m.items.length) > 0">
+              <span class="p-name">Total</span>
+              <span class="p-meta right">{{ m.totalGrams }}g</span>
+              <span class="p-meta right total-kcal">{{ m.totalCalories }}</span>
+              <span class="p-meta right">{{ m.totalProtein_g | number:'1.0-1' }}g</span>
+              <span class="p-meta right">{{ m.totalCarbs_g | number:'1.0-1' }}g</span>
+              <span class="p-meta right">{{ m.totalFats_g | number:'1.0-1' }}g</span>
+            </div>
+
+            <div class="notes-row" *ngIf="m.notes">
+              <mat-icon>notes</mat-icon><span>{{ m.notes }}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor modal -->
+  <div class="overlay" *ngIf="showEditor" (click)="cancel()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div class="mh-left">
+          <div class="mh-icon-wrap">
+            <mat-icon>restaurant</mat-icon>
+          </div>
+          <div>
+            <div class="mh-title">{{ editing ? 'Edit meal' : 'New meal' }}</div>
+            <div class="mh-subtitle">{{ editing ? 'Update your meal details' : 'Add a meal and its food items' }}</div>
+          </div>
+        </div>
+        <button type="button" class="icon-btn-round" (click)="cancel()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body" [formGroup]="form">
+
+        <!-- Meal details -->
+        <div class="section">
+          <div class="sec-head"><mat-icon>tune</mat-icon><span>Meal Details</span></div>
+          <div class="grid-2">
+            <mat-form-field appearance="outline" class="span-2">
+              <mat-label>Meal name</mat-label>
+              <input matInput formControlName="name" placeholder="e.g. Morning oats" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Type</mat-label>
+              <mat-select formControlName="type">
+                <mat-option *ngFor="let t of types" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Date</mat-label>
+              <input matInput type="date" formControlName="date" />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Food items -->
+        <div class="section">
+          <div class="sec-head"><mat-icon>set_meal</mat-icon><span>Food Items</span></div>
+
+          <div formArrayName="items" class="ex-list">
+            <div class="ex-item" *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+              <div class="ex-top">
+                <div class="ex-badge">{{ i + 1 }}</div>
+                <span class="ex-label">Food item {{ i + 1 }}</span>
+                <button type="button" class="icon-btn-round small danger"
+                  (click)="removeItem(i)" [disabled]="items.length <= 1">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+
+              <div class="grid-2 tight">
+                <mat-form-field appearance="outline" class="span-2">
+                  <mat-label>Food name</mat-label>
+                  <input matInput formControlName="name" placeholder="e.g. Chicken breast" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Grams (g)</mat-label>
+                  <input matInput type="number" formControlName="grams" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Calories (kcal)</mat-label>
+                  <input matInput type="number" formControlName="calories" />
+                </mat-form-field>
+
+                <div class="grid-3 span-2">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Protein (g)</mat-label>
+                    <input matInput type="number" formControlName="protein_g" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Carbs (g)</mat-label>
+                    <input matInput type="number" formControlName="carbs_g" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Fats (g)</mat-label>
+                    <input matInput type="number" formControlName="fats_g" />
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live totals -->
+          <div class="live-totals" *ngIf="items.length > 0">
+            <span class="lt-label">Totals:</span>
+            <span class="macro-chip protein">P {{ mealTotals.protein_g | number:'1.0-1' }}g</span>
+            <span class="macro-chip carbs">C {{ mealTotals.carbs_g | number:'1.0-1' }}g</span>
+            <span class="macro-chip fats">F {{ mealTotals.fats_g | number:'1.0-1' }}g</span>
+            <span class="macro-chip kcal"><mat-icon>local_fire_department</mat-icon>{{ mealTotals.calories }} kcal</span>
+          </div>
+
+          <button type="button" class="btn-add-ex" (click)="addItem()">
+            <mat-icon>add_circle_outline</mat-icon>Add food item
+          </button>
+        </div>
+
+        <!-- Notes -->
+        <div class="section">
+          <div class="sec-head"><mat-icon>notes</mat-icon><span>Notes</span></div>
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>Notes (optional)</mat-label>
+            <textarea matInput rows="2" formControlName="notes"></textarea>
+          </mat-form-field>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" (click)="cancel()">Cancel</button>
+        <button type="button" class="btn-primary" (click)="save()">
+          <mat-icon>save</mat-icon>{{ editing ? 'Save changes' : 'Save meal' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

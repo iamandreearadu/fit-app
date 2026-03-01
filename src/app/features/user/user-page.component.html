@@ -91,21 +91,8 @@
           <app-physical-tab *ngIf="activeTab === 'physical'"></app-physical-tab>
           <app-workouts-tab *ngIf="activeTab === 'workouts'"></app-workouts-tab>
 
-          <!-- Nutrition -->
-          <div *ngIf="activeTab === 'nutrition'" class="cs-card">
-            <div class="cs-icon-wrap" style="background:rgba(255,64,129,.1);border-color:rgba(255,64,129,.25)">
-              <mat-icon style="color:#ff4081">restaurant</mat-icon>
-            </div>
-            <div class="cs-title">Nutrition Plans</div>
-            <div class="cs-subtitle">Plan your meals and track your nutrition intake</div>
-            <ul class="cs-list">
-              <li><mat-icon>check</mat-icon>Create custom meal plans</li>
-              <li><mat-icon>check</mat-icon>Track macronutrients</li>
-              <li><mat-icon>check</mat-icon>Log your daily meals</li>
-              <li><mat-icon>check</mat-icon>Get personalized nutrition recommendations</li>
-            </ul>
-            <span class="cs-badge">Coming Soon</span>
-          </div>
+          <app-nutrition-tab *ngIf="activeTab === 'nutrition'"></app-nutrition-tab>
+         
 
           <!-- Progress -->
           <div *ngIf="activeTab === 'progress'" class="cs-card">

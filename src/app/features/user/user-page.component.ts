@@ -9,11 +9,12 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
 import { AccountFacade } from '../../core/facade/account.facade';
 import { UserStore } from '../../core/store/user.store';
 import { WorkoutsTabComponent } from './workouts-tab/workouts-tab.component';
+import { NutritionTabComponent } from './nutrition-tab/nutrition-tab.component';
 
 @Component({
   standalone: true,
   selector: 'app-user-page',
-  imports: [CommonModule, RouterModule, MaterialModule, HeaderComponent, ProfileTabComponent, PhysicalTabComponent,WorkoutsTabComponent, FooterComponent],
+  imports: [CommonModule, RouterModule, MaterialModule, HeaderComponent, ProfileTabComponent, PhysicalTabComponent,WorkoutsTabComponent, NutritionTabComponent,FooterComponent],
   templateUrl: './user-page.component.html',
   styleUrl: './user-page.component.css'
 })

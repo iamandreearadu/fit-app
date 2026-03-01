@@ -63,10 +63,10 @@
               <div class="row-top">
                 <div class="row-title">{{ w.title }}</div>
                 <div class="row-actions">
-                  <button type="button" class="icon-btn-round"
+                  <!-- <button type="button" class="icon-btn-round"
                     (click)="stop($event); togglePreview(w)" [title]="isExpanded(w) ? 'Collapse' : 'Expand'">
                     <mat-icon>{{ isExpanded(w) ? 'expand_less' : 'expand_more' }}</mat-icon>
-                  </button>
+                  </button> -->
                   <button type="button" class="icon-btn-round"
                     (click)="stop($event); openEdit(w)" title="Edit">
                     <mat-icon>edit</mat-icon>
@@ -81,13 +81,13 @@
               <div class="row-meta">
                 <span class="pill">{{ w.type }}</span>
                 <span class="pill subtle">
-                  <mat-icon>schedule</mat-icon>{{ w.durationMin }} min
+                  <mat-icon>schedule</mat-icon>{{ w.durationMin }}
                 </span>
                 <span class="pill subtle">
-                  <mat-icon>local_fire_department</mat-icon>{{ w.caloriesEstimateKcal }} kcal
+                  <mat-icon>local_fire_department</mat-icon>{{ w.caloriesEstimateKcal }}
                 </span>
                 <span class="pill subtle" *ngIf="w.type !== 'Cardio'">
-                  <mat-icon>fitness_center</mat-icon>{{ (w.exercises?.length ?? 0) }} exercises
+                  <mat-icon>fitness_center</mat-icon>{{ (w.exercises?.length ?? 0) }}
                 </span>
                 <span class="pill subtle" *ngIf="w.type === 'Cardio'">
                   <mat-icon>route</mat-icon>{{ w.cardio?.km ?? 0 }} km · {{ w.cardio?.incline ?? 0 }}% incline
