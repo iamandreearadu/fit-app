@@ -16,9 +16,6 @@ export class UserService {
   private alerts = inject(AlertService);
   private auth = inject(Auth);
 
-
-  constructor() {}
-
   private getAuthUser(): User | null {
     return this.auth.currentUser as User | null;
   }
@@ -100,8 +97,6 @@ export class UserService {
     }
   }
 
-
-
   // === Daily User Data ===
 
   public async getDailyForDate(dateIso: string): Promise<DailyUserData | null> {
@@ -117,7 +112,7 @@ export class UserService {
       const d = snap.data() as any;
 
       const daily: DailyUserData = {
-        date: d.dateIso,
+        date: d.date ?? d.dateIso ?? dateIso,
         activityType: d.activityType ?? 'Rest Day',
         caloriesBurned: d.caloriesBurned ?? 0,
         caloriesIntake: d.caloriesIntake ?? 0,
@@ -176,7 +171,7 @@ export class UserService {
         const data = d.data() as any;
 
         items.push({
-          date: data.date,
+          date: data.date ?? data.dateIso ?? d.id,
           activityType: data.activityType ?? 'Rest Day',
           caloriesBurned: data.caloriesBurned ?? 0,
           caloriesIntake: data.caloriesIntake ?? 0,

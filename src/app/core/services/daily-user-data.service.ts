@@ -1,5 +1,6 @@
-import { computed, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { DailyUserDataStats, DailyUserData } from "../models/daily-user-data.model";
+import { UserMetricsService } from "./user-metrics.service";
 
 @Injectable({
   providedIn: 'root'
@@ -7,6 +8,8 @@ import { DailyUserDataStats, DailyUserData } from "../models/daily-user-data.mod
 export class DailyUserDataService {
 
   readonly todayDate = new Date().toISOString().slice(0, 10);
+
+  private readonly userMetricsSrv = inject(UserMetricsService);
 
   // ----------------- STATE (signals) -----------------
 
@@ -21,6 +24,17 @@ export class DailyUserDataService {
   readonly stats = computed<DailyUserDataStats>(() =>
     this.computeStats(this._daily())
   );
+
+  readonly waterTarget = computed(() =>
+    this.userMetricsSrv.metrics()?.waterL ?? 0
+  );
+
+  readonly waterProgress = computed(() => {
+    const target = this.waterTarget();
+    if (!target) return 0;
+    const consumed = this._daily()?.waterConsumedL ?? 0;
+    return Math.max(0, Math.min(100, Math.round((consumed / target) * 100)));
+  });
 
 
   // ----------------- PUBLIC API -----------------
@@ -101,7 +115,7 @@ export class DailyUserDataService {
   }
 
   private caloriesTotal(intake: number, burned: number): number {
-    return Math.max(0, intake - burned);
+    return intake - burned;
   }
 
   private buildComplete(

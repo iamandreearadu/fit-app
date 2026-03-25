@@ -13,8 +13,6 @@ export class UserStore {
   public user = this._user.asReadonly();
   public loading = this._loading.asReadonly();
 
-  constructor() {}
-
   public setUser(user: UserProfile | null) {
     this._user.set(user);
   }

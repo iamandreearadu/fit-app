@@ -1,4 +1,4 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Activity, UserProfile } from '../models/user.model';
 import { UserFitMetrics } from '../models/user-fit-metrics.model';
 
@@ -7,30 +7,12 @@ import { UserFitMetrics } from '../models/user-fit-metrics.model';
 export class UserMetricsService {
 
   private readonly _metrics = signal<UserFitMetrics | null>(null);
-  private readonly _waterConsumedL = signal<number>(0);
-
+  
   public readonly metrics = this._metrics.asReadonly();
-
-  public readonly waterTarget = computed(() =>
-    this._metrics()?.waterL ?? 0
-  );
-
-  public readonly waterProgress = computed(() => {
-    const target = this.waterTarget();
-    if (!target) return 0;
-
-    const consumed = this._waterConsumedL();
-    const pct = (consumed / target) * 100;
-    return Math.max(0, Math.min(100, Math.round(pct)));
-  });
 
   public updateFromUser(user: UserProfile | null): void {
     const m = this.compute(user);
     this._metrics.set(m);
-  }
-
-  public updateWaterConsumed(consumedL: number): void {
-    this._waterConsumedL.set(Math.max(0, consumedL));
   }
 
   private compute(user: UserProfile | null): UserFitMetrics {

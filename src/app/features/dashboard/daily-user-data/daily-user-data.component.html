@@ -136,7 +136,14 @@
             </div>
             <span class="card-title">Nutrition</span>
           </div>
-          <span class="card-badge b-purple">{{ facade.dailyDataStats().totalCalories }} kcal</span>
+          <div class="card-head-right">
+            <button *ngIf="lastAppliedMeal" type="button" class="btn-undo"
+                 (click)="undoLastMeal()" title="Undo last meal">
+              <mat-icon>undo</mat-icon>
+            </button>
+            <span class="card-badge b-purple">{{ facade.dailyDataStats().totalCalories }} kcal</span>
+      
+          </div>
         </div>
 
         <fieldset formGroupName="macrosPct" class="macros-list">
@@ -162,6 +169,11 @@
             </mat-form-field>
           </div>
         </fieldset>
+
+        <button type="button" class="btn-pick-meal" (click)="openMealPicker()">
+          <mat-icon>restaurant_menu</mat-icon>
+          <span>Pick from saved meals</span>
+        </button>
 
       </div>
 
@@ -250,6 +262,70 @@
   <!-- Loading overlay -->
   <div *ngIf="facade.dailyDataLoading()" class="load-overlay">
     <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+  </div>
+
+  <!-- Meal Picker Modal -->
+  <div *ngIf="showMealPicker" class="modal-bg" (click)="closeMealPicker()">
+    <div class="modal-box mp-box" (click)="$event.stopPropagation()">
+
+      <div class="modal-head">
+        <div class="modal-icon-wrap mp-icon-wrap">
+          <mat-icon>restaurant_menu</mat-icon>
+        </div>
+        <div class="mp-head-text">
+          <span class="modal-title">Pick a Meal</span>
+          <span class="mp-subtitle">Macros will be added to today's values</span>
+        </div>
+        <button mat-icon-button class="modal-close" type="button" (click)="closeMealPicker()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="mp-search-wrap">
+        <mat-icon class="mp-search-ico">search</mat-icon>
+        <input class="mp-search" type="text" placeholder="Search by name or type…"
+               [value]="mealPickerSearch"
+               (input)="mealPickerSearch = $any($event.target).value">
+        <button *ngIf="mealPickerSearch" class="mp-clear" type="button"
+                (click)="mealPickerSearch = ''">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div *ngIf="mealPickerLoading" class="mp-loading">
+        <mat-progress-spinner mode="indeterminate" diameter="32"></mat-progress-spinner>
+      </div>
+
+      <ng-container *ngIf="!mealPickerLoading">
+        <div *ngIf="filteredPickerMeals.length === 0" class="mp-empty">
+          <mat-icon>no_meals</mat-icon>
+          <span>No meals found</span>
+          <small *ngIf="nutritionFacade.meals.length === 0">Add meals in the Nutrition tab first</small>
+        </div>
+
+        <div *ngIf="filteredPickerMeals.length > 0" class="mp-list">
+          <button *ngFor="let m of filteredPickerMeals" type="button"
+                  class="mp-item" (click)="selectMeal(m)">
+            <div class="mp-item-body">
+              <div class="mp-item-top">
+                <span class="mp-name">{{ m.name }}</span>
+                <span class="mp-kcal">
+                  <mat-icon>local_fire_department</mat-icon>{{ m.totalCalories }} kcal
+                </span>
+              </div>
+              <div class="mp-chips">
+                <span class="mp-chip mp-p">P {{ m.totalProtein_g | number:'1.0-1' }}g</span>
+                <span class="mp-chip mp-c">C {{ m.totalCarbs_g | number:'1.0-1' }}g</span>
+                <span class="mp-chip mp-f">F {{ m.totalFats_g | number:'1.0-1' }}g</span>
+                <span class="mp-type-pill">{{ m.type }}</span>
+              </div>
+            </div>
+            <mat-icon class="mp-add-ico">add_circle</mat-icon>
+          </button>
+        </div>
+      </ng-container>
+
+    </div>
   </div>
 
   <!-- Analyze Modal -->

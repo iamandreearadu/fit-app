@@ -21,7 +21,7 @@
       <a class="hdr-link" routerLink="/workouts" [class.active]="navService.isActive('/workouts')">
         <mat-icon>fitness_center</mat-icon><span>Workouts</span>
       </a>
-      <a class="hdr-link" routerLink="/ai-assistant" [class.active]="navService.isActive('/ai-assistant')">
+      <a *ngIf="accountFacade.authUser()" class="hdr-link" routerLink="/ai-assistant" [class.active]="navService.isActive('/ai-assistant')">
         <mat-icon>chat</mat-icon><span>AI Assistant</span>
       </a>
     </nav>
@@ -93,7 +93,7 @@
     <a class="mob-link" routerLink="/workouts" (click)="closeMobileNav()" [class.active]="navService.isActive('/workouts')">
       <mat-icon>fitness_center</mat-icon><span>Workouts</span>
     </a>
-    <a class="mob-link" routerLink="/ai-assistant" (click)="closeMobileNav()" [class.active]="navService.isActive('/ai-assistant')">
+    <a *ngIf="accountFacade.authUser()" class="mob-link" routerLink="/ai-assistant" (click)="closeMobileNav()" [class.active]="navService.isActive('/ai-assistant')">
       <mat-icon>chat</mat-icon><span>AI Assistant</span>
     </a>
   </div>

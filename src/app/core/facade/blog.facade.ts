@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal, WritableSignal } from "@angular/core";
-import { BlogService } from "../services/blog.service";
+import { BlogService } from "../../api/blog.service";
 import { BlogPost } from "../models/blog.model";
 import { toObservable } from '@angular/core/rxjs-interop';
 
@@ -9,7 +9,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 })
 export class BlogFacade {
 
-  private readonly blogSvc = inject(BlogService);
+  private blogSvc = inject(BlogService);
 
   // state signals
     private readonly _posts = signal<BlogPost[]>([]);
@@ -39,10 +39,6 @@ export class BlogFacade {
     this._posts().forEach(p => { if (p.category) set.add(p.category); });
     return Array.from(set);
   });
-
-
-  constructor() {}
-
 
     public async loadPosts(): Promise<void> {
     this._loading.set(true);

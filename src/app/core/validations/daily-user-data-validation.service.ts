@@ -21,7 +21,6 @@ export interface DailyValidators {
   providedIn: 'root'
 })
 export class DailyUserDataValidationService {
-  constructor() {}
 
   public getControlValidators(): DailyValidators {
     return {

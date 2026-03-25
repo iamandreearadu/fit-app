@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { NutritionTabService } from "../services/nutrition-tab.service";
+import { NutritionTabService } from "../../api/nutrition-tab.service";
 import { MealEntry } from "../models/nutrition-tab.model";
 
 @Injectable({ 

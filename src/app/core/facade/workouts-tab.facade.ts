@@ -1,14 +1,14 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { WorkoutsTabService } from "../services/workouts-tab.service";
 import { WorkoutTemplate, WorkoutType } from "../models/workouts-tab.model";
+import { WorkoutsTabService } from "../../api/workouts-tab.service";
 
 @Injectable({ 
   providedIn: "root"
  })
  
 export class WorkoutsTabFacade {
-  private readonly workoutsSvc = inject(WorkoutsTabService);
+  private workoutsSvc = inject(WorkoutsTabService);
 
   private readonly _templates = signal<WorkoutTemplate[]>([]);
   private readonly _selectedTemplate = signal<WorkoutTemplate | null>(null);
@@ -36,8 +36,6 @@ export class WorkoutsTabFacade {
     });
     return Array.from(set);
   });
-
-  constructor() {}
 
   async loadTemplates(): Promise<void> {
     this._loading.set(true);

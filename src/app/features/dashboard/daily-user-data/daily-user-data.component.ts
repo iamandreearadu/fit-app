@@ -9,6 +9,8 @@ import { MealMacros } from '../../../core/models/meal-macros';
 import { AiMealAnalyzerComponent } from './ai-meal-analyzer/ai-meal-analyzer.component';
 import { AlertService } from '../../../shared/services/alert.service';
 import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
+import { NutritionTabFacade } from '../../../core/facade/nutrition-tab.facade';
+import { MealEntry } from '../../../core/models/nutrition-tab.model';
 
 import { from, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -30,6 +32,7 @@ export class DailyUserDataComponent implements OnInit {
   public groqFacade = inject(GroqAiFacade);
   public alerts = inject(AlertService);
   public workoutsFacade = inject(WorkoutsTabFacade);
+  public nutritionFacade = inject(NutritionTabFacade);
   private fb = inject(FormBuilder);
 
   public history = this.facade.history;
@@ -37,6 +40,19 @@ export class DailyUserDataComponent implements OnInit {
   public showAnalyzeOverlay = false;
   public analyzeError: string | null = null;
   public showActivityPicker = false;
+
+  public showMealPicker = false;
+  public mealPickerSearch = '';
+  public mealPickerLoading = false;
+  public lastAppliedMeal: MealMacros | null = null;
+
+  public get filteredPickerMeals(): MealEntry[] {
+    const term = this.mealPickerSearch.trim().toLowerCase();
+    if (!term) return this.nutritionFacade.meals;
+    return this.nutritionFacade.meals.filter(m =>
+      m.name.toLowerCase().includes(term) || m.type.toLowerCase().includes(term)
+    );
+  }
 
   public readonly activityOptions = [
     { value: 'strength-training', label: 'Strength Training', icon: 'fitness_center' },
@@ -87,6 +103,45 @@ export class DailyUserDataComponent implements OnInit {
 
   closeMealAnalyze(): void {
     this.showAnalyzeOverlay = false;
+  }
+
+  async openMealPicker(): Promise<void> {
+    this.mealPickerSearch = '';
+    this.showMealPicker = true;
+    this.mealPickerLoading = true;
+    await this.nutritionFacade.loadMeals();
+    this.mealPickerLoading = false;
+  }
+
+  closeMealPicker(): void {
+    this.showMealPicker = false;
+  }
+
+  selectMeal(meal: MealEntry): void {
+    this.lastAppliedMeal = {
+      protein_g: meal.totalProtein_g,
+      carbs_g: meal.totalCarbs_g,
+      fats_g: meal.totalFats_g,
+      calories_kcal: meal.totalCalories,
+    };
+    this.applyMealToForm(this.lastAppliedMeal);
+    this.closeMealPicker();
+  }
+
+  undoLastMeal(): void {
+    if (!this.lastAppliedMeal) return;
+    const m = this.lastAppliedMeal;
+    const macros = this.form.get('macrosPct') as FormGroup;
+    macros.patchValue({
+      protein: Math.max(0, Math.round(Number(macros.get('protein')?.value ?? 0) - (m.protein_g || 0))),
+      carbs:   Math.max(0, Math.round(Number(macros.get('carbs')?.value   ?? 0) - (m.carbs_g   || 0))),
+      fats:    Math.max(0, Math.round(Number(macros.get('fats')?.value    ?? 0) - (m.fats_g    || 0))),
+    });
+    const intakeCtrl = this.form.get('caloriesIntake');
+    const kcal = m.calories_kcal ?? Math.round((m.protein_g || 0) * 4 + (m.carbs_g || 0) * 4 + (m.fats_g || 0) * 9);
+    intakeCtrl?.setValue(Math.max(0, Math.round(Number(intakeCtrl.value ?? 0) - kcal)));
+    this.form.markAsDirty();
+    this.lastAppliedMeal = null;
   }
 
   onAnalyzerAdded(res: MealMacros): void {

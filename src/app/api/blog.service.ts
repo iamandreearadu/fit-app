@@ -1,17 +1,15 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { Firestore } from '@angular/fire/firestore';
 import { doc, getDoc, addDoc, collection, serverTimestamp, getDocs, query, orderBy, updateDoc, where, deleteDoc } from 'firebase/firestore';
-import { AlertService } from "../../shared/services/alert.service";
+import { AlertService } from "../shared/services/alert.service";
 import { Auth } from '@angular/fire/auth';
-import { BlogPost } from "../models/blog.model";
+import { BlogPost } from "../core/models/blog.model";
 
 @Injectable({
     providedIn: 'root'
 })
 
 export class BlogService {
-
-readonly loading = signal(false);
 
 private firestore = inject(Firestore);
 private alerts = inject(AlertService);
@@ -22,6 +20,7 @@ private auth = inject<Auth>(Auth);
         try {
             const ref = doc(this.firestore as any, `blog/${id}`);
             const snap = await getDoc(ref as any);
+            
             if (!snap.exists()) return null;
             const d = snap.data() as any;
             // map Firestore document to BlogPost
@@ -189,7 +188,5 @@ private auth = inject<Auth>(Auth);
     return false;
   }
 }
-   
-
 
 }

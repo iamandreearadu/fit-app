@@ -13,8 +13,8 @@ import {
   serverTimestamp
 } from "firebase/firestore";
 import { Auth } from "@angular/fire/auth";
-import { AlertService } from "../../shared/services/alert.service";
-import { FoodItem, MealEntry, MealType } from "../models/nutrition-tab.model";
+import { AlertService } from "../shared/services/alert.service";
+import { FoodItem, MealEntry, MealType } from "../core/models/nutrition-tab.model";
 
 @Injectable({ providedIn: 'root' })
 export class NutritionTabService {

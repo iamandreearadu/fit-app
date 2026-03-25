@@ -51,11 +51,11 @@ export class UserFacade {
   }
 
   get waterTargetFromMetrics() {
-    return this.userMetricsSrv.waterTarget;
+    return this.dailyUserSrv.waterTarget;
   }
 
   get waterProgress() {
-    return this.userMetricsSrv.waterProgress;
+    return this.dailyUserSrv.waterProgress;
   }
 
   get user() {
@@ -102,8 +102,6 @@ export class UserFacade {
       const d = await this.userSrv.getDailyForDate(dateIso ?? this.todayDate);
 
       this.dailyUserSrv.setDailyFromBackend(d);
-
-      this.userMetricsSrv.updateWaterConsumed(d?.waterConsumedL ?? 0);
     } finally {
       this.dailyUserSrv.setLoading(false);
     }
@@ -185,9 +183,6 @@ export class UserFacade {
 
   public addWater(deltaL: number): void {
     this.dailyUserSrv.addWater(deltaL);
-    // Sync the metrics service so waterProgress updates immediately
-    const current = this.dailyUserSrv.daily();
-    this.userMetricsSrv.updateWaterConsumed(current?.waterConsumedL ?? 0);
   }
 
   public addSteps(delta: number): void {

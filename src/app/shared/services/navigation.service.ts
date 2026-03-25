@@ -1,15 +1,17 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class NavigationService {
   private _currentRoute = signal<string>('/');
   public currentRoute = this._currentRoute.asReadonly();
+  private router= inject(Router) 
 
-  constructor(private router: Router) {
+  constructor() {
     // Track route changes
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))

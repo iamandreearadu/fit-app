@@ -14,7 +14,6 @@ export interface RegisterValidators {
 
 @Injectable({ providedIn: 'root' })
 export class AccountValidationService {
-  constructor() {}
 
   public getLoginValidators(): LoginValidators {
     return {

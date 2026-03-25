@@ -1,9 +1,15 @@
-import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom, inject, provideAppInitializer } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import {
+  ApplicationConfig,
+  provideZoneChangeDetection,
+  importProvidersFrom,
+  inject,
+  provideAppInitializer,
+} from '@angular/core';
+import { provideRouter, withViewTransitions } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
-// Angular Material modules
+
 import { MaterialModule } from './core/material/material.module';
 
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
@@ -15,11 +21,10 @@ import { AccountFacade } from './core/facade/account.facade';
 import { getFirestore } from 'firebase/firestore';
 import { provideFirestore } from '@angular/fire/firestore';
 
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(routes, withViewTransitions()),
     importProvidersFrom(
       HttpClientModule,
       BrowserAnimationsModule,
@@ -27,8 +32,7 @@ export const appConfig: ApplicationConfig = {
         positionClass: 'toast-bottom-right',
         closeButton: true,
       }),
-      // Provide MaterialModule (aggregated Material imports)
-      MaterialModule
+      MaterialModule,
     ),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
@@ -37,5 +41,5 @@ export const appConfig: ApplicationConfig = {
       const accountFacade = inject(AccountFacade);
       return accountFacade.init();
     }),
-  ]
+  ],
 };

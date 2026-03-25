@@ -19,6 +19,8 @@ export class AccountFacade {
   private userFacade = inject(UserFacade);
 
   private readonly authKey = environment.authKey;
+  private readonly userKey = environment.userKey;
+
 
   // ========== Getters ==========
 
@@ -109,6 +111,7 @@ export class AccountFacade {
 
       this.authStore.clear();
       this.ls.remove(this.authKey);
+      this.ls.remove(this.userKey);
 
     } finally {
       this.authStore.setLoading(false);

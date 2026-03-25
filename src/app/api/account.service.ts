@@ -12,8 +12,6 @@ export class AccountService {
   private firebaseAuth = inject(Auth);
   private alerts = inject(AlertService);
 
-  constructor() {}
-
   public async getIdToken(): Promise<string | null> {
     const user = this.firebaseAuth.currentUser;
     if (!user) return null;

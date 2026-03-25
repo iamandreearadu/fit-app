@@ -37,7 +37,8 @@ export const routes: Routes = [
     path: 'ai-assistant',
     loadComponent: () =>
       import('./features/openai/openai.component')
-      .then(m => m.OpenaiComponent)
+      .then(m => m.OpenaiComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'user-profile',

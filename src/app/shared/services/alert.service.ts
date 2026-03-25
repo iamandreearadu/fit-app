@@ -1,7 +1,9 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ToastrService, IndividualConfig } from 'ngx-toastr';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ 
+  providedIn: 'root' 
+})
 export class AlertService {
   private defaultConfig: Partial<IndividualConfig> = {
     timeOut: 4000,
@@ -9,8 +11,7 @@ export class AlertService {
     enableHtml: false,
     closeButton: true
   };
-
-  constructor(private toastr: ToastrService) {}
+  private toastr= inject(ToastrService) 
 
   success(message: string, title?: string, config?: Partial<IndividualConfig>) {
     this.toastr.success(message, title ?? 'Success', { ...this.defaultConfig, ...config });

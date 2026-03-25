@@ -16,7 +16,6 @@ export interface UserValidators {
   providedIn: 'root'
 })
 export class UserValidationService {
-  constructor() {}
 
   public getControlValidators(): UserValidators {
     return {
@@ -27,7 +26,7 @@ export class UserValidationService {
       weightKg: [Validators.required, Validators.min(20), Validators.max(300)],
       age: [Validators.required, Validators.min(1), Validators.max(120)],
 
-      gender: [],                  // select cu default valid
+      gender: [],
       activity: [Validators.required],
       goal: [Validators.required],
     };

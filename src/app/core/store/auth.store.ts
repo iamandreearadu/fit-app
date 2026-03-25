@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { signal } from '@angular/core';
 import { AuthenticationUser } from '../models/authentication-user.model';
 @Injectable({ providedIn: 'root' })
+
 export class AuthenticationStore {
 
   private readonly _authUser = signal<AuthenticationUser | null>(null);

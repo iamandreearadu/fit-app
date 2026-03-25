@@ -13,9 +13,9 @@ import {
   where,
   deleteDoc
 } from "firebase/firestore";
-import { AlertService } from "../../shared/services/alert.service";
 import { Auth } from "@angular/fire/auth";
-import { WorkoutTemplate, WorkoutType } from "../models/workouts-tab.model";
+import { AlertService } from "../shared/services/alert.service";
+import { WorkoutTemplate, WorkoutType } from "../core/models/workouts-tab.model";
 
 @Injectable({ 
   providedIn: "root" 
