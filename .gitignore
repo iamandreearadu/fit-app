@@ -1,0 +1,21 @@
+# ── FitApp.Api ────────────────────────────────────────────────
+FitApp.Api/bin/
+FitApp.Api/obj/
+FitApp.Api/.vs/
+FitApp.Api/*.db
+FitApp.Api/*.db-shm
+FitApp.Api/*.db-wal
+FitApp.Api/appsettings.json
+FitApp.Api/appsettings.*.json
+
+# ── fit-app ───────────────────────────────────────────────────
+fit-app/node_modules/
+fit-app/dist/
+fit-app/.angular/cache/
+fit-app/src/environments/environment.ts
+fit-app/src/environments/environment.prod.ts
+
+# ── General ───────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log
