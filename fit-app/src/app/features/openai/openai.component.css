@@ -41,6 +41,8 @@
 
 ::ng-deep .mat-drawer-content,
 ::ng-deep .mat-sidenav-content {
+  display: flex !important;
+  flex-direction: column !important;
   overflow: hidden !important;
 }
 

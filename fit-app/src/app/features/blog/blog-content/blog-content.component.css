@@ -13,12 +13,7 @@
 }
 
 /* ── HEADER ── */
-.section-header {
-  text-align: center;
-  margin-bottom: 36px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255,255,255,.08);
-}
+/* .section-header is global */
 
 .section-title {
   font-size: 24px;
@@ -365,63 +360,9 @@ border-color: rgba(255,255,255,.13);
 }
 
 /* ── MODAL ── */
-.modal-bg {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.65);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.modal-box {
-  background: #16161d;
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 24px;
-  padding: 24px;
-  width: 100%;
-  max-width: 560px;
-  max-height: 90dvh;
-  overflow-y: auto;
-  scrollbar-width: none;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.modal-box::-webkit-scrollbar { display: none; }
-
-.modal-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.modal-icon-wrap {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(124,77,255,.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: #a78bfa;
-}
-
-.modal-icon-wrap mat-icon { font-size: 18px; width: 18px; height: 18px; }
-
-.modal-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--white);
-  flex: 1;
-}
-
-.modal-close { color: rgba(255,255,255,.4) !important; }
+/* .modal-bg, .modal-head, .modal-icon-wrap, .modal-title, .modal-close are global */
+/* Override modal-box size for this component */
+.modal-box { max-width: 560px; gap: 20px; }
 
 .modal-fields {
   display: flex;

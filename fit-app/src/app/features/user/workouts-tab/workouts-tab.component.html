@@ -130,7 +130,7 @@
                 {{ aiCalories[w.uid ?? '']?.loading ? 'Calculating…' : 'Estimate calories with AI' }}
               </button>
 
-              <div class="ai-result" *ngIf="aiCalories[w.uid ?? '']?.result && !aiCalories[w.uid ?? '']?.loading">
+              <div class="ai-result" *ngIf="(aiCalories[w.uid ?? '']?.calories || aiCalories[w.uid ?? '']?.explanation) && !aiCalories[w.uid ?? '']?.loading">
                 <div class="ai-result-header">
                   <mat-icon class="ai-icon">auto_awesome</mat-icon>
                   <span class="ai-label">AI Estimate</span>
@@ -139,7 +139,13 @@
                     <mat-icon>close</mat-icon>
                   </button>
                 </div>
-                <div class="ai-result-text">{{ aiCalories[w.uid ?? '']?.result }}</div>
+                <div class="ai-calories-value" *ngIf="aiCalories[w.uid ?? '']?.calories">
+                  <mat-icon>local_fire_department</mat-icon>
+                  <span>~{{ aiCalories[w.uid ?? '']?.calories }} kcal</span>
+                </div>
+                <div class="ai-result-text" *ngIf="aiCalories[w.uid ?? '']?.explanation">
+                  {{ aiCalories[w.uid ?? '']?.explanation }}
+                </div>
               </div>
             </div>
 

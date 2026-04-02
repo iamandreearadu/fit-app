@@ -46,6 +46,7 @@ export class GroqAiApiService {
         base64Image: base64,
         mimeType: file.type || 'image/jpeg',
         systemPrompt: `${OUTPUT_FORMAT_PROMPT}\n\n${BASE_SYSTEM_PROMPT}\n\n${IMAGE_GENERIC_PROMPT}\n\n${IMAGE_FOOD_PROMPT}`,
+        temperature: 0.3,
       }),
     );
     return this.validateFoodImageResponse(res.content);
@@ -82,7 +83,7 @@ export class GroqAiApiService {
   async calculateWorkoutCalories(
     user: UserProfile,
     workout: WorkoutTemplate,
-  ): Promise<string> {
+  ): Promise<{ calories: number; explanation: string }> {
     const res = await firstValueFrom(
       this.http.post<AiResponse>(`${this.baseUrl}/workout-calories`, {
         user: {
@@ -101,7 +102,20 @@ export class GroqAiApiService {
         },
       }),
     );
-    return res.content?.trim() || 'Could not estimate calories at this time.';
+
+    try {
+      const parsed = this.safeExtractJson(res.content);
+      return {
+        calories: Math.round(Number(parsed.calories) || 0),
+        explanation: String(parsed.explanation || ''),
+      };
+    } catch {
+      return {
+        calories: 0,
+        explanation:
+          res.content?.trim() || 'Could not estimate calories at this time.',
+      };
+    }
   }
 
   // ================= HELPERS =================
@@ -142,15 +156,18 @@ export class GroqAiApiService {
   }
 
   private safeExtractJson(raw: string): any {
-    const trimmed = (raw || '').trim();
+    const text = (raw || '').trim();
     try {
-      return JSON.parse(trimmed);
-    } catch (_) {
-      /* continue */
+      return JSON.parse(text);
+    } catch {
+      console.log('An error occured');
     }
-    const match = trimmed.match(/\{[\s\S]*\}$/);
-    if (!match) throw new Error('No JSON found in AI response');
-    return JSON.parse(match[0]);
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start !== -1 && end > start) {
+      return JSON.parse(text.slice(start, end + 1));
+    }
+    throw new Error('No JSON found in AI response');
   }
 
   private validateMealMacros(obj: any): MealMacros {

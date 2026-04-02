@@ -40,7 +40,7 @@ export class BenefitsShowcaseComponent {
       icon: 'security',
       color: '#7C4DFF',
       title: 'Your Data is Safe',
-      text: 'Secure Firebase cloud storage ensures your data is always protected'
+      text: 'Your data is securely stored and protected with our REST API backend'
     }
   ];
 }

@@ -7,7 +7,7 @@ import { GroqSidenavComponent } from './groq-sidenav/groq-sidenav.component';
 
 @Component({
   selector: 'app-openai',
-  imports: [HeaderComponent,GroqComponent, CommonModule, GroqComponent, GroqSidenavComponent,MaterialModule],
+  imports: [HeaderComponent, GroqComponent, CommonModule, GroqSidenavComponent, MaterialModule],
   templateUrl: './openai.component.html',
   styleUrl: './openai.component.css'
 })

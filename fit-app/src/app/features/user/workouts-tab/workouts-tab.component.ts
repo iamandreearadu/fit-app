@@ -21,7 +21,7 @@ export class WorkoutsTabComponent implements OnInit {
   private groqFacade = inject(GroqAiFacade);
 
   loading = false;
-  aiCalories: Partial<Record<string, { loading: boolean; result: string | null }>> = {};
+  aiCalories: Partial<Record<string, { loading: boolean; calories?: number; explanation?: string }>> = {};
 
   templates: WorkoutTemplate[] = [];
   filtered: WorkoutTemplate[] = [];
@@ -120,13 +120,13 @@ async estimateCalories(w: WorkoutTemplate, event: Event): Promise<void> {
   const user = this.userStore.user();
   if (!user) return;
 
-  this.aiCalories[uid] = { loading: true, result: null };
+  this.aiCalories[uid] = { loading: true };
 
   try {
-    const result = await this.groqFacade.calculateWorkoutCalories(user, w);
-    this.aiCalories[uid] = { loading: false, result };
+    const { calories, explanation } = await this.groqFacade.calculateWorkoutCalories(user, w);
+    this.aiCalories[uid] = { loading: false, calories, explanation };
   } catch {
-    this.aiCalories[uid] = { loading: false, result: 'Could not estimate calories. Please try again.' };
+    this.aiCalories[uid] = { loading: false, explanation: 'Could not estimate calories. Please try again.' };
   }
 }
 

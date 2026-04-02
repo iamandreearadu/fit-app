@@ -11,8 +11,4 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
   templateUrl: './blog.component.html',
   styleUrl: './blog.component.css'
 })
-export class BlogComponent {
-searchTerm ='';
-selectedCategory ='all';
-
-}
+export class BlogComponent {}
