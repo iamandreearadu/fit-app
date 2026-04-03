@@ -19,3 +19,5 @@ fit-app/src/environments/environment.prod.ts
 .DS_Store
 Thumbs.db
 *.log
+README.md
+design-system.md

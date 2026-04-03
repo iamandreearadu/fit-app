@@ -68,39 +68,11 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// ── Auto-migrate + seed admin on startup ─────────────────────────────────────
+// ── Auto-migrate on startup ───────────────────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
-
-    const string adminEmail = "andreea@gmail.com";
-    const string adminPassword = "Admin@1234";
-
-    if (!db.Users.Any(u => u.Email == adminEmail))
-    {
-        db.Users.Add(new FitApp.Api.Models.Entities.User
-        {
-            Id = Guid.NewGuid().ToString(),
-            Email = adminEmail,
-            FullName = "Andreea",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
-            IsAdmin = true
-        });
-        await db.SaveChangesAsync();
-    }
-    else
-    {
-        // Make sure existing account has IsAdmin = true
-        var admin = db.Users.First(u => u.Email == adminEmail);
-        if (!admin.IsAdmin)
-        {
-            admin.IsAdmin = true;
-            await db.SaveChangesAsync();
-        }
-    }
-
-
 }
 
 // ── Middleware ────────────────────────────────────────────────────────────────
