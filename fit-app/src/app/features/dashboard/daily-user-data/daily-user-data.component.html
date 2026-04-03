@@ -1,37 +1,51 @@
 <div class="daily-root">
-
   <!-- Picker backdrop (closes picker when clicking outside) -->
-  <div *ngIf="showActivityPicker" class="picker-bd" (click)="showActivityPicker = false"></div>
+  <div
+    *ngIf="showActivityPicker"
+    class="picker-bd"
+    (click)="showActivityPicker = false"
+  ></div>
 
   <form [formGroup]="form" novalidate>
-
     <!-- ── CONTROL BAR ── -->
     <div class="ctrl-wrap">
       <div class="ctrl-bar">
-
         <div class="ctrl-section">
           <mat-icon class="ctrl-ico">calendar_today</mat-icon>
           <div class="ctrl-body">
             <span class="ctrl-lbl">Today</span>
-            <span class="ctrl-val">{{ facade.todayDate | date:'EEE, d MMM' }}</span>
+            <span class="ctrl-val">{{
+              facade.todayDate | date: "EEE, d MMM"
+            }}</span>
           </div>
         </div>
 
         <div class="ctrl-sep"></div>
 
-        <div class="ctrl-section ctrl-grow" (click)="showActivityPicker = !showActivityPicker">
-          <mat-icon class="ctrl-ico">{{ currentActivityDisplay.icon }}</mat-icon>
+        <div
+          class="ctrl-section ctrl-grow"
+          (click)="showActivityPicker = !showActivityPicker"
+        >
+          <mat-icon class="ctrl-ico">{{
+            currentActivityDisplay.icon
+          }}</mat-icon>
           <div class="ctrl-body">
             <span class="ctrl-lbl">Activity</span>
             <span class="ctrl-val">{{ currentActivityDisplay.label }}</span>
           </div>
-          <mat-icon class="ctrl-chevron">{{ showActivityPicker ? 'expand_less' : 'expand_more' }}</mat-icon>
+          <mat-icon class="ctrl-chevron">{{
+            showActivityPicker ? "expand_less" : "expand_more"
+          }}</mat-icon>
         </div>
 
         <div class="ctrl-sep"></div>
 
-        <button class="ctrl-section ctrl-ai" type="button"
-                (click)="openMealAnalyze()" [disabled]="groqFacade.loading()">
+        <button
+          class="ctrl-section ctrl-ai"
+          type="button"
+          (click)="openMealAnalyze()"
+          [disabled]="groqFacade.loading()"
+        >
           <div class="ctrl-ai-icon">
             <mat-icon>auto_awesome</mat-icon>
           </div>
@@ -42,38 +56,60 @@
         </button>
 
         <div class="ctrl-end">
-          <span class="save-badge"
-                [class.sb-visible]="autoSaveStatus !== 'idle'"
-                [class.sb-saving]="autoSaveStatus === 'saving'"
-                [class.sb-saved]="autoSaveStatus === 'saved'"
-                [class.sb-error]="autoSaveStatus === 'error'">
+          <span
+            class="save-badge"
+            [class.sb-visible]="autoSaveStatus !== 'idle'"
+            [class.sb-saving]="autoSaveStatus === 'saving'"
+            [class.sb-saved]="autoSaveStatus === 'saved'"
+            [class.sb-error]="autoSaveStatus === 'error'"
+          >
             <mat-icon *ngIf="autoSaveStatus === 'saving'">sync</mat-icon>
             <mat-icon *ngIf="autoSaveStatus === 'saved'">check_circle</mat-icon>
-            <mat-icon *ngIf="autoSaveStatus === 'error'">error_outline</mat-icon>
+            <mat-icon *ngIf="autoSaveStatus === 'error'"
+              >error_outline</mat-icon
+            >
           </span>
-          <button mat-icon-button class="btn-reset" type="button"
-                  (click)="onReset()" matTooltip="Reset today">
+          <button
+            mat-icon-button
+            class="btn-reset"
+            type="button"
+            (click)="onReset()"
+            matTooltip="Reset today"
+          >
             <mat-icon>restart_alt</mat-icon>
           </button>
         </div>
-
       </div>
 
       <!-- ── ACTIVITY PICKER PANEL ── -->
-      <div *ngIf="showActivityPicker" class="act-panel" (click)="$event.stopPropagation()">
+      <div
+        *ngIf="showActivityPicker"
+        class="act-panel"
+        (click)="$event.stopPropagation()"
+      >
         <div class="act-group-lbl">Standard</div>
-        <button *ngFor="let opt of activityOptions" class="act-opt" type="button"
-                [class.act-active]="form.get('activityType')?.value === opt.value"
-                (click)="selectActivity(opt.value)">
+        <button
+          *ngFor="let opt of activityOptions"
+          class="act-opt"
+          type="button"
+          [class.act-active]="form.get('activityType')?.value === opt.value"
+          (click)="selectActivity(opt.value)"
+        >
           <mat-icon class="act-ico">{{ opt.icon }}</mat-icon>
           <span>{{ opt.label }}</span>
         </button>
         <ng-container *ngIf="workoutsFacade.templates.length > 0">
           <div class="act-divider"></div>
           <div class="act-group-lbl">My Workouts</div>
-          <button *ngFor="let w of workoutsFacade.templates" class="act-opt" type="button"
-                  [class.act-active]="form.get('activityType')?.value === 'workout:' + w.uid"
-                  (click)="selectActivity('workout:' + w.uid)">
+          <button
+            *ngFor="let w of workoutsFacade.templates"
+            class="act-opt"
+            type="button"
+            [class.act-active]="
+              form.get('activityType')?.value === 'workout:' + w.uid
+            "
+            (click)="selectActivity('workout:' + w.uid)"
+          >
             <mat-icon class="act-ico">sports</mat-icon>
             <span>{{ w.title }}</span>
           </button>
@@ -81,52 +117,8 @@
       </div>
     </div>
 
-    <!-- ── STATS BAR ── -->
-    <div class="stats-bar">
-
-      <div class="sbar-item">
-        <mat-icon class="sbar-ico si-purple">restaurant</mat-icon>
-        <span class="sbar-val sv-purple">{{ facade.dailyDataStats().totalCalories }}</span>
-        <span class="sbar-lbl">Cal In</span>
-      </div>
-
-      <div class="sbar-sep"></div>
-
-      <div class="sbar-item">
-        <mat-icon class="sbar-ico si-orange">local_fire_department</mat-icon>
-        <span class="sbar-val sv-orange">{{ facade.dailyDataStats().caloriesBurned }}</span>
-        <span class="sbar-lbl">Burned</span>
-      </div>
-
-      <div class="sbar-sep"></div>
-
-      <div class="sbar-item sbar-net">
-        <mat-icon class="sbar-ico si-white">balance</mat-icon>
-        <span class="sbar-val sv-white">{{ facade.dailyDataStats().netCalories }}</span>
-        <span class="sbar-lbl">Net Cal</span>
-      </div>
-
-      <div class="sbar-sep"></div>
-
-      <div class="sbar-item">
-        <mat-icon class="sbar-ico si-blue">water_drop</mat-icon>
-        <span class="sbar-val sv-blue">{{ facade.dailyDataStats().waterConsumedL | number:'1.2-2' }} L</span>
-        <span class="sbar-lbl">Water</span>
-      </div>
-
-      <div class="sbar-sep"></div>
-
-      <div class="sbar-item">
-        <mat-icon class="sbar-ico si-green">directions_walk</mat-icon>
-        <span class="sbar-val sv-green">{{ facade.dailyDataStats().steps | number:'1.0-0' }}</span>
-        <span class="sbar-lbl">Steps</span>
-      </div>
-
-    </div>
-
     <!-- ── CONTENT GRID ── -->
     <div class="content-grid">
-
       <!-- NUTRITION -->
       <div class="card">
         <div class="card-head">
@@ -137,35 +129,53 @@
             <span class="card-title">Nutrition</span>
           </div>
           <div class="card-head-right">
-            <button *ngIf="lastAppliedMeal" type="button" class="btn-undo"
-                 (click)="undoLastMeal()" title="Undo last meal">
+            <button
+              *ngIf="lastAppliedMeal"
+              type="button"
+              class="btn-undo"
+              (click)="undoLastMeal()"
+              title="Undo last meal"
+            >
               <mat-icon>undo</mat-icon>
             </button>
-            <span class="card-badge b-purple">{{ facade.dailyDataStats().totalCalories }} kcal</span>
-      
+            <span class="card-badge b-purple"
+              >{{ facade.dailyDataStats().totalCalories }} kcal</span
+            >
           </div>
         </div>
 
         <fieldset formGroupName="macrosPct" class="macros-list">
           <div class="macro-row">
             <span class="mdot d-protein"></span>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mf">
-              <mat-label>Protein (g)</mat-label>
-              <input matInput type="number" formControlName="protein" min="0">
+            <mat-form-field
+              appearance="outline"
+              subscriptSizing="dynamic"
+              class="mf"
+            >
+              <mat-label>Protein</mat-label>
+              <input matInput type="number" formControlName="protein" min="0" />
             </mat-form-field>
           </div>
           <div class="macro-row">
             <span class="mdot d-carbs"></span>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mf">
-              <mat-label>Carbs (g)</mat-label>
-              <input matInput type="number" formControlName="carbs" min="0">
+            <mat-form-field
+              appearance="outline"
+              subscriptSizing="dynamic"
+              class="mf"
+            >
+              <mat-label>Carbs</mat-label>
+              <input matInput type="number" formControlName="carbs" min="0" />
             </mat-form-field>
           </div>
           <div class="macro-row">
             <span class="mdot d-fats"></span>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mf">
-              <mat-label>Fats (g)</mat-label>
-              <input matInput type="number" formControlName="fats" min="0">
+            <mat-form-field
+              appearance="outline"
+              subscriptSizing="dynamic"
+              class="mf"
+            >
+              <mat-label>Fats</mat-label>
+              <input matInput type="number" formControlName="fats" min="0" />
             </mat-form-field>
           </div>
         </fieldset>
@@ -174,7 +184,6 @@
           <mat-icon>restaurant_menu</mat-icon>
           <span>Pick from saved meals</span>
         </button>
-
       </div>
 
       <!-- CALORIES BURNED -->
@@ -186,25 +195,68 @@
             </div>
             <span class="card-title">Calories Burned</span>
           </div>
-          <span class="card-badge b-orange">{{ facade.dailyDataStats().caloriesBurned }} kcal</span>
+          <span class="card-badge b-orange"
+            >{{ facade.dailyDataStats().caloriesBurned }} kcal</span
+          >
         </div>
 
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-f">
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="full-f"
+        >
           <mat-label>Manual entry</mat-label>
-          <input matInput type="number" min="0" formControlName="caloriesBurned">
+          <input
+            matInput
+            type="number"
+            min="0"
+            formControlName="caloriesBurned"
+          />
           <mat-icon matSuffix>edit</mat-icon>
         </mat-form-field>
 
         <div class="adj-row">
-          <button mat-stroked-button class="ab ab-p" type="button" (click)="adjustCaloriesBurned(200)">+200</button>
-          <button mat-stroked-button class="ab ab-p" type="button" (click)="adjustCaloriesBurned(100)">+100</button>
-          <button mat-stroked-button class="ab ab-m" type="button" (click)="adjustCaloriesBurned(-100)">−100</button>
-          <button mat-stroked-button class="ab ab-m" type="button" (click)="adjustCaloriesBurned(-200)">−200</button>
+          <button
+            mat-stroked-button
+            class="ab ab-p"
+            type="button"
+            (click)="adjustCaloriesBurned(200)"
+          >
+            +200
+          </button>
+          <button
+            mat-stroked-button
+            class="ab ab-p"
+            type="button"
+            (click)="adjustCaloriesBurned(100)"
+          >
+            +100
+          </button>
+          <button
+            mat-stroked-button
+            class="ab ab-m"
+            type="button"
+            (click)="adjustCaloriesBurned(-100)"
+          >
+            −100
+          </button>
+          <button
+            mat-stroked-button
+            class="ab ab-m"
+            type="button"
+            (click)="adjustCaloriesBurned(-200)"
+          >
+            −200
+          </button>
         </div>
 
         <div class="net-row">
-          <span class="net-label"><mat-icon>calculate</mat-icon> Net Calories</span>
-          <span class="net-value">{{ facade.dailyDataStats().netCalories }} kcal</span>
+          <span class="net-label"
+            ><mat-icon>calculate</mat-icon> Net Calories</span
+          >
+          <span class="net-value"
+            >{{ facade.dailyDataStats().netCalories }} kcal</span
+          >
         </div>
       </div>
 
@@ -222,16 +274,44 @@
         <!-- Water -->
         <div class="track">
           <div class="track-header">
-            <span class="track-name"><mat-icon class="t-icon t-blue">water_drop</mat-icon> Water</span>
+            <span class="track-name"
+              ><mat-icon class="t-icon t-blue">water_drop</mat-icon> Water</span
+            >
             <span class="track-frac t-blue">
-              {{ facade.dailyDataStats().waterConsumedL | number:'1.2-2' }} / {{ facade.waterTargetFromMetrics() | number:'1.1-1' }} L
+              {{ facade.dailyDataStats().waterConsumedL | number: "1.2-2" }} /
+              {{ facade.waterTargetFromMetrics() | number: "1.1-1" }} L
             </span>
           </div>
-          <mat-progress-bar class="pbar pbar-blue" mode="determinate" [value]="facade.waterProgress()"></mat-progress-bar>
+          <mat-progress-bar
+            class="pbar pbar-blue"
+            mode="determinate"
+            [value]="facade.waterProgress()"
+          ></mat-progress-bar>
           <div class="adj-row">
-            <button mat-stroked-button class="ab ab-p" type="button" (click)="adjustWaterMl(500)">+500 ml</button>
-            <button mat-stroked-button class="ab ab-p" type="button" (click)="adjustWaterMl(250)">+250 ml</button>
-            <button mat-stroked-button class="ab ab-m" type="button" (click)="adjustWaterMl(-250)">−250 ml</button>
+            <button
+              mat-stroked-button
+              class="ab ab-p"
+              type="button"
+              (click)="adjustWaterMl(500)"
+            >
+              +500 ml
+            </button>
+            <button
+              mat-stroked-button
+              class="ab ab-p"
+              type="button"
+              (click)="adjustWaterMl(250)"
+            >
+              +250 ml
+            </button>
+            <button
+              mat-stroked-button
+              class="ab ab-m"
+              type="button"
+              (click)="adjustWaterMl(-250)"
+            >
+              −250 ml
+            </button>
           </div>
         </div>
 
@@ -240,83 +320,142 @@
         <!-- Steps -->
         <div class="track">
           <div class="track-header">
-            <span class="track-name"><mat-icon class="t-icon t-green">directions_walk</mat-icon> Steps</span>
+            <span class="track-name"
+              ><mat-icon class="t-icon t-green">directions_walk</mat-icon>
+              Steps</span
+            >
             <span class="track-frac t-green">
-              {{ facade.dailyDataStats().steps | number:'1.0-0' }} / {{ facade.dailyDataStats().stepTarget | number:'1.0-0' }}
+              {{ facade.dailyDataStats().steps | number: "1.0-0" }} /
+              {{ facade.dailyDataStats().stepTarget | number: "1.0-0" }}
             </span>
           </div>
-          <mat-progress-bar class="pbar pbar-green" mode="determinate" [value]="facade.dailyDataStats().stepsProgress"></mat-progress-bar>
+          <mat-progress-bar
+            class="pbar pbar-green"
+            mode="determinate"
+            [value]="facade.dailyDataStats().stepsProgress"
+          ></mat-progress-bar>
           <div class="adj-row">
-            <button mat-stroked-button class="ab ab-p" type="button" (click)="adjustSteps(1000)">+1 000</button>
-            <button mat-stroked-button class="ab ab-p" type="button" (click)="adjustSteps(500)">+500</button>
-            <button mat-stroked-button class="ab ab-m" type="button" (click)="adjustSteps(-500)">−500</button>
+            <button
+              mat-stroked-button
+              class="ab ab-p"
+              type="button"
+              (click)="adjustSteps(1000)"
+            >
+              +1 000
+            </button>
+            <button
+              mat-stroked-button
+              class="ab ab-p"
+              type="button"
+              (click)="adjustSteps(500)"
+            >
+              +500
+            </button>
+            <button
+              mat-stroked-button
+              class="ab ab-m"
+              type="button"
+              (click)="adjustSteps(-500)"
+            >
+              −500
+            </button>
           </div>
         </div>
-
       </div>
-
     </div>
-
   </form>
 
   <!-- Loading overlay -->
   <div *ngIf="facade.dailyDataLoading()" class="load-overlay">
-    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+    <mat-progress-spinner
+      mode="indeterminate"
+      diameter="40"
+    ></mat-progress-spinner>
   </div>
 
   <!-- Meal Picker Modal -->
   <div *ngIf="showMealPicker" class="modal-bg" (click)="closeMealPicker()">
     <div class="modal-box mp-box" (click)="$event.stopPropagation()">
-
       <div class="modal-head">
         <div class="modal-icon-wrap mp-icon-wrap">
           <mat-icon>restaurant_menu</mat-icon>
         </div>
         <div class="mp-head-text">
           <span class="modal-title">Pick a Meal</span>
-          <span class="mp-subtitle">Macros will be added to today's values</span>
+          <span class="mp-subtitle"
+            >Macros will be added to today's values</span
+          >
         </div>
-        <button mat-icon-button class="modal-close" type="button" (click)="closeMealPicker()">
+        <button
+          mat-icon-button
+          class="modal-close"
+          type="button"
+          (click)="closeMealPicker()"
+        >
           <mat-icon>close</mat-icon>
         </button>
       </div>
 
       <div class="mp-search-wrap">
         <mat-icon class="mp-search-ico">search</mat-icon>
-        <input class="mp-search" type="text" placeholder="Search by name or type…"
-               [value]="mealPickerSearch"
-               (input)="mealPickerSearch = $any($event.target).value">
-        <button *ngIf="mealPickerSearch" class="mp-clear" type="button"
-                (click)="mealPickerSearch = ''">
+        <input
+          class="mp-search"
+          type="text"
+          placeholder="Search by name or type…"
+          [value]="mealPickerSearch"
+          (input)="mealPickerSearch = $any($event.target).value"
+        />
+        <button
+          *ngIf="mealPickerSearch"
+          class="mp-clear"
+          type="button"
+          (click)="mealPickerSearch = ''"
+        >
           <mat-icon>close</mat-icon>
         </button>
       </div>
 
       <div *ngIf="mealPickerLoading" class="mp-loading">
-        <mat-progress-spinner mode="indeterminate" diameter="32"></mat-progress-spinner>
+        <mat-progress-spinner
+          mode="indeterminate"
+          diameter="32"
+        ></mat-progress-spinner>
       </div>
 
       <ng-container *ngIf="!mealPickerLoading">
         <div *ngIf="filteredPickerMeals.length === 0" class="mp-empty">
           <mat-icon>no_meals</mat-icon>
           <span>No meals found</span>
-          <small *ngIf="nutritionFacade.meals.length === 0">Add meals in the Nutrition tab first</small>
+          <small *ngIf="nutritionFacade.meals.length === 0"
+            >Add meals in the Nutrition tab first</small
+          >
         </div>
 
         <div *ngIf="filteredPickerMeals.length > 0" class="mp-list">
-          <button *ngFor="let m of filteredPickerMeals" type="button"
-                  class="mp-item" (click)="selectMeal(m)">
+          <button
+            *ngFor="let m of filteredPickerMeals"
+            type="button"
+            class="mp-item"
+            (click)="selectMeal(m)"
+          >
             <div class="mp-item-body">
               <div class="mp-item-top">
                 <span class="mp-name">{{ m.name }}</span>
                 <span class="mp-kcal">
-                  <mat-icon>local_fire_department</mat-icon>{{ m.totalCalories }} kcal
+                  <mat-icon>local_fire_department</mat-icon
+                  >{{ m.totalCalories }} kcal
                 </span>
               </div>
               <div class="mp-chips">
-                <span class="mp-chip mp-p">P {{ m.totalProtein_g | number:'1.0-1' }}g</span>
-                <span class="mp-chip mp-c">C {{ m.totalCarbs_g | number:'1.0-1' }}g</span>
-                <span class="mp-chip mp-f">F {{ m.totalFats_g | number:'1.0-1' }}g</span>
+                <span class="mp-chip mp-p"
+                  >P {{ m.totalProtein_g | number: "1.0-1" }}g</span
+                >
+                <span class="mp-chip mp-c"
+                  >C {{ m.totalCarbs_g | number: "1.0-1" }}g</span
+                >
+                <span class="mp-chip mp-f"
+                  >F {{ m.totalFats_g | number: "1.0-1" }}g</span
+                >
                 <span class="mp-type-pill">{{ m.type }}</span>
               </div>
             </div>
@@ -324,7 +463,6 @@
           </button>
         </div>
       </ng-container>
-
     </div>
   </div>
 
@@ -336,16 +474,21 @@
           <mat-icon>auto_awesome</mat-icon>
         </div>
         <span class="modal-title">Analyze Meal with AI</span>
-        <button mat-icon-button class="modal-close" type="button" (click)="closeMealAnalyze()">
+        <button
+          mat-icon-button
+          class="modal-close"
+          type="button"
+          (click)="closeMealAnalyze()"
+        >
           <mat-icon>close</mat-icon>
         </button>
       </div>
       <app-ai-meal-analyzer
         (added)="onAnalyzerAdded($event)"
-        (error)="onAnalyzerError($event)">
+        (error)="onAnalyzerError($event)"
+      >
       </app-ai-meal-analyzer>
       <div *ngIf="analyzeError" class="modal-err">{{ analyzeError }}</div>
     </div>
   </div>
-
 </div>

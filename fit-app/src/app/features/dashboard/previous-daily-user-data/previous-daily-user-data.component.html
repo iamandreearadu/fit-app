@@ -1,30 +1,24 @@
 <div class="previous-root">
 
-  <div class="section-header">
-    <h2 class="section-title">Previous Days</h2>
-    <p class="section-subtitle">Browse your weekly activity history</p>
-  </div>
-
-  <!-- ── WEEK NAV ── -->
-  <div class="week-nav" *ngIf="currentWeek() as week">
-    <button mat-stroked-button class="nav-btn" type="button"
-            (click)="prevWeek()"
-            [disabled]="currentWeekIndex() === weeks().length - 1">
-      <mat-icon>chevron_left</mat-icon>
-      <span class="nav-label">Previous</span>
-    </button>
-
-    <div class="week-badge">
-      <mat-icon class="week-icon">date_range</mat-icon>
-      <span>{{ week.start | date:'dd MMM' }} – {{ week.end | date:'dd MMM yyyy' }}</span>
+  <!-- ── HISTORY HEADER (title + week nav in one row) ── -->
+  <div class="hist-bar">
+    <span class="hist-title">Previous Days</span>
+    <div class="week-controls" *ngIf="currentWeek() as week">
+      <button type="button" class="icon-btn-round"
+              (click)="prevWeek()"
+              [disabled]="currentWeekIndex() === weeks().length - 1">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="week-range">
+        <mat-icon class="week-icon">date_range</mat-icon>
+        {{ week.start | date:'dd MMM' }} – {{ week.end | date:'dd MMM' }}
+      </span>
+      <button type="button" class="icon-btn-round"
+              (click)="nextWeek()"
+              [disabled]="currentWeekIndex() === 0">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
     </div>
-
-    <button mat-stroked-button class="nav-btn" type="button"
-            (click)="nextWeek()"
-            [disabled]="currentWeekIndex() === 0">
-      <span class="nav-label">Next</span>
-      <mat-icon>chevron_right</mat-icon>
-    </button>
   </div>
 
   <!-- ── EMPTY STATE ── -->
@@ -33,34 +27,34 @@
     <span>No recorded days yet. Start tracking to see your history here.</span>
   </div>
 
-  <!-- ── DAY CARDS ── -->
-  <div class="day-grid" *ngIf="currentWeek() as week">
-    <div class="day-card" *ngFor="let d of week.days" (click)="openDay(d)" role="button" tabindex="0">
+  <!-- ── DAY LIST ── -->
+  <div class="day-list" *ngIf="currentWeek() as week">
+    <div class="day-row" *ngFor="let d of week.days" (click)="openDay(d)" role="button" tabindex="0">
 
-      <div class="day-date-block">
-        <div class="day-weekday">{{ d.date | date:'EEE' }}</div>
-        <div class="day-date-num">{{ d.date | date:'dd' }}</div>
-        <div class="day-month">{{ d.date | date:'MMM' }}</div>
+      <div class="dr-date">
+        <span class="dr-weekday">{{ d.date | date:'EEE' }}</span>
+        <span class="dr-num">{{ d.date | date:'d' }}</span>
+        <span class="dr-mon">{{ d.date | date:'MMM' }}</span>
       </div>
 
-      <div class="day-divider"></div>
+      <div class="dr-sep"></div>
 
-      <div class="day-stats">
-        <div class="day-stat">
-          <mat-icon class="ds-icon" style="color:#66bb6a">directions_walk</mat-icon>
-          <span class="ds-value">{{ d.steps || 0 | number:'1.0-0' }}</span>
-        </div>
-        <div class="day-stat">
-          <!-- <mat-icon class="ds-icon" style="color:#29b6f6">water_drop</mat-icon> -->
-          <mat-icon class="ds-icon" style="color:#a78bfa">restaurant</mat-icon>
-          <span class="ds-value">{{ (d.caloriesIntake || 0) | number }}</span>
-        </div>
-        <div class="day-stat">
-          <mat-icon class="ds-icon" style="color:var(--accent)">local_fire_department</mat-icon>
-          <span class="ds-value">{{ d.caloriesBurned || 0 }}</span>
-        </div>
-    
+      <div class="dr-stats">
+        <span class="dr-stat dr-green">
+          <mat-icon>directions_walk</mat-icon>
+          {{ d.steps || 0 | number:'1.0-0' }}
+        </span>
+        <span class="dr-stat dr-purple">
+          <mat-icon>restaurant</mat-icon>
+          {{ (d.caloriesIntake || 0) | number }}
+        </span>
+        <span class="dr-stat dr-orange">
+          <mat-icon>local_fire_department</mat-icon>
+          {{ d.caloriesBurned || 0 }}
+        </span>
       </div>
+
+      <mat-icon class="dr-chevron">chevron_right</mat-icon>
 
     </div>
   </div>
@@ -91,12 +85,12 @@
 
         <div class="stat-tile">
           <span class="st-label">Steps</span>
-          <span class="st-value" style="color:#66bb6a">{{ selectedDay.steps || 0 | number:'1.0-0' }}</span>
+          <span class="st-value sv-green">{{ selectedDay.steps || 0 | number:'1.0-0' }}</span>
         </div>
 
         <div class="stat-tile">
           <span class="st-label">Water</span>
-          <span class="st-value" style="color:#29b6f6">{{ selectedDay.waterConsumedL || 0 }}<span class="st-unit"> L</span></span>
+          <span class="st-value sv-blue">{{ selectedDay.waterConsumedL || 0 }}<span class="st-unit"> L</span></span>
         </div>
 
         <div class="stat-tile">
@@ -106,12 +100,12 @@
 
         <div class="stat-tile">
           <span class="st-label">Calories In</span>
-          <span class="st-value" style="color:var(--primary)">{{ selectedDay.caloriesIntake || 0 }}<span class="st-unit"> kcal</span></span>
+          <span class="st-value sv-purple">{{ selectedDay.caloriesIntake || 0 }}<span class="st-unit"> kcal</span></span>
         </div>
 
         <div class="stat-tile">
           <span class="st-label">Burned</span>
-          <span class="st-value" style="color:var(--accent)">{{ selectedDay.caloriesBurned || 0 }}<span class="st-unit"> kcal</span></span>
+          <span class="st-value sv-rose">{{ selectedDay.caloriesBurned || 0 }}<span class="st-unit"> kcal</span></span>
         </div>
 
         <div class="stat-tile stat-tile--highlight">
