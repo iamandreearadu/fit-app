@@ -1,8 +1,9 @@
-import { Component, computed, signal, effect, OnInit } from '@angular/core';
+import { Component, computed, signal, effect, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../core/material/material.module';
 import { WorkoutPlan } from '../../../core/models/workout-plan.model';
+import { AlertService } from '../../../shared/services/alert.service';
 
 @Component({
   standalone: true,
@@ -11,7 +12,7 @@ import { WorkoutPlan } from '../../../core/models/workout-plan.model';
   templateUrl: './workouts-content.component.html',
   styleUrls: ['./workouts-content.component.css']
 })
-export class WorkoutsContentComponent implements OnInit {
+export class WorkoutsContentComponent implements OnInit, OnDestroy {
   private allPlans = signal<WorkoutPlan[]>([
     { id:'home-4w', title:'Home Training', subtitle:'No equipment, 4 weeks', image:'https://images.unsplash.com/photo-1674834727149-00812f907676?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', type:'home', level:'beginner', weeks:4, price:19, perks:['30–40 min / session','3–4 sessions/week','Warm-up & cooldown'] },
     { id:'home-12w', title:'12 Weeks Fitness Plan', subtitle:'Progressive overload at home', image:'https://images.unsplash.com/photo-1674834727149-00812f907676?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', type:'home', level:'intermediate', weeks:12, price:39, perks:['45–60 min / session','4–5 sessions/week','Video guidance'] },
@@ -104,8 +105,12 @@ export class WorkoutsContentComponent implements OnInit {
     this.level.set('all');
     this.sort.set('popular');
   }
+  private alerts = inject(AlertService);
+  private mqListener: ((e: MediaQueryListEvent) => void) | null = null;
+  private mq: MediaQueryList | null = null;
+
   buy(p: WorkoutPlan) {
-    alert(`Buying "${p.title}" — $${p.price}`);
+    this.alerts.info(`"${p.title}" — coming soon!`);
   }
 
   setPage(n: number) {
@@ -141,27 +146,20 @@ export class WorkoutsContentComponent implements OnInit {
 
     // Setup responsive listener for mobile breakpoint (<=640px)
     if (typeof window !== 'undefined' && 'matchMedia' in window) {
-      const mq = window.matchMedia('(max-width: 640px)');
-      this.isMobile.set(mq.matches);
-      const handle = (e: MediaQueryListEvent) => this.isMobile.set(e.matches);
-      if ('addEventListener' in mq) {
-        // modern API
-        mq.addEventListener('change', handle);
-      } else if ('addListener' in mq) {
-        // legacy
-        // @ts-ignore
-        mq.addListener(handle);
-      }
+      this.mq = window.matchMedia('(max-width: 640px)');
+      this.isMobile.set(this.mq.matches);
+      this.mqListener = (e: MediaQueryListEvent) => this.isMobile.set(e.matches);
+      this.mq.addEventListener('change', this.mqListener);
     }
   }
 
-  
-  async ngOnInit(): Promise<void> {
-    this.loading.set(true);
-    try {
-      await new Promise<void>(r => setTimeout(() => r(), 400));
-    } finally {
-      this.loading.set(false);
+  ngOnInit(): void {
+    // No async initialization needed — plans are hardcoded signals
+  }
+
+  ngOnDestroy(): void {
+    if (this.mq && this.mqListener) {
+      this.mq.removeEventListener('change', this.mqListener);
     }
   }
 }

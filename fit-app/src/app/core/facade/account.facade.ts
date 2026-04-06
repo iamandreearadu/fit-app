@@ -56,8 +56,6 @@ export class AccountFacade {
     this.authStore.setLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       const u = await this.svc.login(creds);
 
       this.authStore.setAuth(u);
@@ -79,8 +77,6 @@ export class AccountFacade {
     this.authStore.setLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       const u = await this.svc.register(creds);
 
       this.authStore.setAuth(u);

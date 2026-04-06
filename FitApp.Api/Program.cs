@@ -1,7 +1,9 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using FitApp.Api.Data;
 using FitApp.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -62,9 +64,23 @@ builder.Services.AddScoped<AiProxyService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<ChatService>();
 
+// ── Rate Limiting ─────────────────────────────────────────────────────────────
+builder.Services.AddRateLimiter(o =>
+{
+    o.AddFixedWindowLimiter("auth", cfg =>
+    {
+        cfg.PermitLimit = 10;
+        cfg.Window = TimeSpan.FromMinutes(1);
+        cfg.QueueLimit = 0;
+        cfg.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+    o.RejectionStatusCode = 429;
+});
+
 // ── Controllers & OpenAPI ─────────────────────────────────────────────────────
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
@@ -76,6 +92,10 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ── Middleware ────────────────────────────────────────────────────────────────
+app.UseExceptionHandler();
+app.UseStatusCodePages();
+app.UseRateLimiter();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();  // available at /openapi/v1.json

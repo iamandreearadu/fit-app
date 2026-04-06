@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../core/material/material.module';
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
@@ -16,6 +17,7 @@ export class NutritionTabComponent implements OnInit {
 
   readonly facade = inject(NutritionTabFacade);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
   loading = false;
   meals: MealEntry[] = [];
@@ -39,7 +41,9 @@ export class NutritionTabComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.facade.meals$.subscribe(m => {
+    this.facade.meals$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(m => {
       this.meals = m ?? [];
       this.applyFilters();
     });

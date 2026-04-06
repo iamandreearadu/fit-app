@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../core/material/material.module';
@@ -18,6 +19,7 @@ export class BlogContentComponent implements OnInit {
 
   private authStore = inject(AuthenticationStore);
   readonly facade = inject(BlogFacade);
+  private destroyRef = inject(DestroyRef);
 
   loading = false;
 
@@ -39,7 +41,9 @@ export class BlogContentComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.facade.posts$.subscribe(posts => {
+    this.facade.posts$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(posts => {
       this.posts = posts;
       this.categories = this.facade.categories();
       this.applyFilters();
@@ -103,10 +107,7 @@ export class BlogContentComponent implements OnInit {
 
   async deletePost(uid?: string): Promise<void> {
     if (!uid) return;
-
-    const confirmed = confirm('Are you sure you want to delete this post?');
-    if (!confirmed) return;
-
+    if (!window.confirm('Are you sure you want to delete this post?')) return;
     await this.facade.deletePost(uid);
   }
 

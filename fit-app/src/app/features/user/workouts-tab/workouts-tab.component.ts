@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../core/material/material.module';
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
@@ -6,6 +7,7 @@ import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
 import { WorkoutTemplate, WorkoutType } from '../../../core/models/workouts-tab.model';
 import { UserStore } from '../../../core/store/user.store';
 import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
+import { AlertService } from '../../../shared/services/alert.service';
 
 @Component({
   selector: 'app-workouts-tab',
@@ -19,6 +21,8 @@ export class WorkoutsTabComponent implements OnInit {
   private fb = inject(FormBuilder);
   private userStore = inject(UserStore);
   private groqFacade = inject(GroqAiFacade);
+  private destroyRef = inject(DestroyRef);
+  private alerts = inject(AlertService);
 
   loading = false;
   aiCalories: Partial<Record<string, { loading: boolean; calories?: number; explanation?: string }>> = {};
@@ -54,7 +58,9 @@ export class WorkoutsTabComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.facade.templates$.subscribe(t => {
+    this.facade.templates$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(t => {
       this.templates = t ?? [];
       this.applyFilters();
     });
@@ -62,7 +68,9 @@ export class WorkoutsTabComponent implements OnInit {
     this.loading = true;
     this.facade.loadTemplates().finally(() => (this.loading = false));
 
-    this.form.controls.type.valueChanges.subscribe(type => {
+    this.form.controls.type.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(type => {
       this.onTypeChange(type);
     });
 
@@ -238,12 +246,14 @@ async estimateCalories(w: WorkoutTemplate, event: Event): Promise<void> {
 
   async delete(uid?: string): Promise<void> {
     if (!uid) return;
-    const ok = confirm('Delete this workout?');
-    if (!ok) return;
+    if (!window.confirm('Delete this workout?')) return;
 
     this.loading = true;
     try {
       await this.facade.deleteTemplate(uid);
+      this.alerts.success('Workout deleted.');
+    } catch {
+      this.alerts.error('Failed to delete workout.');
     } finally {
       this.loading = false;
     }

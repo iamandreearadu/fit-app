@@ -2,6 +2,7 @@
 
 :root {
   --primary: #7c4dff;
+  --primary-light: #a78bfa;
   --primary-glow: rgba(124, 77, 255, 0.35);
   --surface: #0d0d10;
   --white: #ffffff;
@@ -9,6 +10,14 @@
   --white-fade: rgba(255, 255, 255, 0.08);
   --accent: rgb(255, 64, 129);
   --accent-background: rgb(255, 64, 129, 0.15);
+  --color-success: #4ade80;
+  --color-success-bg: rgba(74, 222, 128, 0.12);
+  --color-info: #38bdf8;
+  --color-info-bg: rgba(56, 189, 248, 0.12);
+  --color-warning: #ffb74d;
+  --color-warning-bg: rgba(255, 183, 77, 0.12);
+  --color-error: #ef5350;
+  --color-error-bg: rgba(239, 83, 80, 0.12);
   /* --effect-glow:  color-mix(in srgb, var(--surface) 85%, var(--primary-glow) 15%); */
   --background-fade: linear-gradient(
     to bottom,

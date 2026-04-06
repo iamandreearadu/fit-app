@@ -25,9 +25,7 @@ export class GroqSidenavComponent implements OnInit {
   }
 
   delete(id: string) {
-    const confirmDelete = confirm('Are you sure you want to delete this conversation?');
-    if (!confirmDelete) return;
-
+    if (!window.confirm('Are you sure you want to delete this conversation?')) return;
     this.facade.deleteConversation(id);
   }
 }

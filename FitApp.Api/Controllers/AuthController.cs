@@ -1,12 +1,14 @@
 using FitApp.Api.Models.DTOs;
 using FitApp.Api.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace FitApp.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController(AuthService auth) : ControllerBase
+[EnableRateLimiting("auth")]
+public class AuthController(AuthService auth, ILogger<AuthController> logger) : ControllerBase
 {
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
@@ -20,7 +22,8 @@ public class AuthController(AuthService auth) : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = ex.Message, detail = ex.InnerException?.Message });
+            logger.LogError(ex, "Unexpected error during login");
+            return Problem("An unexpected error occurred.", statusCode: 500);
         }
     }
 
@@ -36,7 +39,8 @@ public class AuthController(AuthService auth) : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = ex.Message, detail = ex.InnerException?.Message });
+            logger.LogError(ex, "Unexpected error during registration");
+            return Problem("An unexpected error occurred.", statusCode: 500);
         }
     }
 }

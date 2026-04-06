@@ -5,6 +5,7 @@ import { MaterialModule } from '../../../core/material/material.module';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { FormErrorService } from '../../../shared/services/form-error.service';
 import { MatDialog } from '@angular/material/dialog';
+import { AlertService } from '../../../shared/services/alert.service';
 
 @Component({
   standalone: true,
@@ -19,6 +20,7 @@ export class ProfileTabComponent implements OnInit {
   public formErrors = inject(FormErrorService);
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
+  private alerts = inject(AlertService);
 
 
   @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
@@ -61,20 +63,20 @@ export class ProfileTabComponent implements OnInit {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file.');
+      this.alerts.warn('Please select an image file.');
       return;
     }
     if (file.size > this.maxImageSizeBytes) {
-      alert('Image too large. Please choose an image under ~1.5MB.');
+      this.alerts.warn('Image too large. Please choose an image under ~1.5MB.');
       return;
     }
 
     const reader = new FileReader();
-    reader.onerror = () => alert('Failed to read file.');
+    reader.onerror = () => this.alerts.error('Failed to read file.');
     reader.onload = () => {
       const dataUrl = String(reader.result || '');
       if (!dataUrl.startsWith('data:image/')) {
-        alert('Invalid image data.');
+        this.alerts.error('Invalid image data.');
         return;
       }
       this.form.patchValue({ imageUrl: dataUrl });

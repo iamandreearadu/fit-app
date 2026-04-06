@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FitApp.Api.Models.DTOs;
 
 public class ConversationDto
@@ -20,8 +22,16 @@ public class ChatMessageDto
 
 public class SaveMessageRequest
 {
+    [Required]
+    [AllowedValues("user", "assistant")]
     public string Role { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(16000)]
     public string Content { get; set; } = string.Empty;
+
+    [MaxLength(2097152)] // ~2MB base64
     public string? ImageUrl { get; set; }
+
     public long Timestamp { get; set; }
 }

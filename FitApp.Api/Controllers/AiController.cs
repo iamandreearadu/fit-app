@@ -21,7 +21,7 @@ public class AiController(AiProxyService aiProxy, ILogger<AiController> logger) 
         catch (Exception ex)
         {
             logger.LogError(ex, "AI text request failed");
-            return BadRequest(new { error = ex.Message });
+            return Problem("AI request failed. Please try again.", statusCode: 500);
         }
     }
 
@@ -36,7 +36,7 @@ public class AiController(AiProxyService aiProxy, ILogger<AiController> logger) 
         catch (Exception ex)
         {
             logger.LogError(ex, "AI image request failed");
-            return BadRequest(new { error = ex.Message });
+            return Problem("AI request failed. Please try again.", statusCode: 500);
         }
     }
 
@@ -51,7 +51,7 @@ public class AiController(AiProxyService aiProxy, ILogger<AiController> logger) 
         catch (Exception ex)
         {
             logger.LogError(ex, "AI workout-calories request failed");
-            return BadRequest(new { error = ex.Message });
+            return Problem("AI request failed. Please try again.", statusCode: 500);
         }
     }
 }

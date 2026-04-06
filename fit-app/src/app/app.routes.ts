@@ -31,7 +31,8 @@ export const routes: Routes = [
     path: 'workouts',
     loadComponent: () =>
       import('./features/workouts/workouts.component')
-      .then(m => m.WorkoutsComponent)
+      .then(m => m.WorkoutsComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'ai-assistant',

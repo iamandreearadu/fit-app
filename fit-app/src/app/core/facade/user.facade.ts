@@ -96,7 +96,6 @@ export class UserFacade {
   public async loadDaily(dateIso?: string): Promise<void> {
     this.dailyUserSrv.setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       const d = await this.userSrv.getDailyForDate(dateIso ?? this.todayDate);
 
       this.dailyUserSrv.setDailyFromBackend(d);
@@ -108,7 +107,6 @@ export class UserFacade {
   public async saveDaily(patch: Partial<DailyUserData>): Promise<void> {
     this.dailyUserSrv.setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       this.dailyUserSrv.setDailyFromPatch(patch);
 
       const current = this.dailyUserSrv.daily();
@@ -146,8 +144,6 @@ export class UserFacade {
   public async saveUserProfile(patch: Partial<UserProfile>): Promise<void> {
     this.userStore.setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       this.userStore.patchUser(patch);
       const current = this.userStore.user();
 

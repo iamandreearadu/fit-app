@@ -26,7 +26,7 @@ public class ChatController(ChatService chatService, ILogger<ChatController> log
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to get conversations");
-            return BadRequest(new { error = ex.Message });
+            return Problem("An unexpected error occurred.", statusCode: 500);
         }
     }
 
@@ -41,7 +41,7 @@ public class ChatController(ChatService chatService, ILogger<ChatController> log
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to create conversation");
-            return BadRequest(new { error = ex.Message });
+            return Problem("An unexpected error occurred.", statusCode: 500);
         }
     }
 
@@ -60,7 +60,7 @@ public class ChatController(ChatService chatService, ILogger<ChatController> log
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to get messages");
-            return BadRequest(new { error = ex.Message });
+            return Problem("An unexpected error occurred.", statusCode: 500);
         }
     }
 
@@ -79,7 +79,7 @@ public class ChatController(ChatService chatService, ILogger<ChatController> log
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to save message");
-            return BadRequest(new { error = ex.Message });
+            return Problem("An unexpected error occurred.", statusCode: 500);
         }
     }
 
@@ -98,7 +98,7 @@ public class ChatController(ChatService chatService, ILogger<ChatController> log
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to delete conversation");
-            return BadRequest(new { error = ex.Message });
+            return Problem("An unexpected error occurred.", statusCode: 500);
         }
     }
 }
