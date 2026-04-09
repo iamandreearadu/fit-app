@@ -1,6 +1,18 @@
-import { Component, ElementRef, inject, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MaterialModule } from '../../../core/material/material.module';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { FormErrorService } from '../../../shared/services/form-error.service';
@@ -12,7 +24,7 @@ import { AlertService } from '../../../shared/services/alert.service';
   selector: 'app-profile-tab',
   imports: [CommonModule, ReactiveFormsModule, MaterialModule],
   templateUrl: './profile-tab.component.html',
-  styleUrl: './profile-tab.component.css'
+  styleUrl: './profile-tab.component.css',
 })
 export class ProfileTabComponent implements OnInit {
   public form: FormGroup;
@@ -22,12 +34,10 @@ export class ProfileTabComponent implements OnInit {
   private dialog = inject(MatDialog);
   private alerts = inject(AlertService);
 
-
   @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('imagePreviewTpl') imagePreviewTpl!: TemplateRef<unknown>;
 
-  private readonly maxImageSizeBytes = 1.5 * 1024 * 1024; 
-
+  private readonly maxImageSizeBytes = 15 * 1024 * 1024;
 
   constructor() {
     this.form = this.buildForm();
@@ -48,7 +58,7 @@ export class ProfileTabComponent implements OnInit {
     return this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-       imageUrl: [''] 
+      imageUrl: [''],
     });
   }
 
@@ -90,14 +100,13 @@ export class ProfileTabComponent implements OnInit {
     this.form.markAsDirty();
   }
 
-
   openImagePreview(): void {
     const src = (this.form.get('imageUrl')?.value || '').trim();
-    if (!src) return; 
+    if (!src) return;
     this.dialog.open(this.imagePreviewTpl, {
       maxWidth: '95vw',
       width: '95vw',
-      panelClass: 'image-preview-dialog-panel' 
+      panelClass: 'image-preview-dialog-panel',
     });
   }
 

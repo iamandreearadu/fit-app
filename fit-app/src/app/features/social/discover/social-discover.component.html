@@ -1,0 +1,180 @@
+<div class="discover-page">
+
+  <!-- Search bar -->
+  <div class="discover-search-wrap">
+    <div class="discover-search-box" [class.discover-search-box--active]="searchQuery().length > 0">
+      <mat-icon class="discover-search-icon">search</mat-icon>
+      <input
+        class="discover-search-input"
+        type="search"
+        placeholder="Search athletes by name..."
+        [value]="searchQuery()"
+        (input)="onSearchInput($any($event.target).value)"
+        autocomplete="off"
+      />
+      @if (searchQuery().length > 0) {
+        <button class="discover-search-clear" (click)="clearSearchInput()" type="button" aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Search mode -->
+  @if (isSearchMode()) {
+
+    @if (facade.isSearching()) {
+      <div class="discover-search-loading">
+        <mat-spinner diameter="28" />
+      </div>
+    }
+
+    @if (!facade.isSearching() && facade.searchResults().length === 0 && !facade.searchError()) {
+      <div class="discover-empty discover-search-empty">
+        <mat-icon>person_search</mat-icon>
+        <p>No athletes found for "{{ searchQuery() }}"</p>
+      </div>
+    }
+
+    @if (facade.searchError()) {
+      <div class="discover-error">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ facade.searchError() }}</span>
+      </div>
+    }
+
+    @if (!facade.isSearching() && facade.searchResults().length > 0) {
+      <div class="discover-search-results">
+        @for (user of facade.searchResults(); track user.id) {
+          <div class="search-result-row">
+            <a [routerLink]="['/social/profile', user.id]" class="search-result-avatar-link">
+              @if (user.avatarUrl) {
+                <img class="search-result-avatar" [src]="user.avatarUrl" [alt]="user.displayName" />
+              } @else {
+                <div class="search-result-avatar search-result-avatar--fallback">
+                  <mat-icon>person</mat-icon>
+                </div>
+              }
+            </a>
+            <a [routerLink]="['/social/profile', user.id]" class="search-result-name">
+              {{ user.displayName }}
+            </a>
+            <button
+              class="search-result-follow-btn"
+              [class.search-result-follow-btn--following]="isFollowing(user.id) || user.isFollowedByMe"
+              (click)="onFollow(user.id)"
+              type="button"
+            >
+              {{ (isFollowing(user.id) || user.isFollowedByMe) ? 'Following' : 'Follow' }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+  } @else {
+
+    <!-- Discover mode -->
+
+    <!-- Loading -->
+    @if (facade.isLoadingDiscover()) {
+      <div class="discover-section">
+        <h2 class="discover-section-title">Athletes to Follow</h2>
+        <div class="user-card-strip">
+          @for (s of skeletons; track $index) {
+            <div class="user-card user-card--skeleton"></div>
+          }
+        </div>
+      </div>
+      <div class="discover-section">
+        <h2 class="discover-section-title">Recent Posts</h2>
+        <div class="discover-posts-grid">
+          @for (s of skeletons; track $index) {
+            <div class="discover-post-skeleton"></div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (facade.discoverError() && !facade.isLoadingDiscover()) {
+      <div class="discover-error">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ facade.discoverError() }}</span>
+        <button class="btn-ghost" (click)="facade.loadDiscover()" type="button">Retry</button>
+      </div>
+    }
+
+    <!-- Content -->
+    @if (!facade.isLoadingDiscover() && !facade.discoverError()) {
+
+      <!-- Athletes to Follow -->
+      <div class="discover-section">
+        <h2 class="discover-section-title">Athletes to Follow</h2>
+        @if (uniqueAuthors().length === 0) {
+          <div class="discover-empty">
+            <mat-icon>explore</mat-icon>
+            <p>No athletes to discover yet</p>
+          </div>
+        } @else {
+          <div class="user-card-strip-wrap">
+            <div class="user-card-strip">
+              @for (author of uniqueAuthors(); track author.id) {
+                <div class="user-card">
+                  <a [routerLink]="['/social/profile', author.id]" class="user-card-avatar-link">
+                    @if (author.avatarUrl) {
+                      <img class="user-card-avatar" [src]="author.avatarUrl" [alt]="author.displayName" />
+                    } @else {
+                      <div class="user-card-avatar user-card-avatar--fallback">
+                        <mat-icon>person</mat-icon>
+                      </div>
+                    }
+                  </a>
+                  <a [routerLink]="['/social/profile', author.id]" class="user-card-name">
+                    {{ author.displayName }}
+                  </a>
+                  <button
+                    class="user-card-follow-btn"
+                    [class.user-card-follow-btn--following]="isFollowing(author.id)"
+                    (click)="onFollow(author.id)"
+                    type="button"
+                  >
+                    {{ isFollowing(author.id) ? 'Following' : 'Follow' }}
+                  </button>
+                </div>
+              }
+            </div>
+            <div class="user-card-strip-fade"></div>
+          </div>
+        }
+      </div>
+
+      <!-- Recent Posts -->
+      <div class="discover-section">
+        <h2 class="discover-section-title">Recent Posts</h2>
+        @if (facade.discoverPosts().length === 0) {
+          <div class="discover-empty">
+            <mat-icon>explore</mat-icon>
+            <p>No posts to discover yet</p>
+          </div>
+        } @else {
+          <div class="discover-posts-grid">
+            @for (post of facade.discoverPosts(); track post.id) {
+              <app-post-card
+                [post]="post"
+                (likeToggled)="onLike($event)"
+                (commentClicked)="onPostComment($event)"
+                (followToggled)="onFollowFromPost($event)"
+                (deleteClicked)="onDeleteFromPost($event)"
+                (editClicked)="onEditFromPost($event)"
+              />
+            }
+          </div>
+        }
+      </div>
+
+    }
+
+  }
+
+</div>

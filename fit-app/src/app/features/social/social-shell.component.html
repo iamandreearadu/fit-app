@@ -1,0 +1,26 @@
+<div class="social-shell">
+
+  @if (!isMobile()) {
+    <app-social-side-nav
+      [unreadNotifications]="notifFacade.unreadCount()"
+      [unreadMessages]="chatFacade.unreadConversationsCount()"
+    />
+  }
+
+  @if (isMobile()) {
+    <app-social-top-bar />
+  }
+
+  <main class="social-content">
+    <div class="content-inner">
+      <router-outlet />
+    </div>
+  </main>
+
+  @if (isMobile()) {
+    <app-social-bottom-nav
+      [unreadNotifications]="notifFacade.unreadCount()"
+    />
+  }
+
+</div>

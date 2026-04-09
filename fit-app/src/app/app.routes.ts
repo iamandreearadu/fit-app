@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { GuestGuard } from './core/guards/guest.guard';
+import { SocialShellComponent } from './features/social/social-shell.component';
 
 export const routes: Routes = [
 
@@ -68,6 +69,62 @@ export const routes: Routes = [
       import('./features/auth/register/register.component')
       .then(m => m.RegisterComponent),
     canActivate: [GuestGuard]
+  },
+
+  {
+    path: 'social',
+    component: SocialShellComponent,
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/social/feed/social-feed.component')
+          .then(m => m.SocialFeedComponent)
+      },
+      {
+        path: 'discover',
+        loadComponent: () =>
+          import('./features/social/discover/social-discover.component')
+          .then(m => m.SocialDiscoverComponent)
+      },
+      {
+        path: 'post/:id',
+        loadComponent: () =>
+          import('./features/social/post-detail/social-post-detail.component')
+          .then(m => m.SocialPostDetailComponent)
+      },
+      {
+        path: 'article/:id',
+        loadComponent: () =>
+          import('./features/social/article-detail/article-detail.component')
+          .then(m => m.ArticleDetailComponent)
+      },
+      {
+        path: 'profile/:userId',
+        loadComponent: () =>
+          import('./features/social/social-profile/social-profile.component')
+          .then(m => m.SocialProfileComponent)
+      },
+      {
+        path: 'chat',
+        loadComponent: () =>
+          import('./features/social/chat/social-chat.component')
+          .then(m => m.SocialChatComponent)
+      },
+      {
+        path: 'chat/:id',
+        loadComponent: () =>
+          import('./features/social/chat-detail/social-chat-detail.component')
+          .then(m => m.SocialChatDetailComponent)
+      },
+      {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./features/social/notifications/social-notifications.component')
+          .then(m => m.SocialNotificationsComponent)
+      },
+    ]
   },
 
   { path: '**', redirectTo: '' },

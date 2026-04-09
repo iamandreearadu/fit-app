@@ -1,0 +1,31 @@
+.edit-bio-dialog {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 24px;
+  min-width: 320px;
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.edit-bio-header { display: flex; align-items: center; justify-content: space-between; }
+.edit-bio-title { font-size: 18px; font-weight: 800; color: var(--white); margin: 0; }
+.edit-bio-field { width: 100%; }
+.edit-bio-counter { font-size: 12px; font-weight: 500; text-align: right; margin-top: -8px; }
+.char-green { color: var(--color-success); }
+.char-yellow { color: var(--color-warning); }
+.char-red { color: var(--color-error); }
+.edit-bio-footer { display: flex; gap: 10px; justify-content: flex-end; padding-top: 4px; }
+.edit-bio-cancel {
+  padding: 8px 18px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15); background: transparent;
+  color: var(--white-soft); cursor: pointer; font-size: 13px; min-height: 40px;
+}
+.edit-bio-save {
+  padding: 8px 22px; border-radius: 10px; border: none;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; gap: 6px; min-height: 40px;
+}
+.edit-bio-save:disabled { opacity: 0.4; cursor: not-allowed; }

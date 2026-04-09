@@ -1,0 +1,83 @@
+<div class="chat-list-page">
+
+  <div class="chat-list-header">
+    <h1 class="chat-list-title">Messages</h1>
+  </div>
+
+  <!-- Loading -->
+  @if (facade.isLoadingConversations()) {
+    <div class="conv-list">
+      @for (s of skeletons; track $index) {
+        <div class="conv-row-skeleton"></div>
+      }
+    </div>
+  }
+
+  <!-- Error -->
+  @if (facade.conversationsError() && !facade.isLoadingConversations()) {
+    <div class="conv-error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ facade.conversationsError() }}</span>
+      <button class="btn-ghost" (click)="facade.loadConversations()" type="button">Retry</button>
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (!facade.isLoadingConversations() && !facade.conversationsError() && facade.conversations().length === 0) {
+    <div class="conv-empty">
+      <mat-icon class="conv-empty-icon">chat_bubble_outline</mat-icon>
+      <p class="conv-empty-text">No conversations yet</p>
+      <a routerLink="/social/discover" class="btn-primary conv-empty-btn">Find Athletes</a>
+    </div>
+  }
+
+  <!-- Conversation list -->
+  @if (!facade.isLoadingConversations() && facade.conversations().length > 0) {
+    <div class="conv-list">
+      @for (conv of facade.conversations(); track conv.id) {
+        <div
+          class="conv-row"
+          [class.conv-row--unread]="conv.unreadCount > 0"
+          [class.conv-row--active]="activeConvId() === conv.id"
+          (click)="openConversation(conv.id)"
+          role="button"
+          tabindex="0"
+          (keydown.enter)="openConversation(conv.id)"
+        >
+          <div class="conv-row-avatar-wrap">
+            @if (conv.otherParticipant.avatarUrl) {
+              <img
+                class="conv-row-avatar"
+                [src]="conv.otherParticipant.avatarUrl"
+                [alt]="conv.otherParticipant.displayName"
+              />
+            } @else {
+              <div class="conv-row-avatar conv-row-avatar--fallback">
+                <mat-icon>person</mat-icon>
+              </div>
+            }
+          </div>
+
+          <div class="conv-row-body">
+            <div class="conv-row-meta">
+              <span class="conv-row-name">{{ conv.otherParticipant.displayName }}</span>
+              <span class="conv-row-time">{{ conv.updatedAt | date:'MMM d' }}</span>
+            </div>
+            <div class="conv-row-preview">
+              <span class="conv-row-last-msg">{{ getLastMessagePreview(conv) }}</span>
+              @if (conv.unreadCount > 0) {
+                <span class="conv-row-badge">{{ formatUnreadBadge(conv.unreadCount) }}</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- New conversation FAB -->
+  <button class="conv-list-fab" (click)="router.navigate(['/social/discover'])" type="button" aria-label="Start new conversation">
+    <mat-icon>edit</mat-icon>
+  </button>
+
+</div>

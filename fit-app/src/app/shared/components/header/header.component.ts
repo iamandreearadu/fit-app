@@ -1,6 +1,5 @@
 import { Component, inject, computed, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AccountFacade } from '../../../core/facade/account.facade';
 import { MaterialModule } from '../../../core/material/material.module';
 import { NavigationService } from '../../services/navigation.service';
@@ -9,7 +8,7 @@ import { UserStore } from '../../../core/store/user.store';
 @Component({
   standalone: true,
   selector: 'app-header',
-  imports: [CommonModule, RouterLink, MaterialModule],
+  imports: [RouterLink, RouterLinkActive, MaterialModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })

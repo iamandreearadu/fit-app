@@ -1,0 +1,230 @@
+.social-sidenav {
+  width: 240px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 24px 16px;
+  background: rgba(255, 255, 255, 0.015);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  overflow-y: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+
+.social-sidenav::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Brand ── */
+.social-sidenav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 6px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.social-sidenav-brand-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.social-sidenav-brand-icon mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--white);
+}
+
+.social-wordmark {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  line-height: 1;
+  color: var(--white);
+}
+
+.social-wordmark-gradient {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── User mini-profile ── */
+.social-sidenav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 6px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 8px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: opacity 0.18s;
+}
+
+.social-sidenav-user:hover {
+  opacity: 0.8;
+}
+
+.social-sidenav-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(124, 77, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.social-sidenav-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.social-sidenav-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Nav items ── */
+.social-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  transition: background 0.18s, color 0.18s, transform 0.15s;
+  position: relative;
+  min-height: 48px;
+  border: 1px solid transparent;
+}
+
+.social-nav-item mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  transition: color 0.18s;
+}
+
+.social-nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--white);
+  transform: translateX(3px);
+}
+
+.social-nav-item--active {
+  background: rgba(124, 77, 255, 0.12);
+  color: var(--white);
+  font-weight: 700;
+  border-color: rgba(124, 77, 255, 0.22);
+}
+
+.social-nav-item--active mat-icon {
+  color: var(--primary);
+}
+
+/* ── Badge ── */
+.social-nav-badge {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+/* ── New Post button ── */
+.social-new-post-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.18s, transform 0.15s;
+  letter-spacing: 0.02em;
+  min-height: 48px;
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+.social-new-post-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.social-new-post-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+/* ── Back to FitApp link ── */
+.social-back-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  margin-top: 8px;
+  flex-shrink: 0;
+  min-height: 48px;
+}
+
+.social-back-link mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.social-back-link:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.65);
+  border-color: rgba(255, 255, 255, 0.12);
+}

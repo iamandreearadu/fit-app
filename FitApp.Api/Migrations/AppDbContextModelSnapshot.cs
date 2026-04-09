@@ -23,6 +23,9 @@ namespace FitApp.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("AuthorId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Caption")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -46,6 +49,9 @@ namespace FitApp.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -54,6 +60,8 @@ namespace FitApp.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
 
                     b.ToTable("BlogPosts");
                 });
@@ -134,6 +142,79 @@ namespace FitApp.Api.Migrations
                     b.ToTable("ChatMessages");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Conversation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Conversations");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.ConversationParticipant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ConversationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LastReadAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("ConversationId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("ConversationParticipants");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.DailyEntry", b =>
                 {
                     b.Property<int>("Id")
@@ -189,6 +270,67 @@ namespace FitApp.Api.Migrations
                     b.ToTable("DailyEntries");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.DirectMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ConversationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SenderId");
+
+                    b.HasIndex("ConversationId", "SentAt");
+
+                    b.ToTable("DirectMessages");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Follow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FollowerId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FollowingId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FollowingId");
+
+                    b.HasIndex("FollowerId", "FollowingId")
+                        .IsUnique();
+
+                    b.ToTable("Follows");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.FoodItem", b =>
                 {
                     b.Property<int>("Id")
@@ -225,6 +367,32 @@ namespace FitApp.Api.Migrations
                     b.HasIndex("MealEntryId");
 
                     b.ToTable("FoodItems");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Like", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId", "PostId")
+                        .IsUnique();
+
+                    b.ToTable("Likes");
                 });
 
             modelBuilder.Entity("FitApp.Api.Models.Entities.MealEntry", b =>
@@ -280,6 +448,105 @@ namespace FitApp.Api.Migrations
                     b.ToTable("MealEntries");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ActorId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RecipientId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ReferenceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorId");
+
+                    b.HasIndex("RecipientId", "IsRead", "CreatedAt");
+
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Post", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CommentsCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ArticleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("LikesCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("LinkedDailyEntryId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("LinkedMealId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("LinkedWorkoutId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
+
+                    b.HasIndex("LinkedDailyEntryId");
+
+                    b.HasIndex("LinkedMealId");
+
+                    b.HasIndex("LinkedWorkoutId");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
+                    b.ToTable("Posts");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.User", b =>
                 {
                     b.Property<string>("Id")
@@ -291,6 +558,9 @@ namespace FitApp.Api.Migrations
 
                     b.Property<int>("Age")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Bio")
+                        .HasColumnType("TEXT");
 
                     b.Property<double?>("Bmi")
                         .HasColumnType("REAL");
@@ -406,6 +676,9 @@ namespace FitApp.Api.Migrations
                     b.Property<int>("DurationMin")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Notes")
                         .HasColumnType("TEXT");
 
@@ -429,6 +702,16 @@ namespace FitApp.Api.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("WorkoutTemplates");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.BlogPost", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Author");
                 });
 
             modelBuilder.Entity("FitApp.Api.Models.Entities.CardioDetails", b =>
@@ -464,6 +747,44 @@ namespace FitApp.Api.Migrations
                     b.Navigation("Conversation");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Comment", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FitApp.Api.Models.Entities.User", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.ConversationParticipant", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.Conversation", "Conversation")
+                        .WithMany("Participants")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FitApp.Api.Models.Entities.User", "User")
+                        .WithMany("ConversationParticipants")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Conversation");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.DailyEntry", b =>
                 {
                     b.HasOne("FitApp.Api.Models.Entities.User", "User")
@@ -473,6 +794,44 @@ namespace FitApp.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.DirectMessage", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.Conversation", "Conversation")
+                        .WithMany("Messages")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FitApp.Api.Models.Entities.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Conversation");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Follow", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.User", "Follower")
+                        .WithMany("Following")
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FitApp.Api.Models.Entities.User", "Following")
+                        .WithMany("Followers")
+                        .HasForeignKey("FollowingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Follower");
+
+                    b.Navigation("Following");
                 });
 
             modelBuilder.Entity("FitApp.Api.Models.Entities.FoodItem", b =>
@@ -486,6 +845,25 @@ namespace FitApp.Api.Migrations
                     b.Navigation("MealEntry");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Like", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.Post", "Post")
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FitApp.Api.Models.Entities.User", "User")
+                        .WithMany("Likes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.MealEntry", b =>
                 {
                     b.HasOne("FitApp.Api.Models.Entities.User", "User")
@@ -493,6 +871,64 @@ namespace FitApp.Api.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Notification", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.User", "Actor")
+                        .WithMany()
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FitApp.Api.Models.Entities.User", "Recipient")
+                        .WithMany("ReceivedNotifications")
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Actor");
+
+                    b.Navigation("Recipient");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Post", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.BlogPost", "Article")
+                        .WithMany()
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.ClientSetNull);
+
+                    b.HasOne("FitApp.Api.Models.Entities.DailyEntry", "LinkedDailyEntry")
+                        .WithMany()
+                        .HasForeignKey("LinkedDailyEntryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("FitApp.Api.Models.Entities.MealEntry", "LinkedMeal")
+                        .WithMany()
+                        .HasForeignKey("LinkedMealId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("FitApp.Api.Models.Entities.WorkoutTemplate", "LinkedWorkout")
+                        .WithMany()
+                        .HasForeignKey("LinkedWorkoutId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("FitApp.Api.Models.Entities.User", "User")
+                        .WithMany("Posts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+
+                    b.Navigation("LinkedDailyEntry");
+
+                    b.Navigation("LinkedMeal");
+
+                    b.Navigation("LinkedWorkout");
 
                     b.Navigation("User");
                 });
@@ -524,18 +960,46 @@ namespace FitApp.Api.Migrations
                     b.Navigation("Messages");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Conversation", b =>
+                {
+                    b.Navigation("Messages");
+
+                    b.Navigation("Participants");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.MealEntry", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.Post", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Likes");
                 });
 
             modelBuilder.Entity("FitApp.Api.Models.Entities.User", b =>
                 {
                     b.Navigation("ChatConversations");
 
+                    b.Navigation("Comments");
+
+                    b.Navigation("ConversationParticipants");
+
                     b.Navigation("DailyEntries");
 
+                    b.Navigation("Followers");
+
+                    b.Navigation("Following");
+
+                    b.Navigation("Likes");
+
                     b.Navigation("MealEntries");
+
+                    b.Navigation("Posts");
+
+                    b.Navigation("ReceivedNotifications");
 
                     b.Navigation("WorkoutTemplates");
                 });
