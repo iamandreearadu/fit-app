@@ -179,7 +179,7 @@ public class ConversationService(
 
     // ── Messages ──────────────────────────────────────────────────────────────
 
-    public async Task<List<DirectMessageResponse>> GetMessagesAsync(
+    public async Task<PaginatedResponse<DirectMessageResponse>> GetMessagesAsync(
         int conversationId,
         string userId,
         int? beforeMessageId,
@@ -195,15 +195,26 @@ public class ConversationService(
         if (beforeMessageId.HasValue)
             query = query.Where(m => m.Id < beforeMessageId.Value);
 
-        var messages = await query
+        // Fetch one extra to determine hasMore
+        var fetched = await query
             .OrderByDescending(m => m.Id)
-            .Take(pageSize)
+            .Take(pageSize + 1)
             .ToListAsync();
+
+        var hasMore = fetched.Count > pageSize;
+        var messages = fetched.Take(pageSize).ToList();
 
         // Return in ascending order for the client
         messages.Reverse();
 
-        return messages.Select(m => MapToMessageResponse(m, userId)).ToList();
+        return new PaginatedResponse<DirectMessageResponse>
+        {
+            Items = messages.Select(m => MapToMessageResponse(m, userId)).ToList(),
+            Page = 1,
+            PageSize = pageSize,
+            TotalCount = messages.Count,
+            HasMore = hasMore
+        };
     }
 
     public async Task<DirectMessageResponse> SendMessageAsync(

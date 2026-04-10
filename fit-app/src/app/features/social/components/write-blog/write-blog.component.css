@@ -54,7 +54,7 @@
 
 .wb-title {
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--white);
   margin: 0;
   line-height: 1.2;
@@ -378,7 +378,7 @@
   border-radius: 10px;
   border: none;
   font-size: 13px !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   font-family: inherit;
   cursor: pointer;
   display: flex;

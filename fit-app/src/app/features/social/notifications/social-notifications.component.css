@@ -17,7 +17,7 @@
 
 .notif-page-title {
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--white);
   margin: 0;
   letter-spacing: -0.3px;
@@ -124,7 +124,7 @@
 
 .notif-empty h2 {
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--white);
   margin: 0;
 }

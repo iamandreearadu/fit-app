@@ -477,7 +477,8 @@ public class SocialService(
             ArticleId = post.ArticleId,
             ArticleTitle = post.Article?.Title,
             ArticleCategory = post.Article?.Category,
-            ArticleCaption = post.Article?.Caption
+            ArticleCaption = post.Article?.Caption,
+            ArticleDescription = post.Article?.Description
         };
     }
 
@@ -617,6 +618,7 @@ public class SocialService(
                 Id = b.Id,
                 Title = b.Title,
                 Caption = b.Caption,
+                Description = b.Description,
                 Image = string.IsNullOrEmpty(b.Image) ? null : b.Image,
                 Category = b.Category,
                 CreatedAt = b.CreatedAt,
@@ -697,6 +699,7 @@ public class SocialService(
         return new ProfileBlogSummary
         {
             Id = blog.Id, Title = blog.Title, Caption = blog.Caption,
+            Description = blog.Description,
             Image = string.IsNullOrEmpty(blog.Image) ? null : blog.Image,
             Category = blog.Category, CreatedAt = blog.CreatedAt,
             IsArchived = false, IsOwnBlog = true
@@ -720,6 +723,7 @@ public class SocialService(
         return new ProfileBlogSummary
         {
             Id = blog.Id, Title = blog.Title, Caption = blog.Caption,
+            Description = blog.Description,
             Image = string.IsNullOrEmpty(blog.Image) ? null : blog.Image,
             Category = blog.Category, CreatedAt = blog.CreatedAt,
             IsArchived = blog.IsArchived, IsOwnBlog = true

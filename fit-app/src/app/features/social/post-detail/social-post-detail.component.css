@@ -73,7 +73,7 @@
 
 .post-detail-comments-title {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--white);
 }
 
@@ -81,7 +81,7 @@
   background: rgba(124, 77, 255, 0.15);
   color: var(--primary-light);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   padding: 2px 10px;
   border-radius: 999px;
 }
@@ -185,7 +185,7 @@
 
 .comment-name {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--white);
 }
 

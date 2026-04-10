@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -81,6 +81,10 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
       maxWidth: '560px',
       width: '100%'
     });
+  }
+
+  openArticle(articleId: number): void {
+    this.router.navigate(['/social/article', articleId]);
   }
 
   openCreatePost(): void {

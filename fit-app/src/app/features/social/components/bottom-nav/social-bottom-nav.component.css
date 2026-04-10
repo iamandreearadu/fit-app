@@ -62,7 +62,7 @@
 
 .social-bottomnav-tab--active .social-bottomnav-tab-label {
   color: var(--primary);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* Active indicator dot above icon */

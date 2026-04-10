@@ -29,6 +29,7 @@ export interface Post {
   articleTitle?: string;
   articleCategory?: string;
   articleCaption?: string;
+  articleDescription?: string;
 }
 
 export interface ArticleDetail {
@@ -120,6 +121,7 @@ export interface ProfileBlog {
   id: number;
   title: string;
   caption: string;
+  description?: string;
   image?: string;
   category: string;
   createdAt: string;

@@ -75,10 +75,7 @@
             rows="3"
             maxlength="300"
           ></textarea>
-          <div class="bio-edit-actions">
-            <button class="btn-ghost bio-edit-btn" (click)="cancelEditBio()" type="button">Cancel</button>
-            <button class="btn-primary bio-edit-btn" (click)="saveBio()" type="button">Save</button>
-          </div>
+
         </div>
       }
     </div>
@@ -86,12 +83,23 @@
     <!-- Action row -->
     <div class="profile-action-row">
       @if (facade.currentProfile()!.isOwnProfile) {
-        <button class="btn-ghost profile-action-btn" (click)="startEditBio($event)" type="button" aria-label="Edit Bio">
-          <mat-icon>edit_note</mat-icon> Edit Bio
-        </button>
-        <button class="btn-primary profile-action-btn" (click)="openCreatePost()" type="button">
-          <mat-icon>add</mat-icon> New Post
-        </button>
+        @if (!isEditingBio()) {
+          <button class="btn-ghost profile-action-btn" (click)="startEditBio($event)" type="button" aria-label="Edit Bio">
+            <mat-icon>edit_note</mat-icon> Edit Bio
+          </button>
+        } @else {
+          <button class="btn-ghost profile-action-btn" (click)="cancelEditBio()" type="button">
+            <mat-icon>close</mat-icon> Cancel Bio
+          </button>
+          <button class="btn-primary profile-action-btn" (click)="saveBio()" type="button">
+            <mat-icon>check</mat-icon> Save Bio
+          </button>
+        }
+        @if (!isEditingBio()) {
+          <button class="btn-primary profile-action-btn" (click)="openCreatePost()" type="button">
+            <mat-icon>add</mat-icon> New Post
+          </button>
+        }
       } @else {
         <button
           class="btn-primary profile-action-btn"
@@ -321,8 +329,8 @@
                     <span class="article-card-date">{{ blog.createdAt | date:'MMM d, y' }}</span>
                   </div>
                   <h3 class="article-card-title">{{ blog.title }}</h3>
-                  @if (blog.caption) {
-                    <p class="article-card-caption">{{ blog.caption }}</p>
+                  @if (blog.description) {
+                    <p class="article-card-description">{{ blog.description }}</p>
                   }
                   <div class="article-card-footer">
                     <span class="article-card-read">Read article <mat-icon>arrow_forward</mat-icon></span>

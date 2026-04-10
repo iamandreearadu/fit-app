@@ -6,8 +6,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
@@ -28,8 +26,6 @@ interface MessageGroup {
     DatePipe,
     MatIconModule,
     MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatProgressSpinnerModule,
     MatMenuModule,
     TextFieldModule

@@ -11,7 +11,7 @@
   gap: 12px;
 }
 .edit-bio-header { display: flex; align-items: center; justify-content: space-between; }
-.edit-bio-title { font-size: 18px; font-weight: 800; color: var(--white); margin: 0; }
+.edit-bio-title { font-size: 18px; font-weight: 700; color: var(--white); margin: 0; }
 .edit-bio-field { width: 100%; }
 .edit-bio-counter { font-size: 12px; font-weight: 500; text-align: right; margin-top: -8px; }
 .char-green { color: var(--color-success); }

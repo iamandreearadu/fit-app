@@ -7,11 +7,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { SocialFacade } from '../../../core/facade/social.facade';
+import { ChatFacade } from '../../../core/facade/chat.facade';
 import { UserStore } from '../../../core/store/user.store';
 import { CreatePostComponent } from '../components/create-post/create-post.component';
 import { EditPostComponent } from '../components/edit-post/edit-post.component';
 import { WriteBlogComponent } from '../components/write-blog/write-blog.component';
 import { Post, ProfileBlog } from '../../../core/models/social.model';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 type ProfileTab = 'posts' | 'workouts' | 'blogs';
 
@@ -20,13 +22,14 @@ type ProfileTab = 'posts' | 'workouts' | 'blogs';
   standalone: true,
   imports: [
     CommonModule, FormsModule, RouterLink, MatIconModule, MatButtonModule,
-    MatProgressSpinnerModule, MatDialogModule
+    MatProgressSpinnerModule, MatDialogModule, ConfirmDialogComponent
   ],
   templateUrl: './social-profile.component.html',
   styleUrl: './social-profile.component.css'
 })
 export class SocialProfileComponent implements OnInit {
   protected readonly facade = inject(SocialFacade);
+  private readonly chatFacade = inject(ChatFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly userStore = inject(UserStore);
@@ -127,7 +130,14 @@ export class SocialProfileComponent implements OnInit {
     });
   }
 
-  messageUser(): void { this.router.navigate(['/social/chat']); }
+  async messageUser(): Promise<void> {
+    try {
+      const conv = await this.chatFacade.createConversation({ targetUserId: this.userId });
+      this.router.navigate(['/social/chat', conv.id]);
+    } catch {
+      this.router.navigate(['/social/chat']);
+    }
+  }
 
   // ── Post actions ───────────────────────────────────────────────────────────
 
@@ -140,6 +150,8 @@ export class SocialProfileComponent implements OnInit {
 
   async deletePost(e: Event, postId: number): Promise<void> {
     e.stopPropagation();
+    const confirmed = await this.confirmDelete('Are you sure you want to delete this post?');
+    if (!confirmed) return;
     await this.facade.deletePost(postId);
   }
 
@@ -162,6 +174,8 @@ export class SocialProfileComponent implements OnInit {
 
   async deleteWorkout(e: Event, workoutId: number): Promise<void> {
     e.stopPropagation();
+    const confirmed = await this.confirmDelete('Are you sure you want to delete this workout?');
+    if (!confirmed) return;
     await this.facade.deleteWorkout(workoutId);
   }
 
@@ -197,11 +211,24 @@ export class SocialProfileComponent implements OnInit {
 
   async deleteBlog(e: Event, blogId: number): Promise<void> {
     e.stopPropagation();
+    const confirmed = await this.confirmDelete('Are you sure you want to delete this article?');
+    if (!confirmed) return;
     await this.facade.deleteBlog(blogId);
   }
 
   async archiveBlog(e: Event, blogId: number): Promise<void> {
     e.stopPropagation();
     await this.facade.archiveBlog(blogId);
+  }
+
+  // ── Shared confirm helper ──────────────────────────────────────────────────
+
+  private confirmDelete(message: string): Promise<boolean> {
+    return this.dialog.open(ConfirmDialogComponent, {
+      data: { message, dangerous: true },
+      panelClass: 'confirm-dialog-panel',
+      maxWidth: '360px',
+      width: '100%'
+    }).afterClosed().toPromise().then(r => !!r);
   }
 }

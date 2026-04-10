@@ -22,7 +22,7 @@
 
 .discover-section-title {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--white);
   margin: 0;
   letter-spacing: -0.2px;
@@ -133,7 +133,7 @@
 
 .user-card-name {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--white);
   text-align: center;
   text-decoration: none;

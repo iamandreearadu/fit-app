@@ -71,6 +71,7 @@ public class PostResponse
     public string? ArticleTitle { get; set; }
     public string? ArticleCategory { get; set; }
     public string? ArticleCaption { get; set; }
+    public string? ArticleDescription { get; set; }
 }
 
 public class ArticleDetailResponse
@@ -155,6 +156,7 @@ public class ProfileBlogSummary
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Caption { get; set; } = string.Empty;
+    public string? Description { get; set; }
     public string? Image { get; set; }
     public string Category { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }

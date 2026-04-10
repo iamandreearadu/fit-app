@@ -62,7 +62,7 @@
 
 .post-card-author-name {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--white);
   text-decoration: none;
   white-space: nowrap;
@@ -146,7 +146,7 @@
 
 .linked-content-title {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--white);
   white-space: nowrap;
   overflow: hidden;
@@ -292,8 +292,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: none;
   background: transparent;
@@ -371,7 +371,7 @@
 }
 
 .article-post-title {
-  font-size: 18px; font-weight: 800;
+  font-size: 18px; font-weight: 700;
   color: var(--white); margin: 0;
   line-height: 1.3; letter-spacing: -0.01em;
 }
