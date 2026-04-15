@@ -8,7 +8,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { SocialFacade } from '../../../core/facade/social.facade';
 import { Post } from '../../../core/models/social.model';
 import { PostCardComponent } from '../components/post-card/post-card.component';
-import { CreatePostComponent } from '../components/create-post/create-post.component';
+import { CreateContentComponent } from '../components/create-content/create-content.component';
 import { EditPostComponent } from '../components/edit-post/edit-post.component';
 
 @Component({
@@ -88,10 +88,12 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openCreatePost(): void {
-    this.dialog.open(CreatePostComponent, {
+    this.dialog.open(CreateContentComponent, {
       panelClass: 'create-post-panel',
-      maxWidth: '560px',
+      maxWidth: '600px',
       width: '100%'
+    }).afterClosed().subscribe(result => {
+      if (result) this.facade.loadFeed(true);
     });
   }
 }

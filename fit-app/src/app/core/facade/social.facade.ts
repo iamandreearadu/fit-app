@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { SocialService } from '../../api/social.service';
+import { StatsService } from '../../api/stats.service';
 import {
   Post,
   UserSocialProfile,
@@ -14,10 +15,17 @@ import {
   UpdateBlogRequest,
   ArticleDetail
 } from '../models/social.model';
+import { UserPublicStats } from '../models/stats.model';
 
 @Injectable({ providedIn: 'root' })
 export class SocialFacade {
   private readonly socialSvc = inject(SocialService);
+  private readonly statsSvc = inject(StatsService);
+
+  // Public stats state (other profiles)
+  publicStats = signal<UserPublicStats | null>(null);
+  isLoadingPublicStats = signal(false);
+  publicStatsError = signal<string | null>(null);
 
   // Feed state
   feed = signal<Post[]>([]);
@@ -251,5 +259,19 @@ export class SocialFacade {
 
   async getArticle(id: number): Promise<ArticleDetail> {
     return firstValueFrom(this.socialSvc.getArticle(id));
+  }
+
+  async loadPublicStats(userId: string): Promise<void> {
+    this.publicStats.set(null);
+    this.isLoadingPublicStats.set(true);
+    this.publicStatsError.set(null);
+    try {
+      const stats = await firstValueFrom(this.statsSvc.getPublicStats(userId));
+      this.publicStats.set(stats);
+    } catch {
+      this.publicStatsError.set('Could not load stats. Please try again.');
+    } finally {
+      this.isLoadingPublicStats.set(false);
+    }
   }
 }

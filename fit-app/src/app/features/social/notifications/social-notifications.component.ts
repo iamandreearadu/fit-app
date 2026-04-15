@@ -35,35 +35,31 @@ export class SocialNotificationsComponent implements OnInit {
       this.facade.markOneRead(n.id);
     }
     switch (n.type) {
-      case 'Like':
-      case 'Comment':
+      case 'like':
+      case 'comment':
         if (n.referenceId) this.router.navigate(['/social/post', n.referenceId]);
         break;
-      case 'Follow':
+      case 'follow':
         this.router.navigate(['/social/profile', n.actor.id]);
-        break;
-      case 'NewMessage':
-        if (n.referenceId) this.router.navigate(['/social/chat', n.referenceId]);
-        else this.router.navigate(['/social/chat']);
         break;
     }
   }
 
   getTypeIcon(type: SocialNotification['type']): string {
     switch (type) {
-      case 'Like': return 'favorite';
-      case 'Comment': return 'chat_bubble';
-      case 'Follow': return 'person_add';
-      case 'NewMessage': return 'mail';
+      case 'like': return 'favorite';
+      case 'comment': return 'chat_bubble';
+      case 'follow': return 'person_add';
+      case 'message': return 'mail';
     }
   }
 
   getTypeIconClass(type: SocialNotification['type']): string {
     switch (type) {
-      case 'Like': return 'icon-like';
-      case 'Comment': return 'icon-comment';
-      case 'Follow': return 'icon-follow';
-      case 'NewMessage': return 'icon-message';
+      case 'like': return 'icon-like';
+      case 'comment': return 'icon-comment';
+      case 'follow': return 'icon-follow';
+      case 'message': return 'icon-message';
     }
   }
 }

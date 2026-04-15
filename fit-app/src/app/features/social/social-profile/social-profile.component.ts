@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal, HostListener } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -10,22 +11,30 @@ import { SocialFacade } from '../../../core/facade/social.facade';
 import { ChatFacade } from '../../../core/facade/chat.facade';
 import { UserStore } from '../../../core/store/user.store';
 import { CreatePostComponent } from '../components/create-post/create-post.component';
+import { CreateContentComponent } from '../components/create-content/create-content.component';
 import { EditPostComponent } from '../components/edit-post/edit-post.component';
-import { WriteBlogComponent } from '../components/write-blog/write-blog.component';
+import { WriteArticleComponent } from '../components/write-article/write-article.component';
 import { Post, ProfileBlog } from '../../../core/models/social.model';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { StatsTabComponent } from './stats-tab/stats-tab.component';
 
-type ProfileTab = 'posts' | 'workouts' | 'blogs';
+type ProfileTab = 'posts' | 'workouts' | 'blogs' | 'stats';
 
 @Component({
   selector: 'app-social-profile',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, RouterLink, MatIconModule, MatButtonModule,
-    MatProgressSpinnerModule, MatDialogModule, ConfirmDialogComponent
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatDialogModule,
+    StatsTabComponent,
   ],
   templateUrl: './social-profile.component.html',
-  styleUrl: './social-profile.component.css'
+  styleUrl: './social-profile.component.css',
 })
 export class SocialProfileComponent implements OnInit {
   protected readonly facade = inject(SocialFacade);
@@ -43,6 +52,7 @@ export class SocialProfileComponent implements OnInit {
   readonly activeTab = signal<ProfileTab>('posts');
   readonly showMoreMenu = signal(false);
   readonly showArchivedSection = signal(false);
+  readonly openBlogMenuId = signal<number | null>(null);
 
   // Inline bio edit
   readonly isEditingBio = signal(false);
@@ -52,7 +62,8 @@ export class SocialProfileComponent implements OnInit {
 
   ngOnInit(): void {
     const paramId = this.route.snapshot.paramMap.get('userId') ?? 'me';
-    this.userId = paramId === 'me' ? (this.userStore.user()?.id ?? '') : paramId;
+    this.userId =
+      paramId === 'me' ? (this.userStore.user()?.id ?? '') : paramId;
 
     this.facade.loadProfile(this.userId).then(() => {
       const profile = this.facade.currentProfile();
@@ -63,7 +74,10 @@ export class SocialProfileComponent implements OnInit {
   }
 
   @HostListener('document:click')
-  onDocumentClick(): void { this.showMoreMenu.set(false); }
+  onDocumentClick(): void {
+    this.showMoreMenu.set(false);
+    this.openBlogMenuId.set(null);
+  }
 
   setTab(tab: ProfileTab): void {
     this.activeTab.set(tab);
@@ -72,7 +86,12 @@ export class SocialProfileComponent implements OnInit {
 
   toggleMoreMenu(e: Event): void {
     e.stopPropagation();
-    this.showMoreMenu.update(v => !v);
+    this.showMoreMenu.update((v) => !v);
+  }
+
+  toggleBlogMenu(e: Event, blogId: number): void {
+    e.stopPropagation();
+    this.openBlogMenuId.update((id) => (id === blogId ? null : blogId));
   }
 
   openArchived(e: Event): void {
@@ -82,7 +101,9 @@ export class SocialProfileComponent implements OnInit {
     this.facade.loadArchivedPosts(this.userId);
   }
 
-  closeArchived(): void { this.showArchivedSection.set(false); }
+  closeArchived(): void {
+    this.showArchivedSection.set(false);
+  }
 
   startEditBio(e?: Event): void {
     e?.stopPropagation();
@@ -107,32 +128,44 @@ export class SocialProfileComponent implements OnInit {
     try {
       const res = await this.facade.toggleFollow(this.userId);
       this.isFollowing.set(res.isFollowing);
-    } finally { this.isTogglingFollow.set(false); }
+    } finally {
+      this.isTogglingFollow.set(false);
+    }
   }
 
   openCreatePost(): void {
-    this.dialog.open(CreatePostComponent, {
-      panelClass: 'create-post-panel', maxWidth: '560px', width: '100%'
-    }).afterClosed().subscribe(created => {
-      if (created) this.facade.loadProfile(this.userId);
-    });
+    this.dialog
+      .open(CreateContentComponent, {
+        panelClass: 'create-post-panel',
+        maxWidth: '600px',
+        width: '100%',
+      })
+      .afterClosed()
+      .subscribe((created) => {
+        if (created) {
+          this.facade.loadProfile(this.userId);
+          this.facade.loadProfileBlogs(this.userId);
+        }
+      });
   }
 
   openPostDetail(postId: number): void {
     this.router.navigate(['/social/post', postId], {
-      state: { returnUrl: `/social/profile/${this.userId}` }
+      state: { returnUrl: `/social/profile/${this.userId}` },
     });
   }
 
   openArticleDetail(articleId: number): void {
     this.router.navigate(['/social/article', articleId], {
-      state: { returnUrl: `/social/profile/${this.userId}` }
+      state: { returnUrl: `/social/profile/${this.userId}` },
     });
   }
 
   async messageUser(): Promise<void> {
     try {
-      const conv = await this.chatFacade.createConversation({ targetUserId: this.userId });
+      const conv = await this.chatFacade.createConversation({
+        targetUserId: this.userId,
+      });
       this.router.navigate(['/social/chat', conv.id]);
     } catch {
       this.router.navigate(['/social/chat']);
@@ -144,13 +177,18 @@ export class SocialProfileComponent implements OnInit {
   editPost(e: Event, post: Post): void {
     e.stopPropagation();
     this.dialog.open(EditPostComponent, {
-      data: { post }, panelClass: 'create-post-panel', maxWidth: '560px', width: '100%'
+      data: { post },
+      panelClass: 'create-post-panel',
+      maxWidth: '560px',
+      width: '100%',
     });
   }
 
   async deletePost(e: Event, postId: number): Promise<void> {
     e.stopPropagation();
-    const confirmed = await this.confirmDelete('Are you sure you want to delete this post?');
+    const confirmed = await this.confirmDelete(
+      'Are you sure you want to delete this post?',
+    );
     if (!confirmed) return;
     await this.facade.deletePost(postId);
   }
@@ -174,7 +212,9 @@ export class SocialProfileComponent implements OnInit {
 
   async deleteWorkout(e: Event, workoutId: number): Promise<void> {
     e.stopPropagation();
-    const confirmed = await this.confirmDelete('Are you sure you want to delete this workout?');
+    const confirmed = await this.confirmDelete(
+      'Are you sure you want to delete this workout?',
+    );
     if (!confirmed) return;
     await this.facade.deleteWorkout(workoutId);
   }
@@ -186,32 +226,40 @@ export class SocialProfileComponent implements OnInit {
 
   // ── Blog actions ───────────────────────────────────────────────────────────
 
-  openWriteBlog(): void {
-    this.dialog.open(WriteBlogComponent, {
-      data: null,
-      panelClass: 'create-post-panel',
-      maxWidth: '600px',
-      width: '100%'
-    }).afterClosed().subscribe(published => {
-      if (published) this.facade.loadProfileBlogs(this.userId);
-    });
+  openWriteArticle(): void {
+    this.dialog
+      .open(WriteArticleComponent, {
+        data: null,
+        panelClass: 'create-post-panel',
+        maxWidth: '600px',
+        width: '100%',
+      })
+      .afterClosed()
+      .subscribe((published) => {
+        if (published) this.facade.loadProfileBlogs(this.userId);
+      });
   }
 
   editBlog(e: Event, blog: ProfileBlog): void {
     e.stopPropagation();
-    this.dialog.open(WriteBlogComponent, {
-      data: { blog },
-      panelClass: 'create-post-panel',
-      maxWidth: '600px',
-      width: '100%'
-    }).afterClosed().subscribe(saved => {
-      if (saved) this.facade.loadProfileBlogs(this.userId);
-    });
+    this.dialog
+      .open(WriteArticleComponent, {
+        data: { blog },
+        panelClass: 'create-post-panel',
+        maxWidth: '600px',
+        width: '100%',
+      })
+      .afterClosed()
+      .subscribe((saved) => {
+        if (saved) this.facade.loadProfileBlogs(this.userId);
+      });
   }
 
   async deleteBlog(e: Event, blogId: number): Promise<void> {
     e.stopPropagation();
-    const confirmed = await this.confirmDelete('Are you sure you want to delete this article?');
+    const confirmed = await this.confirmDelete(
+      'Are you sure you want to delete this article?',
+    );
     if (!confirmed) return;
     await this.facade.deleteBlog(blogId);
   }
@@ -224,11 +272,15 @@ export class SocialProfileComponent implements OnInit {
   // ── Shared confirm helper ──────────────────────────────────────────────────
 
   private confirmDelete(message: string): Promise<boolean> {
-    return this.dialog.open(ConfirmDialogComponent, {
-      data: { message, dangerous: true },
-      panelClass: 'confirm-dialog-panel',
-      maxWidth: '360px',
-      width: '100%'
-    }).afterClosed().toPromise().then(r => !!r);
+    return firstValueFrom(
+      this.dialog
+        .open(ConfirmDialogComponent, {
+          data: { message, dangerous: true },
+          panelClass: 'confirm-dialog-panel',
+          maxWidth: '360px',
+          width: '100%',
+        })
+        .afterClosed(),
+    ).then((r) => !!r);
   }
 }

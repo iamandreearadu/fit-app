@@ -21,6 +21,86 @@
   max-width: 680px;
 }
 
+/* ── Drawer backdrop ─────────────────────────────────────────────────────────── */
+
+.daily-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 299;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  animation: backdropIn 0.2s ease-out;
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Floating toggle FAB ─────────────────────────────────────────────────────── */
+
+.daily-panel-fab {
+  position: fixed;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  right: 16px;
+  z-index: 301;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px 0 10px;
+  height: 40px;
+  border-radius: 999px;
+  background: rgba(124, 77, 255, 0.18);
+  border: 1px solid rgba(124, 77, 255, 0.35);
+  color: var(--primary);
+  font-family: Poppins, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 4px 16px rgba(124, 77, 255, 0.25);
+}
+
+.daily-panel-fab mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.daily-panel-fab:hover {
+  background: rgba(124, 77, 255, 0.28);
+  border-color: rgba(124, 77, 255, 0.55);
+  transform: translateY(-1px);
+}
+
+.daily-panel-fab--active {
+  padding: 0 10px;
+  background: rgba(255, 64, 129, 0.15);
+  border-color: rgba(255, 64, 129, 0.3);
+  color: var(--accent);
+}
+
+.daily-panel-fab-label {
+  line-height: 1;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────────── */
+
+/* < 1200px: hide panel from flow (it becomes a fixed overlay in its own CSS) */
+@media (max-width: 1199px) {
+  .daily-panel-fab {
+    display: flex;
+  }
+}
+
+@media (min-width: 1200px) {
+  .daily-panel-fab {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
   .social-shell {
     display: block;

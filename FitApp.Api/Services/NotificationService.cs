@@ -22,37 +22,62 @@ public class NotificationService(
         // Skip self-notifications
         if (recipientId == actorId) return;
 
-        var notification = new Notification
-        {
-            RecipientId = recipientId,
-            ActorId = actorId,
-            Type = type,
-            ReferenceId = referenceId,
-            Message = messageText,
-            IsRead = false
-        };
-
-        db.Notifications.Add(notification);
-        await db.SaveChangesAsync();
-
         // Load actor for the push payload
         var actor = await db.Users.FindAsync(actorId);
 
-        var response = new NotificationResponse
+        NotificationResponse response;
+
+        if (type == NotificationType.NewMessage)
         {
-            Id = notification.Id,
-            Actor = new UserSummary
+            // Chat messages are not persisted as notifications — they live only in Chat.
+            // We still push via SignalR so the chat feature can react in real-time.
+            response = new NotificationResponse
             {
-                Id = actorId,
-                DisplayName = actor?.FullName ?? "Someone",
-                AvatarUrl = actor?.ImageUrl
-            },
-            Type = MapTypeToString(type),
-            Message = messageText,
-            ReferenceId = referenceId,
-            IsRead = false,
-            CreatedAt = notification.CreatedAt
-        };
+                Id = 0,
+                Actor = new UserSummary
+                {
+                    Id = actorId,
+                    DisplayName = actor?.FullName ?? "Someone",
+                    AvatarUrl = actor?.ImageUrl
+                },
+                Type = MapTypeToString(type),
+                Message = messageText,
+                ReferenceId = referenceId,
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            };
+        }
+        else
+        {
+            var notification = new Notification
+            {
+                RecipientId = recipientId,
+                ActorId = actorId,
+                Type = type,
+                ReferenceId = referenceId,
+                Message = messageText,
+                IsRead = false
+            };
+
+            db.Notifications.Add(notification);
+            await db.SaveChangesAsync();
+
+            response = new NotificationResponse
+            {
+                Id = notification.Id,
+                Actor = new UserSummary
+                {
+                    Id = actorId,
+                    DisplayName = actor?.FullName ?? "Someone",
+                    AvatarUrl = actor?.ImageUrl
+                },
+                Type = MapTypeToString(type),
+                Message = messageText,
+                ReferenceId = referenceId,
+                IsRead = false,
+                CreatedAt = notification.CreatedAt
+            };
+        }
 
         try
         {

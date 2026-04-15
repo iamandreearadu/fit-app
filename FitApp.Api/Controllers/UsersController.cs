@@ -29,4 +29,12 @@ public class UsersController(UserService userService) : ControllerBase
         if (profile is null) return NotFound();
         return Ok(profile);
     }
+
+    [HttpGet("{userId}/stats")]
+    public async Task<IActionResult> GetUserStats(string userId)
+    {
+        var stats = await userService.GetPublicStatsAsync(userId);
+        if (stats is null) return NotFound();
+        return Ok(stats);
+    }
 }

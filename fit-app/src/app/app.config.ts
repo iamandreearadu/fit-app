@@ -9,6 +9,18 @@ import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import {
+  Chart,
+  LineElement,
+  LinearScale,
+  CategoryScale,
+  PointElement,
+  Filler,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+Chart.register(LineElement, LinearScale, CategoryScale, PointElement, Filler, Tooltip, Legend);
 
 import { MaterialModule } from './core/material/material.module';
 import { authInterceptor } from './core/interceptors/auth.interceptor';

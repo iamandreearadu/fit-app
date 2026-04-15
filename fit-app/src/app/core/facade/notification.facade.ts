@@ -19,6 +19,8 @@ export class NotificationFacade {
 
   constructor() {
     this.notifHub.notification$.pipe(takeUntilDestroyed()).subscribe(n => {
+      // Chat messages are handled exclusively in Chat — exclude from notifications feed
+      if (n.type === 'message') return;
       this.notifications.update(ns => [n, ...ns]);
       this.unreadCount.update(c => c + 1);
     });

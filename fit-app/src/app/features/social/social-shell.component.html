@@ -17,9 +17,36 @@
     </div>
   </main>
 
+  <!-- Right daily panel — always rendered, CSS handles show/hide -->
+  <app-social-daily-panel
+    [open]="dailyPanelOpen()"
+    (closeRequested)="closeDailyPanel()"
+  />
+
+  <!-- Drawer backdrop on narrow screens -->
+  @if (isNarrow() && dailyPanelOpen()) {
+    <div class="daily-panel-backdrop" (click)="closeDailyPanel()" aria-hidden="true"></div>
+  }
+
+  <!-- Floating toggle button — visible when panel is a drawer (< 1200px) -->
+  @if (isNarrow()) {
+    <button
+      class="daily-panel-fab"
+      [class.daily-panel-fab--active]="dailyPanelOpen()"
+      (click)="toggleDailyPanel()"
+      type="button"
+      aria-label="Toggle today's summary">
+      <mat-icon>{{ dailyPanelOpen() ? 'close' : 'today' }}</mat-icon>
+      @if (!dailyPanelOpen()) {
+        <span class="daily-panel-fab-label">Today</span>
+      }
+    </button>
+  }
+
   @if (isMobile()) {
     <app-social-bottom-nav
       [unreadNotifications]="notifFacade.unreadCount()"
+      [unreadMessages]="chatFacade.unreadConversationsCount()"
     />
   }
 

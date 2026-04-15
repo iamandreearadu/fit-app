@@ -5,7 +5,7 @@
     <h1 class="feed-title">Feed</h1>
     <button class="btn-primary feed-header-btn" (click)="openCreatePost()" type="button">
       <mat-icon>add</mat-icon>
-      <span>New Post</span>
+      <span>New</span>
     </button>
   </div>
 
@@ -40,31 +40,14 @@
   @if (facade.feed().length > 0) {
     <div class="feed-list">
       @for (post of facade.feed(); track post.id) {
-        @if (post.articleId) {
-          <div class="article-card" (click)="openArticle(post.articleId)" role="button" tabindex="0">
-            <div class="article-card-top">
-              <span class="article-card-category">{{ post.articleCategory }}</span>
-              <span class="article-card-date">{{ post.createdAt | date:'MMM d, y' }}</span>
-            </div>
-            <h3 class="article-card-title">{{ post.articleTitle }}</h3>
-            @if (post.articleDescription) {
-              <p class="article-card-description">{{ post.articleDescription }}</p>
-            }
-            <div class="article-card-footer">
-              <span class="article-card-author">{{ post.author.displayName }}</span>
-              <span class="article-card-read">Read article <mat-icon>arrow_forward</mat-icon></span>
-            </div>
-          </div>
-        } @else {
-          <app-post-card
-            [post]="post"
-            (likeToggled)="onLikeToggled($event)"
-            (commentClicked)="onCommentClicked($event)"
-            (followToggled)="onFollowToggled($event)"
-            (deleteClicked)="onDeleteClicked($event)"
-            (editClicked)="onEditClicked($event)"
-          />
-        }
+        <app-post-card
+          [post]="post"
+          (likeToggled)="onLikeToggled($event)"
+          (commentClicked)="onCommentClicked($event)"
+          (followToggled)="onFollowToggled($event)"
+          (deleteClicked)="onDeleteClicked($event)"
+          (editClicked)="onEditClicked($event)"
+        />
       }
 
       <!-- Load more spinner -->

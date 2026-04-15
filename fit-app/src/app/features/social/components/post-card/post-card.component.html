@@ -1,140 +1,148 @@
 <article class="post-card" [class.post-card--article]="isArticle()" role="article">
 
-  <!-- Header -->
-  <div class="post-card-header">
-    <a [routerLink]="['/social/profile', post().author.id]" class="post-card-author-link">
-      <div class="post-card-avatar-wrap">
-        @if (post().author.avatarUrl) {
-          <img
-            class="post-card-avatar"
-            [src]="post().author.avatarUrl"
-            [alt]="post().author.displayName"
-            (error)="onImageError()"
-          />
-        } @else {
-          <div class="post-card-avatar post-card-avatar--fallback">
-            <mat-icon>person</mat-icon>
-          </div>
-        }
-      </div>
-    </a>
-    <div class="post-card-meta">
-      <a [routerLink]="['/social/profile', post().author.id]" class="post-card-author-name">
-        {{ post().author.displayName }}
-      </a>
-      <span class="pill-subtle">{{ post().createdAt | date:'MMM d, y' }}</span>
-    </div>
-    @if (!post().isOwnPost && !post().isFollowingAuthor) {
-      <button class="post-card-follow-btn btn-ghost" (click)="onFollow()" type="button">
-        Follow
-      </button>
-    }
-    @if (post().isOwnPost) {
-      <div class="post-card-menu-wrap">
-        <button class="post-card-menu-btn" (click)="toggleMenu($event)" type="button" aria-label="Post options">
-          <mat-icon>more_vert</mat-icon>
-        </button>
-        @if (showMenu()) {
-          <div class="post-card-menu">
-            <button class="post-card-menu-item" (click)="onEdit($event)" type="button">
-              <mat-icon>edit</mat-icon>
-              Edit
-            </button>
-            <button class="post-card-menu-item post-card-menu-item--danger" (click)="onDelete($event)" type="button">
-              <mat-icon>delete</mat-icon>
-              Delete
-            </button>
-          </div>
-        }
-      </div>
-    }
-  </div>
-
-  <!-- Article post body -->
-  @if (isArticle()) {
-    <div class="article-post-body" (click)="openArticle()">
-      <div class="article-post-meta">
-        <span class="article-post-category">{{ post().articleCategory }}</span>
-      </div>
-      <h2 class="article-post-title">{{ post().articleTitle }}</h2>
-      @if (post().articleCaption) {
-        <p class="article-post-caption"
-           [class.article-post-caption--collapsed]="!showFullArticle()">
-          {{ post().articleCaption }}
-        </p>
-      }
-      <button class="article-post-read-btn" type="button">
-        Read article <mat-icon>arrow_forward</mat-icon>
-      </button>
-    </div>
-  }
-
-  @if (!isArticle()) {
-    <!-- Linked Content Preview -->
-    @if (post().linkedContent) {
-      <div class="linked-content-preview">
-        <div class="linked-content-header">
-          <span class="linked-content-badge" [class]="getBadgeClass(post().linkedContent!.type)">
-            {{ post().linkedContent!.type | titlecase }}
-          </span>
-          <span class="linked-content-title">{{ post().linkedContent!.title }}</span>
+  <!-- ── Left: avatar column ──────────────────────────────────────────── -->
+  <a [routerLink]="['/social/profile', post().author.id]"
+     class="post-card-avatar-link" aria-hidden="true" tabindex="-1">
+    <div class="post-card-avatar-wrap">
+      @if (post().author.avatarUrl) {
+        <img class="post-card-avatar"
+             [src]="post().author.avatarUrl"
+             [alt]="post().author.displayName"
+             (error)="onImageError()" />
+      } @else {
+        <div class="post-card-avatar post-card-avatar--fallback">
+          <mat-icon>person</mat-icon>
         </div>
-        <p class="linked-content-subtitle">{{ post().linkedContent!.subtitle }}</p>
-      </div>
-    }
+      }
+    </div>
+  </a>
 
-    <!-- Content -->
-    <div class="post-card-content" [class.post-card-content--clamped]="!showFullContent() && isContentLong()">
-      <p>{{ displayContent() }}</p>
-      @if (isContentLong()) {
-        <button class="post-card-show-more" (click)="toggleShowMore()" type="button">
-          {{ showFullContent() ? 'Show less' : 'Show more' }}
+  <!-- ── Right: content column ────────────────────────────────────────── -->
+  <div class="post-card-col">
+
+    <!-- Name row -->
+    <div class="post-card-name-row">
+      <a [routerLink]="['/social/profile', post().author.id]"
+         class="post-card-author-name">{{ post().author.displayName }}</a>
+      <span class="post-card-date">· {{ post().createdAt | date:'MMM d' }}</span>
+
+      @if (!post().isOwnPost && !post().isFollowingAuthor) {
+        <button class="post-card-follow-btn" (click)="onFollow()" type="button">
+          Follow
         </button>
+      }
+
+      @if (post().isOwnPost) {
+        <div class="post-card-menu-wrap">
+          <button class="post-card-menu-btn"
+                  (click)="toggleMenu($event)" type="button" aria-label="Post options">
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+          @if (showMenu()) {
+            <div class="post-card-menu">
+              <button class="post-card-menu-item" (click)="onEdit($event)" type="button">
+                <mat-icon>edit</mat-icon> Edit
+              </button>
+              <button class="post-card-menu-item post-card-menu-item--danger"
+                      (click)="onDelete($event)" type="button">
+                <mat-icon>delete</mat-icon> Delete
+              </button>
+            </div>
+          }
+        </div>
       }
     </div>
 
-    <!-- Image -->
-    @if (post().imageUrl && !imageError()) {
-      <div class="post-card-image-wrap">
-        <img
-          class="post-card-image"
-          [src]="post().imageUrl"
-          [alt]="'Post by ' + post().author.displayName"
-          (error)="onImageError()"
-          loading="lazy"
-        />
+    <!-- ── Regular post body ───────────────────────────────────────────── -->
+    @if (!isArticle()) {
+
+      @if (post().linkedContent) {
+        <div class="linked-content-preview">
+          <div class="linked-content-header">
+            <span class="linked-content-badge" [class]="getBadgeClass(post().linkedContent!.type)">
+              {{ post().linkedContent!.type | titlecase }}
+            </span>
+            <span class="linked-content-title">{{ post().linkedContent!.title }}</span>
+          </div>
+          <p class="linked-content-subtitle">{{ post().linkedContent!.subtitle }}</p>
+        </div>
+      }
+
+      <div class="post-card-content"
+           [class.post-card-content--clamped]="!showFullContent() && isContentLong()">
+        <p>{{ displayContent() }}</p>
+        @if (isContentLong()) {
+          <button class="post-card-show-more" (click)="toggleShowMore()" type="button">
+            {{ showFullContent() ? 'Show less' : 'Show more' }}
+          </button>
+        }
+      </div>
+
+      @if (post().imageUrl && !imageError()) {
+        <div class="post-card-image-wrap">
+          <img class="post-card-image"
+               [src]="post().imageUrl"
+               [alt]="'Post by ' + post().author.displayName"
+               (error)="onImageError()" loading="lazy" />
+        </div>
+      }
+      @if (imageError() && post().imageUrl) {
+        <div class="post-card-image-error">
+          <mat-icon>image_not_supported</mat-icon>
+        </div>
+      }
+    }
+
+    <!-- ── Article post body ──────────────────────────────────────────── -->
+    @if (isArticle()) {
+      <div class="article-post-body">
+
+        @if (post().content) {
+          <p class="article-post-context">{{ post().content }}</p>
+        }
+
+        <div class="article-post-card">
+          @if (post().articleCategory) {
+            <span class="article-post-category">{{ post().articleCategory }}</span>
+          }
+          <h2 class="article-post-title">{{ post().articleTitle }}</h2>
+          @if (post().articleCaption) {
+            <p class="article-post-caption">{{ post().articleCaption }}</p>
+          }
+          @if (post().articleDescription) {
+            <button class="article-post-read-more" (click)="toggleArticle($event)" type="button">
+              {{ showFullArticle() ? 'Show less' : 'Read more' }}
+            </button>
+          }
+        </div>
+
+        @if (showFullArticle() && post().articleDescription) {
+          <div class="article-post-full-description">
+            {{ post().articleDescription }}
+          </div>
+        }
+
       </div>
     }
-    @if (imageError() && post().imageUrl) {
-      <div class="post-card-image-error">
-        <mat-icon>image_not_supported</mat-icon>
-      </div>
-    }
-  }
 
-  <!-- Footer -->
-  <div class="post-card-footer">
-    <button
-      class="post-card-action-btn"
-      [class.post-card-action-btn--liked]="post().isLikedByMe"
-      (click)="onLike()"
-      type="button"
-      [attr.aria-label]="'Like post'"
-      [attr.aria-pressed]="post().isLikedByMe"
-    >
-      <mat-icon>{{ post().isLikedByMe ? 'favorite' : 'favorite_border' }}</mat-icon>
-      <span class="post-card-action-count">{{ post().likesCount }}</span>
-    </button>
+    <!-- ── Footer ─────────────────────────────────────────────────────── -->
+    <div class="post-card-footer">
+      <button class="post-card-action-btn"
+              [class.post-card-action-btn--liked]="post().isLikedByMe"
+              (click)="onLike()" type="button"
+              [attr.aria-label]="'Like post'"
+              [attr.aria-pressed]="post().isLikedByMe">
+        <mat-icon>{{ post().isLikedByMe ? 'favorite' : 'favorite_border' }}</mat-icon>
+        <span class="post-card-action-count">{{ post().likesCount }}</span>
+      </button>
 
-    <button
-      class="post-card-action-btn"
-      (click)="onComment()"
-      type="button"
-      aria-label="Comment on post"
-    >
-      <mat-icon>chat_bubble_outline</mat-icon>
-      <span class="post-card-action-count">{{ post().commentsCount }}</span>
-    </button>
-  </div>
+      <button class="post-card-action-btn"
+              (click)="onComment()" type="button" aria-label="Comment on post">
+        <mat-icon>chat_bubble_outline</mat-icon>
+        <span class="post-card-action-count">{{ post().commentsCount }}</span>
+      </button>
+    </div>
+
+  </div><!-- /post-card-col -->
 
 </article>

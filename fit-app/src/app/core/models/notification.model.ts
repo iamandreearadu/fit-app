@@ -1,6 +1,6 @@
 import { UserSummary } from './social.model';
 
-export type NotificationType = 'Like' | 'Comment' | 'Follow' | 'NewMessage';
+export type NotificationType = 'like' | 'comment' | 'follow' | 'message';
 
 export interface SocialNotification {
   id: number;

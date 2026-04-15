@@ -74,6 +74,11 @@ export class PostCardComponent {
     this.showFullContent.update(v => !v);
   }
 
+  toggleArticle(e: Event): void {
+    e.stopPropagation();
+    this.showFullArticle.update(v => !v);
+  }
+
   openArticle(): void {
     this.router.navigate(['/social/article', this.post().articleId], {
       state: { returnUrl: this.router.url }

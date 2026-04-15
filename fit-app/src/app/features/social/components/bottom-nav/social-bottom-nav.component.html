@@ -24,6 +24,19 @@
     <span class="social-bottomnav-fab-label">Post</span>
   </button>
 
+  <a routerLink="/social/chat"
+     routerLinkActive="social-bottomnav-tab--active"
+     class="social-bottomnav-tab"
+     [attr.aria-label]="unreadMessages > 0 ? unreadMessages + ' unread messages' : 'Chat'">
+    <mat-icon>chat_bubble_outline</mat-icon>
+    @if (unreadMessages > 0) {
+      <span class="social-bottomnav-badge" [attr.aria-label]="unreadMessages + ' unread messages'">
+        {{ unreadMessages > 99 ? '99+' : unreadMessages }}
+      </span>
+    }
+    <span class="social-bottomnav-tab-label">Chat</span>
+  </a>
+
   <a routerLink="/social/notifications"
      routerLinkActive="social-bottomnav-tab--active"
      class="social-bottomnav-tab"

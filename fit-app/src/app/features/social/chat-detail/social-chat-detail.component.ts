@@ -1,5 +1,5 @@
 import {
-  Component, inject, OnInit, OnDestroy, signal, ElementRef, ViewChild, AfterViewChecked, computed
+  Component, inject, OnInit, OnDestroy, signal, ElementRef, ViewChild, computed, effect
 } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
-import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { ChatFacade } from '../../../core/facade/chat.facade';
 import { DirectMessage } from '../../../core/models/chat.model';
 
@@ -33,12 +33,12 @@ interface MessageGroup {
   templateUrl: './social-chat-detail.component.html',
   styleUrl: './social-chat-detail.component.css'
 })
-export class SocialChatDetailComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class SocialChatDetailComponent implements OnInit, OnDestroy {
   protected readonly facade = inject(ChatFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  @ViewChild('msgArea') msgAreaRef!: ElementRef;
+  @ViewChild('msgArea') msgAreaRef!: ElementRef<HTMLElement>;
 
   conversationId = 0;
   messageInput = signal('');
@@ -49,7 +49,19 @@ export class SocialChatDetailComponent implements OnInit, OnDestroy, AfterViewCh
   lightboxSrc = signal<string | null>(null);
 
   readonly skeletons = Array.from({ length: 6 });
-  private shouldScrollToBottom = true;
+
+  constructor() {
+    // Scroll to bottom after every messages update — setTimeout pushes past current render cycle
+    effect(() => {
+      const msgs = this.facade.messages();
+      if (msgs.length > 0) {
+        setTimeout(() => {
+          const el = this.msgAreaRef?.nativeElement;
+          if (el) el.scrollTop = el.scrollHeight;
+        }, 0);
+      }
+    });
+  }
 
   readonly otherParticipant = computed(() => {
     const conv = this.facade.conversations().find(c => c.id === this.conversationId);
@@ -82,21 +94,8 @@ export class SocialChatDetailComponent implements OnInit, OnDestroy, AfterViewCh
     this.facade.markAsRead(this.conversationId);
   }
 
-  ngAfterViewChecked(): void {
-    if (this.shouldScrollToBottom) {
-      this.scrollToBottom();
-    }
-  }
-
   ngOnDestroy(): void {
     this.facade.leaveConversation(this.conversationId);
-  }
-
-  private scrollToBottom(): void {
-    const el = this.msgAreaRef?.nativeElement;
-    if (el) {
-      el.scrollTop = el.scrollHeight;
-    }
   }
 
   async sendMessage(): Promise<void> {
@@ -105,7 +104,6 @@ export class SocialChatDetailComponent implements OnInit, OnDestroy, AfterViewCh
     if ((!text && !img) || this.isSending()) return;
 
     this.isSending.set(true);
-    this.shouldScrollToBottom = true;
     try {
       await this.facade.sendMessage(
         this.conversationId,
@@ -154,17 +152,9 @@ export class SocialChatDetailComponent implements OnInit, OnDestroy, AfterViewCh
     await this.facade.deleteMessage(this.conversationId, msgId);
   }
 
-  openLightbox(src: string): void {
-    this.lightboxSrc.set(src);
-  }
-
-  closeLightbox(): void {
-    this.lightboxSrc.set(null);
-  }
-
-  goBack(): void {
-    this.router.navigate(['/social/chat']);
-  }
+  openLightbox(src: string): void { this.lightboxSrc.set(src); }
+  closeLightbox(): void { this.lightboxSrc.set(null); }
+  goBack(): void { this.router.navigate(['/social/chat']); }
 
   formatDateLabel(label: string): string {
     const d = new Date(label);

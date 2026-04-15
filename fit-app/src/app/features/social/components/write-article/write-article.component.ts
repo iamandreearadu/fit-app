@@ -1,7 +1,11 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialogModule,
+} from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,55 +15,80 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SocialFacade } from '../../../../core/facade/social.facade';
 import { ProfileBlog } from '../../../../core/models/social.model';
 
-export const BLOG_CATEGORIES = [
-  'Fitness', 'Nutrition', 'Wellness', 'Training', 'Motivation',
-  'Recovery', 'Mindset', 'Recipes', 'Progress', 'Other'
+export const ARTICLE_CATEGORIES = [
+  'Fitness',
+  'Nutrition',
+  'Wellness',
+  'Training',
+  'Motivation',
+  'Recovery',
+  'Mindset',
+  'Recipes',
+  'Progress',
+  'Other',
 ];
 
 @Component({
-  selector: 'app-write-blog',
+  selector: 'app-write-article',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, MatDialogModule, MatIconModule,
-    MatButtonModule, MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatProgressSpinnerModule
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    MatIconModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
   ],
-  templateUrl: './write-blog.component.html',
-  styleUrl: './write-blog.component.css'
+  templateUrl: './write-article.component.html',
+  styleUrl: './write-article.component.css',
 })
-export class WriteBlogComponent {
+export class WriteArticleComponent {
   private readonly facade = inject(SocialFacade);
-  private readonly dialogRef = inject(MatDialogRef<WriteBlogComponent>);
+  private readonly dialogRef = inject(MatDialogRef<WriteArticleComponent>);
   readonly data = inject<{ blog?: ProfileBlog } | null>(MAT_DIALOG_DATA);
 
   readonly isEdit = !!this.data?.blog;
-  readonly categories = BLOG_CATEGORIES;
+  readonly categories = ARTICLE_CATEGORIES;
 
   title = signal(this.data?.blog?.title ?? '');
   caption = signal(this.data?.blog?.caption ?? '');
-  description = signal('');   // not in ProfileBlogSummary — starts empty on edit
+  description = signal(''); // not in ProfileBlogSummary — starts empty on edit
   category = signal(this.data?.blog?.category ?? '');
   imagePreview = signal<string | null>(this.data?.blog?.image ?? null);
   isDragOver = signal(false);
   isSaving = signal(false);
 
-  readonly step = signal<1 | 2>(1);  // step 1 = metadata, step 2 = content
+  readonly step = signal<1 | 2>(1); // step 1 = metadata, step 2 = content
 
-  get titleCount(): number { return this.title().length; }
-  get descCount(): number { return this.description().length; }
+  get titleCount(): number {
+    return this.title().length;
+  }
+  get descCount(): number {
+    return this.description().length;
+  }
 
-  readonly canPublish = computed(() =>
-    this.title().trim().length > 0 &&
-    this.category().length > 0 &&
-    this.description().trim().length > 0
+  readonly canPublish = computed(
+    () =>
+      this.title().trim().length > 0 &&
+      this.category().length > 0 &&
+      this.description().trim().length > 0,
   );
 
   // ── Image ──────────────────────────────────────────────────────────────────
 
-  onDragOver(e: DragEvent): void { e.preventDefault(); this.isDragOver.set(true); }
-  onDragLeave(): void { this.isDragOver.set(false); }
+  onDragOver(e: DragEvent): void {
+    e.preventDefault();
+    this.isDragOver.set(true);
+  }
+  onDragLeave(): void {
+    this.isDragOver.set(false);
+  }
   onDrop(e: DragEvent): void {
-    e.preventDefault(); this.isDragOver.set(false);
+    e.preventDefault();
+    this.isDragOver.set(false);
     const file = e.dataTransfer?.files[0];
     if (file?.type.startsWith('image/')) this.readFile(file);
   }
@@ -78,19 +107,27 @@ export class WriteBlogComponent {
         const canvas = document.createElement('canvas');
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
-        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas
+          .getContext('2d')!
+          .drawImage(img, 0, 0, canvas.width, canvas.height);
         this.imagePreview.set(canvas.toDataURL('image/jpeg', 0.82));
       };
       img.src = dataUrl;
     };
     reader.readAsDataURL(file);
   }
-  removeImage(): void { this.imagePreview.set(null); }
+  removeImage(): void {
+    this.imagePreview.set(null);
+  }
 
   // ── Navigation ─────────────────────────────────────────────────────────────
 
-  nextStep(): void { this.step.set(2); }
-  prevStep(): void { this.step.set(1); }
+  nextStep(): void {
+    this.step.set(2);
+  }
+  prevStep(): void {
+    this.step.set(1);
+  }
 
   // ── Submit ─────────────────────────────────────────────────────────────────
 
@@ -103,7 +140,7 @@ export class WriteBlogComponent {
         caption: this.caption().trim(),
         description: this.description().trim(),
         category: this.category(),
-        image: this.imagePreview() ?? undefined
+        image: this.imagePreview() ?? undefined,
       };
       if (this.isEdit && this.data?.blog) {
         await this.facade.updateBlogPost(this.data.blog.id, req);
@@ -111,10 +148,14 @@ export class WriteBlogComponent {
         await this.facade.createBlog(req);
       }
       this.dialogRef.close(true);
-    } catch { /* silently ignore */ } finally {
+    } catch {
+      /* silently ignore */
+    } finally {
       this.isSaving.set(false);
     }
   }
 
-  close(): void { this.dialogRef.close(false); }
+  close(): void {
+    this.dialogRef.close(false);
+  }
 }
