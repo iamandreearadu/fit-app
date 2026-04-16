@@ -1,17 +1,21 @@
 <aside class="social-sidenav">
-
   <!-- Brand -->
   <div class="social-sidenav-brand">
     <div class="social-sidenav-brand-icon">
       <mat-icon>group</mat-icon>
     </div>
-    <span class="social-wordmark">be<span class="social-wordmark-gradient">Social</span></span>
+    <span class="social-wordmark"
+      >be<span class="social-wordmark-gradient">Social</span></span
+    >
   </div>
 
   <!-- User mini-profile -->
   <div class="social-sidenav-user" [routerLink]="['/social/profile', userId()]">
     <div class="social-sidenav-avatar">
-      <img [src]="userAvatar() || 'assets/avatar-placeholder.png'" alt="Your profile" />
+      <img
+        [src]="userAvatar() || 'assets/avatar-placeholder.png'"
+        alt="Your profile"
+      />
     </div>
     <span class="social-sidenav-user-name">{{ userName() }}</span>
   </div>
@@ -24,17 +28,24 @@
         routerLinkActive="social-nav-item--active"
         [routerLinkActiveOptions]="{ exact: item.exact }"
         class="social-nav-item"
-        [attr.aria-label]="item.label">
+        [attr.aria-label]="item.label"
+      >
         <mat-icon>{{ item.icon }}</mat-icon>
         <span>{{ item.label }}</span>
-        @if (item.badge === 'messages' && unreadMessages > 0) {
-          <span class="social-nav-badge" [attr.aria-label]="unreadMessages + ' unread messages'">
-            {{ unreadMessages > 99 ? '99+' : unreadMessages }}
+        @if (item.badge === "messages" && unreadMessages > 0) {
+          <span
+            class="social-nav-badge"
+            [attr.aria-label]="unreadMessages + ' unread messages'"
+          >
+            {{ unreadMessages > 99 ? "99+" : unreadMessages }}
           </span>
         }
-        @if (item.badge === 'notifs' && unreadNotifications > 0) {
-          <span class="social-nav-badge" [attr.aria-label]="unreadNotifications + ' unread notifications'">
-            {{ unreadNotifications > 99 ? '99+' : unreadNotifications }}
+        @if (item.badge === "notifs" && unreadNotifications > 0) {
+          <span
+            class="social-nav-badge"
+            [attr.aria-label]="unreadNotifications + ' unread notifications'"
+          >
+            {{ unreadNotifications > 99 ? "99+" : unreadNotifications }}
           </span>
         }
       </a>
@@ -45,15 +56,18 @@
   <div style="flex: 1"></div>
 
   <!-- New Post button -->
-  <button class="social-new-post-btn" type="button" aria-label="Create new post">
-    <mat-icon>add_circle_outline</mat-icon>
-    New Post
+  <button class="social-new-post-btn" (click)="openCreatePost()" type="button">
+    <mat-icon>add</mat-icon>
+    New
   </button>
 
   <!-- Back to FitApp -->
-  <a routerLink="/" class="social-back-link" aria-label="Navigate back to FitApp">
+  <a
+    routerLink="/"
+    class="social-back-link"
+    aria-label="Navigate back to FitApp"
+  >
     <mat-icon>arrow_back</mat-icon>
     Back to FitApp
   </a>
-
 </aside>
