@@ -1,0 +1,308 @@
+.chat-list-page {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 24px 0 100px;
+  animation: slideUp 0.35s ease-out both;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+.chat-list-header {
+  display: flex;
+  align-items: center;
+  padding: 0 20px 20px;
+}
+
+.chat-list-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0;
+  letter-spacing: -0.4px;
+}
+
+/* ── Error ──────────────────────────────────────────────────────────────────── */
+.conv-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,64,129,0.1);
+  border: 1px solid rgba(255,64,129,0.2);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin: 0 16px;
+  font-size: 14px;
+  color: var(--accent);
+}
+
+.conv-error-retry {
+  margin-left: auto;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 12px;
+  min-height: 36px;
+}
+
+/* ── Empty ──────────────────────────────────────────────────────────────────── */
+.conv-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 72px 24px;
+  text-align: center;
+}
+
+.conv-empty-icon {
+  font-size: 44px;
+  width: 44px;
+  height: 44px;
+  color: rgba(255,255,255,0.15);
+}
+
+.conv-empty-text {
+  font-size: 15px;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+}
+
+.conv-empty-btn {
+  padding: 12px 28px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+}
+
+/* ── Skeleton ───────────────────────────────────────────────────────────────── */
+.conv-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.conv-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+}
+
+.conv-skeleton-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  flex-shrink: 0;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.conv-skeleton-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.conv-skeleton-name {
+  width: 44%;
+  height: 14px;
+  border-radius: 7px;
+  background: rgba(255,255,255,0.06);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.conv-skeleton-msg {
+  width: 68%;
+  height: 12px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+  animation: shimmer 1.4s ease-in-out infinite 0.15s;
+}
+
+/* ── Conversation row ───────────────────────────────────────────────────────── */
+.conv-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  min-height: 76px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  position: relative;
+}
+
+.conv-row:hover { background: rgba(255,255,255,0.035); }
+
+.conv-row--active { background: rgba(124,77,255,0.08); }
+
+.conv-row--active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 32px;
+  border-radius: 0 3px 3px 0;
+  background: var(--primary);
+}
+
+/* ── Avatar ─────────────────────────────────────────────────────────────────── */
+.conv-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.conv-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.conv-avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(124,77,255,0.14);
+}
+
+.conv-avatar--fallback mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  color: var(--primary);
+}
+
+.conv-unread-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2.5px solid #0d0d10;
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────────── */
+.conv-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.conv-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.conv-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conv-row--unread .conv-name { font-weight: 600; }
+
+.conv-time {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.conv-row--unread .conv-time {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.conv-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.conv-last-msg {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.conv-row--unread .conv-last-msg {
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+}
+
+.conv-badge {
+  background: var(--primary);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── FAB ────────────────────────────────────────────────────────────────────── */
+.conv-fab {
+  position: fixed;
+  bottom: 88px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: none;
+  cursor: pointer;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(124,77,255,0.45);
+  z-index: 50;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.conv-fab:hover { transform: scale(1.06); opacity: 0.9; }
+
+.conv-fab mat-icon { font-size: 22px; width: 22px; height: 22px; }
+
+/* ── Animations ─────────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 0.25; }
+}

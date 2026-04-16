@@ -1,0 +1,237 @@
+<div class="cc-dialog">
+
+  <!-- Header -->
+  <div class="cc-header">
+    <div class="cc-type-toggle">
+      <button [class.active]="mode() === 'post'" (click)="setMode('post')" type="button">
+        <mat-icon>edit</mat-icon> Post
+      </button>
+      <button [class.active]="mode() === 'article'" (click)="setMode('article')" type="button">
+        <mat-icon>article</mat-icon> Article
+      </button>
+    </div>
+    <button class="cc-close-btn" (click)="close()" mat-icon-button aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ POST -->
+  @if (mode() === 'post') {
+
+    <div class="cc-body">
+
+      <!-- Textarea -->
+      <div class="cc-textarea-wrap">
+        <textarea
+          class="cc-textarea"
+          placeholder="What's your fitness update?"
+          [value]="content()"
+          (input)="content.set($any($event.target).value)"
+          maxlength="500"
+          rows="5"
+          [disabled]="isSubmitting()"
+          aria-label="Post content"
+        ></textarea>
+      </div>
+
+      <!-- Char counter -->
+      <div class="cc-char-counter" [class]="charClass" aria-live="polite">
+        {{ charCount }}/500
+      </div>
+
+      <!-- Image dropzone -->
+      @if (!imagePreview()) {
+        <div
+          class="cc-dropzone"
+          [class.cc-dropzone--drag]="isDragOver()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop($event)"
+          (click)="fileInput.click()"
+          role="button"
+          tabindex="0"
+          aria-label="Upload an image"
+          (keydown.enter)="fileInput.click()"
+          (keydown.space)="fileInput.click()"
+        >
+          <div class="cc-dropzone-icon-wrap">
+            <mat-icon>image</mat-icon>
+          </div>
+          <span class="cc-dropzone-label">Drag &amp; drop or click to add photo</span>
+          <span class="cc-dropzone-hint">JPEG, PNG, WebP &middot; max 1200px</span>
+          <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+        </div>
+      } @else {
+        <div class="cc-preview">
+          <img [src]="imagePreview()!" alt="Post image preview" class="cc-preview-img" />
+          <button
+            class="cc-preview-remove"
+            (click)="removeImage()"
+            type="button"
+            aria-label="Remove image"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+
+    </div>
+
+    <!-- Post Footer -->
+    <div class="cc-footer">
+      @if (!imagePreview()) {
+        <button
+          class="cc-img-shortcut"
+          type="button"
+          (click)="shortcutInput.click()"
+          aria-label="Add photo"
+          title="Add photo"
+        >
+          <mat-icon>add_photo_alternate</mat-icon>
+          <input #shortcutInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+        </button>
+      } @else {
+        <span class="cc-img-badge">
+          <mat-icon>check_circle</mat-icon> Photo added
+        </span>
+      }
+
+      <div class="cc-footer-actions">
+        <button class="cc-cancel" (click)="close()" type="button">Cancel</button>
+        <button
+          class="cc-submit btn-primary"
+          [disabled]="!canPost || isSubmitting()"
+          (click)="submit()"
+          type="button"
+          [attr.aria-busy]="isSubmitting()"
+        >
+          @if (isSubmitting()) {
+            <mat-spinner diameter="16" />
+            <span>Posting…</span>
+          } @else {
+            <mat-icon>send</mat-icon>
+            <span>Post</span>
+          }
+        </button>
+      </div>
+    </div>
+
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════ ARTICLE -->
+  @if (mode() === 'article') {
+
+    <div class="cc-art-body">
+
+      <!-- Content — mandatory, first field -->
+      <div class="cc-art-field-group cc-art-field-group--grow">
+        <label class="cc-art-label" for="cc-content-input">Content <span class="cc-art-required">*</span></label>
+        <textarea
+          id="cc-content-input"
+          class="cc-art-input cc-art-textarea--content"
+          placeholder="Write your article here… Share your knowledge, story, or tips."
+          [value]="description()"
+          (input)="description.set($any($event.target).value)"
+          maxlength="8000"
+          cdkTextareaAutosize
+          cdkAutosizeMinRows="4"
+          cdkAutosizeMaxRows="20"
+        ></textarea>
+        <span class="cc-art-field-counter" [class.cc-art-counter--warn]="descCount > 7000">{{ descCount }}/8000</span>
+      </div>
+
+      <!-- Title — optional -->
+      <div class="cc-art-field-group">
+        <label class="cc-art-label" for="cc-title-input">Title <span class="cc-art-optional">optional</span></label>
+        <input
+          id="cc-title-input"
+          class="cc-art-input cc-art-input--large"
+          type="text"
+          placeholder="Give your article a compelling title…"
+          [value]="title()"
+          (input)="title.set($any($event.target).value)"
+          maxlength="150"
+          autocomplete="off"
+        />
+        <span class="cc-art-field-counter" [class.cc-art-counter--warn]="titleCount > 120">{{ titleCount }}/150</span>
+      </div>
+
+      <!-- Category — optional -->
+      <div class="cc-art-field-group">
+        <label class="cc-art-label" for="cc-category-select">Category <span class="cc-art-optional">optional</span></label>
+        <select
+          id="cc-category-select"
+          class="cc-art-input cc-art-select"
+          [value]="category()"
+          (change)="category.set($any($event.target).value)"
+        >
+          <option value="">Select a category…</option>
+          @for (cat of categories; track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Cover image — compact, last field -->
+      <div class="cc-art-field-group cc-art-field-group--last">
+        <label class="cc-art-label">Cover Image <span class="cc-art-optional">optional</span></label>
+        @if (!articleImagePreview()) {
+          <div
+            class="cc-art-cover-dropzone cc-art-cover-dropzone--compact"
+            [class.cc-art-cover-dropzone--drag]="isDragOverArticle()"
+            (dragover)="onArticleDragOver($event)"
+            (dragleave)="onArticleDragLeave()"
+            (drop)="onArticleDrop($event)"
+            (click)="coverInput.click()"
+            role="button"
+            tabindex="0"
+            aria-label="Add cover image"
+            (keydown.enter)="coverInput.click()"
+            (keydown.space)="coverInput.click()"
+          >
+            <mat-icon class="cc-art-cover-compact-icon">add_photo_alternate</mat-icon>
+            <span class="cc-art-cover-compact-label">Add cover image</span>
+            <span class="cc-art-cover-hint">16:9 recommended &middot; JPEG, PNG, WebP</span>
+            <input #coverInput type="file" accept="image/*" (change)="onArticleFileSelected($event)" hidden />
+          </div>
+        } @else {
+          <div class="cc-art-cover-preview cc-art-cover-preview--compact">
+            <img [src]="articleImagePreview()!" alt="Cover preview" class="cc-art-cover-img" />
+            <button class="cc-art-cover-remove" (click)="removeArticleImage()" type="button" aria-label="Remove cover image">
+              <mat-icon>close</mat-icon>
+            </button>
+            <div class="cc-art-cover-overlay">
+              <button class="cc-art-cover-change" (click)="coverInput2.click()" type="button">
+                <mat-icon>photo_camera</mat-icon> Change
+              </button>
+              <input #coverInput2 type="file" accept="image/*" (change)="onArticleFileSelected($event)" hidden />
+            </div>
+          </div>
+        }
+      </div>
+
+    </div>
+
+    <!-- Article Footer -->
+    <div class="cc-art-footer">
+      <button class="cc-art-cancel" (click)="close()" type="button">Cancel</button>
+      <button
+        class="cc-art-publish btn-primary"
+        [disabled]="!canPublish() || isSaving()"
+        (click)="submit()"
+        type="button"
+        [attr.aria-busy]="isSaving()"
+      >
+        @if (isSaving()) {
+          <mat-spinner diameter="16" />
+          <span>Publishing…</span>
+        } @else {
+          <mat-icon>publish</mat-icon>
+          <span>Publish</span>
+        }
+      </button>
+    </div>
+
+  }
+
+</div>
