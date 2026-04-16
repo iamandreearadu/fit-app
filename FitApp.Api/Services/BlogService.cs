@@ -9,7 +9,11 @@ public class BlogService(AppDbContext db)
 {
     public async Task<List<BlogPostDto>> ListAsync()
     {
+        // Only return admin-authored posts (AuthorId == null).
+        // User-authored articles (AuthorId != null) are managed via SocialService
+        // and displayed in the social feed, not the public blog listing.
         var posts = await db.BlogPosts
+            .Where(b => b.AuthorId == null)
             .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
         return posts.Select(MapToDto).ToList();
@@ -17,7 +21,8 @@ public class BlogService(AppDbContext db)
 
     public async Task<BlogPostDto?> GetAsync(int id)
     {
-        var post = await db.BlogPosts.FindAsync(id);
+        // Only return admin-authored posts (AuthorId == null) — see ListAsync for rationale.
+        var post = await db.BlogPosts.FirstOrDefaultAsync(b => b.Id == id && b.AuthorId == null);
         return post is null ? null : MapToDto(post);
     }
 

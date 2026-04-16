@@ -1,0 +1,229 @@
+<aside class="daily-panel" [class.daily-panel--open]="open"
+       role="complementary" aria-label="Today's fitness summary">
+
+  <!-- ── Mobile close row ───────────────────────────────────────────────── -->
+  <div class="daily-panel-close-row">
+    <span class="daily-panel-close-title">Today's Summary</span>
+    <button class="daily-panel-close-btn" type="button"
+            aria-label="Close daily summary"
+            (click)="closeRequested.emit()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="daily-panel-header">
+    <span class="daily-panel-label">TODAY</span>
+
+    @if (loading()) {
+      <div class="daily-skel daily-skel--date"></div>
+      <div class="daily-skel daily-skel--badge"></div>
+    } @else {
+      <span class="daily-panel-date">{{ todayLabel() }}</span>
+
+      @let cfg = activityConfig();
+      <div class="daily-activity-badge daily-activity-badge--{{ cfg.modifier }}"
+           [attr.aria-label]="'Activity: ' + cfg.label">
+        <mat-icon class="daily-activity-icon">{{ cfg.icon }}</mat-icon>
+        <span>{{ cfg.label }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- ── Calories ───────────────────────────────────────────────────────── -->
+  <section class="daily-section">
+    <h3 class="daily-section-label">
+      <mat-icon style="font-size:13px;width:13px;height:13px;color:#ffb74d">local_fire_department</mat-icon>
+      Calories
+    </h3>
+
+    @if (loading()) {
+      <div class="daily-cal-skel-grid">
+        <div class="daily-skel daily-skel--cal-tile"></div>
+        <div class="daily-skel daily-skel--cal-tile"></div>
+        <div class="daily-skel daily-skel--cal-net"></div>
+      </div>
+    } @else {
+      <div class="daily-cal-grid">
+        <div class="daily-cal-item">
+          <span class="daily-cal-item-label">Intake</span>
+          <span class="daily-cal-item-value">{{ stats().caloriesIntake | number }}</span>
+          <span class="daily-cal-item-unit">kcal</span>
+        </div>
+        <div class="daily-cal-item daily-cal-item--burned">
+          <span class="daily-cal-item-label">Burned</span>
+          <span class="daily-cal-item-value">{{ stats().caloriesBurned | number }}</span>
+          <span class="daily-cal-item-unit">kcal</span>
+        </div>
+        <div class="daily-cal-item daily-cal-net" [class]="'daily-cal-net--' + calSignClass()">
+          <span class="daily-cal-item-label">Net</span>
+          <span class="daily-cal-item-value daily-cal-net-val">
+            {{ netCalories() > 0 ? '+' : '' }}{{ netCalories() | number }}
+          </span>
+          <span class="daily-cal-item-unit">kcal</span>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- ── Water ──────────────────────────────────────────────────────────── -->
+  <section class="daily-section">
+    <h3 class="daily-section-label">
+      <mat-icon style="font-size:13px;width:13px;height:13px;color:#38bdf8">water_drop</mat-icon>
+      Water
+    </h3>
+
+    @if (loading()) {
+      <div class="daily-skel daily-skel--metric-label" style="width:70%;margin-bottom:8px"></div>
+      <div class="daily-skel daily-skel--bar"></div>
+    } @else {
+      <div class="daily-metric-row">
+        <span class="daily-metric-val">
+          {{ stats().waterConsumedL | number:'1.1-1' }}
+          <span class="daily-metric-target">/ {{ waterTarget() | number:'1.1-1' }} L</span>
+        </span>
+        <span class="daily-metric-pct daily-metric-pct--water">{{ waterProgress() }}%</span>
+      </div>
+      <div class="daily-prog-track"
+           role="progressbar"
+           [attr.aria-valuenow]="waterProgress()"
+           aria-valuemin="0" aria-valuemax="100"
+           aria-label="Water intake progress">
+        <div class="daily-prog-fill daily-prog-fill--water"
+             [class.is-complete]="waterProgress() >= 100"
+             [style.width.%]="waterProgress()"></div>
+      </div>
+    }
+  </section>
+
+  <!-- ── Steps ──────────────────────────────────────────────────────────── -->
+  <section class="daily-section">
+    <h3 class="daily-section-label">
+      <mat-icon style="font-size:13px;width:13px;height:13px;color:#4ade80">directions_walk</mat-icon>
+      Steps
+    </h3>
+
+    @if (loading()) {
+      <div class="daily-skel daily-skel--metric-label" style="width:60%;margin-bottom:8px"></div>
+      <div class="daily-skel daily-skel--bar"></div>
+    } @else {
+      <div class="daily-metric-row">
+        <span class="daily-metric-val">
+          {{ stats().steps | number }}
+          <span class="daily-metric-target">/ {{ stats().stepTarget | number }}</span>
+        </span>
+        <span class="daily-metric-pct daily-metric-pct--steps">{{ stepsPct() }}%</span>
+      </div>
+      <div class="daily-prog-track"
+           role="progressbar"
+           [attr.aria-valuenow]="stepsPct()"
+           aria-valuemin="0" aria-valuemax="100"
+           aria-label="Steps progress">
+        <div class="daily-prog-fill daily-prog-fill--steps"
+             [class.is-complete]="stepsPct() >= 100"
+             [style.width.%]="stepsPct()"></div>
+      </div>
+    }
+  </section>
+
+  <!-- ── Macros donut chart ─────────────────────────────────────────────── -->
+  <section class="daily-section daily-section--last">
+    <h3 class="daily-section-label">
+      <mat-icon style="font-size:13px;width:13px;height:13px;color:#a78bfa">restaurant</mat-icon>
+      Macros
+    </h3>
+
+    @if (loading()) {
+      <div class="daily-macros-skel">
+        <div class="daily-skel daily-skel--donut"></div>
+        @for (s of [1, 2, 3]; track s) {
+          <div class="daily-skel daily-skel--macro-row"
+               [style.animation-delay]="(($index) * 80) + 'ms'"></div>
+        }
+      </div>
+    } @else if (!macroHasData()) {
+      <div class="daily-empty-micro">
+        <mat-icon>pie_chart</mat-icon>
+        <span>No macro data yet</span>
+      </div>
+    } @else {
+
+      <!-- Centered donut -->
+      <div class="daily-macros-donut-wrap" aria-hidden="true">
+        <svg class="daily-macros-svg" viewBox="0 0 100 100">
+          <!-- background ring -->
+          <circle cx="50" cy="50" r="38" fill="none"
+                  stroke="rgba(255,255,255,0.06)" stroke-width="11"/>
+          <!-- protein -->
+          <circle cx="50" cy="50" r="38" fill="none"
+                  stroke="#a78bfa" stroke-width="11" stroke-linecap="butt"
+                  [attr.stroke-dasharray]="proteinDash()"
+                  [attr.transform]="'rotate(' + proteinRotate() + ' 50 50)'"/>
+          <!-- carbs -->
+          <circle cx="50" cy="50" r="38" fill="none"
+                  stroke="#29b6f6" stroke-width="11" stroke-linecap="butt"
+                  [attr.stroke-dasharray]="carbsDash()"
+                  [attr.transform]="'rotate(' + carbsRotate() + ' 50 50)'"/>
+          <!-- fats -->
+          <circle cx="50" cy="50" r="38" fill="none"
+                  stroke="#ffb74d" stroke-width="11" stroke-linecap="butt"
+                  [attr.stroke-dasharray]="fatsDash()"
+                  [attr.transform]="'rotate(' + fatsRotate() + ' 50 50)'"/>
+          <!-- center -->
+          <text x="50" y="46" text-anchor="middle"
+                font-size="12" font-weight="800" fill="white"
+                font-family="Poppins, sans-serif">
+            {{ stats().caloriesIntake | number }}
+          </text>
+          <text x="50" y="58" text-anchor="middle"
+                font-size="8" fill="rgba(255,255,255,0.35)"
+                font-family="Poppins, sans-serif">
+            kcal today
+          </text>
+        </svg>
+      </div>
+
+      <!-- Macro rows -->
+      <div class="daily-macros-rows">
+
+        <div class="daily-macro-item">
+          <div class="daily-macro-item-hdr">
+            <span class="daily-macro-dot daily-macro-dot--protein"></span>
+            <span class="daily-macro-name">Protein</span>
+            <span class="daily-macro-grams">{{ proteinG() | number:'1.0-0' }}<span class="daily-macro-unit">g</span></span>
+            <span class="daily-macro-pct">{{ proteinPct() }}%</span>
+          </div>
+          <div class="daily-prog-track daily-prog-track--macro">
+            <div class="daily-prog-fill daily-prog-fill--protein" [style.width.%]="proteinPct()"></div>
+          </div>
+        </div>
+
+        <div class="daily-macro-item">
+          <div class="daily-macro-item-hdr">
+            <span class="daily-macro-dot daily-macro-dot--carbs"></span>
+            <span class="daily-macro-name">Carbs</span>
+            <span class="daily-macro-grams">{{ carbsG() | number:'1.0-0' }}<span class="daily-macro-unit">g</span></span>
+            <span class="daily-macro-pct">{{ carbsPct() }}%</span>
+          </div>
+          <div class="daily-prog-track daily-prog-track--macro">
+            <div class="daily-prog-fill daily-prog-fill--carbs" [style.width.%]="carbsPct()"></div>
+          </div>
+        </div>
+
+        <div class="daily-macro-item">
+          <div class="daily-macro-item-hdr">
+            <span class="daily-macro-dot daily-macro-dot--fats"></span>
+            <span class="daily-macro-name">Fats</span>
+            <span class="daily-macro-grams">{{ fatsG() | number:'1.0-0' }}<span class="daily-macro-unit">g</span></span>
+            <span class="daily-macro-pct">{{ fatsPct() }}%</span>
+          </div>
+          <div class="daily-prog-track daily-prog-track--macro">
+            <div class="daily-prog-fill daily-prog-fill--fats" [style.width.%]="fatsPct()"></div>
+          </div>
+        </div>
+
+      </div>
+    }
+  </section>
+
+</aside>

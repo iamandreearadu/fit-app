@@ -254,6 +254,28 @@ mat-select {
   color: #7c4dff !important;
 }
 
+/* ─── MODAL DIALOG PANEL — remove white bg from mat-dialog surface ─── */
+.create-post-panel .mat-mdc-dialog-container,
+.create-post-panel .mdc-dialog__container,
+.create-post-panel .mdc-dialog__surface {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+/* ─── CONFIRM DIALOG PANEL ─── */
+.confirm-dialog-panel .mat-mdc-dialog-container,
+.confirm-dialog-panel .mdc-dialog__container,
+.confirm-dialog-panel .mdc-dialog__surface {
+  background: var(--surface) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
 /* ═══════════════════════════════════════════════════════════
    GLOBAL UTILITIES — shared across components
    ═══════════════════════════════════════════════════════════ */
@@ -773,4 +795,21 @@ mat-select {
   margin-bottom: 36px;
   padding-bottom: 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ─── GLOBAL ANIMATIONS ─── */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }

@@ -1,6 +1,7 @@
 using System.Text;
 using System.Threading.RateLimiting;
 using FitApp.Api.Data;
+using FitApp.Api.Hubs;
 using FitApp.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
@@ -29,6 +30,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
             NameClaimType = "sub"
         };
+
+        // Allow JWT via query string for SignalR WebSocket connections
+        opt.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
@@ -39,7 +55,8 @@ builder.Services.AddCors(opt =>
     opt.AddPolicy("Angular", policy => policy
         .WithOrigins("http://localhost:4200", "https://localhost:4200")
         .AllowAnyHeader()
-        .AllowAnyMethod());
+        .AllowAnyMethod()
+        .AllowCredentials());  // Required for SignalR WebSocket
 });
 
 // ── HTTP Client for Groq AI ───────────────────────────────────────────────────
@@ -50,6 +67,9 @@ builder.Services.AddHttpClient("Groq", client =>
         new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", builder.Configuration["Groq:ApiKey"]);
     client.Timeout = TimeSpan.FromSeconds(60);
 });
+
+// ── SignalR ───────────────────────────────────────────────────────────────────
+builder.Services.AddSignalR();
 
 // ── Application Services ──────────────────────────────────────────────────────
 builder.Services.AddScoped<JwtService>();
@@ -63,6 +83,12 @@ builder.Services.AddScoped<BlogService>();
 builder.Services.AddScoped<AiProxyService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<ChatService>();
+
+// Social / Messaging / Notifications
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IConversationService, ConversationService>();
+builder.Services.AddScoped<ISocialService, SocialService>();
 
 // ── Rate Limiting ─────────────────────────────────────────────────────────────
 builder.Services.AddRateLimiter(o =>
@@ -78,6 +104,9 @@ builder.Services.AddRateLimiter(o =>
 });
 
 // ── Controllers & OpenAPI ─────────────────────────────────────────────────────
+builder.WebHost.ConfigureKestrel(opts =>
+    opts.Limits.MaxRequestBodySize = 20 * 1024 * 1024); // 20 MB
+
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
@@ -90,6 +119,10 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
+
+// ── Ensure upload directories exist ──────────────────────────────────────────
+var chatUploadsDir = Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "uploads", "chat");
+Directory.CreateDirectory(chatUploadsDir);
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.UseExceptionHandler();
@@ -104,6 +137,11 @@ if (app.Environment.IsDevelopment())
 app.UseCors("Angular");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 app.MapControllers();
+
+// ── SignalR Hubs ──────────────────────────────────────────────────────────────
+app.MapHub<ChatHub>("/hubs/chat");
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();

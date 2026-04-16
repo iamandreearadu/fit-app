@@ -1,0 +1,131 @@
+<div class="wb-dialog">
+
+  <!-- Header -->
+  <div class="wb-header">
+    <div class="wb-header-left">
+      <div class="wb-header-icon">
+        <mat-icon>edit_note</mat-icon>
+      </div>
+      <div class="wb-header-text">
+        <h2 class="wb-title">{{ isEdit ? 'Edit Article' : 'Write Article' }}</h2>
+        <span class="wb-subtitle">Share your knowledge with the community</span>
+      </div>
+    </div>
+    <button mat-icon-button class="wb-close-btn" (click)="close()" aria-label="Close dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Body — single scrollable screen -->
+  <div class="wb-body">
+
+    <!-- Cover image -->
+    <div class="wb-field-group">
+      <label class="wb-label">Cover Image <span class="wb-optional">optional</span></label>
+      @if (!imagePreview()) {
+        <div
+          class="wb-cover-dropzone"
+          [class.wb-cover-dropzone--drag]="isDragOver()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop($event)"
+          (click)="coverInput.click()"
+          role="button"
+          tabindex="0"
+          aria-label="Add cover image"
+          (keydown.enter)="coverInput.click()"
+          (keydown.space)="coverInput.click()"
+        >
+          <div class="wb-cover-icon-wrap">
+            <mat-icon>add_photo_alternate</mat-icon>
+          </div>
+          <span class="wb-cover-label">Add cover image</span>
+          <span class="wb-cover-hint">16:9 recommended &middot; JPEG, PNG, WebP</span>
+          <input #coverInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+        </div>
+      } @else {
+        <div class="wb-cover-preview">
+          <img [src]="imagePreview()!" alt="Cover preview" class="wb-cover-img" />
+          <button class="wb-cover-remove" (click)="removeImage()" type="button" aria-label="Remove cover image">
+            <mat-icon>close</mat-icon>
+          </button>
+          <div class="wb-cover-overlay">
+            <button class="wb-cover-change" (click)="coverInput.click()" type="button">
+              <mat-icon>photo_camera</mat-icon> Change
+            </button>
+            <input #coverInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Title -->
+    <div class="wb-field-group">
+      <label class="wb-label" for="wb-title-input">Title <span class="wb-required">*</span></label>
+      <input
+        id="wb-title-input"
+        class="wb-input wb-input--large"
+        type="text"
+        placeholder="Give your article a compelling title…"
+        [value]="title()"
+        (input)="title.set($any($event.target).value)"
+        maxlength="150"
+        autocomplete="off"
+      />
+      <span class="wb-field-counter" [class.wb-counter--warn]="titleCount > 120">{{ titleCount }}/150</span>
+    </div>
+
+    <!-- Category -->
+    <div class="wb-field-group">
+      <label class="wb-label" for="wb-category-select">Category <span class="wb-required">*</span></label>
+      <select
+        id="wb-category-select"
+        class="wb-input wb-select"
+        [value]="category()"
+        (change)="category.set($any($event.target).value)"
+      >
+        <option value="" disabled hidden>Select a category…</option>
+        @for (cat of categories; track cat) {
+          <option [value]="cat">{{ cat }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Content -->
+    <div class="wb-field-group wb-field-group--grow">
+      <label class="wb-label" for="wb-content-input">Content <span class="wb-required">*</span></label>
+      <textarea
+        id="wb-content-input"
+        class="wb-input wb-textarea--content"
+        placeholder="Write your article here… Share your knowledge, story, or tips."
+        [value]="description()"
+        (input)="description.set($any($event.target).value)"
+        maxlength="8000"
+        rows="12"
+      ></textarea>
+      <span class="wb-field-counter" [class.wb-counter--warn]="descCount > 7000">{{ descCount }}/8000</span>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="wb-footer">
+    <button class="wb-cancel" (click)="close()" type="button">Cancel</button>
+    <button
+      class="wb-publish btn-primary"
+      [disabled]="!canPublish() || isSaving()"
+      (click)="publish()"
+      type="button"
+      [attr.aria-busy]="isSaving()"
+    >
+      @if (isSaving()) {
+        <mat-spinner diameter="16" />
+        <span>{{ isEdit ? 'Saving…' : 'Publishing…' }}</span>
+      } @else {
+        <mat-icon>{{ isEdit ? 'save' : 'publish' }}</mat-icon>
+        <span>{{ isEdit ? 'Save Changes' : 'Publish' }}</span>
+      }
+    </button>
+  </div>
+
+</div>

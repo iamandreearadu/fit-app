@@ -100,6 +100,82 @@
 }
 
 /* ─────────────────────────────────
+   beSocial entry button
+───────────────────────────────── */
+.hdr-link-social {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border: none;
+  white-space: nowrap;
+  transition: opacity 0.18s, transform 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.hdr-link-social mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.hdr-link-social:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.hdr-link-social.active {
+  box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.4);
+}
+
+/* beSocial wordmark helpers */
+.social-btn-label {
+  color: var(--white);
+  font-weight: 700;
+}
+
+.mob-link-social .social-btn-gradient {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Mobile drawer beSocial variant */
+.mob-link-social {
+  background: linear-gradient(135deg,
+    rgba(124, 77, 255, 0.12),
+    rgba(255, 64, 129, 0.08)
+  );
+  border-color: rgba(124, 77, 255, 0.3);
+  color: var(--white);
+  font-weight: 700;
+}
+
+.mob-link-social mat-icon {
+  color: var(--primary);
+}
+
+.mob-link-social:hover {
+  background: linear-gradient(135deg,
+    rgba(124, 77, 255, 0.2),
+    rgba(255, 64, 129, 0.14)
+  );
+  border-color: rgba(124, 77, 255, 0.5);
+  transform: translateX(3px);
+}
+
+.mob-link-social.active {
+  border-color: rgba(124, 77, 255, 0.45);
+}
+
+/* ─────────────────────────────────
    Right actions
 ───────────────────────────────── */
 .hdr-actions {
