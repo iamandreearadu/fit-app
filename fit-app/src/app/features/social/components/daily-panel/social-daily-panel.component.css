@@ -1,0 +1,519 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   DAILY PANEL — blends with main background, no lateral border
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Desktop panel (≥ 1200px) ───────────────────────────────────────────── */
+
+.daily-panel {
+  width: 272px;
+  min-width: 272px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface); /* identical to main app background */
+  padding-bottom: 32px;
+}
+
+.daily-panel::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Close row — mobile only ────────────────────────────────────────────── */
+
+.daily-panel-close-row {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  flex-shrink: 0;
+}
+
+.daily-panel-close-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.daily-panel-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.daily-panel-close-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.daily-panel-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.daily-panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px 20px 18px;
+}
+
+.daily-panel-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.daily-panel-date {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1.2;
+}
+
+/* ── Activity badge ─────────────────────────────────────────────────────── */
+
+.daily-activity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  width: fit-content;
+}
+
+.daily-activity-icon {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.daily-activity-badge--strength {
+  background: rgba(124, 77, 255, 0.14);
+  border: 1px solid rgba(124, 77, 255, 0.22);
+  color: #7c4dff;
+}
+.daily-activity-badge--cardio {
+  background: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  color: #22d3ee;
+}
+.daily-activity-badge--hiit {
+  background: rgba(255, 64, 129, 0.12);
+  border: 1px solid rgba(255, 64, 129, 0.2);
+  color: #ff4081;
+}
+.daily-activity-badge--active-rest {
+  background: rgba(76, 175, 80, 0.12);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+.daily-activity-badge--rest {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── Section wrapper ────────────────────────────────────────────────────── */
+
+.daily-section {
+  padding: 0 20px 22px;
+}
+
+.daily-section::before {
+  content: "";
+  display: block;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.04);
+  margin-bottom: 18px;
+}
+
+.daily-section--last {
+  padding-bottom: 0;
+}
+
+.daily-section-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+  margin: 0 0 12px;
+}
+
+/* ── Calories grid ──────────────────────────────────────────────────────── */
+
+.daily-cal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.daily-cal-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.daily-cal-item-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.daily-cal-item-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.daily-cal-item-unit {
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.daily-cal-item--burned .daily-cal-item-value {
+  color: #ffb74d;
+}
+
+.daily-cal-net {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(124, 77, 255, 0.07) !important;
+  border-radius: 12px;
+}
+
+.daily-cal-net-val {
+  font-size: 19px;
+}
+
+.daily-cal-net--balanced .daily-cal-net-val {
+  color: #7c4dff;
+}
+.daily-cal-net--surplus .daily-cal-net-val {
+  color: #ff4081;
+}
+.daily-cal-net--deficit .daily-cal-net-val {
+  color: #4ade80;
+}
+
+/* ── Progress metric rows ───────────────────────────────────────────────── */
+
+.daily-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+}
+
+.daily-metric-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.daily-metric-target {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.daily-metric-pct {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.daily-metric-pct--water {
+  color: #38bdf8;
+}
+.daily-metric-pct--steps {
+  color: #4ade80;
+}
+
+.daily-prog-track {
+  width: 100%;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.daily-prog-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 3px;
+  max-width: 100%;
+}
+
+.daily-prog-fill--water {
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+}
+.daily-prog-fill--water.is-complete {
+  background: linear-gradient(90deg, #38bdf8, #22d3ee);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.45);
+}
+.daily-prog-fill--steps {
+  background: linear-gradient(90deg, #65a30d, #4ade80);
+}
+.daily-prog-fill--steps.is-complete {
+  background: linear-gradient(90deg, #4ade80, #22d3ee);
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+}
+
+/* ── Macros donut — centered ────────────────────────────────────────────── */
+
+.daily-macros-donut-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.daily-macros-svg {
+  width: 120px;
+  height: 120px;
+  overflow: visible;
+}
+
+.daily-macros-svg circle {
+  transition: stroke-dasharray 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Macro rows below the donut ─────────────────────────────────────────── */
+
+.daily-macros-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.daily-macro-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.daily-macro-item-hdr {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.daily-macro-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.daily-macro-dot--protein {
+  background: #a78bfa;
+}
+.daily-macro-dot--carbs {
+  background: #29b6f6;
+}
+.daily-macro-dot--fats {
+  background: #ffb74d;
+}
+
+.daily-macro-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  flex: 1;
+}
+
+.daily-macro-grams {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.daily-macro-unit {
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.3);
+  margin-left: 1px;
+}
+
+.daily-macro-pct {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.35);
+  width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.daily-prog-track--macro {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.daily-prog-fill--protein {
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+}
+.daily-prog-fill--carbs {
+  background: linear-gradient(90deg, #0284c7, #29b6f6);
+}
+.daily-prog-fill--fats {
+  background: linear-gradient(90deg, #d97706, #ffb74d);
+}
+
+/* ── Empty micro-state ──────────────────────────────────────────────────── */
+
+.daily-empty-micro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.daily-empty-micro mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.18);
+}
+
+/* ── Skeletons ──────────────────────────────────────────────────────────── */
+
+.daily-skel {
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  animation: daily-pulse 2s ease infinite;
+}
+
+.daily-skel--date {
+  height: 20px;
+  width: 110px;
+}
+.daily-skel--badge {
+  height: 22px;
+  width: 100px;
+  border-radius: 999px;
+}
+.daily-skel--bar {
+  height: 7px;
+  width: 100%;
+  border-radius: 999px;
+}
+.daily-skel--metric-label {
+  height: 14px;
+  border-radius: 4px;
+}
+.daily-skel--cal-tile {
+  height: 54px;
+  border-radius: 14px;
+}
+.daily-skel--cal-net {
+  height: 42px;
+  border-radius: 12px;
+}
+.daily-skel--donut {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+}
+.daily-skel--macro-row {
+  height: 36px;
+  border-radius: 10px;
+}
+
+.daily-macros-skel {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.daily-cal-skel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+@keyframes daily-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.18;
+  }
+}
+
+/* ── Mobile < 1200px — fixed right drawer ───────────────────────────────── */
+
+@media (max-width: 1199px) {
+  .daily-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px;
+    max-width: 85vw;
+    height: 100dvh;
+    z-index: 300;
+    background: var(--surface);
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.5);
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: unset;
+  }
+
+  .daily-panel--open {
+    transform: translateX(0);
+  }
+
+  .daily-panel-close-row {
+    display: flex;
+  }
+}
+
+@media (min-width: 1200px) {
+  .daily-panel-close-row {
+    display: none;
+  }
+}

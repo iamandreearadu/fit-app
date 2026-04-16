@@ -1,0 +1,606 @@
+<div class="profile-page">
+  <!-- Loading skeleton -->
+  @if (facade.isLoadingProfile()) {
+    <div class="profile-skeleton">
+      <div class="profile-skeleton-avatar"></div>
+      <div class="profile-skeleton-name"></div>
+      <div class="profile-skeleton-bio"></div>
+      <div class="profile-stats-row profile-skeleton-stats">
+        <div class="profile-stat-cell"></div>
+        <div class="profile-stat-cell"></div>
+        <div class="profile-stat-cell"></div>
+      </div>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (facade.profileError() && !facade.isLoadingProfile()) {
+    <div class="profile-error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ facade.profileError() }}</span>
+      <button
+        class="btn-ghost"
+        (click)="facade.loadProfile(userId)"
+        type="button"
+      >
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- Profile content -->
+  @if (facade.currentProfile() && !facade.isLoadingProfile()) {
+    <!-- Header -->
+    <div class="profile-header">
+      <div class="profile-avatar-ring">
+        @if (facade.currentProfile()!.avatarUrl) {
+          <img
+            class="profile-avatar"
+            [src]="facade.currentProfile()!.avatarUrl"
+            [alt]="facade.currentProfile()!.displayName"
+          />
+        } @else {
+          <div class="profile-avatar profile-avatar--fallback">
+            <mat-icon>person</mat-icon>
+          </div>
+        }
+      </div>
+      <h1 class="profile-display-name">
+        {{ facade.currentProfile()!.displayName }}
+      </h1>
+    </div>
+
+    <!-- Stats row -->
+    <div class="profile-stats-row">
+      <div class="profile-stat-cell">
+        <span class="profile-stat-number">{{
+          facade.currentProfile()!.postsCount
+        }}</span>
+        <span class="profile-stat-label">POSTS</span>
+      </div>
+      <div class="profile-stat-cell">
+        <span class="profile-stat-number">{{
+          facade.currentProfile()!.followersCount
+        }}</span>
+        <span class="profile-stat-label">FOLLOWERS</span>
+      </div>
+      <div class="profile-stat-cell">
+        <span class="profile-stat-number">{{
+          facade.currentProfile()!.followingCount
+        }}</span>
+        <span class="profile-stat-label">FOLLOWING</span>
+      </div>
+    </div>
+
+    <!-- Bio (below stats) -->
+    <div class="profile-bio-section">
+      @if (!isEditingBio()) {
+        @if (facade.currentProfile()!.bio) {
+          <p class="profile-bio">{{ facade.currentProfile()!.bio }}</p>
+        } @else if (facade.currentProfile()!.isOwnProfile) {
+          <button
+            class="profile-bio-add-btn"
+            (click)="startEditBio($event)"
+            type="button"
+          >
+            <mat-icon>add</mat-icon>
+            Add bio
+          </button>
+        }
+      } @else {
+        <div class="bio-edit-form">
+          <textarea
+            class="bio-textarea"
+            [ngModel]="bioInput()"
+            (ngModelChange)="bioInput.set($event)"
+            placeholder="Write something about yourself..."
+            rows="3"
+            maxlength="300"
+          ></textarea>
+        </div>
+      }
+    </div>
+
+    <!-- Action row -->
+    <div class="profile-action-row">
+      @if (facade.currentProfile()!.isOwnProfile) {
+        @if (!isEditingBio()) {
+          <button
+            class="btn-ghost profile-action-btn"
+            (click)="startEditBio($event)"
+            type="button"
+            aria-label="Edit Bio"
+          >
+            <mat-icon>edit_note</mat-icon> Edit Bio
+          </button>
+        } @else {
+          <button
+            class="btn-ghost profile-action-btn"
+            (click)="cancelEditBio()"
+            type="button"
+          >
+            <mat-icon>close</mat-icon> Cancel Bio
+          </button>
+          <button
+            class="btn-primary profile-action-btn"
+            (click)="saveBio()"
+            type="button"
+          >
+            <mat-icon>check</mat-icon> Save Bio
+          </button>
+        }
+        @if (!isEditingBio()) {
+          <button
+            class="btn-primary profile-action-btn"
+            (click)="openCreatePost()"
+            type="button"
+          >
+            <mat-icon>add</mat-icon> New
+          </button>
+        }
+      } @else {
+        <button
+          class="btn-primary profile-action-btn"
+          [class.btn-ghost]="isFollowing()"
+          (click)="toggleFollow()"
+          [disabled]="isTogglingFollow()"
+          type="button"
+        >
+          @if (isTogglingFollow()) {
+            <mat-spinner diameter="16" />
+          } @else {
+            {{ isFollowing() ? "Unfollow" : "Follow" }}
+          }
+        </button>
+        <button
+          class="btn-ghost profile-action-btn"
+          (click)="messageUser()"
+          type="button"
+        >
+          <mat-icon>chat_bubble_outline</mat-icon> Message
+        </button>
+      }
+
+      <!-- More (3 dots) — only for own profile -->
+      @if (facade.currentProfile()!.isOwnProfile) {
+        <div class="profile-more-wrap">
+          <button
+            class="profile-more-btn btn-ghost"
+            (click)="toggleMoreMenu($event)"
+            type="button"
+            aria-label="More options"
+          >
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+          @if (showMoreMenu()) {
+            <div class="profile-more-menu">
+              <button
+                class="profile-more-item"
+                (click)="openArchived($event)"
+                type="button"
+              >
+                <mat-icon>inventory_2</mat-icon>
+                Archived
+              </button>
+              <button
+                class="profile-more-item"
+                (click)="startEditBio($event)"
+                type="button"
+              >
+                <mat-icon>badge</mat-icon>
+                Edit Bio
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ── Archived section overlay ──────────────────────────────────────── -->
+    @if (showArchivedSection()) {
+      <div class="archived-section">
+        <div class="archived-section-header">
+          <button
+            class="archived-back-btn"
+            (click)="closeArchived()"
+            type="button"
+          >
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <span class="archived-title">Archived Posts</span>
+        </div>
+
+        @if (facade.isLoadingProfileSections()) {
+          <div class="profile-posts-grid">
+            @for (s of skeletonCells; track $index) {
+              <div class="profile-post-cell profile-post-cell--skeleton"></div>
+            }
+          </div>
+        } @else if (facade.archivedPosts().length === 0) {
+          <div class="profile-empty">
+            <mat-icon>inventory_2</mat-icon>
+            <p>No archived posts</p>
+          </div>
+        } @else {
+          <div class="profile-posts-grid">
+            @for (post of facade.archivedPosts(); track post.id) {
+              <div
+                class="profile-post-cell"
+                (click)="openPostDetail(post.id)"
+                role="button"
+                tabindex="0"
+              >
+                @if (post.imageUrl && !brokenImages.has(post.id)) {
+                  <img
+                    class="profile-post-img"
+                    [src]="post.imageUrl"
+                    [alt]="'Post ' + post.id"
+                    (error)="brokenImages.add(post.id)"
+                  />
+                } @else {
+                  <div class="profile-post-text-cell">
+                    <p>{{ post.content | slice: 0 : 80 }}</p>
+                  </div>
+                }
+                <div class="profile-item-overlay">
+                  <button
+                    class="profile-overlay-btn"
+                    (click)="unarchivePost($event, post.id)"
+                    title="Unarchive"
+                    type="button"
+                  >
+                    <mat-icon>unarchive</mat-icon>
+                  </button>
+                  <button
+                    class="profile-overlay-btn profile-overlay-btn--danger"
+                    (click)="deletePost($event, post.id)"
+                    title="Delete"
+                    type="button"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── Tabs ──────────────────────────────────────────────────────────── -->
+    @if (!showArchivedSection()) {
+      <div class="profile-tabs">
+        <button
+          class="profile-tab-btn"
+          [class.active]="activeTab() === 'posts'"
+          (click)="setTab('posts')"
+          type="button"
+        >
+          <mat-icon>grid_on</mat-icon>
+          Posts
+        </button>
+        <button
+          class="profile-tab-btn"
+          [class.active]="activeTab() === 'workouts'"
+          (click)="setTab('workouts')"
+          type="button"
+        >
+          <mat-icon>fitness_center</mat-icon>
+          Workouts
+        </button>
+        <button
+          class="profile-tab-btn"
+          [class.active]="activeTab() === 'blogs'"
+          (click)="setTab('blogs')"
+          type="button"
+        >
+          <mat-icon>article</mat-icon>
+          Articles
+        </button>
+        <button
+          class="profile-tab-btn"
+          [class.active]="activeTab() === 'stats'"
+          (click)="setTab('stats')"
+          type="button"
+        >
+          <mat-icon>bar_chart</mat-icon>
+          Stats
+        </button>
+      </div>
+
+      <!-- Posts tab -->
+      @if (activeTab() === "posts") {
+        <div class="profile-posts-section">
+          @if (facade.profilePosts().length === 0) {
+            <div class="profile-empty">
+              <mat-icon>photo_camera</mat-icon>
+              @if (facade.currentProfile()!.isOwnProfile) {
+                <p>Share your first post</p>
+                <button
+                  class="btn-primary"
+                  (click)="openCreatePost()"
+                  type="button"
+                >
+                  Create Post
+                </button>
+              } @else {
+                <p>No posts yet</p>
+              }
+            </div>
+          } @else {
+            <div class="profile-posts-grid">
+              @for (post of facade.profilePosts(); track post.id) {
+                <div
+                  class="profile-post-cell"
+                  (click)="openPostDetail(post.id)"
+                  role="button"
+                  tabindex="0"
+                >
+                  @if (post.imageUrl && !brokenImages.has(post.id)) {
+                    <img
+                      class="profile-post-img"
+                      [src]="post.imageUrl"
+                      [alt]="'Post ' + post.id"
+                      (error)="brokenImages.add(post.id)"
+                    />
+                  } @else {
+                    <div class="profile-post-text-cell">
+                      <p>{{ post.content | slice: 0 : 80 }}</p>
+                    </div>
+                  }
+                  @if (facade.currentProfile()!.isOwnProfile) {
+                    <div class="profile-item-overlay">
+                      <button
+                        class="profile-overlay-btn"
+                        (click)="editPost($event, post)"
+                        title="Edit"
+                        type="button"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        class="profile-overlay-btn"
+                        (click)="archivePost($event, post.id)"
+                        title="Archive"
+                        type="button"
+                      >
+                        <mat-icon>archive</mat-icon>
+                      </button>
+                      <button
+                        class="profile-overlay-btn profile-overlay-btn--danger"
+                        (click)="deletePost($event, post.id)"
+                        title="Delete"
+                        type="button"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Workouts tab -->
+      @if (activeTab() === "workouts") {
+        <div class="profile-section">
+          @if (facade.isLoadingProfileSections()) {
+            <div class="profile-cards-grid">
+              @for (s of skeletonCells.slice(0, 6); track $index) {
+                <div
+                  class="profile-content-card profile-content-card--skeleton"
+                ></div>
+              }
+            </div>
+          } @else if (facade.profileWorkouts().length === 0) {
+            <div class="profile-empty">
+              <mat-icon>fitness_center</mat-icon>
+              <p>No workouts yet</p>
+              @if (facade.currentProfile()!.isOwnProfile) {
+                <a routerLink="/workouts" class="btn-primary profile-empty-btn"
+                  >Go to Workouts</a
+                >
+              }
+            </div>
+          } @else {
+            <div class="profile-cards-grid">
+              @for (workout of facade.profileWorkouts(); track workout.id) {
+                <div class="profile-content-card">
+                  <div class="profile-card-icon workout-icon">
+                    <mat-icon>fitness_center</mat-icon>
+                  </div>
+                  <div class="profile-card-info">
+                    <span class="profile-card-title">{{ workout.title }}</span>
+                    <span class="profile-card-sub"
+                      >{{ workout.type }} · {{ workout.durationMin }} min</span
+                    >
+                    <span class="profile-card-sub"
+                      >{{ workout.caloriesEstimateKcal }} kcal</span
+                    >
+                  </div>
+                  @if (workout.isOwnWorkout) {
+                    <div class="profile-card-actions">
+                      <button
+                        class="profile-card-action-btn"
+                        (click)="editWorkout($event, workout.id)"
+                        title="Edit"
+                        type="button"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        class="profile-card-action-btn"
+                        (click)="archiveWorkout($event, workout.id)"
+                        title="Archive"
+                        type="button"
+                      >
+                        <mat-icon>archive</mat-icon>
+                      </button>
+                      <button
+                        class="profile-card-action-btn profile-card-action-btn--danger"
+                        (click)="deleteWorkout($event, workout.id)"
+                        title="Delete"
+                        type="button"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Articles tab -->
+      @if (activeTab() === "blogs") {
+        <div class="profile-section">
+          @if (facade.isLoadingProfileSections()) {
+            <div class="article-list">
+              @for (s of skeletonCells.slice(0, 4); track $index) {
+                <div class="article-card article-card--skeleton"></div>
+              }
+            </div>
+          } @else if (facade.profileBlogs().length === 0) {
+            <div class="profile-empty">
+              <mat-icon>article</mat-icon>
+              @if (facade.currentProfile()!.isOwnProfile) {
+                <p>You haven't published any articles yet</p>
+              } @else {
+                <p>No articles yet</p>
+              }
+            </div>
+          } @else {
+            <div class="blog-post-list">
+              @for (blog of facade.profileBlogs(); track blog.id) {
+                <div class="blog-post-card">
+                  <!-- Header row: avatar + name + date + three-dot menu -->
+                  <div class="blog-post-card-header">
+                    <div class="blog-post-card-avatar-wrap">
+                      @if (facade.currentProfile()!.avatarUrl) {
+                        <img
+                          class="blog-post-card-avatar"
+                          [src]="facade.currentProfile()!.avatarUrl"
+                          [alt]="facade.currentProfile()!.displayName"
+                        />
+                      } @else {
+                        <div class="blog-post-card-avatar blog-post-card-avatar--fallback">
+                          <mat-icon>person</mat-icon>
+                        </div>
+                      }
+                    </div>
+                    <div class="blog-post-card-meta">
+                      <span class="blog-post-card-author">{{ facade.currentProfile()!.displayName }}</span>
+                      <span class="blog-post-card-date">{{ blog.createdAt | date: "MMM d" }}</span>
+                    </div>
+                    @if (blog.isOwnBlog) {
+                      <div
+                        class="blog-post-card-menu-wrap"
+                        (click)="$event.stopPropagation()"
+                      >
+                        <button
+                          class="blog-post-card-menu-btn"
+                          [attr.aria-label]="'Options for ' + blog.title"
+                          type="button"
+                          (click)="toggleBlogMenu($event, blog.id)"
+                        >
+                          <mat-icon>more_horiz</mat-icon>
+                        </button>
+                        @if (openBlogMenuId() === blog.id) {
+                          <div class="blog-post-card-menu">
+                            <button
+                              class="blog-post-card-menu-item"
+                              (click)="editBlog($event, blog)"
+                              type="button"
+                            >
+                              <mat-icon>edit</mat-icon>
+                              Edit
+                            </button>
+                            <button
+                              class="blog-post-card-menu-item"
+                              (click)="archiveBlog($event, blog.id)"
+                              type="button"
+                            >
+                              <mat-icon>archive</mat-icon>
+                              Archive
+                            </button>
+                            <button
+                              class="blog-post-card-menu-item blog-post-card-menu-item--danger"
+                              (click)="deleteBlog($event, blog.id)"
+                              type="button"
+                            >
+                              <mat-icon>delete</mat-icon>
+                              Delete
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Body: caption + optional image + embedded article card -->
+                  <div
+                    class="blog-post-card-body"
+                    (click)="openArticleDetail(blog.id)"
+                    role="button"
+                    tabindex="0"
+                  >
+                    @if (blog.caption) {
+                      <p class="blog-post-card-caption">{{ blog.caption }}</p>
+                    }
+
+                    @if (blog.image) {
+                      <div class="blog-post-card-image-wrap">
+                        <img
+                          class="blog-post-card-image"
+                          [src]="blog.image"
+                          [alt]="blog.title"
+                        />
+                      </div>
+                    }
+
+                    <!-- Embedded article preview -->
+                    <div class="blog-post-card-article">
+                      <span class="blog-post-card-article-category">{{ blog.category }}</span>
+                      <h3 class="blog-post-card-article-title">{{ blog.title }}</h3>
+                      @if (blog.description) {
+                        <p class="blog-post-card-article-desc">{{ blog.description }}</p>
+                      }
+                      <div class="blog-post-card-article-read-row">
+                        <mat-icon class="blog-post-card-article-read-icon">article</mat-icon>
+                        <span class="blog-post-card-article-read-label">Read article</span>
+                        <mat-icon class="blog-post-card-article-read-arrow">arrow_forward</mat-icon>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Footer: like + comment counts (static) -->
+                  <div class="blog-post-card-footer">
+                    <button class="blog-post-card-action-btn" type="button" aria-label="Like">
+                      <mat-icon>favorite_border</mat-icon>
+                      <span class="blog-post-card-action-count">0</span>
+                    </button>
+                    <button class="blog-post-card-action-btn" type="button" aria-label="Comment">
+                      <mat-icon>chat_bubble_outline</mat-icon>
+                      <span class="blog-post-card-action-count">0</span>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+      <!-- Stats tab -->
+      @if (activeTab() === "stats") {
+        <app-stats-tab
+          [isOwnProfile]="facade.currentProfile()!.isOwnProfile"
+          [userId]="userId"
+        />
+      }
+    }
+  }
+</div>
