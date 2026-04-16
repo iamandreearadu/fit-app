@@ -1,5 +1,4 @@
 <div class="tab-content">
-
   <!-- Toolbar -->
   <div class="toolbar">
     <div class="left">
@@ -18,8 +17,19 @@
     <mat-form-field appearance="outline" class="field">
       <mat-label>Search workouts</mat-label>
       <mat-icon matPrefix>search</mat-icon>
-      <input matInput [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" />
-      <button type="button" *ngIf="searchTerm" matSuffix mat-icon-button (click)="searchTerm=''; applyFilters()" aria-label="Clear">
+      <input
+        matInput
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+      />
+      <button
+        type="button"
+        *ngIf="searchTerm"
+        matSuffix
+        mat-icon-button
+        (click)="searchTerm = ''; applyFilters()"
+        aria-label="Clear"
+      >
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
@@ -34,7 +44,10 @@
     </mat-form-field>
 
     <div class="loading" *ngIf="loading">
-      <mat-progress-spinner mode="indeterminate" diameter="24"></mat-progress-spinner>
+      <mat-progress-spinner
+        mode="indeterminate"
+        diameter="24"
+      ></mat-progress-spinner>
     </div>
   </div>
 
@@ -57,22 +70,25 @@
 
       <div class="list" *ngIf="filtered.length > 0">
         <div class="row-wrap" *ngFor="let w of filtered">
-
           <div class="row clickable" (click)="togglePreview(w)">
             <div class="row-main">
               <div class="row-top">
                 <div class="row-title">{{ w.title }}</div>
                 <div class="row-actions">
-                  <!-- <button type="button" class="icon-btn-round"
-                    (click)="stop($event); togglePreview(w)" [title]="isExpanded(w) ? 'Collapse' : 'Expand'">
-                    <mat-icon>{{ isExpanded(w) ? 'expand_less' : 'expand_more' }}</mat-icon>
-                  </button> -->
-                  <button type="button" class="icon-btn-round"
-                    (click)="stop($event); openEdit(w)" title="Edit">
+                  <button
+                    type="button"
+                    class="icon-btn-round"
+                    (click)="stop($event); openEdit(w)"
+                    title="Edit"
+                  >
                     <mat-icon>edit</mat-icon>
                   </button>
-                  <button type="button" class="icon-btn-round danger"
-                    (click)="stop($event); delete(w.uid)" title="Delete">
+                  <button
+                    type="button"
+                    class="icon-btn-round danger"
+                    (click)="stop($event); delete(w.uid)"
+                    title="Delete"
+                  >
                     <mat-icon>delete_outline</mat-icon>
                   </button>
                 </div>
@@ -84,13 +100,16 @@
                   <mat-icon>schedule</mat-icon>{{ w.durationMin }}
                 </span>
                 <span class="pill subtle">
-                  <mat-icon>local_fire_department</mat-icon>{{ w.caloriesEstimateKcal }}
+                  <mat-icon>local_fire_department</mat-icon
+                  >{{ w.caloriesEstimateKcal }}
                 </span>
                 <span class="pill subtle" *ngIf="w.type !== 'Cardio'">
-                  <mat-icon>fitness_center</mat-icon>{{ (w.exercises?.length ?? 0) }}
+                  <mat-icon>fitness_center</mat-icon
+                  >{{ w.exercises?.length ?? 0 }}
                 </span>
                 <span class="pill subtle" *ngIf="w.type === 'Cardio'">
-                  <mat-icon>route</mat-icon>{{ w.cardio?.km ?? 0 }} km · {{ w.cardio?.incline ?? 0 }}% incline
+                  <mat-icon>route</mat-icon>{{ w.cardio?.km ?? 0 }} km ·
+                  {{ w.cardio?.incline ?? 0 }}% incline
                 </span>
               </div>
             </div>
@@ -102,55 +121,88 @@
               <span class="p-name">Cardio</span>
               <span class="p-meta">{{ w.cardio?.km ?? 0 }} km</span>
               <span class="p-meta">{{ w.cardio?.incline ?? 0 }}% incline</span>
-              <span class="p-notes" *ngIf="w.cardio?.notes">{{ w.cardio?.notes }}</span>
+              <span class="p-notes" *ngIf="w.cardio?.notes">{{
+                w.cardio?.notes
+              }}</span>
             </div>
 
             <ng-container *ngIf="w.type !== 'Cardio'">
-              <div class="preview-line" *ngFor="let ex of (w.exercises ?? [])">
+              <div class="preview-line" *ngFor="let ex of w.exercises ?? []">
                 <span class="p-name">{{ ex.name }}</span>
                 <span class="p-meta">{{ ex.sets }} sets</span>
                 <span class="p-meta">{{ ex.reps }} reps</span>
                 <span class="p-meta">{{ ex.weightKg }} kg</span>
                 <span class="p-notes" *ngIf="ex.notes">{{ ex.notes }}</span>
               </div>
-              <div class="preview-empty" *ngIf="(w.exercises?.length ?? 0) === 0">
+              <div
+                class="preview-empty"
+                *ngIf="(w.exercises?.length ?? 0) === 0"
+              >
                 No exercises added yet.
               </div>
             </ng-container>
 
             <!-- AI calorie estimate -->
             <div class="ai-section">
-              <button type="button" class="btn-ai"
+              <button
+                type="button"
+                class="btn-ai"
                 (click)="estimateCalories(w, $event)"
-                [disabled]="aiCalories[w.uid ?? '']?.loading">
-                <mat-progress-spinner *ngIf="aiCalories[w.uid ?? '']?.loading"
-                  mode="indeterminate" diameter="13" class="btn-spinner">
+                [disabled]="aiCalories[w.uid ?? '']?.loading"
+              >
+                <mat-progress-spinner
+                  *ngIf="aiCalories[w.uid ?? '']?.loading"
+                  mode="indeterminate"
+                  diameter="13"
+                  class="btn-spinner"
+                >
                 </mat-progress-spinner>
-                <mat-icon *ngIf="!aiCalories[w.uid ?? '']?.loading">auto_awesome</mat-icon>
-                {{ aiCalories[w.uid ?? '']?.loading ? 'Calculating…' : 'Estimate calories with AI' }}
+                <mat-icon *ngIf="!aiCalories[w.uid ?? '']?.loading"
+                  >auto_awesome</mat-icon
+                >
+                {{
+                  aiCalories[w.uid ?? ""]?.loading
+                    ? "Calculating…"
+                    : "Estimate calories with AI"
+                }}
               </button>
 
-              <div class="ai-result" *ngIf="(aiCalories[w.uid ?? '']?.calories || aiCalories[w.uid ?? '']?.explanation) && !aiCalories[w.uid ?? '']?.loading">
+              <div
+                class="ai-result"
+                *ngIf="
+                  (aiCalories[w.uid ?? '']?.calories ||
+                    aiCalories[w.uid ?? '']?.explanation) &&
+                  !aiCalories[w.uid ?? '']?.loading
+                "
+              >
                 <div class="ai-result-header">
                   <mat-icon class="ai-icon">auto_awesome</mat-icon>
                   <span class="ai-label">AI Estimate</span>
-                  <button type="button" class="icon-btn-round small" style="margin-left:auto"
-                    (click)="clearAiResult(w.uid ?? '', $event)">
+                  <button
+                    type="button"
+                    class="icon-btn-round small"
+                    style="margin-left: auto"
+                    (click)="clearAiResult(w.uid ?? '', $event)"
+                  >
                     <mat-icon>close</mat-icon>
                   </button>
                 </div>
-                <div class="ai-calories-value" *ngIf="aiCalories[w.uid ?? '']?.calories">
+                <div
+                  class="ai-calories-value"
+                  *ngIf="aiCalories[w.uid ?? '']?.calories"
+                >
                   <mat-icon>local_fire_department</mat-icon>
-                  <span>~{{ aiCalories[w.uid ?? '']?.calories }} kcal</span>
+                  <span>~{{ aiCalories[w.uid ?? ""]?.calories }} kcal</span>
                 </div>
-                <div class="ai-result-text" *ngIf="aiCalories[w.uid ?? '']?.explanation">
-                  {{ aiCalories[w.uid ?? '']?.explanation }}
+                <div
+                  class="ai-result-text"
+                  *ngIf="aiCalories[w.uid ?? '']?.explanation"
+                >
+                  {{ aiCalories[w.uid ?? ""]?.explanation }}
                 </div>
               </div>
             </div>
-
           </div>
-
         </div>
       </div>
     </div>
@@ -159,15 +211,22 @@
   <!-- Editor modal -->
   <div class="overlay" *ngIf="showEditor" (click)="cancel()">
     <div class="modal" (click)="$event.stopPropagation()">
-
       <div class="modal-header">
         <div class="mh-left">
           <div class="mh-icon-wrap">
             <mat-icon>sports_gymnastics</mat-icon>
           </div>
           <div>
-            <div class="mh-title">{{ editing ? 'Edit workout' : 'New workout' }}</div>
-            <div class="mh-subtitle">{{ editing ? 'Update your workout template' : 'Fill in the details and save' }}</div>
+            <div class="mh-title">
+              {{ editing ? "Edit workout" : "New workout" }}
+            </div>
+            <div class="mh-subtitle">
+              {{
+                editing
+                  ? "Update your workout template"
+                  : "Fill in the details and save"
+              }}
+            </div>
           </div>
         </div>
         <button type="button" class="icon-btn-round" (click)="cancel()">
@@ -176,20 +235,27 @@
       </div>
 
       <div class="modal-body" [formGroup]="form">
-
         <!-- Workout details -->
         <div class="section">
-          <div class="sec-head"><mat-icon>tune</mat-icon><span>Workout Details</span></div>
+          <div class="sec-head">
+            <mat-icon>tune</mat-icon><span>Workout Details</span>
+          </div>
           <div class="grid-2">
             <mat-form-field appearance="outline" class="span-2">
               <mat-label>Title</mat-label>
-              <input matInput formControlName="title" placeholder="e.g. Pull Day A" />
+              <input
+                matInput
+                formControlName="title"
+                placeholder="e.g. Pull Day A"
+              />
             </mat-form-field>
 
             <mat-form-field appearance="outline">
               <mat-label>Type</mat-label>
               <mat-select formControlName="type">
-                <mat-option *ngFor="let t of types" [value]="t">{{ t }}</mat-option>
+                <mat-option *ngFor="let t of types" [value]="t">{{
+                  t
+                }}</mat-option>
               </mat-select>
             </mat-form-field>
 
@@ -200,14 +266,20 @@
 
             <mat-form-field appearance="outline" class="span-2">
               <mat-label>Calories estimate (kcal)</mat-label>
-              <input matInput type="number" formControlName="caloriesEstimateKcal" />
+              <input
+                matInput
+                type="number"
+                formControlName="caloriesEstimateKcal"
+              />
             </mat-form-field>
           </div>
         </div>
 
         <!-- Cardio fields -->
         <div class="section" *ngIf="isCardio()" formGroupName="cardio">
-          <div class="sec-head"><mat-icon>directions_run</mat-icon><span>Cardio Details</span></div>
+          <div class="sec-head">
+            <mat-icon>directions_run</mat-icon><span>Cardio Details</span>
+          </div>
           <div class="grid-2">
             <mat-form-field appearance="outline">
               <mat-label>Distance (km)</mat-label>
@@ -228,15 +300,25 @@
 
         <!-- Exercises -->
         <div class="section" *ngIf="!isCardio()">
-          <div class="sec-head"><mat-icon>fitness_center</mat-icon><span>Exercises</span></div>
+          <div class="sec-head">
+            <mat-icon>fitness_center</mat-icon><span>Exercises</span>
+          </div>
 
           <div formArrayName="exercises" class="ex-list">
-            <div class="ex-item" *ngFor="let ex of exercises.controls; let i = index" [formGroupName]="i">
+            <div
+              class="ex-item"
+              *ngFor="let ex of exercises.controls; let i = index"
+              [formGroupName]="i"
+            >
               <div class="ex-top">
                 <div class="ex-badge">{{ i + 1 }}</div>
                 <span class="ex-label">Exercise {{ i + 1 }}</span>
-                <button type="button" class="icon-btn-round small danger"
-                  (click)="removeExercise(i)" [disabled]="exercises.length <= 1">
+                <button
+                  type="button"
+                  class="icon-btn-round small danger"
+                  (click)="removeExercise(i)"
+                  [disabled]="exercises.length <= 1"
+                >
                   <mat-icon>close</mat-icon>
                 </button>
               </div>
@@ -244,7 +326,11 @@
               <div class="grid-2 tight">
                 <mat-form-field appearance="outline" class="span-2">
                   <mat-label>Name</mat-label>
-                  <input matInput formControlName="name" placeholder="e.g. Lat Pulldown" />
+                  <input
+                    matInput
+                    formControlName="name"
+                    placeholder="e.g. Lat Pulldown"
+                  />
                 </mat-form-field>
 
                 <div class="grid-3 span-2">
@@ -266,7 +352,11 @@
 
                 <mat-form-field appearance="outline" class="span-2">
                   <mat-label>Notes</mat-label>
-                  <textarea matInput rows="1" formControlName="notes"></textarea>
+                  <textarea
+                    matInput
+                    rows="1"
+                    formControlName="notes"
+                  ></textarea>
                 </mat-form-field>
               </div>
             </div>
@@ -279,23 +369,24 @@
 
         <!-- Workout notes -->
         <div class="section">
-          <div class="sec-head"><mat-icon>notes</mat-icon><span>Workout Notes</span></div>
+          <div class="sec-head">
+            <mat-icon>notes</mat-icon><span>Workout Notes</span>
+          </div>
           <mat-form-field appearance="outline" class="span-2">
             <mat-label>Notes (optional)</mat-label>
             <textarea matInput rows="2" formControlName="notes"></textarea>
           </mat-form-field>
         </div>
-
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-ghost" (click)="cancel()">Cancel</button>
+        <button type="button" class="btn-ghost" (click)="cancel()">
+          Cancel
+        </button>
         <button type="button" class="btn-primary" (click)="save()">
           <mat-icon>save</mat-icon>Save workout
         </button>
       </div>
-
     </div>
   </div>
-
 </div>
