@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal, HostListener } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -141,6 +142,7 @@ export class SocialProfileComponent implements OnInit {
         width: '100%',
       })
       .afterClosed()
+      .pipe(take(1))
       .subscribe((created) => {
         if (created) {
           this.facade.loadProfile(this.userId);
@@ -235,6 +237,7 @@ export class SocialProfileComponent implements OnInit {
         width: '100%',
       })
       .afterClosed()
+      .pipe(take(1))
       .subscribe((published) => {
         if (published) this.facade.loadProfileBlogs(this.userId);
       });
@@ -250,6 +253,7 @@ export class SocialProfileComponent implements OnInit {
         width: '100%',
       })
       .afterClosed()
+      .pipe(take(1))
       .subscribe((saved) => {
         if (saved) this.facade.loadProfileBlogs(this.userId);
       });

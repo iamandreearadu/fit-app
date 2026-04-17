@@ -1,10 +1,15 @@
-import { Component, Input, OnInit, inject, computed } from '@angular/core';
+import { Component, OnInit, inject, computed, input } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { SocialFacade } from '../../../../core/facade/social.facade';
 import { RecentWorkout } from '../../../../core/models/stats.model';
+
+const CHART_PRIMARY = '#7c4dff';      // --primary
+const CHART_ACCENT = '#ff4081';       // --accent
+const CHART_SURFACE = '#1a1a24';      // --surface-card
+const CHART_TEXT = '#ffffff';
 
 @Component({
   selector: 'app-stats-tab',
@@ -14,8 +19,8 @@ import { RecentWorkout } from '../../../../core/models/stats.model';
   styleUrl: './stats-tab.component.css'
 })
 export class StatsTabComponent implements OnInit {
-  @Input() isOwnProfile = false;
-  @Input() userId = '';
+  isOwnProfile = input(false);
+  userId = input.required<string>();
 
   protected readonly facade = inject(SocialFacade);
 
@@ -41,7 +46,7 @@ export class StatsTabComponent implements OnInit {
         }),
         datasets: [{
           data: vols.map(w => w.volumeKg),
-          borderColor: '#7c4dff',
+          borderColor: CHART_PRIMARY,
           backgroundColor: 'rgba(124,77,255,0.12)',
           fill: true,
           tension: 0.3,
@@ -61,11 +66,11 @@ export class StatsTabComponent implements OnInit {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#1a1a24',
+          backgroundColor: CHART_SURFACE,
           borderColor: 'rgba(255,255,255,0.1)',
           borderWidth: 1,
           titleColor: 'rgba(255,255,255,0.7)',
-          bodyColor: '#fff',
+          bodyColor: CHART_TEXT,
           callbacks: {
             label: ctx => ` ${ctx.parsed.y} ${tooltipSuffix}`
           }
@@ -88,13 +93,13 @@ export class StatsTabComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.userId) {
-      this.facade.loadPublicStats(this.userId);
+    if (this.userId()) {
+      this.facade.loadPublicStats(this.userId());
     }
   }
 
   retryLoadStats(): void {
-    this.facade.loadPublicStats(this.userId);
+    this.facade.loadPublicStats(this.userId());
   }
 
   formatVolume(kg: number): string {

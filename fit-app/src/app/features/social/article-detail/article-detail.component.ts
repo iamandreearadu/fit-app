@@ -22,6 +22,9 @@ export class ArticleDetailComponent implements OnInit {
   article = signal<ArticleDetail | null>(null);
   isLoading = signal(true);
   error = signal<string | null>(null);
+  likedByMe = signal(false);
+  likesCount = signal(0);
+  commentsCount = signal(0);
 
   private returnUrl = '/social/feed';
 
@@ -33,6 +36,9 @@ export class ArticleDetailComponent implements OnInit {
     const id = parseInt(this.route.snapshot.paramMap.get('id') ?? '0', 10);
     this.facade.getArticle(id).then(a => {
       this.article.set(a);
+      this.likedByMe.set(a.isLikedByMe);
+      this.likesCount.set(a.likesCount);
+      this.commentsCount.set(a.commentsCount);
     }).catch(() => {
       this.error.set('Could not load article.');
     }).finally(() => {
@@ -47,5 +53,22 @@ export class ArticleDetailComponent implements OnInit {
   goToProfile(): void {
     const authorId = this.article()?.author.id;
     if (authorId) this.router.navigate(['/social/profile', authorId]);
+  }
+
+  toggleLike(): void {
+    const postId = this.article()?.linkedPostId;
+    if (!postId) return;
+    const prev = this.likedByMe();
+    this.likedByMe.set(!prev);
+    this.likesCount.update(n => prev ? n - 1 : n + 1);
+    this.facade.toggleLike(postId);
+  }
+
+  goToComments(): void {
+    const postId = this.article()?.linkedPostId;
+    if (!postId) return;
+    this.router.navigate(['/social/post', postId], {
+      state: { returnUrl: this.router.url }
+    });
   }
 }

@@ -51,6 +51,7 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
   commentSkeletons = Array.from({ length: 4 });
 
   @ViewChild('commentsList') commentsListRef!: ElementRef;
+  @ViewChild('commentInputEl') commentInputRef!: ElementRef;
 
   protected postId = 0;
   private returnUrl = '/social/feed';
@@ -70,15 +71,22 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {}
 
   private loadPost(): void {
-    // Try to find the post in the feed signal first
-    const fromFeed = this.facade.feed().find(p => p.id === this.postId);
-    if (fromFeed) {
-      this.post.set(fromFeed);
-    } else {
-      this.isLoadingPost.set(true);
-      this.postError.set(null);
-      firstValueFrom(this.socialSvc.getProfile('me')).catch(() => null);
+    const local = this.facade.feed().find(p => p.id === this.postId)
+      ?? this.facade.profilePosts().find(p => p.id === this.postId)
+      ?? this.facade.discoverPosts().find(p => p.id === this.postId);
+    if (local) {
+      this.post.set(local);
+      return;
     }
+    this.isLoadingPost.set(true);
+    this.postError.set(null);
+    firstValueFrom(this.socialSvc.getPost(this.postId)).then(p => {
+      this.post.set(p);
+    }).catch(() => {
+      this.postError.set('Could not load post.');
+    }).finally(() => {
+      this.isLoadingPost.set(false);
+    });
   }
 
   private loadComments(): void {
@@ -158,6 +166,10 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
         if (updated) this.post.set(updated);
       }
     });
+  }
+
+  focusCommentInput(): void {
+    this.commentInputRef?.nativeElement?.focus();
   }
 
   onCommentKeydown(event: KeyboardEvent): void {

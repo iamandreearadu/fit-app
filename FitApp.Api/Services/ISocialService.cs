@@ -29,4 +29,5 @@ public interface ISocialService
     Task<ProfileBlogSummary> CreateUserBlogAsync(string userId, CreateUserBlogRequest request);
     Task<ProfileBlogSummary> UpdateUserBlogAsync(int id, string userId, UpdateUserBlogRequest request);
     Task<ArticleDetailResponse> GetArticleAsync(int id, string requestingUserId);
+    Task<PostResponse> GetPostByIdAsync(int postId, string viewerId);
 }

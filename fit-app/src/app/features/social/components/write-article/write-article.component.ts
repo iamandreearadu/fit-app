@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ToastrService } from 'ngx-toastr';
 import { SocialFacade } from '../../../../core/facade/social.facade';
 import { ProfileBlog } from '../../../../core/models/social.model';
 
@@ -47,6 +48,7 @@ export const ARTICLE_CATEGORIES = [
 })
 export class WriteArticleComponent {
   private readonly facade = inject(SocialFacade);
+  private readonly toastr = inject(ToastrService);
   private readonly dialogRef = inject(MatDialogRef<WriteArticleComponent>);
   readonly data = inject<{ blog?: ProfileBlog } | null>(MAT_DIALOG_DATA);
 
@@ -149,7 +151,7 @@ export class WriteArticleComponent {
       }
       this.dialogRef.close(true);
     } catch {
-      /* silently ignore */
+      this.toastr.error('Failed to publish article. Please try again.');
     } finally {
       this.isSaving.set(false);
     }

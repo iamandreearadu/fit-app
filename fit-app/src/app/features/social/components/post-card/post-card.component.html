@@ -79,11 +79,20 @@
       </div>
 
       @if (post().imageUrl && !imageError()) {
-        <div class="post-card-image-wrap">
+        <div class="post-card-image-wrap" (click)="openLightbox($event)" role="button" tabindex="0" aria-label="View full image">
           <img class="post-card-image"
                [src]="post().imageUrl"
                [alt]="'Post by ' + post().author.displayName"
                (error)="onImageError()" loading="lazy" />
+        </div>
+      }
+
+      @if (showLightbox() && post().imageUrl) {
+        <div class="post-card-lightbox" (click)="closeLightbox($event)" role="dialog" aria-modal="true" aria-label="Full image view">
+          <img class="post-card-lightbox-img" [src]="post().imageUrl!" [alt]="'Post by ' + post().author.displayName" (click)="$event.stopPropagation()" />
+          <button class="post-card-lightbox-close" (click)="closeLightbox($event)" type="button" aria-label="Close">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
       }
       @if (imageError() && post().imageUrl) {

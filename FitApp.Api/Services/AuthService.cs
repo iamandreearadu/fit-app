@@ -40,8 +40,7 @@ public class AuthService(AppDbContext db, JwtService jwt, EmailService email)
         db.Users.Add(user);
         await db.SaveChangesAsync();
 
-        // Send welcome email (non-blocking)
-        _ = email.SendWelcomeEmailAsync(user.Email, user.FullName);
+        await email.SendWelcomeEmailAsync(user.Email, user.FullName);
 
         return (new AuthResponse
         {

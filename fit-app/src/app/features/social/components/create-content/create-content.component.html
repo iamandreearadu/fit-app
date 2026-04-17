@@ -20,25 +20,6 @@
 
     <div class="cc-body">
 
-      <!-- Textarea -->
-      <div class="cc-textarea-wrap">
-        <textarea
-          class="cc-textarea"
-          placeholder="What's your fitness update?"
-          [value]="content()"
-          (input)="content.set($any($event.target).value)"
-          maxlength="500"
-          rows="5"
-          [disabled]="isSubmitting()"
-          aria-label="Post content"
-        ></textarea>
-      </div>
-
-      <!-- Char counter -->
-      <div class="cc-char-counter" [class]="charClass" aria-live="polite">
-        {{ charCount }}/500
-      </div>
-
       <!-- Image dropzone -->
       @if (!imagePreview()) {
         <div
@@ -58,7 +39,7 @@
             <mat-icon>image</mat-icon>
           </div>
           <span class="cc-dropzone-label">Drag &amp; drop or click to add photo</span>
-          <span class="cc-dropzone-hint">JPEG, PNG, WebP &middot; max 1200px</span>
+          <span class="cc-dropzone-hint">JPEG, PNG, WebP &middot; 3:4 portrait</span>
           <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
         </div>
       } @else {
@@ -74,6 +55,25 @@
           </button>
         </div>
       }
+
+      <!-- Textarea -->
+      <div class="cc-textarea-wrap">
+        <textarea
+          class="cc-textarea"
+          placeholder="What's your fitness update?"
+          [value]="content()"
+          (input)="content.set($any($event.target).value)"
+          maxlength="500"
+          rows="3"
+          [disabled]="isSubmitting()"
+          aria-label="Post content"
+        ></textarea>
+      </div>
+
+      <!-- Char counter -->
+      <div class="cc-char-counter" [class]="charClass" aria-live="polite">
+        {{ charCount }}/500
+      </div>
 
     </div>
 
@@ -177,7 +177,7 @@
         <label class="cc-art-label">Cover Image <span class="cc-art-optional">optional</span></label>
         @if (!articleImagePreview()) {
           <div
-            class="cc-art-cover-dropzone cc-art-cover-dropzone--compact"
+            class="cc-art-cover-dropzone"
             [class.cc-art-cover-dropzone--drag]="isDragOverArticle()"
             (dragover)="onArticleDragOver($event)"
             (dragleave)="onArticleDragLeave()"
@@ -189,13 +189,15 @@
             (keydown.enter)="coverInput.click()"
             (keydown.space)="coverInput.click()"
           >
-            <mat-icon class="cc-art-cover-compact-icon">add_photo_alternate</mat-icon>
-            <span class="cc-art-cover-compact-label">Add cover image</span>
-            <span class="cc-art-cover-hint">16:9 recommended &middot; JPEG, PNG, WebP</span>
+            <div class="cc-art-cover-icon-wrap">
+              <mat-icon>add_photo_alternate</mat-icon>
+            </div>
+            <span class="cc-art-cover-label">Drag &amp; drop or click to add cover</span>
+            <span class="cc-art-cover-hint">JPEG, PNG, WebP &middot; 16:7 recommended</span>
             <input #coverInput type="file" accept="image/*" (change)="onArticleFileSelected($event)" hidden />
           </div>
         } @else {
-          <div class="cc-art-cover-preview cc-art-cover-preview--compact">
+          <div class="cc-art-cover-preview">
             <img [src]="articleImagePreview()!" alt="Cover preview" class="cc-art-cover-img" />
             <button class="cc-art-cover-remove" (click)="removeArticleImage()" type="button" aria-label="Remove cover image">
               <mat-icon>close</mat-icon>

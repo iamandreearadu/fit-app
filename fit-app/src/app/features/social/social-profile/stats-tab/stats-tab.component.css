@@ -165,6 +165,44 @@
   margin-top: 8px;
 }
 
+.stats-privacy-note__icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+/* ── Stat icon variants ──────────────────────────────────────────────────────── */
+.stats-stat-icon--fire     { background: rgba(255,152,0,0.14); }
+.stats-stat-icon--primary  { background: rgba(124,77,255,0.14); }
+.stats-stat-icon--calories { background: rgba(255,152,0,0.10); }
+.stats-stat-icon--weight   { background: rgba(56,189,248,0.10); }
+.stats-stat-icon--volume   { background: rgba(167,139,250,0.14); }
+
+.stats-stat-icon-svg {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.stats-stat-icon-svg--fire     { color: #ff9800; }
+.stats-stat-icon-svg--primary  { color: var(--primary); }
+.stats-stat-icon-svg--calories { color: #ffb74d; }
+.stats-stat-icon-svg--weight   { color: #38bdf8; }
+.stats-stat-icon-svg--volume   { color: #a78bfa; }
+
+/* ── Recent workout list ─────────────────────────────────────────────────────── */
+.stats-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.stats-recent-skeleton {
+  height: 68px;
+  margin-top: 8px;
+}
+
 /* ── Recent section ──────────────────────────────────────────────────────────── */
 .stats-recent-section {
   display: flex;

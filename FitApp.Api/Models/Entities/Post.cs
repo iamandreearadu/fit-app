@@ -23,7 +23,7 @@ public class Post
 
     // Navigation
     public User User { get; set; } = null!;
-    public BlogPost? Article { get; set; }
+    public UserArticle? Article { get; set; }
     public WorkoutTemplate? LinkedWorkout { get; set; }
     public MealEntry? LinkedMeal { get; set; }
     public DailyEntry? LinkedDailyEntry { get; set; }

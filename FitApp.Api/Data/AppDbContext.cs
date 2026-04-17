@@ -13,6 +13,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<MealEntry> MealEntries => Set<MealEntry>();
     public DbSet<FoodItem> FoodItems => Set<FoodItem>();
     public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
+    public DbSet<UserArticle> UserArticles => Set<UserArticle>();
     public DbSet<ChatConversation> ChatConversations => Set<ChatConversation>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
 
@@ -59,11 +60,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<BlogPost>(e =>
         {
             e.HasKey(b => b.Id);
-            e.HasOne(b => b.Author)
-                .WithMany()
-                .HasForeignKey(b => b.AuthorId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<UserArticle>(e =>
+        {
+            e.HasKey(a => a.Id);
+            e.HasOne(a => a.Author)
+                .WithMany(u => u.UserArticles)
+                .HasForeignKey(a => a.AuthorId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<ChatConversation>(e =>
@@ -102,9 +107,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .OnDelete(DeleteBehavior.SetNull);
             e.HasIndex(p => new { p.UserId, p.CreatedAt });
             e.HasOne(p => p.Article)
-                .WithMany()
+                .WithMany(a => a.Posts)
                 .HasForeignKey(p => p.ArticleId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<Like>(e =>

@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { take } from 'rxjs/operators';
 import { SocialFacade } from '../../../core/facade/social.facade';
 import { Post } from '../../../core/models/social.model';
 import { PostCardComponent } from '../components/post-card/post-card.component';
@@ -92,7 +93,7 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
       panelClass: 'create-post-panel',
       maxWidth: '600px',
       width: '100%'
-    }).afterClosed().subscribe(result => {
+    }).afterClosed().pipe(take(1)).subscribe(result => {
       if (result) this.facade.loadFeed(true);
     });
   }

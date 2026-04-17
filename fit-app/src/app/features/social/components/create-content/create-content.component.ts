@@ -120,14 +120,23 @@ export class CreateContentComponent {
       const dataUrl = ev.target?.result as string;
       const img = new Image();
       img.onload = () => {
-        const MAX_PX = 1200;
-        const scale = Math.min(1, MAX_PX / Math.max(img.width, img.height));
-        const w = Math.round(img.width * scale);
-        const h = Math.round(img.height * scale);
+        // Center-crop to 3:4 portrait then scale down to max 1200px tall
+        const TARGET_RATIO = 3 / 4;
+        const srcRatio = img.width / img.height;
+        let sx = 0, sy = 0, sw = img.width, sh = img.height;
+        if (srcRatio > TARGET_RATIO) {
+          sw = Math.round(img.height * TARGET_RATIO);
+          sx = Math.round((img.width - sw) / 2);
+        } else if (srcRatio < TARGET_RATIO) {
+          sh = Math.round(img.width / TARGET_RATIO);
+          sy = Math.round((img.height - sh) / 2);
+        }
+        const MAX_H = 1200;
+        const scale = Math.min(1, MAX_H / sh);
         const canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+        canvas.width = Math.round(sw * scale);
+        canvas.height = Math.round(sh * scale);
+        canvas.getContext('2d')!.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
         const compressed = canvas.toDataURL('image/jpeg', 0.82);
         this.imagePreview.set(compressed);
         this.imageBase64.set(compressed.split(',')[1]);

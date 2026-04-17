@@ -214,6 +214,50 @@
   overflow: hidden;
   aspect-ratio: 3/4;
   width: 100%;
+  cursor: zoom-in;
+}
+
+/* Lightbox */
+.post-card-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+
+.post-card-lightbox-img {
+  max-width: 92vw;
+  max-height: 92vh;
+  object-fit: contain;
+  border-radius: 12px;
+  cursor: default;
+}
+
+.post-card-lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  transition: background 0.15s ease;
+}
+
+.post-card-lightbox-close:hover {
+  background: rgba(255, 64, 129, 0.65);
 }
 
 .post-card-image {

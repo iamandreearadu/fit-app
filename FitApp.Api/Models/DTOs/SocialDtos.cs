@@ -78,7 +78,7 @@ public class ArticleDetailResponse
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
-    public string Caption { get; set; } = string.Empty;
+    public string? Caption { get; set; }
     public string Description { get; set; } = string.Empty;
     public string? Image { get; set; }
     public string Category { get; set; } = string.Empty;
@@ -86,6 +86,9 @@ public class ArticleDetailResponse
     public UserSummary Author { get; set; } = null!;
     public bool IsOwnArticle { get; set; }
     public int? LinkedPostId { get; set; }
+    public bool IsLikedByMe { get; set; }
+    public int LikesCount { get; set; }
+    public int CommentsCount { get; set; }
 }
 
 public class UpdatePostRequest
@@ -155,7 +158,7 @@ public class ProfileBlogSummary
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
-    public string Caption { get; set; } = string.Empty;
+    public string? Caption { get; set; }
     public string? Description { get; set; }
     public string? Image { get; set; }
     public string Category { get; set; } = string.Empty;
@@ -177,36 +180,36 @@ public class UpdateBioRequest
 
 public class CreateUserBlogRequest
 {
-    [Required]
     [MaxLength(150)]
-    public string Title { get; set; } = string.Empty;
+    public string? Title { get; set; }
 
     [MaxLength(200)]
-    public string Caption { get; set; } = string.Empty;
+    public string? Caption { get; set; }
 
+    [Required]
     [MaxLength(8000)]
     public string Description { get; set; } = string.Empty;
 
     [MaxLength(60)]
-    public string Category { get; set; } = string.Empty;
+    public string? Category { get; set; }
 
     public string? Image { get; set; }
 }
 
 public class UpdateUserBlogRequest
 {
-    [Required]
     [MaxLength(150)]
-    public string Title { get; set; } = string.Empty;
+    public string? Title { get; set; }
 
     [MaxLength(200)]
-    public string Caption { get; set; } = string.Empty;
+    public string? Caption { get; set; }
 
+    [Required]
     [MaxLength(8000)]
     public string Description { get; set; } = string.Empty;
 
     [MaxLength(60)]
-    public string Category { get; set; } = string.Empty;
+    public string? Category { get; set; }
 
     public string? Image { get; set; }
 }

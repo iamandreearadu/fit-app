@@ -26,6 +26,7 @@ export class PostCardComponent {
   showFullArticle = signal(false);
   imageError = signal(false);
   showMenu = signal(false);
+  showLightbox = signal(false);
 
   readonly isArticle = computed(() => !!this.post().articleId);
 
@@ -83,6 +84,16 @@ export class PostCardComponent {
     this.router.navigate(['/social/article', this.post().articleId], {
       state: { returnUrl: this.router.url }
     });
+  }
+
+  openLightbox(e: Event): void {
+    e.stopPropagation();
+    this.showLightbox.set(true);
+  }
+
+  closeLightbox(e: Event): void {
+    e.stopPropagation();
+    this.showLightbox.set(false);
   }
 
   onImageError(): void {

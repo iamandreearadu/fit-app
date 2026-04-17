@@ -20,6 +20,7 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
     [HttpGet("feed")]
     public async Task<IActionResult> GetFeed([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
+        pageSize = Math.Clamp(pageSize, 1, 50);
         try
         {
             return Ok(await socialService.GetFeedAsync(UserId, page, pageSize));
@@ -35,6 +36,7 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
     [HttpGet("discover")]
     public async Task<IActionResult> GetDiscover([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
+        pageSize = Math.Clamp(pageSize, 1, 50);
         try
         {
             return Ok(await socialService.GetDiscoverAsync(UserId, page, pageSize));
@@ -143,6 +145,7 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
     [HttpGet("posts/{id:int}/comments")]
     public async Task<IActionResult> GetComments(int id, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
+        pageSize = Math.Clamp(pageSize, 1, 50);
         try
         {
             return Ok(await socialService.GetCommentsAsync(id, page, pageSize, UserId));
@@ -251,6 +254,7 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
     [HttpGet("profile/{userId}/posts")]
     public async Task<IActionResult> GetProfilePosts(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
+        pageSize = Math.Clamp(pageSize, 1, 50);
         try
         {
             return Ok(await socialService.GetProfilePostsAsync(userId, UserId, page, pageSize));
@@ -276,6 +280,7 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
     [HttpGet("profile/{userId}/archived-posts")]
     public async Task<IActionResult> GetArchivedPosts(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 12)
     {
+        pageSize = Math.Clamp(pageSize, 1, 50);
         try { return Ok(await socialService.GetArchivedPostsAsync(userId, UserId, page, pageSize)); }
         catch (UnauthorizedAccessException) { return Forbid(); }
         catch (Exception ex) { logger.LogError(ex, "Error getting archived posts for user {UserId}", userId); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
@@ -285,6 +290,7 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
     [HttpGet("profile/{userId}/workouts")]
     public async Task<IActionResult> GetProfileWorkouts(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 12)
     {
+        pageSize = Math.Clamp(pageSize, 1, 50);
         try { return Ok(await socialService.GetProfileWorkoutsAsync(userId, UserId, page, pageSize)); }
         catch (Exception ex) { logger.LogError(ex, "Error getting profile workouts"); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
     }
@@ -312,6 +318,7 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
     [HttpGet("profile/{userId}/blogs")]
     public async Task<IActionResult> GetProfileBlogs(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 12)
     {
+        pageSize = Math.Clamp(pageSize, 1, 50);
         try { return Ok(await socialService.GetProfileBlogsAsync(userId, UserId, page, pageSize)); }
         catch (Exception ex) { logger.LogError(ex, "Error getting profile blogs"); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
     }
@@ -349,6 +356,14 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
     [RequestSizeLimit(20 * 1024 * 1024)]
     public async Task<IActionResult> CreateUserBlog([FromBody] CreateUserBlogRequest request)
     {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.ToDictionary(
+                k => k.Key,
+                v => v.Value?.Errors.Select(e => e.ErrorMessage).ToArray() ?? []);
+            logger.LogWarning("CreateUserBlog validation failed: {@Errors}", errors);
+            return ValidationProblem(ModelState);
+        }
         try
         {
             var result = await socialService.CreateUserBlogAsync(UserId, request);
@@ -366,6 +381,15 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         catch (UnauthorizedAccessException) { return Forbid(); }
         catch (KeyNotFoundException ex) { return Problem(statusCode: 404, detail: ex.Message); }
         catch (Exception ex) { logger.LogError(ex, "Error updating blog {BlogId}", id); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
+    }
+
+    // GET /api/social/posts/{id}
+    [HttpGet("posts/{id:int}")]
+    public async Task<IActionResult> GetPost(int id)
+    {
+        try { return Ok(await socialService.GetPostByIdAsync(id, UserId)); }
+        catch (KeyNotFoundException ex) { return Problem(statusCode: 404, detail: ex.Message); }
+        catch (Exception ex) { logger.LogError(ex, "Error getting post {PostId}", id); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
     }
 
     // GET /api/social/articles/{id}
