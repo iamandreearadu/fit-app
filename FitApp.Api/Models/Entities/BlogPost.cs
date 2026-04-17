@@ -11,7 +11,5 @@ public class BlogPost
     public string Date { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-    public string? AuthorId { get; set; }
     public bool IsArchived { get; set; } = false;
-    public User? Author { get; set; }
 }

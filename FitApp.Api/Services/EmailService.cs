@@ -41,7 +41,10 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger)
         }
     }
 
-    private static string BuildWelcomeHtml(string fullName) => $"""
+    private string BuildWelcomeHtml(string fullName)
+    {
+        var appUrl = config["App:BaseUrl"] ?? "http://localhost:4200";
+        return $"""
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -122,7 +125,7 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger)
                       <table width="100%" cellpadding="0" cellspacing="0">
                         <tr>
                           <td align="center">
-                            <a href="http://localhost:4200"
+                            <a href="{appUrl}"
                                style="display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);
                                       color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;
                                       padding:14px 36px;border-radius:8px;letter-spacing:0.2px;">
@@ -151,4 +154,5 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger)
         </body>
         </html>
         """;
+    }
 }

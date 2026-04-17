@@ -34,6 +34,7 @@ public class User
 
     // Social navigation
     public ICollection<Post> Posts { get; set; } = [];
+    public ICollection<UserArticle> UserArticles { get; set; } = [];
     public ICollection<Like> Likes { get; set; } = [];
     public ICollection<Comment> Comments { get; set; } = [];
     public ICollection<Follow> Followers { get; set; } = [];       // users who follow this user (FollowingId == this.Id)

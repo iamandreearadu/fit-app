@@ -484,23 +484,23 @@ public class SocialService(
 
     public async Task<ArticleDetailResponse> GetArticleAsync(int id, string requestingUserId)
     {
-        var blog = await db.BlogPosts.Include(b => b.Author)
-            .FirstOrDefaultAsync(b => b.Id == id)
+        var article = await db.UserArticles.Include(a => a.Author)
+            .FirstOrDefaultAsync(a => a.Id == id)
             ?? throw new KeyNotFoundException("Article not found.");
 
         var linkedPost = await db.Posts.FirstOrDefaultAsync(p => p.ArticleId == id);
 
         return new ArticleDetailResponse
         {
-            Id = blog.Id,
-            Title = blog.Title,
-            Caption = blog.Caption,
-            Description = blog.Description,
-            Image = string.IsNullOrEmpty(blog.Image) ? null : blog.Image,
-            Category = blog.Category,
-            CreatedAt = blog.CreatedAt,
-            Author = blog.Author != null ? MapToUserSummary(blog.Author) : new UserSummary { Id = "", DisplayName = "Unknown" },
-            IsOwnArticle = blog.AuthorId == requestingUserId,
+            Id = article.Id,
+            Title = article.Title,
+            Caption = article.Caption,
+            Description = article.Description,
+            Image = string.IsNullOrEmpty(article.Image) ? null : article.Image,
+            Category = article.Category,
+            CreatedAt = article.CreatedAt,
+            Author = MapToUserSummary(article.Author),
+            IsOwnArticle = article.AuthorId == requestingUserId,
             LinkedPostId = linkedPost?.Id
         };
     }
@@ -604,26 +604,26 @@ public class SocialService(
 
     public async Task<PaginatedResponse<ProfileBlogSummary>> GetProfileBlogsAsync(string userId, string requestingUserId, int page, int pageSize)
     {
-        var query = db.BlogPosts
-            .Where(b => b.AuthorId == userId && !b.IsArchived)
-            .OrderByDescending(b => b.CreatedAt);
+        var query = db.UserArticles
+            .Where(a => a.AuthorId == userId && !a.IsArchived)
+            .OrderByDescending(a => a.CreatedAt);
 
         var total = await query.CountAsync();
-        var blogs = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        var articles = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
         return new PaginatedResponse<ProfileBlogSummary>
         {
-            Items = blogs.Select(b => new ProfileBlogSummary
+            Items = articles.Select(a => new ProfileBlogSummary
             {
-                Id = b.Id,
-                Title = b.Title,
-                Caption = b.Caption,
-                Description = b.Description,
-                Image = string.IsNullOrEmpty(b.Image) ? null : b.Image,
-                Category = b.Category,
-                CreatedAt = b.CreatedAt,
-                IsArchived = b.IsArchived,
-                IsOwnBlog = b.AuthorId == requestingUserId
+                Id = a.Id,
+                Title = a.Title,
+                Caption = a.Caption,
+                Description = a.Description,
+                Image = string.IsNullOrEmpty(a.Image) ? null : a.Image,
+                Category = a.Category,
+                CreatedAt = a.CreatedAt,
+                IsArchived = a.IsArchived,
+                IsOwnBlog = a.AuthorId == requestingUserId
             }).ToList(),
             Page = page,
             PageSize = pageSize,
@@ -634,32 +634,26 @@ public class SocialService(
 
     public async Task<ArchiveToggleResponse> ToggleArchiveBlogAsync(int id, string userId)
     {
-        var b = await db.BlogPosts.FirstOrDefaultAsync(b => b.Id == id)
-            ?? throw new KeyNotFoundException("Blog not found.");
-        if (b.AuthorId != userId) throw new UnauthorizedAccessException();
-        b.IsArchived = !b.IsArchived;
+        var article = await db.UserArticles.FirstOrDefaultAsync(a => a.Id == id)
+            ?? throw new KeyNotFoundException("Article not found.");
+        if (article.AuthorId != userId) throw new UnauthorizedAccessException();
+        article.IsArchived = !article.IsArchived;
 
-        // Keep the linked feed post in sync with the article's archive state
         var linkedPost = await db.Posts.FirstOrDefaultAsync(p => p.ArticleId == id);
         if (linkedPost is not null)
-            linkedPost.IsArchived = b.IsArchived;
+            linkedPost.IsArchived = article.IsArchived;
 
         await db.SaveChangesAsync();
-        return new ArchiveToggleResponse { IsArchived = b.IsArchived };
+        return new ArchiveToggleResponse { IsArchived = article.IsArchived };
     }
 
     public async Task DeleteBlogFromProfileAsync(int id, string userId)
     {
-        var b = await db.BlogPosts.FirstOrDefaultAsync(b => b.Id == id);
-        if (b is null) return;
-        if (b.AuthorId != userId) throw new UnauthorizedAccessException();
+        var article = await db.UserArticles.FirstOrDefaultAsync(a => a.Id == id);
+        if (article is null) return;
+        if (article.AuthorId != userId) throw new UnauthorizedAccessException();
 
-        // Remove the linked feed post so it no longer appears in followers' feeds
-        var linkedPost = await db.Posts.FirstOrDefaultAsync(p => p.ArticleId == id);
-        if (linkedPost is not null)
-            db.Posts.Remove(linkedPost);
-
-        db.BlogPosts.Remove(b);
+        db.UserArticles.Remove(article);
         await db.SaveChangesAsync();
     }
 
@@ -673,17 +667,16 @@ public class SocialService(
 
     public async Task<ProfileBlogSummary> CreateUserBlogAsync(string userId, CreateUserBlogRequest request)
     {
-        var blog = new BlogPost
+        var article = new UserArticle
         {
+            AuthorId = userId,
             Title = request.Title,
             Caption = request.Caption,
             Description = request.Description,
             Category = request.Category,
-            Image = request.Image ?? string.Empty,
-            Date = DateTime.UtcNow.ToString("MMMM d, yyyy"),
-            AuthorId = userId
+            Image = request.Image ?? string.Empty
         };
-        db.BlogPosts.Add(blog);
+        db.UserArticles.Add(article);
         await db.SaveChangesAsync();
 
         // Create a linked feed post so followers see the article
@@ -691,42 +684,42 @@ public class SocialService(
         {
             UserId = userId,
             Content = request.Caption ?? request.Title,
-            ArticleId = blog.Id
+            ArticleId = article.Id
         };
         db.Posts.Add(feedPost);
         await db.SaveChangesAsync();
 
         return new ProfileBlogSummary
         {
-            Id = blog.Id, Title = blog.Title, Caption = blog.Caption,
-            Description = blog.Description,
-            Image = string.IsNullOrEmpty(blog.Image) ? null : blog.Image,
-            Category = blog.Category, CreatedAt = blog.CreatedAt,
+            Id = article.Id, Title = article.Title, Caption = article.Caption,
+            Description = article.Description,
+            Image = string.IsNullOrEmpty(article.Image) ? null : article.Image,
+            Category = article.Category, CreatedAt = article.CreatedAt,
             IsArchived = false, IsOwnBlog = true
         };
     }
 
     public async Task<ProfileBlogSummary> UpdateUserBlogAsync(int id, string userId, UpdateUserBlogRequest request)
     {
-        var blog = await db.BlogPosts.FirstOrDefaultAsync(b => b.Id == id)
-            ?? throw new KeyNotFoundException("Blog not found.");
-        if (blog.AuthorId != userId) throw new UnauthorizedAccessException();
+        var article = await db.UserArticles.FirstOrDefaultAsync(a => a.Id == id)
+            ?? throw new KeyNotFoundException("Article not found.");
+        if (article.AuthorId != userId) throw new UnauthorizedAccessException();
 
-        blog.Title = request.Title;
-        blog.Caption = request.Caption;
-        blog.Description = request.Description;
-        blog.Category = request.Category;
-        blog.Image = request.Image ?? string.Empty;
-        blog.UpdatedAt = DateTime.UtcNow;
+        article.Title = request.Title;
+        article.Caption = request.Caption;
+        article.Description = request.Description;
+        article.Category = request.Category;
+        article.Image = request.Image ?? string.Empty;
+        article.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
 
         return new ProfileBlogSummary
         {
-            Id = blog.Id, Title = blog.Title, Caption = blog.Caption,
-            Description = blog.Description,
-            Image = string.IsNullOrEmpty(blog.Image) ? null : blog.Image,
-            Category = blog.Category, CreatedAt = blog.CreatedAt,
-            IsArchived = blog.IsArchived, IsOwnBlog = true
+            Id = article.Id, Title = article.Title, Caption = article.Caption,
+            Description = article.Description,
+            Image = string.IsNullOrEmpty(article.Image) ? null : article.Image,
+            Category = article.Category, CreatedAt = article.CreatedAt,
+            IsArchived = article.IsArchived, IsOwnBlog = true
         };
     }
 

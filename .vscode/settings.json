@@ -2,8 +2,7 @@
     "typescript.tsdk": "node_modules\\typescript\\lib",
     "cSpell.words": [
         "creds",
-        "firestore",
-        "HIIT",
+"HIIT",
         "tdee",
         "toastr"
     ]

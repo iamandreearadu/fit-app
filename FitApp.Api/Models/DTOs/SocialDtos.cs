@@ -182,11 +182,13 @@ public class CreateUserBlogRequest
     public string Title { get; set; } = string.Empty;
 
     [MaxLength(200)]
-    public string Caption { get; set; } = string.Empty;
+    public string? Caption { get; set; }
 
+    [Required]
     [MaxLength(8000)]
     public string Description { get; set; } = string.Empty;
 
+    [Required]
     [MaxLength(60)]
     public string Category { get; set; } = string.Empty;
 
@@ -200,11 +202,13 @@ public class UpdateUserBlogRequest
     public string Title { get; set; } = string.Empty;
 
     [MaxLength(200)]
-    public string Caption { get; set; } = string.Empty;
+    public string? Caption { get; set; }
 
+    [Required]
     [MaxLength(8000)]
     public string Description { get; set; } = string.Empty;
 
+    [Required]
     [MaxLength(60)]
     public string Category { get; set; } = string.Empty;
 

@@ -3,7 +3,7 @@
   <!-- ══════════════════════════════════════════════════════
        OWN PROFILE
        ══════════════════════════════════════════════════════ -->
-  @if (isOwnProfile) {
+  @if (isOwnProfile()) {
 
     <!-- Error -->
     @if (facade.publicStatsError() && !facade.isLoadingPublicStats()) {
@@ -26,8 +26,8 @@
 
         <!-- Streak -->
         <div class="stats-stat-card">
-          <div class="stats-stat-icon" style="background:rgba(255,152,0,0.14)">
-            <mat-icon style="color:#ff9800;font-size:20px;width:20px;height:20px">local_fire_department</mat-icon>
+          <div class="stats-stat-icon stats-stat-icon--fire">
+            <mat-icon class="stats-stat-icon-svg stats-stat-icon-svg--fire">local_fire_department</mat-icon>
           </div>
           <span class="stats-stat-value">{{ facade.publicStats()?.activeStreak ?? 0 }}</span>
           <span class="stats-stat-label">Active Streak</span>
@@ -36,8 +36,8 @@
 
         <!-- Workouts this month -->
         <div class="stats-stat-card">
-          <div class="stats-stat-icon" style="background:rgba(124,77,255,0.14)">
-            <mat-icon style="color:var(--primary);font-size:20px;width:20px;height:20px">fitness_center</mat-icon>
+          <div class="stats-stat-icon stats-stat-icon--primary">
+            <mat-icon class="stats-stat-icon-svg stats-stat-icon-svg--primary">fitness_center</mat-icon>
           </div>
           <span class="stats-stat-value">{{ facade.publicStats()?.workoutsThisMonth ?? 0 }}</span>
           <span class="stats-stat-label">Workouts</span>
@@ -46,8 +46,8 @@
 
         <!-- Avg calories — placeholder (no daily calorie data in ProfileWorkout) -->
         <div class="stats-stat-card">
-          <div class="stats-stat-icon" style="background:rgba(255,152,0,0.10)">
-            <mat-icon style="color:#ffb74d;font-size:20px;width:20px;height:20px">bolt</mat-icon>
+          <div class="stats-stat-icon stats-stat-icon--calories">
+            <mat-icon class="stats-stat-icon-svg stats-stat-icon-svg--calories">bolt</mat-icon>
           </div>
           <span class="stats-stat-value">—</span>
           <span class="stats-stat-label">Avg Calories</span>
@@ -56,8 +56,8 @@
 
         <!-- Weight change — not available (no historical weight) -->
         <div class="stats-stat-card">
-          <div class="stats-stat-icon" style="background:rgba(56,189,248,0.10)">
-            <mat-icon style="color:#38bdf8;font-size:20px;width:20px;height:20px">trending_flat</mat-icon>
+          <div class="stats-stat-icon stats-stat-icon--weight">
+            <mat-icon class="stats-stat-icon-svg stats-stat-icon-svg--weight">trending_flat</mat-icon>
           </div>
           <span class="stats-stat-value">—</span>
           <span class="stats-stat-label">Weight Change</span>
@@ -97,7 +97,7 @@
 
       @if (facade.isLoadingPublicStats()) {
         @for (s of [1,2,3]; track s) {
-          <div class="profile-content-card profile-content-card--skeleton" style="height:68px;margin-top:8px"></div>
+          <div class="profile-content-card profile-content-card--skeleton stats-recent-skeleton"></div>
         }
       } @else if (recentOwn.length === 0) {
         <div class="profile-empty">
@@ -105,7 +105,7 @@
           <p>No workouts yet</p>
         </div>
       } @else {
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+        <div class="stats-recent-list">
           @for (w of recentOwn; track w.id) {
             <div class="profile-content-card">
               <div class="profile-card-icon workout-icon">
@@ -126,7 +126,7 @@
   <!-- ══════════════════════════════════════════════════════
        OTHER PROFILE
        ══════════════════════════════════════════════════════ -->
-  @if (!isOwnProfile) {
+  @if (!isOwnProfile()) {
 
     <!-- Error -->
     @if (facade.publicStatsError()) {
@@ -149,8 +149,8 @@
 
         <!-- Streak -->
         <div class="stats-stat-card stats-stat-card--compact">
-          <div class="stats-stat-icon" style="background:rgba(255,152,0,0.14)">
-            <mat-icon style="color:#ff9800;font-size:20px;width:20px;height:20px">local_fire_department</mat-icon>
+          <div class="stats-stat-icon stats-stat-icon--fire">
+            <mat-icon class="stats-stat-icon-svg stats-stat-icon-svg--fire">local_fire_department</mat-icon>
           </div>
           <span class="stats-stat-value stats-stat-value--compact">{{ facade.publicStats()!.activeStreak }}</span>
           <span class="stats-stat-label">Streak</span>
@@ -159,8 +159,8 @@
 
         <!-- Workouts -->
         <div class="stats-stat-card stats-stat-card--compact">
-          <div class="stats-stat-icon" style="background:rgba(124,77,255,0.14)">
-            <mat-icon style="color:var(--primary);font-size:20px;width:20px;height:20px">fitness_center</mat-icon>
+          <div class="stats-stat-icon stats-stat-icon--primary">
+            <mat-icon class="stats-stat-icon-svg stats-stat-icon-svg--primary">fitness_center</mat-icon>
           </div>
           <span class="stats-stat-value stats-stat-value--compact">{{ facade.publicStats()!.workoutsThisMonth }}</span>
           <span class="stats-stat-label">Workouts</span>
@@ -169,8 +169,8 @@
 
         <!-- Volume -->
         <div class="stats-stat-card stats-stat-card--compact">
-          <div class="stats-stat-icon" style="background:rgba(167,139,250,0.14)">
-            <mat-icon style="color:#a78bfa;font-size:20px;width:20px;height:20px">bar_chart</mat-icon>
+          <div class="stats-stat-icon stats-stat-icon--volume">
+            <mat-icon class="stats-stat-icon-svg stats-stat-icon-svg--volume">bar_chart</mat-icon>
           </div>
           <span class="stats-stat-value stats-stat-value--compact">{{ formatVolume(facade.publicStats()!.volumeThisMonth) }}</span>
           <span class="stats-stat-label">Volume</span>
@@ -202,7 +202,7 @@
             </div>
           </div>
           <div class="stats-privacy-note">
-            <mat-icon style="font-size:14px;width:14px;height:14px">lock</mat-icon>
+            <mat-icon class="stats-privacy-note__icon">lock</mat-icon>
             <span>Weight and calorie data is private</span>
           </div>
         }
@@ -220,7 +220,7 @@
             <p>No public stats yet</p>
           </div>
         } @else {
-          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+          <div class="stats-recent-list">
             @for (w of publicRecentWorkouts(); track w.id) {
               <div class="profile-content-card">
                 <div class="profile-card-icon workout-icon">
