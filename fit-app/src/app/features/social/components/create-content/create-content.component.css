@@ -76,6 +76,23 @@
   flex-direction: column;
   gap: 10px;
   padding: 18px 18px 12px;
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) transparent;
+}
+
+.cc-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cc-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cc-body::-webkit-scrollbar-thumb {
+  background: rgba(124, 77, 255, 0.4);
+  border-radius: 4px;
 }
 
 /* ─── Textarea ───────────────────────────────────────────────────────────── */
@@ -137,13 +154,15 @@
 
 /* ─── Image dropzone ─────────────────────────────────────────────────────── */
 .cc-dropzone {
-  width: 100%;
-  padding: 20px 16px;
+  width: 52%;
+  aspect-ratio: 3 / 4;
+  margin: 0 auto;
   border: 1.5px dashed rgba(124, 77, 255, 0.32);
   border-radius: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 5px;
   cursor: pointer;
   background: rgba(124, 77, 255, 0.02);
@@ -191,16 +210,18 @@
 /* ─── Image preview ──────────────────────────────────────────────────────── */
 .cc-preview {
   position: relative;
+  width: 52%;
+  aspect-ratio: 3 / 4;
+  margin: 0 auto;
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  display: block;
 }
 
 .cc-preview-img {
   display: block;
   width: 100%;
-  max-height: 220px;
+  height: 100%;
   object-fit: cover;
   border-radius: 14px;
 }

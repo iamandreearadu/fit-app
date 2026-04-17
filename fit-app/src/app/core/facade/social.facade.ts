@@ -246,8 +246,13 @@ export class SocialFacade {
   }
 
   async createBlog(req: CreateBlogRequest): Promise<void> {
-    const blog = await firstValueFrom(this.socialSvc.createBlog(req));
-    this._profileBlogs.update(f => [blog, ...f]);
+    try {
+      const blog = await firstValueFrom(this.socialSvc.createBlog(req));
+      this._profileBlogs.update(f => [blog, ...f]);
+    } catch (err: any) {
+      console.error('[createBlog] error body:', err?.error);
+      throw err;
+    }
   }
 
   async updateBlogPost(id: number, req: UpdateBlogRequest): Promise<void> {

@@ -162,6 +162,12 @@ export class SocialService {
     return this.http.put<ProfileBlog>(`${this.base}/profile/blogs/${id}`, req);
   }
 
+  getPost(id: number): Observable<Post> {
+    return this.http.get<Post>(`${this.base}/posts/${id}`).pipe(
+      map(p => ({ ...p, imageUrl: normalizeImageUrl(p.imageUrl) }))
+    );
+  }
+
   getArticle(id: number): Observable<ArticleDetail> {
     return this.http.get<ArticleDetail>(`${this.base}/articles/${id}`);
   }

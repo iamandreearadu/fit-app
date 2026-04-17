@@ -356,6 +356,14 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
     [RequestSizeLimit(20 * 1024 * 1024)]
     public async Task<IActionResult> CreateUserBlog([FromBody] CreateUserBlogRequest request)
     {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.ToDictionary(
+                k => k.Key,
+                v => v.Value?.Errors.Select(e => e.ErrorMessage).ToArray() ?? []);
+            logger.LogWarning("CreateUserBlog validation failed: {@Errors}", errors);
+            return ValidationProblem(ModelState);
+        }
         try
         {
             var result = await socialService.CreateUserBlogAsync(UserId, request);
@@ -373,6 +381,15 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         catch (UnauthorizedAccessException) { return Forbid(); }
         catch (KeyNotFoundException ex) { return Problem(statusCode: 404, detail: ex.Message); }
         catch (Exception ex) { logger.LogError(ex, "Error updating blog {BlogId}", id); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
+    }
+
+    // GET /api/social/posts/{id}
+    [HttpGet("posts/{id:int}")]
+    public async Task<IActionResult> GetPost(int id)
+    {
+        try { return Ok(await socialService.GetPostByIdAsync(id, UserId)); }
+        catch (KeyNotFoundException ex) { return Problem(statusCode: 404, detail: ex.Message); }
+        catch (Exception ex) { logger.LogError(ex, "Error getting post {PostId}", id); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
     }
 
     // GET /api/social/articles/{id}

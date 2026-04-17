@@ -35,14 +35,17 @@ export interface Post {
 export interface ArticleDetail {
   id: number;
   title: string;
-  caption: string;
+  caption?: string;
   description: string;
   image?: string;
-  category: string;
+  category?: string;
   createdAt: string;
   author: UserSummary;
   isOwnArticle: boolean;
   linkedPostId?: number;
+  isLikedByMe: boolean;
+  likesCount: number;
+  commentsCount: number;
 }
 
 export interface Comment {

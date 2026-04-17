@@ -490,6 +490,9 @@ public class SocialService(
 
         var linkedPost = await db.Posts.FirstOrDefaultAsync(p => p.ArticleId == id);
 
+        var isLikedByMe = linkedPost != null &&
+            await db.Likes.AnyAsync(l => l.PostId == linkedPost.Id && l.UserId == requestingUserId);
+
         return new ArticleDetailResponse
         {
             Id = article.Id,
@@ -501,8 +504,35 @@ public class SocialService(
             CreatedAt = article.CreatedAt,
             Author = MapToUserSummary(article.Author),
             IsOwnArticle = article.AuthorId == requestingUserId,
-            LinkedPostId = linkedPost?.Id
+            LinkedPostId = linkedPost?.Id,
+            IsLikedByMe = isLikedByMe,
+            LikesCount = linkedPost?.LikesCount ?? 0,
+            CommentsCount = linkedPost?.CommentsCount ?? 0
         };
+    }
+
+    public async Task<PostResponse> GetPostByIdAsync(int postId, string viewerId)
+    {
+        var post = await db.Posts
+            .Include(p => p.User)
+            .Include(p => p.LinkedWorkout)
+            .Include(p => p.LinkedMeal)
+            .Include(p => p.LinkedDailyEntry)
+            .Include(p => p.Article)
+            .FirstOrDefaultAsync(p => p.Id == postId && !p.IsArchived)
+            ?? throw new KeyNotFoundException("Post not found.");
+
+        var likedPostIds = await db.Likes
+            .Where(l => l.UserId == viewerId && l.PostId == postId)
+            .Select(l => l.PostId)
+            .ToHashSetAsync();
+
+        var followingIds = await db.Follows
+            .Where(f => f.FollowerId == viewerId)
+            .Select(f => f.FollowingId)
+            .ToHashSetAsync();
+
+        return MapToPostResponse(post, viewerId, likedPostIds, followingIds);
     }
 
     private static UserSummary MapToUserSummary(User user) => new()

@@ -63,6 +63,32 @@
       <!-- Full content -->
       <div class="article-content">{{ article()!.description }}</div>
 
+      <!-- Like / Comment actions -->
+      @if (article()!.linkedPostId) {
+        <div class="article-actions">
+          <button
+            class="article-action-btn"
+            [class.article-action-btn--liked]="likedByMe()"
+            (click)="toggleLike()"
+            type="button"
+            [attr.aria-pressed]="likedByMe()"
+            aria-label="Like article"
+          >
+            <mat-icon>{{ likedByMe() ? 'favorite' : 'favorite_border' }}</mat-icon>
+            <span>{{ likesCount() }}</span>
+          </button>
+          <button
+            class="article-action-btn"
+            (click)="goToComments()"
+            type="button"
+            aria-label="View comments"
+          >
+            <mat-icon>chat_bubble_outline</mat-icon>
+            <span>{{ commentsCount() }}</span>
+          </button>
+        </div>
+      }
+
     </article>
   }
 
