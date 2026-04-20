@@ -4,16 +4,19 @@ import { SocialService } from '../../api/social.service';
 import { StatsService } from '../../api/stats.service';
 import {
   Post,
+  Comment,
   UserSocialProfile,
   CreatePostRequest,
   UpdatePostRequest,
+  CreateCommentRequest,
   FollowToggleResponse,
   UserSearchResult,
   ProfileWorkout,
   ProfileBlog,
   CreateBlogRequest,
   UpdateBlogRequest,
-  ArticleDetail
+  ArticleDetail,
+  PaginatedResponse
 } from '../models/social.model';
 import { UserPublicStats } from '../models/stats.model';
 
@@ -257,8 +260,24 @@ export class SocialFacade {
     }
   }
 
+  async getPost(id: number): Promise<Post> {
+    return firstValueFrom(this.socialSvc.getPost(id));
+  }
+
   async getArticle(id: number): Promise<ArticleDetail> {
     return firstValueFrom(this.socialSvc.getArticle(id));
+  }
+
+  async getComments(postId: number, page = 1, pageSize = 20): Promise<PaginatedResponse<Comment>> {
+    return firstValueFrom(this.socialSvc.getComments(postId, page, pageSize));
+  }
+
+  async addComment(postId: number, req: CreateCommentRequest): Promise<Comment> {
+    return firstValueFrom(this.socialSvc.addComment(postId, req));
+  }
+
+  async deleteComment(postId: number, commentId: number): Promise<void> {
+    return firstValueFrom(this.socialSvc.deleteComment(postId, commentId));
   }
 
   async loadPublicStats(userId: string): Promise<void> {

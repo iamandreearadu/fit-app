@@ -44,6 +44,12 @@ export class SocialService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/api/social`;
 
+  getPost(id: number): Observable<Post> {
+    return this.http.get<Post>(`${this.base}/posts/${id}`).pipe(
+      map(p => ({ ...p, imageUrl: normalizeImageUrl(p.imageUrl) }))
+    );
+  }
+
   getFeed(page = 1, pageSize = 10): Observable<PaginatedResponse<Post>> {
     const params = new HttpParams().set('page', page).set('pageSize', pageSize);
     return this.http.get<PaginatedResponse<Post>>(`${this.base}/feed`, { params }).pipe(

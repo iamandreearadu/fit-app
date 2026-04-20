@@ -10,6 +10,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { SocialFacade } from '../../../core/facade/social.facade';
 import { ChatFacade } from '../../../core/facade/chat.facade';
 import { UserStore } from '../../../core/store/user.store';
+import { AuthenticationStore } from '../../../core/store/auth.store';
 import { CreatePostComponent } from '../components/create-post/create-post.component';
 import { CreateContentComponent } from '../components/create-content/create-content.component';
 import { EditPostComponent } from '../components/edit-post/edit-post.component';
@@ -42,6 +43,7 @@ export class SocialProfileComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly userStore = inject(UserStore);
+  private readonly authStore = inject(AuthenticationStore);
   private readonly dialog = inject(MatDialog);
 
   readonly skeletonCells = Array.from({ length: 9 });
@@ -63,7 +65,9 @@ export class SocialProfileComponent implements OnInit {
   ngOnInit(): void {
     const paramId = this.route.snapshot.paramMap.get('userId') ?? 'me';
     this.userId =
-      paramId === 'me' ? (this.userStore.user()?.id ?? '') : paramId;
+      paramId === 'me'
+        ? (this.userStore.user()?.id ?? this.authStore.authUser()?.id ?? '')
+        : paramId;
 
     this.facade.loadProfile(this.userId).then(() => {
       const profile = this.facade.currentProfile();

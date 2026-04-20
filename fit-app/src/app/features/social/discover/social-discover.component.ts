@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,7 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { SocialFacade } from '../../../core/facade/social.facade';
 import { Post, UserSummary } from '../../../core/models/social.model';
@@ -33,13 +34,13 @@ export class SocialDiscoverComponent implements OnInit, OnDestroy {
   protected readonly facade = inject(SocialFacade);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
+  private readonly _destroyRef = inject(DestroyRef);
 
   readonly followingUsers = signal<Set<string>>(new Set());
   readonly skeletons = Array.from({ length: 4 });
   readonly searchQuery = signal('');
 
   private readonly searchInput$ = new Subject<string>();
-  private readonly destroy$ = new Subject<void>();
 
   readonly uniqueAuthors = computed((): UserSummary[] => {
     const seen = new Set<string>();
@@ -60,7 +61,7 @@ export class SocialDiscoverComponent implements OnInit, OnDestroy {
     this.searchInput$.pipe(
       debounceTime(350),
       distinctUntilChanged(),
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this._destroyRef)
     ).subscribe(q => {
       if (q.trim()) {
         this.facade.searchUsers(q);
@@ -71,8 +72,6 @@ export class SocialDiscoverComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
     this.facade.clearSearch();
   }
 

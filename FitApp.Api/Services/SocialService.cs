@@ -12,6 +12,28 @@ public class SocialService(
 {
     private readonly ILogger<SocialService> _logger = logger;
 
+    // ── Single Post ───────────────────────────────────────────────────────────
+
+    public async Task<PostResponse> GetPostByIdAsync(int id, string requestingUserId)
+    {
+        var post = await db.Posts
+            .Include(p => p.User)
+            .Include(p => p.LinkedWorkout)
+            .Include(p => p.LinkedMeal)
+            .Include(p => p.LinkedDailyEntry)
+            .Include(p => p.Article)
+            .FirstOrDefaultAsync(p => p.Id == id)
+            ?? throw new KeyNotFoundException("Post not found.");
+
+        var isLiked = await db.Likes.AnyAsync(l => l.UserId == requestingUserId && l.PostId == id);
+        var isFollowing = post.UserId != requestingUserId && await db.Follows
+            .AnyAsync(f => f.FollowerId == requestingUserId && f.FollowingId == post.UserId);
+
+        return MapToPostResponse(post, requestingUserId,
+            isLiked ? [id] : [],
+            isFollowing ? [post.UserId] : []);
+    }
+
     // ── Feed ──────────────────────────────────────────────────────────────────
 
     public async Task<PaginatedResponse<PostResponse>> GetFeedAsync(string userId, int page, int pageSize)

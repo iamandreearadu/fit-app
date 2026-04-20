@@ -16,6 +16,25 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         ?? User.FindFirstValue("sub")
         ?? throw new UnauthorizedAccessException("User identity not resolved.");
 
+    // GET /api/social/posts/{id}
+    [HttpGet("posts/{id:int}")]
+    public async Task<IActionResult> GetPost(int id)
+    {
+        try
+        {
+            return Ok(await socialService.GetPostByIdAsync(id, UserId));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return Problem(statusCode: 404, detail: ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error getting post {PostId}", id);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
     // GET /api/social/feed
     [HttpGet("feed")]
     public async Task<IActionResult> GetFeed([FromQuery] int page = 1, [FromQuery] int pageSize = 10)

@@ -8,8 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { firstValueFrom } from 'rxjs';
-import { SocialService } from '../../../api/social.service';
 import { SocialFacade } from '../../../core/facade/social.facade';
 import { Comment, Post, CreateCommentRequest } from '../../../core/models/social.model';
 import { PostCardComponent } from '../components/post-card/post-card.component';
@@ -36,7 +34,6 @@ import { EditPostComponent } from '../components/edit-post/edit-post.component';
 export class SocialPostDetailComponent implements OnInit, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly socialSvc = inject(SocialService);
   protected readonly facade = inject(SocialFacade);
   private readonly dialog = inject(MatDialog);
 
@@ -70,21 +67,25 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {}
 
   private loadPost(): void {
-    // Try to find the post in the feed signal first
-    const fromFeed = this.facade.feed().find(p => p.id === this.postId);
+    const fromFeed = this.facade.feed().find(p => p.id === this.postId)
+      ?? this.facade.discoverPosts().find(p => p.id === this.postId)
+      ?? this.facade.profilePosts().find(p => p.id === this.postId);
     if (fromFeed) {
       this.post.set(fromFeed);
     } else {
       this.isLoadingPost.set(true);
       this.postError.set(null);
-      firstValueFrom(this.socialSvc.getProfile('me')).catch(() => null);
+      this.facade.getPost(this.postId)
+        .then(p => this.post.set(p))
+        .catch(() => this.postError.set('Failed to load post.'))
+        .finally(() => this.isLoadingPost.set(false));
     }
   }
 
   private loadComments(): void {
     this.isLoadingComments.set(true);
     this.commentsError.set(null);
-    firstValueFrom(this.socialSvc.getComments(this.postId)).then(res => {
+    this.facade.getComments(this.postId).then(res => {
       this.comments.set(res.items);
     }).catch(() => {
       this.commentsError.set('Failed to load comments.');
@@ -111,7 +112,7 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
     this.isSubmittingComment.set(true);
     try {
       const req: CreateCommentRequest = { content: text };
-      const comment = await firstValueFrom(this.socialSvc.addComment(this.postId, req));
+      const comment = await this.facade.addComment(this.postId, req);
       this.comments.update(cs => [...cs, comment]);
       this.commentInput.set('');
       this.post.update(p => p ? { ...p, commentsCount: p.commentsCount + 1 } : p);
@@ -131,7 +132,7 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
 
   async deleteComment(postId: number, commentId: number): Promise<void> {
     try {
-      await firstValueFrom(this.socialSvc.deleteComment(postId, commentId));
+      await this.facade.deleteComment(postId, commentId);
       this.comments.update(cs => cs.filter(c => c.id !== commentId));
       this.post.update(p => p ? { ...p, commentsCount: Math.max(0, p.commentsCount - 1) } : p);
     } catch {

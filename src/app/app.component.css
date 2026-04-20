@@ -1,7 +1,0 @@
-
-router-outlet{display:block}
-.navbar-brand{ font-weight:700 }
-
-.nav-item .nav-link {
-  cursor: pointer;
-}

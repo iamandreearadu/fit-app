@@ -4,6 +4,7 @@ namespace FitApp.Api.Services;
 
 public interface ISocialService
 {
+    Task<PostResponse> GetPostByIdAsync(int id, string requestingUserId);
     Task<PaginatedResponse<PostResponse>> GetFeedAsync(string userId, int page, int pageSize);
     Task<PaginatedResponse<PostResponse>> GetDiscoverAsync(string userId, int page, int pageSize);
     Task<PostResponse> CreatePostAsync(string userId, CreatePostRequest request);
