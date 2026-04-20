@@ -1,0 +1,61 @@
+<nav class="social-bottomnav" aria-label="beSocial bottom navigation">
+
+  <a routerLink="/social"
+     routerLinkActive="social-bottomnav-tab--active"
+     [routerLinkActiveOptions]="{ exact: true }"
+     class="social-bottomnav-tab"
+     aria-label="Feed">
+    <mat-icon>home</mat-icon>
+    <span class="social-bottomnav-tab-label">Feed</span>
+  </a>
+
+  <a routerLink="/social/discover"
+     routerLinkActive="social-bottomnav-tab--active"
+     class="social-bottomnav-tab"
+     aria-label="Discover">
+    <mat-icon>explore</mat-icon>
+    <span class="social-bottomnav-tab-label">Discover</span>
+  </a>
+
+  <button class="social-bottomnav-fab" type="button" aria-label="Create new post" (click)="onNewPost()">
+    <div class="social-bottomnav-fab-circle">
+      <mat-icon>add</mat-icon>
+    </div>
+    <span class="social-bottomnav-fab-label">Post</span>
+  </button>
+
+  <a routerLink="/social/chat"
+     routerLinkActive="social-bottomnav-tab--active"
+     class="social-bottomnav-tab"
+     [attr.aria-label]="unreadMessages > 0 ? unreadMessages + ' unread messages' : 'Chat'">
+    <mat-icon>chat_bubble_outline</mat-icon>
+    @if (unreadMessages > 0) {
+      <span class="social-bottomnav-badge" [attr.aria-label]="unreadMessages + ' unread messages'">
+        {{ unreadMessages > 99 ? '99+' : unreadMessages }}
+      </span>
+    }
+    <span class="social-bottomnav-tab-label">Chat</span>
+  </a>
+
+  <a routerLink="/social/notifications"
+     routerLinkActive="social-bottomnav-tab--active"
+     class="social-bottomnav-tab"
+     [attr.aria-label]="unreadNotifications > 0 ? unreadNotifications + ' unread notifications' : 'Notifications'">
+    <mat-icon>notifications</mat-icon>
+    @if (unreadNotifications > 0) {
+      <span class="social-bottomnav-badge" [attr.aria-label]="unreadNotifications + ' unread notifications'">
+        {{ unreadNotifications > 99 ? '99+' : unreadNotifications }}
+      </span>
+    }
+    <span class="social-bottomnav-tab-label">Alerts</span>
+  </a>
+
+  <a [routerLink]="['/social/profile', userId()]"
+     routerLinkActive="social-bottomnav-tab--active"
+     class="social-bottomnav-tab"
+     aria-label="My profile">
+    <mat-icon>person</mat-icon>
+    <span class="social-bottomnav-tab-label">Me</span>
+  </a>
+
+</nav>

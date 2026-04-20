@@ -1,0 +1,116 @@
+<div class="cp-dialog">
+
+  <!-- Header -->
+  <div class="cp-header">
+    <div class="cp-header-left">
+      <div class="cp-header-icon">
+        <mat-icon>add_circle_outline</mat-icon>
+      </div>
+      <h2 class="cp-title">New Post</h2>
+    </div>
+    <button mat-icon-button class="cp-close-btn" (click)="close()" aria-label="Close dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="cp-body">
+
+    <!-- Textarea -->
+    <div class="cp-textarea-wrap">
+      <textarea
+        class="cp-textarea"
+        placeholder="What's your fitness update?"
+        [value]="content()"
+        (input)="content.set($any($event.target).value)"
+        maxlength="500"
+        rows="5"
+        [disabled]="isSubmitting()"
+        aria-label="Post content"
+      ></textarea>
+    </div>
+
+    <!-- Char counter -->
+    <div class="cp-char-counter" [class]="charClass" aria-live="polite">
+      {{ charCount }}/500
+    </div>
+
+    <!-- Image dropzone -->
+    @if (!imagePreview()) {
+      <div
+        class="cp-dropzone"
+        [class.cp-dropzone--drag]="isDragOver()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave()"
+        (drop)="onDrop($event)"
+        (click)="fileInput.click()"
+        role="button"
+        tabindex="0"
+        aria-label="Upload an image"
+        (keydown.enter)="fileInput.click()"
+        (keydown.space)="fileInput.click()"
+      >
+        <div class="cp-dropzone-icon-wrap">
+          <mat-icon>image</mat-icon>
+        </div>
+        <span class="cp-dropzone-label">Drag &amp; drop or click to add photo</span>
+        <span class="cp-dropzone-hint">JPEG, PNG, WebP &middot; max 1200px</span>
+        <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+      </div>
+    } @else {
+      <div class="cp-preview">
+        <img [src]="imagePreview()!" alt="Post image preview" class="cp-preview-img" />
+        <button
+          class="cp-preview-remove"
+          (click)="removeImage()"
+          type="button"
+          aria-label="Remove image"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    }
+
+  </div>
+
+  <!-- Footer -->
+  <div class="cp-footer">
+    <!-- Left: image shortcut when no image attached -->
+    @if (!imagePreview()) {
+      <button
+        class="cp-img-shortcut"
+        type="button"
+        (click)="shortcutInput.click()"
+        aria-label="Add photo"
+        title="Add photo"
+      >
+        <mat-icon>add_photo_alternate</mat-icon>
+        <input #shortcutInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+      </button>
+    } @else {
+      <span class="cp-img-badge">
+        <mat-icon>check_circle</mat-icon> Photo added
+      </span>
+    }
+
+    <div class="cp-footer-actions">
+      <button class="cp-cancel" (click)="close()" type="button">Cancel</button>
+      <button
+        class="cp-submit btn-primary"
+        [disabled]="!canPost || isSubmitting()"
+        (click)="submit()"
+        type="button"
+        [attr.aria-busy]="isSubmitting()"
+      >
+        @if (isSubmitting()) {
+          <mat-spinner diameter="16" />
+          <span>Posting…</span>
+        } @else {
+          <mat-icon>send</mat-icon>
+          <span>Post</span>
+        }
+      </button>
+    </div>
+  </div>
+
+</div>

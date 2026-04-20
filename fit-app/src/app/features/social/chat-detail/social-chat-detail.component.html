@@ -1,0 +1,150 @@
+<div class="chat-detail">
+
+  <!-- Header -->
+  <div class="chat-detail-header">
+    <button class="hdr-back-btn" (click)="goBack()" type="button" aria-label="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    @if (otherParticipant()) {
+      <div class="hdr-avatar-wrap">
+        @if (otherParticipant()!.avatarUrl) {
+          <img class="hdr-avatar" [src]="otherParticipant()!.avatarUrl" [alt]="otherParticipant()!.displayName" />
+        } @else {
+          <div class="hdr-avatar hdr-avatar--fallback">
+            <mat-icon>person</mat-icon>
+          </div>
+        }
+      </div>
+      <span class="hdr-name">{{ otherParticipant()!.displayName }}</span>
+    }
+  </div>
+
+  <!-- Message area -->
+  <div class="msg-area" #msgArea>
+
+    <!-- Skeleton -->
+    @if (facade.isLoadingMessages() && facade.messages().length === 0) {
+      <div class="msg-skeleton-list">
+        @for (s of skeletons; track $index) {
+          <div class="msg-skeleton" [class.msg-skeleton--right]="$index % 2 === 0"></div>
+        }
+      </div>
+    }
+
+    <!-- Empty -->
+    @if (!facade.isLoadingMessages() && facade.messages().length === 0) {
+      <div class="msg-empty">
+        <mat-icon>chat_bubble_outline</mat-icon>
+        <p>No messages yet. Say hello!</p>
+      </div>
+    }
+
+    <!-- Message groups -->
+    @for (group of messageGroups(); track group.dateLabel) {
+      <div class="msg-date-sep">
+        <span>{{ formatDateLabel(group.dateLabel) }}</span>
+      </div>
+
+      @for (msg of group.messages; track msg.id) {
+        <div class="msg-row" [class.msg-row--own]="msg.isOwn">
+
+          <!-- Delete trigger (own messages only, appears left of bubble due to row-reverse) -->
+          @if (msg.isOwn && !msg.isDeleted) {
+            <button class="msg-more-btn" [matMenuTriggerFor]="msgMenu" type="button" aria-label="Message options">
+              <mat-icon>more_horiz</mat-icon>
+            </button>
+            <mat-menu #msgMenu="matMenu" panelClass="dark-menu">
+              <button mat-menu-item (click)="deleteMessage(msg.id)">
+                <mat-icon>delete_outline</mat-icon>
+                <span>Delete</span>
+              </button>
+            </mat-menu>
+          }
+
+          <!-- Bubble -->
+          <div
+            class="msg-bubble"
+            [class.msg-bubble--own]="msg.isOwn"
+            [class.msg-bubble--other]="!msg.isOwn"
+            [class.msg-bubble--deleted]="msg.isDeleted"
+          >
+            @if (msg.isDeleted) {
+              <span class="msg-deleted">Message deleted</span>
+            } @else {
+              @if (msg.imageUrl) {
+                <img class="msg-img" [src]="msg.imageUrl" alt="Image" (click)="openLightbox(msg.imageUrl)" />
+              }
+              @if (msg.content) {
+                <span class="msg-text">{{ msg.content }}</span>
+              }
+            }
+            <span class="msg-time">{{ msg.sentAt | date:'shortTime' }}</span>
+          </div>
+        </div>
+      }
+    }
+
+  </div>
+
+  <!-- Composer -->
+  <div class="msg-composer">
+
+    <!-- Image preview strip -->
+    @if (imagePreview()) {
+      <div class="composer-preview">
+        <div class="composer-preview-thumb-wrap">
+          <img [src]="imagePreview()!" alt="Preview" class="composer-preview-thumb" />
+          <button class="composer-preview-remove" (click)="removeImage()" type="button" aria-label="Remove image">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+
+    <div class="composer-bar">
+      <!-- Attach -->
+      <label class="composer-attach" aria-label="Attach image">
+        <mat-icon>add_photo_alternate</mat-icon>
+        <input type="file" accept="image/*" hidden (change)="onFileSelected($event)" />
+      </label>
+
+      <!-- Input -->
+      <div class="composer-input-wrap">
+        <textarea
+          class="composer-input"
+          cdkTextareaAutosize
+          cdkAutosizeMinRows="1"
+          cdkAutosizeMaxRows="4"
+          [value]="messageInput()"
+          (input)="messageInput.set($any($event.target).value)"
+          (keydown)="onKeydown($event)"
+          placeholder="Message..."
+        ></textarea>
+      </div>
+
+      <!-- Send -->
+      <button
+        class="composer-send"
+        (click)="sendMessage()"
+        [disabled]="isSending() || (!messageInput().trim() && !imageBase64())"
+        type="button"
+        aria-label="Send"
+      >
+        @if (isSending()) {
+          <mat-spinner diameter="18" />
+        } @else {
+          <mat-icon>arrow_upward</mat-icon>
+        }
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Lightbox -->
+@if (lightboxSrc()) {
+  <div class="msg-lightbox" (click)="closeLightbox()">
+    <img [src]="lightboxSrc()!" alt="Full image" class="msg-lightbox-img" />
+  </div>
+}

@@ -1,0 +1,110 @@
+.dashboard-root {
+  max-width: 1100px;
+  padding: 24px 20px 8px;
+  margin: 0 auto;
+}
+
+/* ── GREETING STRIP ── */
+.greeting-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gs-main {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gs-hello {
+  font-size: 28px;
+  font-weight: 300;
+  color: rgba(255,255,255,.45);
+  letter-spacing: -.01em;
+}
+
+.gs-name {
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -.02em;
+}
+
+.gs-sub {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gs-date {
+  font-size: 13px;
+  color: rgba(255,255,255,.32);
+  font-weight: 500;
+}
+
+.gs-dot {
+  font-size: 13px;
+  color: rgba(255,255,255,.15);
+}
+
+.goal-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.goal-lose     { background: rgba(255,64,129,.12); color: var(--accent); border: 1px solid rgba(255,64,129,.28); }
+.goal-gain     { background: rgba(74,222,128,.1); color: #4ade80; border: 1px solid rgba(74,222,128,.28); }
+.goal-maintain { background: rgba(56,189,248,.1); color: #38bdf8; border: 1px solid rgba(56,189,248,.28); }
+
+.gs-bmi {
+  font-size: 12px;
+  color: rgba(255,255,255,.28);
+  font-weight: 500;
+}
+
+.gs-bmi strong {
+  color: #a78bfa;
+  font-weight: 700;
+}
+
+/* ── NO DATA ── */
+.no-data-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  color: var(--white-soft);
+  font-size: 14px;
+}
+
+.no-data-banner mat-icon { color: rgba(255,255,255,.3); }
+
+.no-data-banner a {
+  color: #a78bfa;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .dashboard-root { padding: 20px 16px 8px; }
+  .gs-hello { font-size: 22px; }
+  .gs-name  { font-size: 26px; }
+}
+
+@media (max-width: 480px) {
+  .dashboard-root { padding: 16px 14px 4px; }
+  .gs-hello { font-size: 20px; }
+  .gs-name  { font-size: 24px; }
+  .gs-dot   { display: none; }
+}

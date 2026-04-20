@@ -1,0 +1,81 @@
+<div class="feed-page">
+  <!-- Header -->
+  <div class="feed-header">
+    <h1 class="feed-title">Feed</h1>
+    <!-- <button class="btn-primary feed-header-btn" (click)="openCreatePost()" type="button">
+      <mat-icon>add</mat-icon>
+      <span>New</span>
+    </button> -->
+  </div>
+
+  <!-- Error state -->
+  @if (facade.feedError() && !facade.isLoadingFeed()) {
+    <div class="feed-error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ facade.feedError() }}</span>
+      <button class="btn-ghost" (click)="facade.loadFeed(true)" type="button">
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- Loading skeleton (initial) -->
+  @if (facade.isLoadingFeed() && facade.feed().length === 0) {
+    <div class="feed-skeleton">
+      @for (s of skeletons; track $index) {
+        <div class="feed-skeleton-card"></div>
+      }
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (
+    !facade.isLoadingFeed() && facade.feed().length === 0 && !facade.feedError()
+  ) {
+    <div class="feed-empty">
+      <mat-icon class="feed-empty-icon">people</mat-icon>
+      <p class="feed-empty-text">Follow athletes to see their posts</p>
+      <a routerLink="/social/discover" class="btn-primary feed-empty-btn"
+        >Discover Athletes</a
+      >
+    </div>
+  }
+
+  <!-- Feed list -->
+  @if (facade.feed().length > 0) {
+    <div class="feed-list">
+      @for (post of facade.feed(); track post.id) {
+        <app-post-card
+          [post]="post"
+          (likeToggled)="onLikeToggled($event)"
+          (commentClicked)="onCommentClicked($event)"
+          (followToggled)="onFollowToggled($event)"
+          (deleteClicked)="onDeleteClicked($event)"
+          (editClicked)="onEditClicked($event)"
+        />
+      }
+
+      <!-- Load more spinner -->
+      @if (facade.isLoadingFeed()) {
+        <div class="feed-load-more">
+          <mat-spinner diameter="32" />
+        </div>
+      }
+
+      <!-- IntersectionObserver sentinel -->
+      @if (facade.hasMoreFeed()) {
+        <div #sentinel class="feed-sentinel"></div>
+      }
+    </div>
+  }
+
+  <!-- Mobile FAB -->
+  <button
+    class="feed-fab"
+    (click)="openCreatePost()"
+    type="button"
+    aria-label="New post"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+</div>

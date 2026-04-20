@@ -40,21 +40,3 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
-
-# Environment files
-/src/environments/*
-
-# ── FitApp.Api ────────────────────────────────────────────────
-FitApp.Api/bin/
-FitApp.Api/obj/
-FitApp.Api/.vs/
-FitApp.Api/*.db
-FitApp.Api/*.db-shm
-FitApp.Api/*.db-wal
-
-# ── fit-app ───────────────────────────────────────────────────
-fit-app/node_modules/
-fit-app/dist/
-fit-app/.angular
-
-*.log

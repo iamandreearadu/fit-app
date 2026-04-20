@@ -1,0 +1,138 @@
+/* ── Card ── */
+.card {
+  position: relative;
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* Override global card-hdr (not flex here) */
+.card-hdr { display: block; padding: 20px 24px 16px; }
+
+.card-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(124,77,255,.12);
+  border: 1px solid rgba(124,77,255,.25);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #7C4DFF;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.card-title { font-size: 20px; font-weight: 800; color: #fff; margin: 0; }
+.card-body { padding: 24px; }
+
+/* ── Loader ── */
+/* .loader-overlay is global */
+
+/* ── Avatar section ── */
+.avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.av-wrap { position: relative; width: 96px; height: 96px; flex-shrink: 0; }
+
+.av-img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(124,77,255,.45);
+  display: block;
+  background: rgba(255,255,255,.05);
+}
+.av-img.clickable { cursor: zoom-in; }
+.av-img.clickable:hover { opacity: .88; }
+
+.av-cam {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.15);
+  background: #0d0d10;
+  color: rgba(255,255,255,.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.av-cam:hover { background: #7C4DFF; color: #fff; border-color: #7C4DFF; }
+.av-cam mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+.av-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.av-name { font-size: 16px; font-weight: 700; color: #fff; margin: 0; }
+.av-hint { font-size: 12px; color: rgba(255,255,255,.35); margin: 0 0 8px; }
+.av-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── btn-ghost compact variant ── */
+.btn-ghost { padding: 7px 14px; border-radius: 10px; }
+
+/* ── Form fields ── */
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.f-label { display: flex; align-items: center; gap: 6px; }
+
+:host ::ng-deep .f-field .mat-mdc-form-field-subscript-wrapper { margin-top: 2px; }
+:host ::ng-deep .f-field .mdc-notched-outline__notch { border-top: none !important; }
+
+/* ── Image preview dialog ── */
+.md-img-dialog { max-width: 95vw; max-height: 88vh; display: grid; place-items: center; }
+.md-img-shell {
+  position: relative;
+  max-width: 95vw;
+  max-height: 88vh;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 14px 48px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08);
+  overflow: hidden;
+}
+.md-img {
+  display: block;
+  max-width: 95vw;
+  max-height: 88vh;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background: var(--surface);
+}
+.md-close.mat-mdc-icon-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 50%;
+  background: var(--surface);
+  color: #fff;
+}
+::ng-deep .image-preview-dialog-panel .mdc-dialog__surface { background: transparent; box-shadow: none; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .avatar-section { flex-direction: column; align-items: flex-start; gap: 16px; padding: 16px; }
+  .fields-grid { grid-template-columns: 1fr; gap: 14px; }
+  .form-actions { justify-content: stretch; }
+  .btn-primary { width: 100%; justify-content: center; }
+}

@@ -1,0 +1,66 @@
+<div class="create-post-dialog">
+  <div class="create-post-header">
+    <h2 class="create-post-title">Edit Post</h2>
+    <button mat-icon-button (click)="close()" aria-label="Close dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="create-post-body">
+    <!-- Textarea -->
+    <mat-form-field appearance="outline" class="create-post-field">
+      <mat-label>What's your fitness update?</mat-label>
+      <textarea
+        matInput
+        [value]="content()"
+        (input)="content.set($any($event.target).value)"
+        rows="4"
+        maxlength="500"
+        [disabled]="isSubmitting()"
+      ></textarea>
+    </mat-form-field>
+    <div class="create-post-char-counter" [class]="charClass">{{ charCount }}/500</div>
+
+    <!-- Image dropzone -->
+    @if (!imagePreview()) {
+      <div
+        class="create-post-dropzone"
+        [class.create-post-dropzone--drag]="isDragOver()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave()"
+        (drop)="onDrop($event)"
+        (click)="fileInput.click()"
+        role="button"
+        tabindex="0"
+        aria-label="Upload image"
+      >
+        <mat-icon>cloud_upload</mat-icon>
+        <span>Drag & drop or click to change image</span>
+        <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+      </div>
+    } @else {
+      <div class="create-post-preview">
+        <img [src]="imagePreview()!" alt="Post image preview" class="create-post-preview-img" />
+        <button mat-icon-button class="create-post-remove-img" (click)="removeImage()" aria-label="Remove image">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+
+  <div class="create-post-footer">
+    <button class="btn-ghost create-post-cancel" (click)="close()" type="button">Cancel</button>
+    <button
+      class="btn-primary create-post-submit"
+      [disabled]="!canSave || isSubmitting()"
+      (click)="save()"
+      type="button"
+    >
+      @if (isSubmitting()) {
+        <mat-spinner diameter="18" />
+      } @else {
+        Save
+      }
+    </button>
+  </div>
+</div>

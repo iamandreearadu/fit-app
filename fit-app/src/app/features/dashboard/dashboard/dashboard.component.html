@@ -1,0 +1,30 @@
+<div class="dashboard-root">
+  <ng-container *ngIf="user() as u; else noData">
+    <ng-container *ngIf="metrics()">
+      <div class="greeting-strip">
+        <div class="gs-main">
+          <span class="gs-hello">{{ greeting }},</span>
+          <span class="gs-name">{{ firstName }}!</span>
+        </div>
+        <div class="gs-sub">
+          <span class="gs-date">{{ today | date: "EEEE, d MMMM" }}</span>
+          <span class="gs-dot">·</span>
+          <span class="goal-badge" [ngClass]="goalClass">{{ goalLabel }}</span>
+          <span *ngIf="bmi" class="gs-bmi"
+            >BMI <strong>{{ bmi | number: "1.1-1" }}</strong></span
+          >
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <ng-template #noData>
+    <div class="no-data-banner">
+      <mat-icon>person_off</mat-icon>
+      <span
+        >No profile data yet. Go to <a routerLink="/user-profile">Profile</a> to
+        add your information.</span
+      >
+    </div>
+  </ng-template>
+</div>

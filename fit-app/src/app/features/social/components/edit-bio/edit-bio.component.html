@@ -1,0 +1,28 @@
+<div class="edit-bio-dialog">
+  <div class="edit-bio-header">
+    <h2 class="edit-bio-title">Edit Bio</h2>
+    <button mat-icon-button (click)="close()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-form-field appearance="outline" class="edit-bio-field">
+    <mat-label>Tell people about yourself…</mat-label>
+    <textarea
+      matInput
+      [value]="bio()"
+      (input)="bio.set($any($event.target).value)"
+      rows="4"
+      maxlength="200"
+      [disabled]="isSaving()"
+    ></textarea>
+  </mat-form-field>
+  <div class="edit-bio-counter" [class]="charClass">{{ charCount }}/200</div>
+
+  <div class="edit-bio-footer">
+    <button class="btn-ghost edit-bio-cancel" (click)="close()" type="button">Cancel</button>
+    <button class="btn-primary edit-bio-save" (click)="save()" [disabled]="isSaving()" type="button">
+      @if (isSaving()) { <mat-spinner diameter="18" /> } @else { Save }
+    </button>
+  </div>
+</div>

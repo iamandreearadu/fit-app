@@ -1,0 +1,144 @@
+<div class="previous-root">
+
+  <!-- ── HISTORY HEADER (title + week nav in one row) ── -->
+  <div class="hist-bar">
+    <span class="hist-title">Previous Days</span>
+    <div class="week-controls" *ngIf="currentWeek() as week">
+      <button type="button" class="icon-btn-round"
+              (click)="prevWeek()"
+              [disabled]="currentWeekIndex() === weeks().length - 1">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="week-range">
+        <mat-icon class="week-icon">date_range</mat-icon>
+        {{ week.start | date:'dd MMM' }} – {{ week.end | date:'dd MMM' }}
+      </span>
+      <button type="button" class="icon-btn-round"
+              (click)="nextWeek()"
+              [disabled]="currentWeekIndex() === 0">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── EMPTY STATE ── -->
+  <div *ngIf="!currentWeek()" class="empty-state">
+    <mat-icon>history</mat-icon>
+    <span>No recorded days yet. Start tracking to see your history here.</span>
+  </div>
+
+  <!-- ── DAY LIST ── -->
+  <div class="day-list" *ngIf="currentWeek() as week">
+    <div class="day-row" *ngFor="let d of week.days" (click)="openDay(d)" role="button" tabindex="0">
+
+      <div class="dr-date">
+        <span class="dr-weekday">{{ d.date | date:'EEE' }}</span>
+        <span class="dr-num">{{ d.date | date:'d' }}</span>
+        <span class="dr-mon">{{ d.date | date:'MMM' }}</span>
+      </div>
+
+      <div class="dr-sep"></div>
+
+      <div class="dr-stats">
+        <span class="dr-stat dr-green">
+          <mat-icon>directions_walk</mat-icon>
+          {{ d.steps || 0 | number:'1.0-0' }}
+        </span>
+        <span class="dr-stat dr-purple">
+          <mat-icon>restaurant</mat-icon>
+          {{ (d.caloriesIntake || 0) | number }}
+        </span>
+        <span class="dr-stat dr-orange">
+          <mat-icon>local_fire_department</mat-icon>
+          {{ d.caloriesBurned || 0 }}
+        </span>
+      </div>
+
+      <mat-icon class="dr-chevron">chevron_right</mat-icon>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ── DAY DETAIL MODAL ── -->
+<div *ngIf="showModal && selectedDay" class="modal-backdrop" (click)="closeModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+
+    <div class="modal-hdr">
+      <div class="modal-hdr-left">
+        <div class="modal-hdr-icon-wrap">
+          <mat-icon>event</mat-icon>
+        </div>
+        <div>
+          <div class="modal-date">{{ selectedDay.date | date:'EEEE' }}</div>
+          <div class="modal-date-full">{{ selectedDay.date | date:'dd MMMM yyyy' }}</div>
+        </div>
+      </div>
+      <button mat-mini-fab class="modal-close-btn" type="button" (click)="closeModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="stats-grid">
+
+        <div class="stat-tile">
+          <span class="st-label">Steps</span>
+          <span class="st-value sv-green">{{ selectedDay.steps || 0 | number:'1.0-0' }}</span>
+        </div>
+
+        <div class="stat-tile">
+          <span class="st-label">Water</span>
+          <span class="st-value sv-blue">{{ selectedDay.waterConsumedL || 0 }}<span class="st-unit"> L</span></span>
+        </div>
+
+        <div class="stat-tile">
+          <span class="st-label">Activity</span>
+          <span class="st-value st-text">{{ resolveActivityLabel(selectedDay.activityType) }}</span>
+        </div>
+
+        <div class="stat-tile">
+          <span class="st-label">Calories In</span>
+          <span class="st-value sv-purple">{{ selectedDay.caloriesIntake || 0 }}<span class="st-unit"> kcal</span></span>
+        </div>
+
+        <div class="stat-tile">
+          <span class="st-label">Burned</span>
+          <span class="st-value sv-rose">{{ selectedDay.caloriesBurned || 0 }}<span class="st-unit"> kcal</span></span>
+        </div>
+
+        <div class="stat-tile stat-tile--highlight">
+          <span class="st-label">Net Calories</span>
+          <span class="st-value">{{ selectedDay.caloriesTotal || 0 }}<span class="st-unit"> kcal</span></span>
+        </div>
+
+        <ng-container *ngIf="selectedDay.macrosPct as m">
+          <div class="stat-tile">
+            <div class="macro-label-row">
+              <span class="macro-dot dot-protein"></span>
+              <span class="st-label">Protein</span>
+            </div>
+            <span class="st-value">{{ m.protein | number:'1.0-0' }}<span class="st-unit"> g</span></span>
+          </div>
+          <div class="stat-tile">
+            <div class="macro-label-row">
+              <span class="macro-dot dot-carbs"></span>
+              <span class="st-label">Carbs</span>
+            </div>
+            <span class="st-value">{{ m.carbs | number:'1.0-0' }}<span class="st-unit"> g</span></span>
+          </div>
+          <div class="stat-tile">
+            <div class="macro-label-row">
+              <span class="macro-dot dot-fats"></span>
+              <span class="st-label">Fats</span>
+            </div>
+            <span class="st-value">{{ m.fats | number:'1.0-0' }}<span class="st-unit"> g</span></span>
+          </div>
+        </ng-container>
+
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="article-page">
+
+  <!-- Back button -->
+  <button class="article-back-btn" (click)="goBack()" type="button" aria-label="Back">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+
+  @if (isLoading()) {
+    <div class="article-skeleton">
+      <div class="article-skeleton-cover"></div>
+      <div class="article-skeleton-meta"></div>
+      <div class="article-skeleton-title"></div>
+      <div class="article-skeleton-body"></div>
+    </div>
+  }
+
+  @if (error() && !isLoading()) {
+    <div class="article-error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button class="btn-ghost" (click)="goBack()" type="button">Go back</button>
+    </div>
+  }
+
+  @if (article() && !isLoading()) {
+    <article class="article-body">
+
+      <!-- Cover image -->
+      @if (article()!.image) {
+        <div class="article-cover">
+          <img [src]="article()!.image" [alt]="article()!.title" class="article-cover-img" />
+        </div>
+      }
+
+      <!-- Meta row -->
+      <div class="article-meta">
+        <span class="article-category-chip">{{ article()!.category }}</span>
+        <span class="article-date">{{ article()!.createdAt | date:'MMMM d, y' }}</span>
+      </div>
+
+      <!-- Title -->
+      <h1 class="article-title">{{ article()!.title }}</h1>
+
+      <!-- Caption -->
+      @if (article()!.caption) {
+        <p class="article-caption">{{ article()!.caption }}</p>
+      }
+
+      <!-- Author -->
+      <button class="article-author" (click)="goToProfile()" type="button">
+        @if (article()!.author.avatarUrl) {
+          <img class="article-author-avatar" [src]="article()!.author.avatarUrl" [alt]="article()!.author.displayName" />
+        } @else {
+          <div class="article-author-avatar article-author-avatar--fallback">
+            <mat-icon>person</mat-icon>
+          </div>
+        }
+        <span class="article-author-name">{{ article()!.author.displayName }}</span>
+      </button>
+
+      <div class="article-divider"></div>
+
+      <!-- Full content -->
+      <div class="article-content">{{ article()!.description }}</div>
+
+    </article>
+  }
+
+</div>
