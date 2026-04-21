@@ -32,7 +32,9 @@
   @if (facade.currentProfile() && !facade.isLoadingProfile()) {
     <!-- Header -->
     <div class="profile-header">
-      <div class="profile-avatar-ring">
+      <div class="profile-avatar-ring"
+           [class.profile-avatar-ring--editable]="facade.currentProfile()!.isOwnProfile"
+           (click)="facade.currentProfile()!.isOwnProfile && avatarInputRef.nativeElement.click()">
         @if (facade.currentProfile()!.avatarUrl) {
           <img
             class="profile-avatar"
@@ -44,7 +46,15 @@
             <mat-icon>person</mat-icon>
           </div>
         }
+        @if (facade.currentProfile()!.isOwnProfile) {
+          <div class="profile-avatar-edit-overlay">
+            <mat-icon>photo_camera</mat-icon>
+          </div>
+        }
       </div>
+      <input #avatarInput type="file" accept="image/*"
+             class="profile-avatar-file-input"
+             (change)="onAvatarFileChange($event)" />
       <h1 class="profile-display-name">
         {{ facade.currentProfile()!.displayName }}
       </h1>

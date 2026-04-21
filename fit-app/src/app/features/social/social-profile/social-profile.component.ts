@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, HostListener } from '@angular/core';
+import { Component, inject, OnInit, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { SocialFacade } from '../../../core/facade/social.facade';
 import { ChatFacade } from '../../../core/facade/chat.facade';
+import { UserFacade } from '../../../core/facade/user.facade';
 import { UserStore } from '../../../core/store/user.store';
 import { AuthenticationStore } from '../../../core/store/auth.store';
 import { CreatePostComponent } from '../components/create-post/create-post.component';
@@ -40,11 +41,14 @@ type ProfileTab = 'posts' | 'workouts' | 'blogs' | 'stats';
 export class SocialProfileComponent implements OnInit {
   protected readonly facade = inject(SocialFacade);
   private readonly chatFacade = inject(ChatFacade);
+  private readonly userFacade = inject(UserFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly userStore = inject(UserStore);
   private readonly authStore = inject(AuthenticationStore);
   private readonly dialog = inject(MatDialog);
+
+  @ViewChild('avatarInput') avatarInputRef!: ElementRef<HTMLInputElement>;
 
   readonly skeletonCells = Array.from({ length: 9 });
   readonly isFollowing = signal(false);
@@ -285,6 +289,26 @@ export class SocialProfileComponent implements OnInit {
   async archiveBlog(e: Event, blogId: number): Promise<void> {
     e.stopPropagation();
     await this.facade.archiveBlog(blogId);
+  }
+
+  // ── Avatar upload ──────────────────────────────────────────────────────────
+
+  async onAvatarFileChange(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    input.value = '';
+
+    if (file.size > 2 * 1024 * 1024) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = String(reader.result || '');
+      if (!dataUrl.startsWith('data:image/')) return;
+      await this.userFacade.saveUserProfile({ imageUrl: dataUrl });
+      await this.facade.loadProfile(this.userId);
+    };
+    reader.readAsDataURL(file);
   }
 
   // ── Shared confirm helper ──────────────────────────────────────────────────
