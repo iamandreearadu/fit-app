@@ -39,11 +39,8 @@
       </div>
 
       <!-- Title -->
-      <h1 class="article-title">{{ article()!.title }}</h1>
-
-      <!-- Caption -->
-      @if (article()!.caption) {
-        <p class="article-caption">{{ article()!.caption }}</p>
+      @if (article()!.title) {
+        <h1 class="article-title">{{ article()!.title }}</h1>
       }
 
       <!-- Author -->

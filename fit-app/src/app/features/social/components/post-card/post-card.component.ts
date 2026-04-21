@@ -41,6 +41,15 @@ export class PostCardComponent {
     return this.post().content.slice(0, 200) + '...';
   });
 
+  readonly articleBodyText = computed(() => {
+    const p = this.post();
+    // When title exists, don't fall back to `content` — backend sets content = title
+    // when there's no caption/description, which would cause a visual duplicate.
+    return p.articleDescription || p.articleCaption || (p.articleTitle ? '' : p.content) || '';
+  });
+
+  readonly isArticleBodyLong = computed(() => this.articleBodyText().length > 180);
+
   onLike(): void {
     this.likeToggled.emit(this.post().id);
   }

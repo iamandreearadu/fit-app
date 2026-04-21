@@ -500,7 +500,8 @@ public class SocialService(
             ArticleTitle = post.Article?.Title,
             ArticleCategory = post.Article?.Category,
             ArticleCaption = post.Article?.Caption,
-            ArticleDescription = post.Article?.Description
+            ArticleDescription = post.Article?.Description,
+            ArticleImage = string.IsNullOrEmpty(post.Article?.Image) ? null : post.Article.Image
         };
     }
 
@@ -712,7 +713,11 @@ public class SocialService(
         var feedPost = new Post
         {
             UserId = userId,
-            Content = request.Caption ?? request.Title,
+            Content = !string.IsNullOrWhiteSpace(request.Caption)
+                ? request.Caption
+                : !string.IsNullOrWhiteSpace(request.Title)
+                    ? request.Title
+                    : request.Description[..Math.Min(150, request.Description.Length)],
             ArticleId = blog.Id
         };
         db.Posts.Add(feedPost);

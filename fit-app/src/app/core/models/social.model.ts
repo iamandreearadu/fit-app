@@ -30,6 +30,7 @@ export interface Post {
   articleCategory?: string;
   articleCaption?: string;
   articleDescription?: string;
+  articleImage?: string;
 }
 
 export interface ArticleDetail {

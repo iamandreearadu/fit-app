@@ -72,6 +72,7 @@ public class PostResponse
     public string? ArticleCategory { get; set; }
     public string? ArticleCaption { get; set; }
     public string? ArticleDescription { get; set; }
+    public string? ArticleImage { get; set; }
 }
 
 public class ArticleDetailResponse
@@ -177,7 +178,6 @@ public class UpdateBioRequest
 
 public class CreateUserBlogRequest
 {
-    [Required]
     [MaxLength(150)]
     public string Title { get; set; } = string.Empty;
 
@@ -195,7 +195,6 @@ public class CreateUserBlogRequest
 
 public class UpdateUserBlogRequest
 {
-    [Required]
     [MaxLength(150)]
     public string Title { get; set; } = string.Empty;
 

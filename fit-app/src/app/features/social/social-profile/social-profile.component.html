@@ -541,17 +541,8 @@
                     }
                   </div>
 
-                  <!-- Body: caption + optional image + embedded article card -->
-                  <div
-                    class="blog-post-card-body"
-                    (click)="openArticleDetail(blog.id)"
-                    role="button"
-                    tabindex="0"
-                  >
-                    @if (blog.caption) {
-                      <p class="blog-post-card-caption">{{ blog.caption }}</p>
-                    }
-
+                  <!-- Body: optional image + embedded article card -->
+                  <div class="blog-post-card-body">
                     @if (blog.image) {
                       <div class="blog-post-card-image-wrap">
                         <img
@@ -567,13 +558,27 @@
                       <span class="blog-post-card-article-category">{{ blog.category }}</span>
                       <h3 class="blog-post-card-article-title">{{ blog.title }}</h3>
                       @if (blog.description) {
-                        <p class="blog-post-card-article-desc">{{ blog.description }}</p>
+                        <p class="blog-post-card-article-desc"
+                           [class.blog-post-card-article-desc--expanded]="isArticleExpanded(blog.id)">
+                          {{ blog.description }}
+                        </p>
+                        @if (blog.description.length > 180) {
+                          <div class="blog-post-card-read-row">
+                            <button class="blog-post-card-read-more-btn"
+                                    (click)="toggleArticleExpand($event, blog.id)"
+                                    type="button">
+                              {{ isArticleExpanded(blog.id) ? 'Show less' : 'Read more' }}
+                            </button>
+                            @if (isArticleExpanded(blog.id)) {
+                              <button class="blog-post-card-open-btn"
+                                      (click)="openArticleDetail(blog.id)"
+                                      type="button">
+                                Open article
+                              </button>
+                            }
+                          </div>
+                        }
                       }
-                      <div class="blog-post-card-article-read-row">
-                        <mat-icon class="blog-post-card-article-read-icon">article</mat-icon>
-                        <span class="blog-post-card-article-read-label">Read article</span>
-                        <mat-icon class="blog-post-card-article-read-arrow">arrow_forward</mat-icon>
-                      </div>
                     </div>
                   </div>
 

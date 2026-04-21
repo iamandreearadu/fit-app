@@ -637,6 +637,46 @@
   overflow: hidden;
 }
 
+.blog-post-card-article-desc--expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.blog-post-card-read-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.blog-post-card-read-more-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.blog-post-card-open-btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.blog-post-card-open-btn:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .blog-post-card-article-read-row {
   display: flex;
   align-items: center;

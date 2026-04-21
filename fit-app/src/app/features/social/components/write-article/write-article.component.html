@@ -16,12 +16,11 @@
     </button>
   </div>
 
-  <!-- Body — single scrollable screen -->
+  <!-- Body -->
   <div class="wb-body">
 
-    <!-- Cover image -->
+    <!-- Cover image — no label, bleeds edge to edge -->
     <div class="wb-field-group">
-      <label class="wb-label">Cover Image <span class="wb-optional">optional</span></label>
       @if (!imagePreview()) {
         <div
           class="wb-cover-dropzone"
@@ -39,8 +38,7 @@
           <div class="wb-cover-icon-wrap">
             <mat-icon>add_photo_alternate</mat-icon>
           </div>
-          <span class="wb-cover-label">Add cover image</span>
-          <span class="wb-cover-hint">16:9 recommended &middot; JPEG, PNG, WebP</span>
+          <span class="wb-cover-label">Add cover photo</span>
           <input #coverInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
         </div>
       } @else {
@@ -59,40 +57,41 @@
       }
     </div>
 
-    <!-- Title -->
+    <!-- Title — autosize textarea, editorial feel -->
     <div class="wb-field-group">
-      <label class="wb-label" for="wb-title-input">Title <span class="wb-required">*</span></label>
-      <input
+      <label class="wb-label" for="wb-title-input">Title <span class="wb-optional">optional</span></label>
+      <textarea
         id="wb-title-input"
         class="wb-input wb-input--large"
-        type="text"
         placeholder="Give your article a compelling title…"
         [value]="title()"
         (input)="title.set($any($event.target).value)"
         maxlength="150"
-        autocomplete="off"
-      />
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="3"
+      ></textarea>
       <span class="wb-field-counter" [class.wb-counter--warn]="titleCount > 120">{{ titleCount }}/150</span>
     </div>
 
     <!-- Category -->
     <div class="wb-field-group">
-      <label class="wb-label" for="wb-category-select">Category <span class="wb-required">*</span></label>
+      <label class="wb-label" for="wb-category-select">Category <span class="wb-optional">optional</span></label>
       <select
         id="wb-category-select"
         class="wb-input wb-select"
         [value]="category()"
         (change)="category.set($any($event.target).value)"
       >
-        <option value="" disabled hidden>Select a category…</option>
+        <option value="">No category</option>
         @for (cat of categories; track cat) {
           <option [value]="cat">{{ cat }}</option>
         }
       </select>
     </div>
 
-    <!-- Content -->
-    <div class="wb-field-group wb-field-group--grow">
+    <!-- Content — autosize, min 2 rows -->
+    <div class="wb-field-group">
       <label class="wb-label" for="wb-content-input">Content <span class="wb-required">*</span></label>
       <textarea
         id="wb-content-input"
@@ -101,7 +100,9 @@
         [value]="description()"
         (input)="description.set($any($event.target).value)"
         maxlength="8000"
-        rows="12"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="2"
+        cdkAutosizeMaxRows="2"
       ></textarea>
       <span class="wb-field-counter" [class.wb-counter--warn]="descCount > 7000">{{ descCount }}/8000</span>
     </div>

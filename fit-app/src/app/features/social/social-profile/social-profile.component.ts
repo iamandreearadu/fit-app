@@ -55,6 +55,7 @@ export class SocialProfileComponent implements OnInit {
   readonly showMoreMenu = signal(false);
   readonly showArchivedSection = signal(false);
   readonly openBlogMenuId = signal<number | null>(null);
+  readonly expandedArticles = signal<Set<number>>(new Set());
 
   // Inline bio edit
   readonly isEditingBio = signal(false);
@@ -91,6 +92,19 @@ export class SocialProfileComponent implements OnInit {
   toggleMoreMenu(e: Event): void {
     e.stopPropagation();
     this.showMoreMenu.update((v) => !v);
+  }
+
+  toggleArticleExpand(e: Event, id: number): void {
+    e.stopPropagation();
+    this.expandedArticles.update(set => {
+      const next = new Set(set);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  isArticleExpanded(id: number): boolean {
+    return this.expandedArticles().has(id);
   }
 
   toggleBlogMenu(e: Event, blogId: number): void {

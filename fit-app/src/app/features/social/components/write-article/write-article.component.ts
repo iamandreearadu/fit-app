@@ -12,7 +12,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { SocialFacade } from '../../../../core/facade/social.facade';
+import { AlertService } from '../../../../shared/services/alert.service';
 import { ProfileBlog } from '../../../../core/models/social.model';
 
 export const ARTICLE_CATEGORIES = [
@@ -41,12 +43,14 @@ export const ARTICLE_CATEGORIES = [
     MatInputModule,
     MatSelectModule,
     MatProgressSpinnerModule,
+    TextFieldModule,
   ],
   templateUrl: './write-article.component.html',
   styleUrl: './write-article.component.css',
 })
 export class WriteArticleComponent {
   private readonly facade = inject(SocialFacade);
+  private readonly alert = inject(AlertService);
   private readonly dialogRef = inject(MatDialogRef<WriteArticleComponent>);
   readonly data = inject<{ blog?: ProfileBlog } | null>(MAT_DIALOG_DATA);
 
@@ -55,7 +59,7 @@ export class WriteArticleComponent {
 
   title = signal(this.data?.blog?.title ?? '');
   caption = signal(this.data?.blog?.caption ?? '');
-  description = signal(''); // not in ProfileBlogSummary — starts empty on edit
+  description = signal(this.data?.blog?.description ?? '');
   category = signal(this.data?.blog?.category ?? '');
   imagePreview = signal<string | null>(this.data?.blog?.image ?? null);
   isDragOver = signal(false);
@@ -70,12 +74,7 @@ export class WriteArticleComponent {
     return this.description().length;
   }
 
-  readonly canPublish = computed(
-    () =>
-      this.title().trim().length > 0 &&
-      this.category().length > 0 &&
-      this.description().trim().length > 0,
-  );
+  readonly canPublish = computed(() => this.description().trim().length > 0);
 
   // ── Image ──────────────────────────────────────────────────────────────────
 
@@ -149,7 +148,7 @@ export class WriteArticleComponent {
       }
       this.dialogRef.close(true);
     } catch {
-      /* silently ignore */
+      this.alert.error('Could not save article. Please try again.');
     } finally {
       this.isSaving.set(false);
     }

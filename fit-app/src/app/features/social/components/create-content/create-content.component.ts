@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { SocialFacade } from '../../../../core/facade/social.facade';
+import { AlertService } from '../../../../shared/services/alert.service';
 import { CreatePostRequest } from '../../../../core/models/social.model';
 
 export const ARTICLE_CATEGORIES = [
@@ -45,6 +46,7 @@ export const ARTICLE_CATEGORIES = [
 })
 export class CreateContentComponent {
   private readonly facade = inject(SocialFacade);
+  private readonly alert = inject(AlertService);
   private readonly dialogRef = inject(MatDialogRef<CreateContentComponent>);
 
   // ── Mode toggle ────────────────────────────────────────────────────────────
@@ -207,7 +209,7 @@ export class CreateContentComponent {
       await this.facade.createPost(req);
       this.dialogRef.close(true);
     } catch {
-      // error handled in facade
+      this.alert.error('Could not create post. Please try again.');
     } finally {
       this.isSubmitting.set(false);
     }
@@ -228,7 +230,7 @@ export class CreateContentComponent {
       await this.facade.createBlog(req);
       this.dialogRef.close(true);
     } catch {
-      // error handled in facade
+      this.alert.error('Could not publish article. Please try again.');
     } finally {
       this.isSaving.set(false);
     }

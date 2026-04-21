@@ -97,29 +97,40 @@
     @if (isArticle()) {
       <div class="article-post-body">
 
-        @if (post().content) {
-          <p class="article-post-context">{{ post().content }}</p>
+        @if (post().articleCategory) {
+          <span class="article-post-category">{{ post().articleCategory }}</span>
         }
 
-        <div class="article-post-card">
-          @if (post().articleCategory) {
-            <span class="article-post-category">{{ post().articleCategory }}</span>
-          }
+        @if (post().articleTitle) {
           <h2 class="article-post-title">{{ post().articleTitle }}</h2>
-          @if (post().articleCaption) {
-            <p class="article-post-caption">{{ post().articleCaption }}</p>
-          }
-          @if (post().articleDescription) {
-            <button class="article-post-read-more" (click)="toggleArticle($event)" type="button">
-              {{ showFullArticle() ? 'Show less' : 'Read more' }}
-            </button>
-          }
-        </div>
+        }
 
-        @if (showFullArticle() && post().articleDescription) {
-          <div class="article-post-full-description">
-            {{ post().articleDescription }}
+        @if (post().articleImage) {
+          <div class="article-post-image-wrap">
+            <img class="article-post-image"
+                 [src]="post().articleImage"
+                 [alt]="post().articleTitle || 'Article cover'"
+                 loading="lazy" />
           </div>
+        }
+
+        @if (articleBodyText()) {
+          <div class="article-post-content"
+               [class.article-post-content--clamped]="!showFullArticle() && isArticleBodyLong()">
+            <p>{{ articleBodyText() }}</p>
+          </div>
+          @if (isArticleBodyLong()) {
+            <div class="article-post-read-row">
+              <button class="article-post-read-more" (click)="toggleArticle($event)" type="button">
+                {{ showFullArticle() ? 'Show less' : 'Read more' }}
+              </button>
+              @if (showFullArticle()) {
+                <button class="article-post-open-btn" (click)="openArticle()" type="button">
+                  Open article
+                </button>
+              }
+            </div>
+          }
         }
 
       </div>
