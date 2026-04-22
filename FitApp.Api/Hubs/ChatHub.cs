@@ -72,6 +72,9 @@ public class ChatHub(
         var otherIds = await conversationService.GetOtherParticipantIdsAsync(conversationId, userId);
         foreach (var recipientId in otherIds)
         {
+            // Push to user's personal group so badge updates even when not in the conversation page
+            await Clients.Group($"user-{recipientId}").SendAsync("NewConversationMessage", message);
+
             await notificationService.CreateAndPushAsync(
                 recipientId,
                 userId,

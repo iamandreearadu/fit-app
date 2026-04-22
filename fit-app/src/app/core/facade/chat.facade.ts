@@ -25,11 +25,11 @@ export class ChatFacade {
   );
 
   constructor() {
+    // Messages received while the user has the conversation open
     this.chatHub.message$.pipe(takeUntilDestroyed()).subscribe(msg => {
       if (msg.conversationId === this.activeConversationId()) {
         this.messages.update(msgs => [...msgs, msg]);
       }
-      // Update last message in conversation list
       this.conversations.update(convs => convs.map(c =>
         c.id === msg.conversationId
           ? {
@@ -40,6 +40,26 @@ export class ChatFacade {
             }
           : c
       ));
+    });
+
+    // Messages received while the user is elsewhere — only update the badge
+    this.chatHub.newConvMessage$.pipe(takeUntilDestroyed()).subscribe(async msg => {
+      const existing = this.conversations().find(c => c.id === msg.conversationId);
+      if (existing) {
+        this.conversations.update(convs => convs.map(c =>
+          c.id === msg.conversationId
+            ? {
+                ...c,
+                lastMessage: { content: msg.content, hasImage: !!msg.imageUrl, sentAt: msg.sentAt },
+                unreadCount: c.unreadCount + 1,
+                updatedAt: msg.sentAt
+              }
+            : c
+        ));
+      } else {
+        // New conversation not yet in the list — reload to pick it up
+        await this.loadConversations();
+      }
     });
   }
 

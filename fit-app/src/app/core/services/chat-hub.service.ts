@@ -11,6 +11,9 @@ export class ChatHubService {
   private readonly messageSubject = new Subject<DirectMessage>();
   readonly message$ = this.messageSubject.asObservable();
 
+  private readonly newConvMessageSubject = new Subject<DirectMessage>();
+  readonly newConvMessage$ = this.newConvMessageSubject.asObservable();
+
   async connect(token: string): Promise<void> {
     if (this.connection?.state === HubConnectionState.Connected) return;
 
@@ -20,6 +23,7 @@ export class ChatHubService {
       .build();
 
     this.connection.on('ReceiveMessage', (msg: DirectMessage) => this.messageSubject.next(msg));
+    this.connection.on('NewConversationMessage', (msg: DirectMessage) => this.newConvMessageSubject.next(msg));
 
     await this.connection.start();
   }
