@@ -82,26 +82,28 @@ public class UserService(AppDbContext db, MetricsService metrics)
         var windowStart = currentMonday.AddDays(-7 * 7);
         var windowStartDt = windowStart.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
+        var firstOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        // Project only what's needed — no client-side exercise loading
         var workoutsInWindow = await db.WorkoutTemplates
-            .Where(w => w.UserId == userId
-                        && !w.IsArchived
-                        && w.CreatedAt >= windowStartDt)
-            .Include(w => w.Exercises)
+            .Where(w => w.UserId == userId && !w.IsArchived && w.CreatedAt >= windowStartDt)
+            .Select(w => new
+            {
+                w.Id,
+                w.Title,
+                w.CreatedAt,
+                Volume = w.Exercises.Sum(e => (double)(e.Sets * e.Reps) * e.WeightKg)
+            })
             .ToListAsync();
 
-        // ── Workouts this month — dedicated query to avoid 8-week window edge case ──
-        var firstOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var workoutsThisMonth = await db.WorkoutTemplates
             .Where(w => w.UserId == userId && !w.IsArchived && w.CreatedAt >= firstOfMonth)
             .CountAsync();
 
-        // Volume this month
         var volumeThisMonth = workoutsInWindow
             .Where(w => w.CreatedAt >= firstOfMonth)
-            .SelectMany(w => w.Exercises)
-            .Sum(e => e.Sets * e.Reps * e.WeightKg);
+            .Sum(w => w.Volume);
 
-        // Weekly volumes — always 8 entries
         var weeklyVolumes = new List<WeeklyVolumeDto>(8);
         for (var i = 7; i >= 0; i--)
         {
@@ -112,22 +114,16 @@ public class UserService(AppDbContext db, MetricsService metrics)
 
             var weekVolume = workoutsInWindow
                 .Where(w => w.CreatedAt >= weekStartDt && w.CreatedAt < weekEndDt)
-                .SelectMany(w => w.Exercises)
-                .Sum(e => e.Sets * e.Reps * e.WeightKg);
+                .Sum(w => w.Volume);
 
             weeklyVolumes.Add(new WeeklyVolumeDto(weekStart, weekVolume));
         }
 
-        // Recent workouts — last 5, derived from already-fetched window (avoids extra query)
         var recentDtos = workoutsInWindow
             .OrderByDescending(w => w.CreatedAt)
             .Take(5)
-            .Select(w => new RecentWorkoutDto(
-            w.Id,
-            w.Title,
-            DateOnly.FromDateTime(w.CreatedAt),
-            w.Exercises.Sum(e => e.Sets * e.Reps * e.WeightKg)
-        )).ToList();
+            .Select(w => new RecentWorkoutDto(w.Id, w.Title, DateOnly.FromDateTime(w.CreatedAt), w.Volume))
+            .ToList();
 
         return new UserPublicStatsResponse(
             streak,

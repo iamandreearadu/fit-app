@@ -12,29 +12,45 @@ You are a Senior .NET 10 Developer for FitApp. You work exclusively in `FitApp.A
 
 ```
 Controllers/
-  AuthController.cs         ← POST /api/auth/register|login
-  UsersController.cs        ← GET/PUT /api/users/me
-  DailyController.cs        ← GET/POST /api/daily
-  WorkoutsController.cs     ← CRUD /api/workouts
-  NutritionController.cs    ← CRUD /api/nutrition
-  BlogController.cs         ← CRUD /api/blog (Admin)
-  AiController.cs           ← POST /api/ai/*
-  ChatController.cs         ← CRUD /api/chat
+  AuthController.cs               ← POST /api/auth/register|login
+  UsersController.cs              ← GET/PUT /api/users/me, GET /api/users/{id}/stats
+  DailyController.cs              ← GET/POST /api/daily, GET /api/daily/history
+  WorkoutsController.cs           ← CRUD /api/workouts
+  NutritionController.cs          ← CRUD /api/nutrition
+  BlogController.cs               ← GET /api/blog (public), CRUD (Admin)
+  AiController.cs                 ← POST /api/ai/text|image|workout-calories
+  ChatController.cs               ← CRUD /api/chat (AI chat history)
+  SocialController.cs             ← Posts, likes, comments, follows, profiles, blogs
+  ConversationsController.cs      ← Direct messaging (REST)
+  NotificationsController.cs      ← Notifications CRUD + mark read
 
 Models/
-  Entities/                 ← EF Core entities (NEVER expose in responses)
-  DTOs/                     ← All request/response objects
+  Entities/                       ← EF Core entities (NEVER expose in responses)
+    User, DailyEntry, WorkoutTemplate, WorkoutExercise, CardioDetails
+    MealEntry, FoodItem, BlogPost
+    ChatConversation, ChatMessage  (AI chat history)
+    Post, Like, Comment, Follow    (social graph)
+    Conversation, ConversationParticipant, DirectMessage  (DMs)
+    Notification                   (like/comment/follow/message alerts)
+  DTOs/                           ← All request/response objects
 
 Services/
-  AiProxyService.cs         ← Groq API calls
-  EmailService.cs           ← MailKit/Gmail SMTP
-  MetricsService.cs         ← BMI, BMR, TDEE, water targets
+  AiProxyService.cs               ← Groq API calls
+  EmailService.cs                 ← MailKit/Gmail SMTP
+  MetricsService.cs               ← BMI, BMR, TDEE, water targets
+  SocialService.cs                ← Feed, posts, profiles, likes, follows
+  ConversationService.cs          ← DM creation, messages, cursor pagination
+  NotificationService.cs          ← Create + push via SignalR
+
+Hubs/
+  NotificationHub.cs              ← /hubs/notifications — per-user push
+  ChatHub.cs                      ← /hubs/chat — per-conversation group push
 
 Data/
-  AppDbContext.cs            ← DbContext + entity configurations
-  Migrations/               ← EF migrations (auto-applied on startup)
+  AppDbContext.cs                 ← DbContext + entity configurations
+  Migrations/                     ← EF migrations (auto-applied via Migrate())
 
-Program.cs                  ← DI registration, middleware pipeline
+Program.cs                        ← DI registration, middleware, SignalR, CORS
 ```
 
 ## Workflow When Invoked
@@ -163,12 +179,17 @@ public async Task<ActionResult<BlogPostResponse>> Create(CreateBlogPostRequest r
 - **Never expose EF entities in responses** — always map to DTOs
 - **Never hard-code secrets** — `appsettings.json` + User Secrets in dev
 - **Migrations via `dotnet ef migrations add`** — never edit migration files manually
+- **`db.Database.Migrate()` on startup** — never `EnsureCreated()`
 - **ProblemDetails for errors** — consistent error format across all controllers
 - **Validate at the controller boundary** — DataAnnotations or FluentValidation
 - **CORS stays as-is** — `localhost:4200` already configured in Program.cs
 - **Check cascade delete** — define explicitly in `AppDbContext.OnModelCreating()`
+- **`UserId` from JWT only** — `User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub") ?? throw`
+- **`pageSize = Math.Min(pageSize, 50)`** — cap on all paginated endpoints
+- **`ExecuteUpdateAsync`** for atomic counter updates (LikesCount, CommentsCount) — no read-modify-write races
 - **MetricsService** — use existing implementation for BMI/BMR/TDEE calculations
 - **EmailService** — use existing MailKit implementation for any new email triggers
+- **SignalR push** — use `NotificationService.CreateAndPushAsync` for notifications, not direct hub calls
 
 ## After Implementation
 

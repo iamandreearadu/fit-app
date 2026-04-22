@@ -185,6 +185,7 @@ public class ConversationService(
         int? beforeMessageId,
         int pageSize)
     {
+        pageSize = Math.Min(pageSize, 100);
         if (!await IsParticipantAsync(conversationId, userId))
             throw new UnauthorizedAccessException("You are not a participant of this conversation.");
 

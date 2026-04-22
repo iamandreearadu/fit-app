@@ -16,7 +16,6 @@ public class LinkedContentPreview
     public string Type { get; set; } = string.Empty;   // "workout" | "meal" | "daily"
     public string Title { get; set; } = string.Empty;
     public string Subtitle { get; set; } = string.Empty;
-    public string BadgeColor { get; set; } = string.Empty;
 }
 
 public class PaginatedResponse<T>

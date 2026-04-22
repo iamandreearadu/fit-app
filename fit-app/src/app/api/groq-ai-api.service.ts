@@ -67,11 +67,9 @@ export class GroqAiApiService {
           systemPrompt: `${OUTPUT_FORMAT_PROMPT_FOR_MACROS}\n\n${IMAGE_MACROS_PROMPT}`,
         }),
       );
-    } catch (err: any) {
-      console.error(
-        '[AI IMAGE] Backend error:',
-        err?.error ?? err?.message ?? err,
-      );
+    } catch (err: unknown) {
+      const e = err as { error?: unknown; message?: string };
+      console.error('[AI IMAGE] Backend error:', e?.error ?? e?.message ?? err);
       throw err;
     }
     const json = this.safeExtractJson(res.content);
@@ -106,8 +104,8 @@ export class GroqAiApiService {
     try {
       const parsed = this.safeExtractJson(res.content);
       return {
-        calories: Math.round(Number(parsed.calories) || 0),
-        explanation: String(parsed.explanation || ''),
+        calories: Math.round(Number(parsed['calories']) || 0),
+        explanation: String(parsed['explanation'] || ''),
       };
     } catch {
       return {
@@ -155,7 +153,7 @@ export class GroqAiApiService {
     return 'TITLE:\nFood analysis unavailable\n\nDESCRIPTION:\nThe food in the image could not be confidently analyzed.\n\nUNCERTAINTIES:\n- Image quality, portion size, or ingredients are unclear.';
   }
 
-  private safeExtractJson(raw: string): any {
+  private safeExtractJson(raw: string): Record<string, unknown> {
     const text = (raw || '').trim();
     try {
       return JSON.parse(text);
@@ -170,22 +168,22 @@ export class GroqAiApiService {
     throw new Error('No JSON found in AI response');
   }
 
-  private validateMealMacros(obj: any): MealMacros {
+  private validateMealMacros(obj: Record<string, unknown>): MealMacros {
     const n = (v: unknown) => {
       const x = Number(v);
       return !isFinite(x) || x < 0 ? 0 : Math.round(x * 10) / 10;
     };
     return {
-      protein_g: n(obj?.protein_g),
-      carbs_g: n(obj?.carbs_g),
-      fats_g: n(obj?.fats_g),
+      protein_g: n(obj?.['protein_g']),
+      carbs_g: n(obj?.['carbs_g']),
+      fats_g: n(obj?.['fats_g']),
       calories_kcal:
-        obj?.calories_kcal != null ? n(obj.calories_kcal) : undefined,
-      items: Array.isArray(obj?.items)
-        ? obj.items.map((it: any) => ({
-            name: String(it?.name ?? ''),
+        obj?.['calories_kcal'] != null ? n(obj['calories_kcal']) : undefined,
+      items: Array.isArray(obj?.['items'])
+        ? (obj['items'] as Record<string, unknown>[]).map((it) => ({
+            name: String(it?.['name'] ?? ''),
             confidence:
-              it?.confidence != null ? Number(it.confidence) : undefined,
+              it?.['confidence'] != null ? Number(it['confidence']) : undefined,
           }))
         : [],
     };
