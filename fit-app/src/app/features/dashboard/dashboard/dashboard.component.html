@@ -5,6 +5,15 @@
         <div class="gs-main">
           <span class="gs-hello">{{ greeting }},</span>
           <span class="gs-name">{{ firstName }}!</span>
+          <ng-container *ngIf="streak() as s">
+            <span *ngIf="s.current > 0 || s.loggedToday"
+                  class="streak-chip"
+                  [class.logged-today]="s.loggedToday"
+                  [class.at-risk]="s.atRisk">
+              <mat-icon class="streak-icon" [class.animated]="s.loggedToday && s.current > 0">local_fire_department</mat-icon>
+              <strong>{{ s.current }}</strong>&nbsp;day streak
+            </span>
+          </ng-container>
         </div>
         <div class="gs-sub">
           <span class="gs-date">{{ today | date: "EEEE, d MMMM" }}</span>
@@ -13,9 +22,19 @@
           <span *ngIf="bmi" class="gs-bmi"
             >BMI <strong>{{ bmi | number: "1.1-1" }}</strong></span
           >
+          <ng-container *ngIf="streak() as s">
+            <span *ngIf="s.longest > 1" class="gs-longest">
+              Best: <strong>{{ s.longest }}</strong>d
+            </span>
+          </ng-container>
         </div>
       </div>
     </ng-container>
+
+    <div *ngIf="streak()?.atRisk" class="at-risk-strip">
+      <mat-icon>warning_amber</mat-icon>
+      <span>Your <strong>{{ streak()?.current }}-day streak</strong> is at risk — log today's data before midnight!</span>
+    </div>
   </ng-container>
 
   <ng-template #noData>

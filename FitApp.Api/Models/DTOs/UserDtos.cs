@@ -29,6 +29,8 @@ public class UserMetricsDto
     public string? BmiCat { get; set; }
 }
 
+public record StreakDto(int Current, int Longest, bool LoggedToday, bool AtRisk);
+
 public class UpdateUserProfileRequest
 {
     public string? FullName { get; set; }

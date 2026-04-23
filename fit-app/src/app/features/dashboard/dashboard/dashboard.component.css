@@ -74,6 +74,75 @@
   font-weight: 700;
 }
 
+/* ── STREAK ── */
+.streak-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px 3px 6px;
+  border-radius: 999px;
+  background: rgba(255,140,50,.1);
+  border: 1px solid rgba(255,140,50,.25);
+  color: #ff9f40;
+  letter-spacing: .01em;
+}
+.streak-chip.logged-today {
+  background: rgba(255,120,30,.15);
+  border-color: rgba(255,120,30,.35);
+  color: #ff8c2a;
+}
+.streak-chip.at-risk {
+  background: rgba(255,80,50,.12);
+  border-color: rgba(255,80,50,.3);
+  color: #ff6b50;
+}
+
+.streak-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+.streak-icon.animated {
+  animation: flame-pulse 1.6s ease-in-out infinite;
+}
+@keyframes flame-pulse {
+  0%, 100% { transform: scale(1); }
+  45% { transform: scale(1.3) translateY(-1px); }
+}
+
+.gs-longest {
+  font-size: 12px;
+  color: rgba(255,255,255,.28);
+  font-weight: 500;
+}
+.gs-longest strong {
+  color: rgba(255,140,50,.7);
+  font-weight: 700;
+}
+
+.at-risk-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255,100,50,.07);
+  border: 1px solid rgba(255,100,50,.2);
+  border-radius: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: rgba(255,255,255,.65);
+}
+.at-risk-strip mat-icon {
+  color: #ff7043;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.at-risk-strip strong { color: #ff8c6b; }
+
 /* ── NO DATA ── */
 .no-data-banner {
   display: flex;

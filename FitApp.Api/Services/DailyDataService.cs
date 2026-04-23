@@ -50,6 +50,49 @@ public class DailyDataService(AppDbContext db)
         return entries.Select(MapToDto).ToList();
     }
 
+    public async Task<StreakDto> GetStreakAsync(string userId)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        var rawDates = await db.DailyEntries
+            .Where(d => d.UserId == userId)
+            .Select(d => d.Date)
+            .ToListAsync();
+
+        if (rawDates.Count == 0)
+            return new StreakDto(0, 0, false, false);
+
+        var dateSet = rawDates
+            .Select(d => DateOnly.Parse(d))
+            .ToHashSet();
+
+        var loggedToday = dateSet.Contains(today);
+
+        // Current streak — count backwards from today (or yesterday if no entry today)
+        int current = 0;
+        var cursor = loggedToday ? today : today.AddDays(-1);
+        while (dateSet.Contains(cursor))
+        {
+            current++;
+            cursor = cursor.AddDays(-1);
+        }
+
+        // Longest streak — find the longest consecutive run
+        var sorted = dateSet.OrderBy(d => d).ToList();
+        int longest = 1, run = 1;
+        for (int i = 1; i < sorted.Count; i++)
+        {
+            if (sorted[i] == sorted[i - 1].AddDays(1)) { run++; if (run > longest) longest = run; }
+            else run = 1;
+        }
+        longest = Math.Max(longest, current);
+
+        // At risk: active streak, no entry today, and it's past 18:00 UTC
+        var atRisk = !loggedToday && current > 0 && DateTime.UtcNow.Hour >= 18;
+
+        return new StreakDto(current, longest, loggedToday, atRisk);
+    }
+
     private static DailyEntryDto MapToDto(DailyEntry e) => new()
     {
         Date = e.Date,

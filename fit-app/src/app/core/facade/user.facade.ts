@@ -1,9 +1,9 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { UserStore } from '../store/user.store';
 import { UserMetricsService } from '../services/user-metrics.service';
 import { UserValidationService } from '../validations/user-validation.service';
 import { DailyUserDataValidationService } from '../validations/daily-user-data-validation.service';
-import { UserProfile } from '../models/user.model';
+import { StreakData, UserProfile } from '../models/user.model';
 import { UserService } from '../../api/user.service';
 import { DailyUserData } from '../models/daily-user-data.model';
 import { LocalStorageService } from '../../shared/services/local-storage.service';
@@ -22,6 +22,8 @@ export class UserFacade {
   private dailyValidationSrv = inject(DailyUserDataValidationService);
 
   private userStore = inject(UserStore);
+
+  readonly streak = signal<StreakData | null>(null);
 
   // ========== Getters ==========
 
@@ -159,6 +161,11 @@ export class UserFacade {
     } finally {
       this.userStore.setLoading(false);
     }
+  }
+
+  public async loadStreak(): Promise<void> {
+    const data = await this.userSrv.getStreak();
+    if (data) this.streak.set(data);
   }
 
   public async loadDailyHistory(): Promise<void> {

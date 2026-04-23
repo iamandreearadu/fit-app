@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { AlertService } from '../shared/services/alert.service';
-import { UserProfile } from '../core/models/user.model';
+import { StreakData, UserProfile } from '../core/models/user.model';
 import { DailyUserData } from '../core/models/daily-user-data.model';
 import { environment } from '../../environments/environment';
 
@@ -44,6 +44,16 @@ export class UserService {
       this.alerts.success('Profile saved');
     } catch (err) {
       this.alerts.warn('Failed to save profile', String(err));
+    }
+  }
+
+  public async getStreak(): Promise<StreakData | null> {
+    try {
+      return await firstValueFrom(
+        this.http.get<StreakData>(`${this.baseUrl}/api/daily/streak`)
+      );
+    } catch {
+      return null;
     }
   }
 

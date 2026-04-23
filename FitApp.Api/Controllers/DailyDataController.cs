@@ -26,6 +26,14 @@ public class DailyDataController(DailyDataService dailyService) : ControllerBase
         return Ok(entry);
     }
 
+    // GET api/daily/streak
+    [HttpGet("streak")]
+    public async Task<IActionResult> GetStreak()
+    {
+        var streak = await dailyService.GetStreakAsync(UserId);
+        return Ok(streak);
+    }
+
     // GET api/daily/history
     [HttpGet("history")]
     public async Task<IActionResult> GetHistory()

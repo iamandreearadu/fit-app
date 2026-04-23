@@ -13,6 +13,13 @@ export interface UserProfile {
   dietaryPreference?: DietaryPreference;
 }
 
+export interface StreakData {
+  current: number;
+  longest: number;
+  loggedToday: boolean;
+  atRisk: boolean;
+}
+
 export type Sex = 'female' | 'male' | 'other';
 export type Activity = 'sedentary' | 'light' | 'moderate' | 'active' | 'athlete';
 export type Goal = 'maintain' | 'lose' | 'gain';
