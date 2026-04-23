@@ -41,18 +41,54 @@ Components NEVER call API services directly — always through facades.
 State managed via Angular Signals — avoid RxJS subscriptions where possible.
 
 ### Existing Entities
-`User`, `DailyEntry` (unique on UserId+Date), `WorkoutTemplate`, `WorkoutExercise`, `CardioDetails`, `MealEntry`, `FoodItem`, `BlogPost`, `ChatConversation`, `ChatMessage`
+`User`, `DailyEntry` (unique on UserId+Date), `WorkoutTemplate`, `WorkoutExercise`, `CardioDetails`, `MealEntry`, `FoodItem`, `BlogPost`, `ChatConversation`, `ChatMessage`,
+`Post`, `Like`, `Comment`, `Follow`, `Conversation`, `ConversationParticipant`, `DirectMessage`, `Notification`
+
+### Existing Services
+`AiProxyService`, `EmailService`, `MetricsService`, `SocialService`, `ConversationService`, `NotificationService`
+
+### Existing SignalR Hubs
+`NotificationHub` → `/hubs/notifications` — pushes `ReceiveNotification` per user  
+`ChatHub` → `/hubs/chat` — pushes `ReceiveMessage`, `MessageDeleted` per conversation group
 
 ### Existing API Surface
 ```
-POST /api/auth/register|login            Public
-GET/PUT /api/users/me                    Bearer
-GET/POST /api/daily                      Bearer
-CRUD /api/workouts                       Bearer
-CRUD /api/nutrition                      Bearer
-GET /api/blog (Public), CRUD (Admin)
-POST /api/ai/text|image|workout-calories Bearer
-CRUD /api/chat + /api/chat/{id}/messages Bearer
+POST /api/auth/register|login                              Public
+GET/PUT /api/users/me                                      Bearer
+GET /api/users/{userId}/stats                              Bearer
+GET/POST /api/daily, GET /api/daily/history                Bearer
+CRUD /api/workouts                                         Bearer
+CRUD /api/nutrition                                        Bearer
+GET /api/blog (Public), CRUD (Admin)                       Bearer/Admin
+POST /api/ai/text|image|workout-calories                   Bearer
+CRUD /api/chat + /api/chat/{id}/messages                   Bearer
+
+# Social
+GET /api/social/feed|discover                              Bearer
+CRUD /api/social/posts                                     Bearer
+POST /api/social/posts/{id}/like                           Bearer
+GET/POST/DELETE /api/social/posts/{id}/comments            Bearer
+POST /api/social/follow/{userId}                           Bearer
+GET /api/social/users/search                               Bearer
+GET /api/social/profile/{userId}                           Bearer
+GET /api/social/profile/{userId}/posts|workouts|blogs      Bearer
+PATCH /api/social/profile/bio                              Bearer
+POST/PUT /api/social/profile/blogs                         Bearer
+DELETE/PATCH /api/social/profile/blogs|workouts/{id}       Bearer
+PATCH /api/social/posts/{id}/archive                       Bearer
+GET /api/social/articles/{id}                              Bearer
+
+# Conversations (DM)
+GET/POST /api/conversations                                Bearer
+GET/POST /api/conversations/{id}/messages                  Bearer
+PUT /api/conversations/{id}/read                           Bearer
+DELETE /api/conversations/{id}/messages/{msgId}            Bearer
+
+# Notifications
+GET /api/notifications                                     Bearer
+GET /api/notifications/unread-count                        Bearer
+PUT /api/notifications/read-all                            Bearer
+PUT /api/notifications/{id}/read                           Bearer
 ```
 
 ---

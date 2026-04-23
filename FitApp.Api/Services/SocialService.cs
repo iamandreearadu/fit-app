@@ -38,6 +38,7 @@ public class SocialService(
 
     public async Task<PaginatedResponse<PostResponse>> GetFeedAsync(string userId, int page, int pageSize)
     {
+        pageSize = Math.Min(pageSize, 50);
         var followingIds = await db.Follows
             .Where(f => f.FollowerId == userId)
             .Select(f => f.FollowingId)
@@ -82,6 +83,7 @@ public class SocialService(
 
     public async Task<PaginatedResponse<PostResponse>> GetDiscoverAsync(string userId, int page, int pageSize)
     {
+        pageSize = Math.Min(pageSize, 50);
         var followingIds = await db.Follows
             .Where(f => f.FollowerId == userId)
             .Select(f => f.FollowingId)
@@ -161,12 +163,14 @@ public class SocialService(
         db.Posts.Add(post);
         await db.SaveChangesAsync();
 
-        await db.Entry(post).Reference(p => p.User).LoadAsync();
-        if (post.LinkedWorkoutId.HasValue) await db.Entry(post).Reference(p => p.LinkedWorkout).LoadAsync();
-        if (post.LinkedMealId.HasValue) await db.Entry(post).Reference(p => p.LinkedMeal).LoadAsync();
-        if (post.LinkedDailyEntryId.HasValue) await db.Entry(post).Reference(p => p.LinkedDailyEntry).LoadAsync();
+        var created = await db.Posts
+            .Include(p => p.User)
+            .Include(p => p.LinkedWorkout)
+            .Include(p => p.LinkedMeal)
+            .Include(p => p.LinkedDailyEntry)
+            .FirstAsync(p => p.Id == post.Id);
 
-        return MapToPostResponse(post, userId, [], []);
+        return MapToPostResponse(created, userId, [], []);
     }
 
     // ── Update Post ───────────────────────────────────────────────────────────
@@ -216,41 +220,46 @@ public class SocialService(
         var existing = await db.Likes.FirstOrDefaultAsync(l => l.UserId == userId && l.PostId == postId);
         bool isLiked;
 
+        var actor = await db.Users.FindAsync(userId);
+
         if (existing is not null)
         {
             db.Likes.Remove(existing);
-            post.LikesCount = Math.Max(0, post.LikesCount - 1);
+            await db.SaveChangesAsync();
+            await db.Posts.Where(p => p.Id == postId)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.LikesCount,
+                    p => p.LikesCount > 0 ? p.LikesCount - 1 : 0));
             isLiked = false;
         }
         else
         {
             db.Likes.Add(new Like { UserId = userId, PostId = postId });
-            post.LikesCount++;
+            await db.SaveChangesAsync();
+            await db.Posts.Where(p => p.Id == postId)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.LikesCount, p => p.LikesCount + 1));
             isLiked = true;
         }
 
-        // Load actor before SaveChanges to avoid a post-commit round-trip
-        var actor = await db.Users.FindAsync(userId);
-        await db.SaveChangesAsync();
+        var updatedCount = await db.Posts.Where(p => p.Id == postId).Select(p => p.LikesCount).FirstAsync();
 
         if (isLiked)
         {
-            var actorName = actor?.FullName ?? "Someone";
             await notifications.CreateAndPushAsync(
                 post.UserId,
                 userId,
                 NotificationType.Like,
                 postId,
-                $"{actorName} liked your post");
+                $"{actor?.FullName ?? "Someone"} liked your post");
         }
 
-        return new LikeToggleResponse { IsLiked = isLiked, LikesCount = post.LikesCount };
+        return new LikeToggleResponse { IsLiked = isLiked, LikesCount = updatedCount };
     }
 
     // ── Comments ──────────────────────────────────────────────────────────────
 
     public async Task<PaginatedResponse<CommentResponse>> GetCommentsAsync(int postId, int page, int pageSize, string requestingUserId)
     {
+        pageSize = Math.Min(pageSize, 50);
         var query = db.Comments
             .Include(c => c.User)
             .Where(c => c.PostId == postId)
@@ -292,8 +301,9 @@ public class SocialService(
         };
 
         db.Comments.Add(comment);
-        post.CommentsCount++;
         await db.SaveChangesAsync();
+        await db.Posts.Where(p => p.Id == postId)
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.CommentsCount, p => p.CommentsCount + 1));
 
         await db.Entry(comment).Reference(c => c.User).LoadAsync();
 
@@ -329,8 +339,10 @@ public class SocialService(
             throw new UnauthorizedAccessException("You can only delete your own comments.");
 
         db.Comments.Remove(comment);
-        comment.Post.CommentsCount = Math.Max(0, comment.Post.CommentsCount - 1);
         await db.SaveChangesAsync();
+        await db.Posts.Where(p => p.Id == postId)
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.CommentsCount,
+                p => p.CommentsCount > 0 ? p.CommentsCount - 1 : 0));
     }
 
     // ── Follow Toggle ─────────────────────────────────────────────────────────
@@ -757,11 +769,6 @@ public class SocialService(
         };
     }
 
-    // Design-system color tokens — frontend derives color from Type, these are hints for clients that use BadgeColor
-    private const string ColorWorkout  = "#7c4dff";
-    private const string ColorNutrition = "#ff4081";
-    private const string ColorDaily    = "#00bcd4";
-
     private static LinkedContentPreview? BuildLinkedContentPreview(Post post)
     {
         if (post.LinkedWorkout is not null)
@@ -769,8 +776,7 @@ public class SocialService(
             {
                 Type = "workout",
                 Title = post.LinkedWorkout.Title,
-                Subtitle = $"{post.LinkedWorkout.DurationMin} min · {post.LinkedWorkout.CaloriesEstimateKcal} kcal",
-                BadgeColor = ColorWorkout
+                Subtitle = $"{post.LinkedWorkout.DurationMin} min · {post.LinkedWorkout.CaloriesEstimateKcal} kcal"
             };
 
         if (post.LinkedMeal is not null)
@@ -778,8 +784,7 @@ public class SocialService(
             {
                 Type = "meal",
                 Title = post.LinkedMeal.Name,
-                Subtitle = $"{post.LinkedMeal.Type} · {Math.Round(post.LinkedMeal.TotalCalories)} kcal",
-                BadgeColor = ColorNutrition
+                Subtitle = $"{post.LinkedMeal.Type} · {Math.Round(post.LinkedMeal.TotalCalories)} kcal"
             };
 
         if (post.LinkedDailyEntry is not null)
@@ -787,8 +792,7 @@ public class SocialService(
             {
                 Type = "daily",
                 Title = $"Daily Log — {post.LinkedDailyEntry.Date}",
-                Subtitle = $"{post.LinkedDailyEntry.Steps} steps · {post.LinkedDailyEntry.CaloriesBurned} kcal burned",
-                BadgeColor = ColorDaily
+                Subtitle = $"{post.LinkedDailyEntry.Steps} steps · {post.LinkedDailyEntry.CaloriesBurned} kcal burned"
             };
 
         return null;

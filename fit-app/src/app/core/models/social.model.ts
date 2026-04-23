@@ -1,3 +1,16 @@
+export const ARTICLE_CATEGORIES = [
+  'Fitness',
+  'Nutrition',
+  'Wellness',
+  'Training',
+  'Motivation',
+  'Recovery',
+  'Mindset',
+  'Recipes',
+  'Progress',
+  'Other',
+] as const;
+
 export interface UserSummary {
   id: string;
   displayName: string;
@@ -8,7 +21,6 @@ export interface LinkedContentPreview {
   type: 'workout' | 'meal' | 'daily';
   title: string;
   subtitle: string;
-  badgeColor: string;
 }
 
 export interface Post {

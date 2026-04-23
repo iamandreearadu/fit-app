@@ -15,20 +15,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { SocialFacade } from '../../../../core/facade/social.facade';
 import { AlertService } from '../../../../shared/services/alert.service';
-import { ProfileBlog } from '../../../../core/models/social.model';
+import { ProfileBlog, ARTICLE_CATEGORIES } from '../../../../core/models/social.model';
 
-export const ARTICLE_CATEGORIES = [
-  'Fitness',
-  'Nutrition',
-  'Wellness',
-  'Training',
-  'Motivation',
-  'Recovery',
-  'Mindset',
-  'Recipes',
-  'Progress',
-  'Other',
-];
+export { ARTICLE_CATEGORIES };
 
 @Component({
   selector: 'app-write-article',

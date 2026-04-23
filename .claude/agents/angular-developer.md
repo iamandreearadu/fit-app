@@ -11,45 +11,95 @@ You are a Senior Angular 19 Developer for FitApp. You work exclusively in `fit-a
 ## fit-app/src/app/ Structure
 
 ```
-api/                    HTTP services — one per backend resource
+api/                          HTTP services — one per backend resource
   account.service.ts
-  user.service.ts
-  workouts.service.ts
-  nutrition.service.ts
   blog.service.ts
-  groq.service.ts
+  conversation.service.ts     Direct messaging REST + SignalR connection
+  groq-ai-api.service.ts      AI proxy (text, image, calories)
+  notification.service.ts     Notifications REST + SignalR
+  nutrition-tab.service.ts
+  social.service.ts           Posts, likes, comments, follows, profiles
+  stats.service.ts            Public profile stats
+  user.service.ts
+  workouts-tab.service.ts
 
 core/
-  facade/               Business logic layer — components use ONLY these
+  facade/                     Business logic layer — components use ONLY these
     account.facade.ts
-    user.facade.ts
-    workouts.facade.ts
-    nutrition.facade.ts
     blog.facade.ts
-    groq.facade.ts
-  guards/               AuthGuard, GuestGuard
-  interceptors/         AuthInterceptor (JWT attached here — nowhere else)
-  material/             Angular Material module config
-  models/               TypeScript interfaces — source of truth for types
-  services/             Domain services (metrics, daily data, alert, navigation, localStorage)
+    chat.facade.ts             AI chat history (legacy)
+    groq-ai.facade.ts          AI assistant orchestration
+    notification.facade.ts     Notification state + real-time badge count
+    nutrition-tab.facade.ts
+    social.facade.ts           Feed, posts, profiles, follows, blogs
+    social-chat.facade.ts      Direct messaging (SignalR)
+    social-notifications.facade.ts  Real-time notification push
+    user.facade.ts
+    workouts-tab.facade.ts
+  guards/                     AuthGuard, GuestGuard
+  interceptors/               AuthInterceptor (JWT attached here — nowhere else)
+  material/                   Angular Material module config
+  models/                     TypeScript interfaces — source of truth for types
+    auth-credentials.model.ts
+    authentication-user.model.ts
+    blog.model.ts
+    chat.model.ts              DirectMessage, Conversation interfaces
+    daily-user-data.model.ts
+    groq-ai.model.ts
+    meal-macros.ts
+    notification.model.ts
+    nutrition-tab.model.ts
+    social.model.ts            Post, Comment, Like, Follow, LinkedContentPreview, ARTICLE_CATEGORIES
+    stats.model.ts             UserPublicStatsResponse, WeeklyVolumeDto, RecentWorkoutDto
+    user.model.ts
+    user-fit-metrics.model.ts
+    workout-plan.model.ts
+    workouts-tab.model.ts
+  services/                   Domain services (metrics, daily data, alert, nav, localStorage)
   store/
-    auth.store.ts       Signal-based auth state
-    user.store.ts       Signal-based user profile state
-  system-prompt/        AI system prompts
+    auth.store.ts              Signal-based auth state
+    user.store.ts              Signal-based user profile state
+  system-prompt/              Groq AI prompts
 
-features/               Page-level feature components (lazy-loaded)
-  home/
-  blog/
-  workouts/
-  dashboard/
-  user/
-  auth/
+features/                     Page-level feature components (lazy-loaded)
+  auth/                       Login, Register
+  blog/                       Public blog listing + post detail
+  dashboard/                  Daily tracker + AI meal analyzer
+  home/                       Landing page
+  openai/                     AI Assistant with conversation history
+  social/                     (see Social Module below)
+  user/                       Profile, physical stats, fitness metrics
+  workouts/                   Workout plans CRUD
 
 shared/
-  components/           Header, Footer, MoveUp
-  services/             Alert, FormError, LocalStorage, Navigation
+  components/                 Header, Footer, ConfirmDialog, MoveUp
+  services/                   Alert, FormError, LocalStorage, Navigation
 
-app.routes.ts           All routes — lazy-loaded
+app.routes.ts                 All routes — lazy-loaded
+```
+
+### Social Module — complete route + component map
+
+```
+/social                → SocialShellComponent (AuthGuard, layout shell)
+  /                    → SocialFeedComponent
+  /discover            → SocialDiscoverComponent
+  /post/:id            → SocialPostDetailComponent
+  /article/:id         → ArticleDetailComponent
+  /profile/:userId     → SocialProfileComponent
+  /chat                → SocialChatComponent
+  /chat/:id            → SocialChatDetailComponent
+  /notifications       → SocialNotificationsComponent
+
+components/ (dialogs + shared UI):
+  post-card            Post display with like/comment/follow/archive/delete
+  create-content       Unified dialog for post OR article creation
+  write-article        Edit existing article dialog
+  edit-post            Edit existing post dialog
+  side-nav             Desktop nav (hidden < 768px)
+  bottom-nav           Mobile nav (hidden ≥ 768px)
+  top-bar              Mobile header with back/search
+  daily-panel          Inline linked daily-entry preview card
 ```
 
 ## Workflow When Invoked
@@ -250,6 +300,10 @@ Full spec in `.claude/design-specs/design-system.md`. Key rules:
 - **No hard-coded API URLs** — always `environment.apiUrl`
 - **Lazy-load every feature route** — no exceptions
 - **`AuthInterceptor` handles JWT** — never add `Authorization` header manually
+- **SignalR JWT** — pass via query string `access_token` on hub connection, NOT via headers
 - **Angular Material** for all form fields, buttons, icons, dialogs — no custom from scratch
 - **All 3 states in every list/data view** — loading, empty, error
 - **Standalone components** — no NgModules for new features
+- **`ARTICLE_CATEGORIES`** — import from `core/models/social.model.ts`, do not redeclare locally
+- **`canvas.getContext('2d')`** — always null-check, never use `!` assertion
+- **`maxlength` in templates** — must match `[MaxLength]` in backend DTO exactly

@@ -117,7 +117,21 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
+
+    // If the DB was previously created with EnsureCreated, the schema exists but
+    // __EFMigrationsHistory is empty. Stamp all known migrations as applied so
+    // Migrate() only runs genuinely new migrations going forward.
+    if (db.Database.CanConnect() && !db.Database.GetAppliedMigrations().Any())
+    {
+        foreach (var migration in db.Database.GetMigrations())
+        {
+            db.Database.ExecuteSqlRaw(
+                "INSERT OR IGNORE INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES ({0}, {1})",
+                migration, "10.0.5");
+        }
+    }
+
+    db.Database.Migrate();
 }
 
 // ── Ensure upload directories exist ──────────────────────────────────────────

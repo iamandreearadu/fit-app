@@ -105,7 +105,7 @@
             (ngModelChange)="bioInput.set($event)"
             placeholder="Write something about yourself..."
             rows="3"
-            maxlength="300"
+            maxlength="200"
           ></textarea>
         </div>
       }
@@ -592,17 +592,7 @@
                     </div>
                   </div>
 
-                  <!-- Footer: like + comment counts (static) -->
-                  <div class="blog-post-card-footer">
-                    <button class="blog-post-card-action-btn" type="button" aria-label="Like">
-                      <mat-icon>favorite_border</mat-icon>
-                      <span class="blog-post-card-action-count">0</span>
-                    </button>
-                    <button class="blog-post-card-action-btn" type="button" aria-label="Comment">
-                      <mat-icon>chat_bubble_outline</mat-icon>
-                      <span class="blog-post-card-action-count">0</span>
-                    </button>
-                  </div>
+                  <!-- Footer: hidden until like/comment counts are wired to real data -->
                 </div>
               }
             </div>

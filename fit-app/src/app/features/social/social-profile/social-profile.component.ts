@@ -18,6 +18,7 @@ import { EditPostComponent } from '../components/edit-post/edit-post.component';
 import { WriteArticleComponent } from '../components/write-article/write-article.component';
 import { Post, ProfileBlog } from '../../../core/models/social.model';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { AlertService } from '../../../shared/services/alert.service';
 import { StatsTabComponent } from './stats-tab/stats-tab.component';
 
 type ProfileTab = 'posts' | 'workouts' | 'blogs' | 'stats';
@@ -42,6 +43,7 @@ export class SocialProfileComponent implements OnInit {
   protected readonly facade = inject(SocialFacade);
   private readonly chatFacade = inject(ChatFacade);
   private readonly userFacade = inject(UserFacade);
+  private readonly alert = inject(AlertService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly userStore = inject(UserStore);
@@ -299,7 +301,10 @@ export class SocialProfileComponent implements OnInit {
     if (!file) return;
     input.value = '';
 
-    if (file.size > 2 * 1024 * 1024) return;
+    if (file.size > 2 * 1024 * 1024) {
+      this.alert.error('Image must be smaller than 2 MB.');
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = async () => {

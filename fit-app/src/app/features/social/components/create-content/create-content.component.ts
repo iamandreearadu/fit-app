@@ -11,20 +11,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { SocialFacade } from '../../../../core/facade/social.facade';
 import { AlertService } from '../../../../shared/services/alert.service';
-import { CreatePostRequest } from '../../../../core/models/social.model';
+import { CreatePostRequest, ARTICLE_CATEGORIES } from '../../../../core/models/social.model';
 
-export const ARTICLE_CATEGORIES = [
-  'Fitness',
-  'Nutrition',
-  'Wellness',
-  'Training',
-  'Motivation',
-  'Recovery',
-  'Mindset',
-  'Recipes',
-  'Progress',
-  'Other',
-];
+export { ARTICLE_CATEGORIES };
 
 @Component({
   selector: 'app-create-content',
@@ -129,7 +118,9 @@ export class CreateContentComponent {
         const canvas = document.createElement('canvas');
         canvas.width = w;
         canvas.height = h;
-        canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0, w, h);
         const compressed = canvas.toDataURL('image/jpeg', 0.82);
         this.imagePreview.set(compressed);
         this.imageBase64.set(compressed.split(',')[1]);
@@ -177,7 +168,9 @@ export class CreateContentComponent {
         const canvas = document.createElement('canvas');
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
-        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         this.articleImagePreview.set(canvas.toDataURL('image/jpeg', 0.82));
       };
       img.src = dataUrl;

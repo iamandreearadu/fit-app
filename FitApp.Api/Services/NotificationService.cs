@@ -93,6 +93,7 @@ public class NotificationService(
 
     public async Task<PaginatedResponse<NotificationResponse>> GetNotificationsAsync(string userId, int page, int pageSize)
     {
+        pageSize = Math.Min(pageSize, 50);
         var query = db.Notifications
             .Include(n => n.Actor)
             .Where(n => n.RecipientId == userId)
