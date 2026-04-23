@@ -25,6 +25,8 @@ public class UserService(AppDbContext db, MetricsService metrics)
         if (req.Goal is not null) user.Goal = req.Goal;
         if (req.Activity is not null) user.Activity = req.Activity;
         if (req.ImageUrl is not null) user.ImageUrl = req.ImageUrl;
+        if (req.DietaryPreference is not null) user.DietaryPreference = req.DietaryPreference;
+        if (req.OnboardingCompleted.HasValue) user.OnboardingCompleted = req.OnboardingCompleted.Value;
 
         user.UpdatedAt = DateTime.UtcNow;
 
@@ -146,6 +148,8 @@ public class UserService(AppDbContext db, MetricsService metrics)
         Goal = user.Goal,
         Activity = user.Activity,
         ImageUrl = user.ImageUrl,
+        OnboardingCompleted = user.OnboardingCompleted,
+        DietaryPreference = user.DietaryPreference,
         UpdatedAt = user.UpdatedAt,
         MetricsUpdatedAt = user.MetricsUpdatedAt,
         Metrics = user.Bmi.HasValue ? new UserMetricsDto

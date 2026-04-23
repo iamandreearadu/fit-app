@@ -276,6 +276,17 @@ mat-select {
   overflow: hidden !important;
 }
 
+/* ─── ONBOARDING DIALOG PANEL ─── */
+.onboarding-panel .mat-mdc-dialog-container,
+.onboarding-panel .mdc-dialog__container,
+.onboarding-panel .mdc-dialog__surface {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border-radius: 20px !important;
+}
+
 /* ═══════════════════════════════════════════════════════════
    GLOBAL UTILITIES — shared across components
    ═══════════════════════════════════════════════════════════ */

@@ -26,28 +26,28 @@ FitApp/
 
 ### Frontend — fit-app/
 
-| Technology | Version |
-|-----------|---------|
-| Angular | 19.2.15 |
-| Angular Material | 19.2.0 |
-| Chart.js + ng2-charts | 4.5.1 / 4.1.1 |
-| ngx-toastr | 19.1.0 |
-| TypeScript | 5.7.2 |
-| @microsoft/signalr | (latest) |
-| State | Signals + Facade pattern |
-| Styling | Angular Material + CSS |
+| Technology            | Version                  |
+| --------------------- | ------------------------ |
+| Angular               | 19.2.15                  |
+| Angular Material      | 19.2.0                   |
+| Chart.js + ng2-charts | 4.5.1 / 4.1.1            |
+| ngx-toastr            | 19.1.0                   |
+| TypeScript            | 5.7.2                    |
+| @microsoft/signalr    | (latest)                 |
+| State                 | Signals + Facade pattern |
+| Styling               | Angular Material + CSS   |
 
 ### Backend — FitApp.Api/
 
-| Technology | Version |
-|-----------|---------|
-| .NET / ASP.NET Core | 10.0 |
-| Entity Framework Core (SQLite) | 10.0.5 |
-| JWT Bearer Authentication | 10.0.5 |
-| BCrypt.Net-Next | 4.1.0 |
-| MailKit | 4.15.1 |
-| Microsoft.AspNetCore.SignalR | 10.0 |
-| Database | SQLite |
+| Technology                     | Version |
+| ------------------------------ | ------- |
+| .NET / ASP.NET Core            | 10.0    |
+| Entity Framework Core (SQLite) | 10.0.5  |
+| JWT Bearer Authentication      | 10.0.5  |
+| BCrypt.Net-Next                | 4.1.0   |
+| MailKit                        | 4.15.1  |
+| Microsoft.AspNetCore.SignalR   | 10.0    |
+| Database                       | SQLite  |
 
 ### External Services
 
@@ -154,17 +154,17 @@ social/
   post-detail/                      Single post with comments thread
   article-detail/                   User-written article full view
   social-profile/
-    social-profile.component.ts     Profile: posts / workouts / blogs / stats tabs
+    social-profile.component.ts     Profile: posts / workouts / blogs / stats tabs; avatar upload (camera overlay → base64 → PUT /api/users/me)
     stats-tab/                      Charts: streak, volume, weekly history
   chat/                             DM conversation list
   chat-detail/                      Real-time DM thread (SignalR)
   notifications/                    All notifications (like/comment/follow/message)
   components/
-    post-card/                      Post UI: like, comment, follow, archive, delete
-    create-content/                 Dialog: create post OR write article
+    post-card/                      Post UI: like, comment, follow, archive, delete; article inline expand + cover image
+    create-content/                 Dialog: create post OR write article (portrait image, autosize textarea)
     create-post/                    Quick post dialog (legacy)
     edit-post/                      Edit post dialog
-    write-article/                  Full article editor dialog
+    write-article/                  Full article editor dialog (16:9 cover, autosize textarea)
     side-nav/                       Desktop sidebar navigation
     bottom-nav/                     Mobile bottom navigation
     top-bar/                        Mobile top bar with search
@@ -230,20 +230,20 @@ Program.cs                    DI registration, middleware, SignalR, CORS
 
 ## Database (SQLite + EF Core)
 
-| Entity | Key Constraints |
-|--------|----------------|
-| `User` | Account + physical profile + computed metrics |
-| `DailyEntry` | `(UserId, Date)` unique index |
-| `WorkoutTemplate` | Cascade delete → WorkoutExercise, CardioDetails |
-| `MealEntry` | Cascade delete → FoodItem |
-| `BlogPost` | `AuthorId` FK — admin posts + user social articles |
-| `ChatConversation` | Cascade delete → ChatMessage (AI chat) |
-| `Post` | `IsArchived` soft delete; optional FK to WorkoutTemplate, MealEntry, DailyEntry, BlogPost |
-| `Like` | `(UserId, PostId)` unique; cascade delete |
-| `Comment` | Cascade delete with Post |
-| `Follow` | `(FollowerId, FollowingId)` unique |
-| `Conversation` | → ConversationParticipant → DirectMessage (cascade) |
-| `Notification` | `IsRead`, `Type` enum, optional `ReferenceId` |
+| Entity             | Key Constraints                                                                           |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| `User`             | Account + physical profile + computed metrics                                             |
+| `DailyEntry`       | `(UserId, Date)` unique index                                                             |
+| `WorkoutTemplate`  | Cascade delete → WorkoutExercise, CardioDetails                                           |
+| `MealEntry`        | Cascade delete → FoodItem                                                                 |
+| `BlogPost`         | `AuthorId` FK — admin posts + user social articles                                        |
+| `ChatConversation` | Cascade delete → ChatMessage (AI chat)                                                    |
+| `Post`             | `IsArchived` soft delete; optional FK to WorkoutTemplate, MealEntry, DailyEntry, BlogPost |
+| `Like`             | `(UserId, PostId)` unique; cascade delete                                                 |
+| `Comment`          | Cascade delete with Post                                                                  |
+| `Follow`           | `(FollowerId, FollowingId)` unique                                                        |
+| `Conversation`     | → ConversationParticipant → DirectMessage (cascade)                                       |
+| `Notification`     | `IsRead`, `Type` enum, optional `ReferenceId`                                             |
 
 **Migrations run automatically on startup** — `db.Database.Migrate()` in `Program.cs`.
 
@@ -263,10 +263,10 @@ Program.cs                    DI registration, middleware, SignalR, CORS
 
 ## Real-time (SignalR)
 
-| Hub | URL | Events pushed |
-|-----|-----|---------------|
-| `NotificationHub` | `/hubs/notifications` | `ReceiveNotification` → per-user |
-| `ChatHub` | `/hubs/chat` | `ReceiveMessage`, `MessageDeleted` → per-conversation group |
+| Hub               | URL                   | Events pushed                                                                                                          |
+| ----------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `NotificationHub` | `/hubs/notifications` | `ReceiveNotification` → per-user                                                                                       |
+| `ChatHub`         | `/hubs/chat`          | `ReceiveMessage`, `MessageDeleted` → per-conversation group; `NewConversationMessage` → per-user group (badge updates) |
 
 Frontend connects on login, disconnects on logout. JWT authenticated via query string.
 
@@ -274,11 +274,11 @@ Frontend connects on login, disconnects on logout. JWT authenticated via query s
 
 ## AI Integration (Groq)
 
-| Feature | Model | Endpoint |
-|---------|-------|---------|
-| AI Chat | `llama-3.1-8b-instant` | POST /api/ai/text |
-| Meal Analyzer | `meta-llama/llama-4-scout-17b-16e-instruct` | POST /api/ai/image |
-| Workout Calorie Est. | `llama-3.1-8b-instant` | POST /api/ai/workout-calories |
+| Feature              | Model                                       | Endpoint                      |
+| -------------------- | ------------------------------------------- | ----------------------------- |
+| AI Chat              | `llama-3.1-8b-instant`                      | POST /api/ai/text             |
+| Meal Analyzer        | `meta-llama/llama-4-scout-17b-16e-instruct` | POST /api/ai/image            |
+| Workout Calorie Est. | `llama-3.1-8b-instant`                      | POST /api/ai/workout-calories |
 
 Backend `AiProxyService` handles all Groq API calls. Image analyzer: base64 input.  
 AI chat history stored in `ChatConversation` / `ChatMessage` entities.
@@ -370,8 +370,17 @@ PUT    /api/notifications/{id}/read                 Bearer
 ```json
 {
   "ConnectionStrings": { "Default": "Data Source=fitapp.db" },
-  "Jwt": { "Secret": "...", "Issuer": "fitapp-api", "Audience": "fitapp-angular" },
-  "Groq": { "BaseUrl": "...", "ApiKey": "...", "TextModel": "...", "VisionModel": "..." },
+  "Jwt": {
+    "Secret": "...",
+    "Issuer": "fitapp-api",
+    "Audience": "fitapp-angular"
+  },
+  "Groq": {
+    "BaseUrl": "...",
+    "ApiKey": "...",
+    "TextModel": "...",
+    "VisionModel": "..."
+  },
   "Email": { "SmtpHost": "smtp.gmail.com", "SmtpPort": 587 }
 }
 ```
@@ -381,9 +390,9 @@ PUT    /api/notifications/{id}/read                 Bearer
 ```typescript
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5140',
-  authKey: 'auth_v1',
-  userKey: 'user_profile_v1',
+  apiUrl: "http://localhost:5140",
+  authKey: "auth_v1",
+  userKey: "user_profile_v1",
 };
 ```
 
@@ -391,17 +400,19 @@ export const environment = {
 
 ## Agent Team — Roles & When to Use
 
-| Agent | Model | Role |
-|-------|-------|------|
-| `@tech-architect` | Opus 4.6 | Architecture decisions, ADRs, API contracts — **always first** |
-| `@dotnet-developer` | Sonnet 4.6 | FitApp.Api/ — controllers, services, EF, SignalR, migrations |
-| `@angular-developer` | Sonnet 4.6 | fit-app/ — components, facades, signals, SignalR, routing |
-| `@uiux-designer` | Sonnet 4.6 | UI specs, design system compliance, UX flows |
-| `@code-reviewer` | Sonnet 4.6 | Quality, security, clean architecture enforcement |
+| Agent                 | Model      | Role                                                                                   |
+| --------------------- | ---------- | -------------------------------------------------------------------------------------- |
+| `@tech-architect`     | Opus 4.6   | Architecture decisions, ADRs, API contracts — **always first**                         |
+| `@dotnet-developer`   | Sonnet 4.6 | FitApp.Api/ — controllers, services, EF, SignalR, migrations                           |
+| `@angular-developer`  | Sonnet 4.6 | fit-app/ — components, facades, signals, SignalR, routing                              |
+| `@uiux-designer`      | Sonnet 4.6 | UI specs, design system compliance, UX flows                                           |
+| `@code-reviewer`      | Sonnet 4.6 | Quality, security, clean architecture enforcement                                      |
+| `@product-strategist` | Opus 4.6   | Feature prioritization, monetization, UX strategy, competitor analysis, user retention |
 
 ### Workflow for a new feature
 
 ```
+0. @product-strategist → business validation (worth building? impact vs effort? success metric?)
 1. @tech-architect  → ADR + API contract + data model
 2. @uiux-designer   → UI spec (if has UI)
 3. @dotnet-developer → backend implementation

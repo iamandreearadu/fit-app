@@ -1,0 +1,180 @@
+<div class="ob-dialog">
+
+  <!-- Progress dots -->
+  <div class="ob-progress">
+    @for (label of stepLabels; track $index) {
+      <div class="ob-step" [class.ob-step--active]="step() === $index" [class.ob-step--done]="step() > $index">
+        <div class="ob-dot"></div>
+        <span class="ob-step-label">{{ label }}</span>
+      </div>
+      @if ($index < stepLabels.length - 1) {
+        <div class="ob-line" [class.ob-line--done]="step() > $index"></div>
+      }
+    }
+  </div>
+
+  <!-- ── Step 0: Goal ──────────────────────────────────────────────────────── -->
+  @if (step() === 0) {
+    <div class="ob-body">
+      <h2 class="ob-title">What's your main goal?</h2>
+      <p class="ob-subtitle">We'll personalise your experience around it.</p>
+
+      <div class="ob-goal-grid">
+        @for (g of goals; track g.value) {
+          <button class="ob-goal-card" type="button"
+                  [class.ob-goal-card--selected]="data.goal === g.value"
+                  (click)="data.goal = g.value">
+            <mat-icon class="ob-goal-icon">{{ g.icon }}</mat-icon>
+            <span class="ob-goal-label">{{ g.label }}</span>
+            <span class="ob-goal-desc">{{ g.desc }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="ob-footer">
+      <button class="ob-btn ob-btn--primary" type="button"
+              [disabled]="!isStep1Valid()"
+              (click)="next()">
+        Continue <mat-icon>arrow_forward</mat-icon>
+      </button>
+    </div>
+  }
+
+  <!-- ── Step 1: Physical profile ─────────────────────────────────────────── -->
+  @if (step() === 1) {
+    <div class="ob-body">
+      <h2 class="ob-title">Tell us about yourself</h2>
+      <p class="ob-subtitle">Used to calculate your personalised calorie & water targets.</p>
+
+      <div class="ob-form">
+        <!-- Gender -->
+        <div class="ob-field-group">
+          <label class="ob-label">Gender</label>
+          <div class="ob-radio-row">
+            @for (g of genderOptions; track g[0]) {
+              <button class="ob-radio-btn" type="button"
+                      [class.ob-radio-btn--selected]="data.gender === g[0]"
+                      (click)="data.gender = g[0]">{{ g[1] }}</button>
+            }
+          </div>
+        </div>
+
+        <!-- Age / Height / Weight -->
+        <div class="ob-row-3">
+          <div class="ob-field">
+            <label class="ob-label">Age</label>
+            <div class="ob-input-wrap">
+              <input class="ob-input" type="number" min="10" max="100"
+                     [(ngModel)]="data.age" placeholder="25" />
+              <span class="ob-unit">yrs</span>
+            </div>
+          </div>
+          <div class="ob-field">
+            <label class="ob-label">Height</label>
+            <div class="ob-input-wrap">
+              <input class="ob-input" type="number" min="100" max="250"
+                     [(ngModel)]="data.heightCm" placeholder="170" />
+              <span class="ob-unit">cm</span>
+            </div>
+          </div>
+          <div class="ob-field">
+            <label class="ob-label">Weight</label>
+            <div class="ob-input-wrap">
+              <input class="ob-input" type="number" min="30" max="300"
+                     [(ngModel)]="data.weightKg" placeholder="70" />
+              <span class="ob-unit">kg</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity level -->
+        <div class="ob-field-group">
+          <label class="ob-label">Activity level</label>
+          <div class="ob-activity-list">
+            @for (a of activityLevels; track a.value) {
+              <button class="ob-activity-item" type="button"
+                      [class.ob-activity-item--selected]="data.activity === a.value"
+                      (click)="data.activity = a.value">
+                <span class="ob-activity-label">{{ a.label }}</span>
+                <span class="ob-activity-desc">{{ a.desc }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-footer">
+      <button class="ob-btn ob-btn--ghost" type="button" (click)="back()">
+        <mat-icon>arrow_back</mat-icon> Back
+      </button>
+      <button class="ob-btn ob-btn--primary" type="button"
+              [disabled]="!isStep2Valid()"
+              (click)="next()">
+        Continue <mat-icon>arrow_forward</mat-icon>
+      </button>
+    </div>
+  }
+
+  <!-- ── Step 2: Dietary preference ───────────────────────────────────────── -->
+  @if (step() === 2) {
+    <div class="ob-body">
+      <h2 class="ob-title">Any dietary preferences?</h2>
+      <p class="ob-subtitle">Helps the AI give you better meal suggestions.</p>
+
+      <div class="ob-diet-grid">
+        @for (d of diets; track d.value) {
+          <button class="ob-diet-card" type="button"
+                  [class.ob-diet-card--selected]="data.dietaryPreference === d.value"
+                  (click)="data.dietaryPreference = d.value">
+            <mat-icon>{{ d.icon }}</mat-icon>
+            <span>{{ d.label }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="ob-footer">
+      <button class="ob-btn ob-btn--ghost" type="button" (click)="back()">
+        <mat-icon>arrow_back</mat-icon> Back
+      </button>
+      <button class="ob-btn ob-btn--primary" type="button" (click)="next()">
+        Continue <mat-icon>arrow_forward</mat-icon>
+      </button>
+    </div>
+  }
+
+  <!-- ── Step 3: First action ──────────────────────────────────────────────── -->
+  @if (step() === 3) {
+    <div class="ob-body">
+      <h2 class="ob-title">You're all set! 🎉</h2>
+      <p class="ob-subtitle">Log your first entry to start building momentum.</p>
+
+      <div class="ob-action-grid">
+        <button class="ob-action-card" type="button" (click)="finish('workout')">
+          <mat-icon class="ob-action-icon">fitness_center</mat-icon>
+          <span class="ob-action-label">Log a Workout</span>
+          <span class="ob-action-desc">Track your first training session</span>
+        </button>
+        <button class="ob-action-card" type="button" (click)="finish('meal')">
+          <mat-icon class="ob-action-icon">restaurant</mat-icon>
+          <span class="ob-action-label">Log a Meal</span>
+          <span class="ob-action-desc">Start tracking your nutrition</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="ob-footer ob-footer--center">
+      <button class="ob-btn ob-btn--ghost" type="button" (click)="back()">
+        <mat-icon>arrow_back</mat-icon> Back
+      </button>
+      <button class="ob-btn ob-btn--text" type="button"
+              [disabled]="isSaving()"
+              (click)="finish('skip')">
+        Skip for now
+      </button>
+    </div>
+  }
+
+</div>

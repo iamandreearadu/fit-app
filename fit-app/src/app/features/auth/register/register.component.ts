@@ -42,7 +42,7 @@ export class RegisterComponent {
     if (ok) {
       await this.router.navigate(['/user-dashboard']);
     } else {
-      this.form.reset();
+      this.form.get('password')?.reset();
     }
   }
 }

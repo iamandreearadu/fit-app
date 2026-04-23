@@ -12,6 +12,8 @@ public class UserProfileDto
     public string Goal { get; set; } = string.Empty;
     public string Activity { get; set; } = string.Empty;
     public string? ImageUrl { get; set; }
+    public bool OnboardingCompleted { get; set; }
+    public string? DietaryPreference { get; set; }
     public UserMetricsDto? Metrics { get; set; }
     public DateTime? MetricsUpdatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
@@ -37,4 +39,6 @@ public class UpdateUserProfileRequest
     public string? Goal { get; set; }
     public string? Activity { get; set; }
     public string? ImageUrl { get; set; }
+    public bool? OnboardingCompleted { get; set; }
+    public string? DietaryPreference { get; set; }
 }

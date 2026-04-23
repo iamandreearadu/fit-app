@@ -15,6 +15,8 @@ public class User
     public string? ImageUrl { get; set; }
     public string? Bio { get; set; }
     public bool IsAdmin { get; set; } = false;
+    public bool OnboardingCompleted { get; set; } = false;
+    public string? DietaryPreference { get; set; } // no-restriction | vegetarian | vegan | high-protein
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // Fitness Metrics (stored inline)

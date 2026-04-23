@@ -33,7 +33,9 @@ export class UserStore {
       age: patch.age ?? current?.age ?? 0,
       gender: patch.gender ?? current?.gender ?? 'other',
       activity: patch.activity ?? current?.activity ?? 'moderate',
-      goal: patch.goal ?? current?.goal ?? 'maintain'
+      goal: patch.goal ?? current?.goal ?? 'maintain',
+      onboardingCompleted: patch.onboardingCompleted ?? current?.onboardingCompleted ?? false,
+      dietaryPreference: patch.dietaryPreference ?? current?.dietaryPreference,
     };
 
     this.setUser(merged);

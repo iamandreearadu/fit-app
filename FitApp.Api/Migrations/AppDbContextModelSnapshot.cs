@@ -599,6 +599,12 @@ namespace FitApp.Api.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("OnboardingCompleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DietaryPreference")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("MetricsUpdatedAt")
                         .HasColumnType("TEXT");
 

@@ -37,6 +37,8 @@ export class UserService {
           goal: profile.goal,
           activity: profile.activity,
           imageUrl: profile.imageUrl,
+          onboardingCompleted: profile.onboardingCompleted,
+          dietaryPreference: profile.dietaryPreference ?? null,
         })
       );
       this.alerts.success('Profile saved');
@@ -104,6 +106,8 @@ export class UserService {
       goal: dto.goal,
       activity: dto.activity,
       imageUrl: dto.imageUrl,
+      onboardingCompleted: dto.onboardingCompleted ?? false,
+      dietaryPreference: dto.dietaryPreference ?? undefined,
     };
   }
 

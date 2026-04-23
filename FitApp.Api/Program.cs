@@ -1,5 +1,6 @@
 using System.Text;
 using System.Threading.RateLimiting;
+using Microsoft.Data.Sqlite;
 using FitApp.Api.Data;
 using FitApp.Api.Hubs;
 using FitApp.Api.Services;
@@ -114,24 +115,76 @@ builder.Services.AddProblemDetails();
 var app = builder.Build();
 
 // ── Auto-migrate on startup ───────────────────────────────────────────────────
+// Use a standalone connection so writes are committed before EF Core's Migrate() runs.
+var dbPath = builder.Configuration.GetConnectionString("Default")!
+    .Replace("Data Source=", "", StringComparison.OrdinalIgnoreCase).Trim();
+
+if (File.Exists(dbPath))
+{
+    using var raw = new SqliteConnection($"Data Source={dbPath}");
+    raw.Open();
+
+    // Ensure __EFMigrationsHistory exists
+    Exec(raw, """
+        CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+            "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+            "ProductVersion" TEXT NOT NULL
+        )
+        """);
+
+    // Check which new columns exist
+    var hasArticleId  = Scalar(raw, "SELECT COUNT(*) FROM pragma_table_info('Posts') WHERE name='ArticleId'")  > 0;
+    var hasOnboarding = Scalar(raw, "SELECT COUNT(*) FROM pragma_table_info('Users') WHERE name='OnboardingCompleted'") > 0;
+
+    // Apply missing columns directly — idempotent, no dependency on migration history
+    if (!hasArticleId)
+    {
+        Exec(raw, "ALTER TABLE \"Posts\" ADD COLUMN \"ArticleId\" INTEGER");
+        Exec(raw, "CREATE INDEX IF NOT EXISTS \"IX_Posts_ArticleId\" ON \"Posts\"(\"ArticleId\")");
+    }
+    if (!hasOnboarding)
+    {
+        Exec(raw, "ALTER TABLE \"Users\" ADD COLUMN \"OnboardingCompleted\" INTEGER NOT NULL DEFAULT 0");
+        Exec(raw, "ALTER TABLE \"Users\" ADD COLUMN \"DietaryPreference\" TEXT");
+        Exec(raw, "UPDATE \"Users\" SET \"OnboardingCompleted\" = 1 WHERE \"Age\" > 0 OR \"HeightCm\" > 0");
+    }
+
+    // Stamp these migrations so EF Core's Migrate() treats them as applied
+    Exec(raw, "INSERT OR IGNORE INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES ('20260408160000_AddArticleLinkToPost', '10.0.5')");
+    Exec(raw, "INSERT OR IGNORE INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES ('20260423120000_AddOnboardingFields', '10.0.5')");
+
+    // Stamp baseline migrations for fresh EnsureCreated databases that have no history at all
+    if (Scalar(raw, "SELECT COUNT(*) FROM __EFMigrationsHistory") < 3)
+    {
+        foreach (var m in new[] {
+            "20260327105004_InitialCreate",
+            "20260401073945_AddIsAdminToUsers",
+            "20260401083523_AddChatConversations",
+            "20260407101453_AddSocialChatNotifications",
+            "20260408130513_AddProfileSections" })
+        {
+            Exec(raw, $"INSERT OR IGNORE INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES ('{m}', '10.0.5')");
+        }
+    }
+}
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    // If the DB was previously created with EnsureCreated, the schema exists but
-    // __EFMigrationsHistory is empty. Stamp all known migrations as applied so
-    // Migrate() only runs genuinely new migrations going forward.
-    if (db.Database.CanConnect() && !db.Database.GetAppliedMigrations().Any())
-    {
-        foreach (var migration in db.Database.GetMigrations())
-        {
-            db.Database.ExecuteSqlRaw(
-                "INSERT OR IGNORE INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES ({0}, {1})",
-                migration, "10.0.5");
-        }
-    }
-
     db.Database.Migrate();
+}
+
+static void Exec(SqliteConnection c, string sql)
+{
+    using var cmd = c.CreateCommand();
+    cmd.CommandText = sql;
+    cmd.ExecuteNonQuery();
+}
+static long Scalar(SqliteConnection c, string sql)
+{
+    using var cmd = c.CreateCommand();
+    cmd.CommandText = sql;
+    return (long)(cmd.ExecuteScalar() ?? 0L);
 }
 
 // ── Ensure upload directories exist ──────────────────────────────────────────
