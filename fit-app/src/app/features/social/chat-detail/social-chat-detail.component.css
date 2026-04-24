@@ -425,3 +425,41 @@
   .msg-bubble { max-width: 78%; }
   .msg-img    { max-width: 190px; }
 }
+
+@media (max-width: 768px) {
+  .chat-detail {
+    max-width: 100%;
+    height: calc(100dvh - 52px - 56px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    /* 52px = top bar, 56px = bottom nav */
+    position: relative;
+  }
+
+  .msg-area {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .msg-composer {
+    flex-shrink: 0;
+    position: fixed;
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    right: 0;
+    z-index: 800;
+  }
+
+  /* Extra padding on message area so last message is not hidden behind fixed composer */
+  .msg-area {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Back button touch target */
+  .hdr-back-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

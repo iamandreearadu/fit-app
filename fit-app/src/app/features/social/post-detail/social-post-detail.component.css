@@ -270,3 +270,48 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+
+@media (max-width: 768px) {
+  /* Remove horizontal padding so post-card image can be full-bleed */
+  .post-detail-page {
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Restore gutters on elements that need them */
+  .post-detail-back {
+    padding: 6px 16px;
+  }
+
+  .post-detail-skeleton,
+  .post-detail-error {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
+  .post-detail-comments {
+    padding: 0 16px;
+  }
+
+  /* Fix composer so it stays above fixed bottom nav */
+  .post-detail-composer {
+    position: fixed;
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 10px 16px;
+    z-index: 800;
+  }
+
+  /* Always show comment delete button on mobile (touch has no hover) */
+  .comment-delete-btn {
+    opacity: 1;
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .comment-delete-btn:active {
+    color: var(--accent);
+  }
+}

@@ -3,7 +3,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 50;
+  z-index: 900;
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -79,54 +79,6 @@
   height: 4px;
   border-radius: 50%;
   background: var(--primary);
-}
-
-/* ── Center FAB ── */
-.social-bottomnav-fab {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  height: 56px;
-  padding: 0 4px;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  position: relative;
-}
-
-.social-bottomnav-fab-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 14px var(--primary-glow);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  transform: translateY(-4px);
-}
-
-.social-bottomnav-fab-circle mat-icon {
-  font-size: 22px;
-  width: 22px;
-  height: 22px;
-  color: var(--white);
-}
-
-.social-bottomnav-fab:hover .social-bottomnav-fab-circle {
-  transform: translateY(-6px);
-  box-shadow: 0 6px 20px var(--primary-glow);
-}
-
-.social-bottomnav-fab-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.4);
-  letter-spacing: 0.03em;
-  margin-top: 2px;
 }
 
 /* ── Badge ── */

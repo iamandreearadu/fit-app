@@ -1,5 +1,7 @@
 .feed-page {
   width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
   padding: 24px 0 100px;
   animation: slideUp 0.35s ease-out both;
 }
@@ -271,11 +273,18 @@
     display: none;
   }
 
+  /* bottom-nav center button handles create-post — no duplicate FAB needed */
   .feed-fab {
-    display: flex;
+    display: none;
   }
 
   .feed-page {
+    max-width: 100%;
     padding: 16px 0 120px;
+  }
+
+  .feed-header {
+    padding: 0 16px;
+    margin-bottom: 12px;
   }
 }

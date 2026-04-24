@@ -49,20 +49,7 @@
       @for (msg of group.messages; track msg.id) {
         <div class="msg-row" [class.msg-row--own]="msg.isOwn">
 
-          <!-- Delete trigger (own messages only, appears left of bubble due to row-reverse) -->
-          @if (msg.isOwn && !msg.isDeleted) {
-            <button class="msg-more-btn" [matMenuTriggerFor]="msgMenu" type="button" aria-label="Message options">
-              <mat-icon>more_horiz</mat-icon>
-            </button>
-            <mat-menu #msgMenu="matMenu" panelClass="dark-menu">
-              <button mat-menu-item (click)="deleteMessage(msg.id)">
-                <mat-icon>delete_outline</mat-icon>
-                <span>Delete</span>
-              </button>
-            </mat-menu>
-          }
-
-          <!-- Bubble -->
+          <!-- Bubble first in DOM so row-reverse places it at the right edge -->
           <div
             class="msg-bubble"
             [class.msg-bubble--own]="msg.isOwn"
@@ -81,6 +68,19 @@
             }
             <span class="msg-time">{{ msg.sentAt | date:'shortTime' }}</span>
           </div>
+
+          <!-- Delete trigger — second in DOM so row-reverse places it to the LEFT of the bubble -->
+          @if (msg.isOwn && !msg.isDeleted) {
+            <button class="msg-more-btn" [matMenuTriggerFor]="msgMenu" type="button" aria-label="Message options">
+              <mat-icon>more_horiz</mat-icon>
+            </button>
+            <mat-menu #msgMenu="matMenu" panelClass="dark-menu">
+              <button mat-menu-item (click)="deleteMessage(msg.id)">
+                <mat-icon>delete_outline</mat-icon>
+                <span>Delete</span>
+              </button>
+            </mat-menu>
+          }
         </div>
       }
     }

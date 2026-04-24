@@ -491,12 +491,59 @@
     max-width: 100% !important;
     max-height: 95dvh;
   }
+
   .cc-header { padding: 14px 14px 12px; }
   .cc-type-toggle button { padding: 6px 12px; font-size: 12px; }
-  .cc-dropzone--portrait { height: 54dvh; max-height: unset; }
-  .cc-preview--portrait { height: 54dvh; max-height: unset; }
+
+  /* Portrait image: fill full dialog width instead of centering with gaps */
+  .cc-dropzone--portrait {
+    width: 100%;
+    height: auto;
+    max-height: unset;
+    align-self: stretch;
+    aspect-ratio: 3 / 4;
+  }
+  .cc-preview--portrait {
+    width: 100%;
+    height: auto;
+    max-height: unset;
+    align-self: stretch;
+    aspect-ratio: 3 / 4;
+  }
+
   .cc-textarea-wrap { padding: 14px 16px 10px; }
-  .cc-footer { padding: 10px 16px 14px; }
-  .cc-art-field-group { padding: 16px; }
-  .cc-art-footer { padding: 12px 16px; }
+
+  /* Full-width tappable footer buttons */
+  .cc-footer {
+    padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+  .cc-footer-actions {
+    width: 100%;
+    gap: 10px;
+  }
+  .cc-cancel,
+  .cc-submit {
+    flex: 1;
+    height: 48px;
+    justify-content: center;
+  }
+
+  /* Article */
+  .cc-art-field-group { padding: 14px 16px; }
+  .cc-art-footer {
+    padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    gap: 10px;
+  }
+  .cc-art-cancel,
+  .cc-art-publish {
+    flex: 1;
+    height: 48px;
+    justify-content: center;
+  }
+
+  /* Cover change overlay: always visible on touch (no hover) */
+  .cc-art-cover-overlay {
+    opacity: 1;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, transparent 70%);
+  }
 }

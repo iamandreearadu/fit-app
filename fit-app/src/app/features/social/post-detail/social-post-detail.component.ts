@@ -142,7 +142,7 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
 
   async onDeletePost(postId: number): Promise<void> {
     await this.facade.deletePost(postId);
-    this.router.navigate(['/social/feed']);
+    this.router.navigateByUrl(this.returnUrl);
   }
 
   onEditPost(post: Post): void {

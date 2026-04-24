@@ -75,11 +75,13 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onEditClicked(post: Post): void {
+    const isMobile = window.innerWidth <= 640;
     this.dialog.open(EditPostComponent, {
       data: { post },
-      panelClass: 'create-post-panel',
-      maxWidth: '560px',
-      width: '100%'
+      panelClass: 'edit-post-panel',
+      maxWidth: isMobile ? '100vw' : '560px',
+      width: '100%',
+      position: isMobile ? { bottom: '0' } : undefined,
     });
   }
 
@@ -88,10 +90,12 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openCreatePost(): void {
+    const isMobile = window.innerWidth <= 640;
     this.dialog.open(CreateContentComponent, {
       panelClass: 'create-post-panel',
-      maxWidth: '600px',
-      width: '100%'
+      maxWidth: isMobile ? '100vw' : '600px',
+      width: '100%',
+      position: isMobile ? { bottom: '0' } : undefined,
     }).afterClosed().subscribe(result => {
       if (result) this.facade.loadFeed(true);
     });

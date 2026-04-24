@@ -3,7 +3,7 @@
   flex-direction: row;
   min-height: 100dvh;
   background: var(--surface);
-  animation: slideUp 0.35s ease-out both;
+  /* animation moved to .social-content so position:fixed children work correctly */
 }
 
 .social-content {
@@ -14,6 +14,7 @@
   align-items: center;
   padding: 32px 24px;
   overflow-y: auto;
+  animation: slideUp 0.35s ease-out both;
 }
 
 .content-inner {
@@ -26,7 +27,7 @@
 .daily-panel-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 299;
+  z-index: 930;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
   animation: backdropIn 0.2s ease-out;
@@ -43,7 +44,7 @@
   position: fixed;
   bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   right: 16px;
-  z-index: 301;
+  z-index: 920;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -114,11 +115,16 @@
     min-height: 100dvh;
     overflow-y: unset;
     align-items: stretch;
+    display: flex;
+    flex-direction: column;
   }
 
   /* Each feature manages its own horizontal padding */
   .content-inner {
     max-width: 100%;
     padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 }

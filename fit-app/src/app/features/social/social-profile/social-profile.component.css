@@ -2,11 +2,11 @@
   width: 100%;
   max-width: 680px;
   margin: 0 auto;
-  padding: 24px 16px 100px;
+  padding: 16px 16px 100px;
   animation: slideUp 0.35s ease-out both;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 
 @keyframes slideUp {
@@ -48,10 +48,10 @@
 /* Header */
 .profile-header {
   display: flex; flex-direction: column; align-items: center;
-  gap: 8px; text-align: center;
+  gap: 6px; text-align: center;
 }
 .profile-avatar-ring {
-  width: 88px; height: 88px; border-radius: 50%; overflow: hidden;
+  width: 72px; height: 72px; border-radius: 50%; overflow: hidden;
   border: 3px solid var(--primary); box-shadow: 0 0 20px var(--primary-glow); flex-shrink: 0;
   position: relative;
 }
@@ -82,8 +82,8 @@
   display: flex; align-items: center; justify-content: center;
   background: rgba(124,77,255,0.15);
 }
-.profile-avatar--fallback mat-icon { font-size: 36px; width: 36px; height: 36px; color: var(--primary); }
-.profile-display-name { font-size: 24px; font-weight: 700; color: var(--white); margin: 0; }
+.profile-avatar--fallback mat-icon { font-size: 28px; width: 28px; height: 28px; color: var(--primary); }
+.profile-display-name { font-size: 20px; font-weight: 700; color: var(--white); margin: 0; }
 .profile-bio {
   font-size: 14px; color: var(--white-soft); margin: 0;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
@@ -98,12 +98,12 @@
   border-radius: 0; overflow: hidden;
 }
 .profile-stat-cell {
-  padding: 16px; text-align: center;
+  padding: 10px 8px; text-align: center;
   border-right: 1px solid rgba(255,255,255,0.06);
-  display: flex; flex-direction: column; gap: 4px;
+  display: flex; flex-direction: column; gap: 2px;
 }
 .profile-stat-cell:last-child { border-right: none; }
-.profile-stat-number { font-size: 22px; font-weight: 700; color: var(--white); display: block; }
+.profile-stat-number { font-size: 18px; font-weight: 700; color: var(--white); display: block; }
 .profile-stat-label {
   font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4);
   text-transform: uppercase; letter-spacing: 0.05em; display: block;
@@ -141,9 +141,9 @@
 .profile-action-row { display: flex; gap: 10px; align-items: center; }
 .profile-action-btn {
   flex: 1; display: flex; align-items: center; justify-content: center;
-  gap: 6px; padding: 12px 20px; border-radius: 12px;
-  font-size: 14px; font-weight: 600; cursor: pointer; border: none;
-  min-height: 48px; text-decoration: none; transition: opacity 0.2s ease;
+  gap: 6px; padding: 9px 16px; border-radius: 12px;
+  font-size: 13px; font-weight: 600; cursor: pointer; border: none;
+  min-height: 40px; text-decoration: none; transition: opacity 0.2s ease;
 }
 .profile-action-btn.btn-ghost {
   border: 1px solid rgba(255,255,255,0.2); background: transparent; color: var(--white-soft);
@@ -772,12 +772,86 @@
 }
 
 @media (max-width: 640px) {
+  /* Full-width, compact header area */
+  .profile-page {
+    max-width: 100%;
+    padding: 12px 0 80px;
+    gap: 12px;
+  }
+
+  /* Restore gutters on sections that need them */
+  .profile-header,
+  .profile-bio-section,
+  .profile-action-row,
+  .profile-error,
+  .profile-skeleton,
+  .profile-section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* Posts grid, stats row and tabs stay full-bleed — no side padding */
+  .profile-posts-section,
+  .archived-section,
+  .profile-stats-row,
+  .profile-tabs {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
   .profile-action-row { flex-wrap: wrap; }
-  .profile-tab-btn span { display: none; }
+
+  /* Keep tab labels but reduce size and stack icon above text */
+  .profile-tab-btn {
+    font-size: 10px;
+    padding: 10px 4px;
+    gap: 3px;
+    flex-direction: column;
+  }
+
+  .profile-tab-btn mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-action-row {
+    gap: 8px;
+  }
+
+  .profile-action-btn {
+    font-size: 13px;
+    padding: 10px 14px;
+  }
 }
 
 @media (max-width: 400px) {
   .profile-posts-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  /* Show post overlay on tap via :active/:focus (touch devices have no hover) */
+  .profile-item-overlay {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .profile-post-cell:active .profile-item-overlay,
+  .profile-post-cell:focus .profile-item-overlay {
+    opacity: 1;
+  }
+
+  /* Avatar edit overlay always visible on mobile so users know it's tappable */
+  .profile-avatar-ring--editable .profile-avatar-edit-overlay {
+    opacity: 0.6;
+  }
+
+  /* Stats tab bottom padding accounting for fixed nav + safe area */
+  .stats-tab {
+    padding: 16px 0 calc(80px + env(safe-area-inset-bottom, 0px));
   }
 }
