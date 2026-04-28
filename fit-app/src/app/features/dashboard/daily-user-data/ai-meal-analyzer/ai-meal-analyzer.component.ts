@@ -3,6 +3,7 @@ import { MaterialModule } from '../../../../core/material/material.module';
 import { CommonModule } from '@angular/common';
 import { GroqAiFacade } from '../../../../core/facade/groq-ai.facade';
 import { MealMacros } from '../../../../core/models/meal-macros';
+import { MealType } from '../../../../core/models/nutrition-tab.model';
 
 @Component({
   selector: 'app-ai-meal-analyzer',
@@ -20,6 +21,7 @@ export class AiMealAnalyzerComponent {
   @Output() added = new EventEmitter<MealMacros>();
   @Output() analyzed = new EventEmitter<MealMacros>();
   @Output() error = new EventEmitter<string>();
+  @Output() saveMeal = new EventEmitter<{ macros: MealMacros; mealType: MealType }>();
 
   @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
 
@@ -29,6 +31,10 @@ export class AiMealAnalyzerComponent {
   loading = false;
   isDragOver = false;
   result: MealMacros | null = null;
+  saving = false;
+
+  selectedMealType: MealType = 'Other';
+  readonly mealTypes: MealType[] = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Pre-workout', 'Post-workout', 'Other'];
 
   openFileDialog(): void {
     this.fileInputRef?.nativeElement.click();
@@ -82,6 +88,8 @@ export class AiMealAnalyzerComponent {
     this.preview = null;
     this.errorMsg = null;
     this.result = null;
+    this.saving = false;
+    this.selectedMealType = 'Other';
   }
 
   private fail(msg: string) {
@@ -106,15 +114,22 @@ export class AiMealAnalyzerComponent {
       };
 
       this.analyzed.emit(this.result);
-    } catch (e: any) {
-      this.fail(e?.message || 'AI analysis failed.');
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      this.fail(err?.message || 'AI analysis failed.');
     }  finally {
       this.loading = false;
     }
   }
 
-    addToUser() {
+  addToUser() {
     if (!this.result) return;
     this.added.emit(this.result);
+  }
+
+  saveToNutrition(): void {
+    if (!this.result || this.saving) return;
+    this.saving = true;
+    this.saveMeal.emit({ macros: this.result, mealType: this.selectedMealType });
   }
 }

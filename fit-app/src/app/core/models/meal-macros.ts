@@ -3,5 +3,12 @@ export interface MealMacros {
   carbs_g: number;
   fats_g: number;
   calories_kcal?: number;
-  items?: Array<{ name: string; confidence?: number }>;
+  items?: Array<{
+    name: string;
+    confidence?: number;
+    protein_g?: number;
+    carbs_g?: number;
+    fats_g?: number;
+    calories_kcal?: number;
+  }>;
 }

@@ -101,33 +101,60 @@
             >{{ result.calories_kcal | number: "1.0-0"
             }}<span class="macro-unit"> kcal</span></span
           >
+          <span class="macro-label">Calories</span>
         </div>
       </div>
     </div>
 
-    <div class="items-row" *ngIf="result.items?.length">
-      <span
-        class="item-chip"
-        *ngFor="let it of result.items"
-        matTooltip="Model confidence"
-      >
-        {{ it.name }}
-        <small *ngIf="it.confidence != null"
-          >({{ it.confidence | number: "1.0-2" }})</small
-        >
-      </span>
+    @if (result.items?.length) {
+      <div class="items-row">
+        @for (it of result.items!; track it.name) {
+          <span class="item-chip" matTooltip="AI confidence score">
+            {{ it.name }}
+            @if (it.confidence != null) {
+              <small>({{ it.confidence * 100 | number: "1.0-0" }}%)</small>
+            }
+          </span>
+        }
+      </div>
+    }
+
+    <div class="meal-type-row">
+      <span class="meal-type-label">Meal type</span>
+      <div class="meal-type-chips">
+        @for (t of mealTypes; track t) {
+          <button
+            type="button"
+            class="type-chip"
+            [class.type-chip--active]="selectedMealType === t"
+            (click)="selectedMealType = t"
+          >{{ t }}</button>
+        }
+      </div>
     </div>
 
-    <button
-      mat-flat-button
-      class="btn-add"
-      type="button"
-      (click)="addToUser()"
-      [disabled]="disabled || loading"
-    >
-      <mat-icon>add_circle</mat-icon>
-      Add to Today
-    </button>
+    <div class="result-actions">
+      <button
+        mat-flat-button
+        class="btn-save-meal"
+        type="button"
+        (click)="saveToNutrition()"
+        [disabled]="disabled || loading || saving"
+      >
+        <mat-icon>bookmark_add</mat-icon>
+        Save as meal
+      </button>
+      <button
+        mat-flat-button
+        class="btn-add"
+        type="button"
+        (click)="addToUser()"
+        [disabled]="disabled || loading"
+      >
+        <mat-icon>add_circle</mat-icon>
+        Add to Today
+      </button>
+    </div>
   </div>
 
   <div *ngIf="errorMsg" class="error-msg">

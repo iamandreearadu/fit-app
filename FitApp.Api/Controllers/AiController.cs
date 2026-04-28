@@ -33,10 +33,20 @@ public class AiController(AiProxyService aiProxy, ILogger<AiController> logger) 
             var result = await aiProxy.AnalyzeImageAsync(req);
             return Ok(result);
         }
+        catch (HttpRequestException ex)
+        {
+            logger.LogError(ex, "Groq vision API error: {Message}", ex.Message);
+            return Problem(ex.Message, title: "Groq API Error", statusCode: 502);
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Groq vision API timeout");
+            return Problem("Vision AI timed out — try a smaller image.", title: "Timeout", statusCode: 504);
+        }
         catch (Exception ex)
         {
-            logger.LogError(ex, "AI image request failed");
-            return Problem("AI request failed. Please try again.", statusCode: 500);
+            logger.LogError(ex, "AI image request failed: {Type} {Message}", ex.GetType().Name, ex.Message);
+            return Problem($"{ex.GetType().Name}: {ex.Message}", statusCode: 500);
         }
     }
 

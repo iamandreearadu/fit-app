@@ -10,7 +10,7 @@ import { AiMealAnalyzerComponent } from './ai-meal-analyzer/ai-meal-analyzer.com
 import { AlertService } from '../../../shared/services/alert.service';
 import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
 import { NutritionTabFacade } from '../../../core/facade/nutrition-tab.facade';
-import { MealEntry } from '../../../core/models/nutrition-tab.model';
+import { MealEntry, MealType } from '../../../core/models/nutrition-tab.model';
 
 import { from, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -154,7 +154,43 @@ export class DailyUserDataComponent implements OnInit {
     this.alerts.error('Macros analysis failed.');
   }
 
- 
+  async onAnalyzerSaveMeal(event: { macros: MealMacros; mealType: MealType }): Promise<void> {
+    const { macros, mealType } = event;
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: false });
+    const items = macros.items && macros.items.length > 0
+      ? macros.items.map(it => ({
+          name: it.name,
+          grams: 0,
+          calories: it.calories_kcal ?? 0,
+          protein_g: it.protein_g ?? 0,
+          carbs_g: it.carbs_g ?? 0,
+          fats_g: it.fats_g ?? 0,
+        }))
+      : [{
+          name: 'Mixed meal',
+          grams: 0,
+          calories: macros.calories_kcal ?? 0,
+          protein_g: macros.protein_g,
+          carbs_g: macros.carbs_g,
+          fats_g: macros.fats_g,
+        }];
+
+    try {
+      await this.nutritionFacade.saveMeal({
+        name: `AI Meal ${timeStr}`,
+        type: mealType,
+        date: this.facade.todayDate,
+        items,
+      });
+      this.alerts.success('Meal saved to nutrition log.');
+      this.closeMealAnalyze();
+    } catch {
+      this.alerts.error('Failed to save meal. Please try again.');
+    }
+  }
+
+
 
   // ===================== AUTOSAVE =====================
 
