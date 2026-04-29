@@ -7,6 +7,7 @@ import { MaterialModule } from '../../../core/material/material.module';
 import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
 import { MealMacros } from '../../../core/models/meal-macros';
 import { AiMealAnalyzerComponent } from './ai-meal-analyzer/ai-meal-analyzer.component';
+import { CalorieBalanceCardComponent } from '../calorie-balance-card/calorie-balance-card.component';
 import { AlertService } from '../../../shared/services/alert.service';
 import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
 import { NutritionTabFacade } from '../../../core/facade/nutrition-tab.facade';
@@ -19,7 +20,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   standalone: true,
   selector: 'app-daily-user-data',
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule, AiMealAnalyzerComponent],
+  imports: [CommonModule, ReactiveFormsModule, MaterialModule, AiMealAnalyzerComponent, CalorieBalanceCardComponent],
   host: { class: 'd-block' },
   templateUrl: './daily-user-data.component.html',
   styleUrls: ['./daily-user-data.component.css']
@@ -40,6 +41,7 @@ export class DailyUserDataComponent implements OnInit {
   public showAnalyzeOverlay = false;
   public analyzeError: string | null = null;
   public showActivityPicker = false;
+  public showCalorieBalance = false;
 
   public showMealPicker = false;
   public mealPickerSearch = '';
@@ -103,6 +105,14 @@ export class DailyUserDataComponent implements OnInit {
 
   closeMealAnalyze(): void {
     this.showAnalyzeOverlay = false;
+  }
+
+  openCalorieBalance(): void {
+    this.showCalorieBalance = true;
+  }
+
+  closeCalorieBalance(): void {
+    this.showCalorieBalance = false;
   }
 
   async openMealPicker(): Promise<void> {

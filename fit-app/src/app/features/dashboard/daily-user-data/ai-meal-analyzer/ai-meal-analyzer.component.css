@@ -4,6 +4,47 @@
   gap: 16px;
 }
 
+/* ── MODE TABS ── */
+.mode-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.mode-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: Poppins, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.mode-tab mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.mode-tab--active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(124, 77, 255, 0.08);
+}
+
+.mode-tab:hover:not(.mode-tab--active) {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.8);
+}
+
 /* ── DROPZONE ── */
 .dropzone {
   position: relative;
@@ -345,6 +386,278 @@
   flex-shrink: 0;
 }
 
+/* ── BARCODE AREA ── */
+.barcode-area {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.barcode-idle {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 20px;
+  border: 1.5px dashed color-mix(in srgb, var(--primary) 40%, var(--white-fade));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 88%, var(--primary-glow) 8%);
+}
+
+/* ── MANUAL ENTRY ── */
+.manual-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.manual-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+}
+
+.manual-row {
+  display: flex;
+  gap: 8px;
+}
+
+.barcode-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #fff;
+  font-family: Poppins, sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.barcode-input:focus { border-color: var(--primary); }
+
+.barcode-input::placeholder { color: rgba(255, 255, 255, 0.28); }
+
+.barcode-input:disabled { opacity: 0.5; }
+
+.btn-lookup {
+  height: 44px;
+  min-width: 44px !important;
+  padding: 0 14px !important;
+  border-radius: 10px !important;
+  background: rgba(124, 77, 255, 0.15) !important;
+  color: var(--primary) !important;
+  border: 1px solid rgba(124, 77, 255, 0.35) !important;
+}
+
+.btn-lookup mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* ── SCANNER ── */
+.scanner-wrap {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 4 / 3;
+  max-height: 280px;
+}
+
+.scanner-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.scanner-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.scanner-frame {
+  width: 200px;
+  height: 110px;
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
+}
+
+@keyframes scan-line {
+  0%   { top: 0; }
+  100% { top: 100%; }
+}
+
+.scanner-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+  animation: scan-line 1.5s linear infinite;
+}
+
+.scanner-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+.stop-scan-btn {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #fff !important;
+  background: rgba(0, 0, 0, 0.55) !important;
+  backdrop-filter: blur(4px);
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  white-space: nowrap;
+}
+
+/* ── PRODUCT CARD ── */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(124, 77, 255, 0.2);
+  border-radius: 14px;
+}
+
+.product-header {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.product-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.product-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.product-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.product-brand {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.product-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.nutriscore-badge,
+.quality-badge,
+.nova-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.2px;
+}
+
+.nova-1 { background: #4caf50; }
+.nova-2 { background: #8bc34a; }
+.nova-3 { background: #ff9800; }
+.nova-4 { background: #f44336; }
+
+.close-product-btn {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.35) !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+}
+
+/* ── SERVING ROW ── */
+.serving-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.serving-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+}
+
+.serving-input {
+  width: 68px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 5px 8px;
+  color: #fff;
+  font-family: Poppins, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.serving-input:focus { border-color: var(--primary); }
+.serving-input::-webkit-inner-spin-button { opacity: 0.5; }
+
+.serving-unit {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.per100-note {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  flex-basis: 100%;
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
   .dropzone {
@@ -357,6 +670,18 @@
 
   .dz-text { align-items: center; }
   .dz-btn  { width: 100%; justify-content: center; }
+
+  .barcode-idle {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    padding: 20px 16px;
+    gap: 12px;
+  }
+
+  .barcode-idle .dz-text { align-items: center; }
+
+  .mode-tab span { display: none; }
 
   .macros-grid {
     grid-template-columns: repeat(2, 1fr);

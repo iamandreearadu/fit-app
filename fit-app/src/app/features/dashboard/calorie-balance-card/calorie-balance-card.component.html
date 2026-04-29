@@ -1,0 +1,79 @@
+<div class="card">
+
+  <!-- Header -->
+  <div class="card-header">
+    <div class="header-left">
+      <span class="card-icon">
+        <mat-icon>local_fire_department</mat-icon>
+      </span>
+      <div>
+        <h3 class="card-title">Calorie Balance</h3>
+        <span class="card-subtitle">Last 7 days</span>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item">
+        <span class="legend-dot dot-intake"></span> Intake
+      </span>
+      <span class="legend-item">
+        <span class="legend-dot dot-burned"></span> Burned
+      </span>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  @if (hasData()) {
+    <div class="chart-wrap">
+      <canvas baseChart
+        type="bar"
+        [data]="chartData()"
+        [options]="chartOptions">
+      </canvas>
+    </div>
+
+    <!-- Summary row -->
+    <div class="summary-row">
+      <div class="summary-stat">
+        <span class="stat-value intake-color">{{ avgIntake() | number }}</span>
+        <span class="stat-label">Avg. intake</span>
+        <span class="stat-unit">kcal/day</span>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-stat">
+        <span class="stat-value burned-color">{{ avgBurned() | number }}</span>
+        <span class="stat-label">Avg. burned</span>
+        <span class="stat-unit">kcal/day</span>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-stat">
+        <span
+          class="stat-value"
+          [class.surplus-color]="weeklyNet() > 0"
+          [class.deficit-color]="weeklyNet() < 0"
+          [class.neutral-color]="weeklyNet() === 0"
+        >
+          {{ weeklyNet() > 0 ? '+' : '' }}{{ weeklyNet() | number }}
+        </span>
+        <span class="stat-label">Weekly net</span>
+        <span
+          class="stat-badge"
+          [class.badge-surplus]="weeklyNet() > 0"
+          [class.badge-deficit]="weeklyNet() < 0"
+          [class.badge-balanced]="weeklyNet() === 0"
+        >
+          {{ weeklyNet() > 0 ? 'Surplus' : weeklyNet() < 0 ? 'Deficit' : 'Balanced' }}
+        </span>
+      </div>
+    </div>
+
+  } @else {
+    <!-- Empty state -->
+    <div class="empty-state">
+      <mat-icon class="empty-icon">bar_chart</mat-icon>
+      <p class="empty-title">No data yet</p>
+      <p class="empty-sub">Log your meals and workouts to see your 7-day calorie balance here.</p>
+    </div>
+  }
+
+</div>

@@ -1,164 +1,300 @@
 <div class="analyzer-root">
-  <!-- ── DROPZONE ── -->
-  <div
-    class="dropzone"
-    [class.dragover]="isDragOver"
-    (dragover)="onDragOver($event)"
-    (dragleave)="onDragLeave($event)"
-    (drop)="onDrop($event)"
-  >
-    <ng-container *ngIf="!preview">
-      <mat-icon class="dz-icon">add_photo_alternate</mat-icon>
-      <div class="dz-text">
-        <span class="dz-primary">Drag & drop your meal photo</span>
-        <span class="dz-sub">or click the button to choose a file</span>
-      </div>
-      <button
-        mat-stroked-button
-        class="dz-btn"
-        type="button"
-        (click)="openFileDialog()"
-        [disabled]="disabled || loading"
-      >
-        Choose file
-      </button>
-    </ng-container>
 
-    <ng-container *ngIf="preview">
-      <div class="preview-wrap">
-        <img [src]="preview" alt="Meal preview" class="preview-img" />
-        <button
-          mat-mini-fab
-          class="remove-btn"
-          type="button"
-          (click)="clear()"
-          [disabled]="loading"
-          aria-label="Remove image"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
-        <div *ngIf="loading" class="analyzing-overlay">
-          <mat-progress-spinner
-            mode="indeterminate"
-            diameter="36"
-          ></mat-progress-spinner>
-          <span>Analyzing…</span>
-        </div>
-      </div>
-    </ng-container>
-
-    <input
-      #fileInput
-      type="file"
-      accept="image/*"
-      class="hidden-input"
-      (change)="onFileChange($event)"
-    />
+  <!-- ── MODE TABS ── -->
+  <div class="mode-tabs">
+    <button class="mode-tab" [class.mode-tab--active]="mode === 'photo'" (click)="setMode('photo')">
+      <mat-icon>add_photo_alternate</mat-icon>
+      <span>Photo</span>
+    </button>
+    <button class="mode-tab" [class.mode-tab--active]="mode === 'barcode'" (click)="setMode('barcode')">
+      <mat-icon>qr_code_scanner</mat-icon>
+      <span>Barcode</span>
+    </button>
   </div>
 
-  <!-- ── MACROS RESULT ── -->
-  <div *ngIf="result" class="result-block">
-    <div class="result-header">
-      <mat-icon class="result-icon">auto_awesome</mat-icon>
-      <span>AI Analysis Result</span>
-    </div>
+  <!-- ── PHOTO MODE ── -->
+  @if (mode === 'photo') {
+    <div
+      class="dropzone"
+      [class.dragover]="isDragOver"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+    >
+      @if (!preview) {
+        <mat-icon class="dz-icon">add_photo_alternate</mat-icon>
+        <div class="dz-text">
+          <span class="dz-primary">Drag &amp; drop your meal photo</span>
+          <span class="dz-sub">or click the button to choose a file</span>
+        </div>
+        <button
+          mat-stroked-button
+          class="dz-btn"
+          type="button"
+          (click)="openFileDialog()"
+          [disabled]="disabled || loading"
+        >
+          Choose file
+        </button>
+      } @else {
+        <div class="preview-wrap">
+          <img [src]="preview" alt="Meal preview" class="preview-img" />
+          <button
+            mat-mini-fab
+            class="remove-btn"
+            type="button"
+            (click)="clear()"
+            [disabled]="loading"
+            aria-label="Remove image"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+          @if (loading) {
+            <div class="analyzing-overlay">
+              <mat-progress-spinner mode="indeterminate" diameter="36"></mat-progress-spinner>
+              <span>Analyzing…</span>
+            </div>
+          }
+        </div>
+      }
 
-    <div class="macros-grid">
-      <div class="macro-tile">
-        <span class="macro-dot dot-protein"></span>
-        <div class="macro-body">
-          <span class="macro-value"
-            >{{ result.protein_g | number: "1.0-0"
-            }}<span class="macro-unit"> g</span></span
-          >
-          <span class="macro-label">Protein</span>
-        </div>
-      </div>
-      <div class="macro-tile">
-        <span class="macro-dot dot-carbs"></span>
-        <div class="macro-body">
-          <span class="macro-value"
-            >{{ result.carbs_g | number: "1.0-0"
-            }}<span class="macro-unit"> g</span></span
-          >
-          <span class="macro-label">Carbs</span>
-        </div>
-      </div>
-      <div class="macro-tile">
-        <span class="macro-dot dot-fats"></span>
-        <div class="macro-body">
-          <span class="macro-value"
-            >{{ result.fats_g | number: "1.0-0"
-            }}<span class="macro-unit"> g</span></span
-          >
-          <span class="macro-label">Fats</span>
-        </div>
-      </div>
-      <div class="macro-tile" *ngIf="result.calories_kcal != null">
-        <span class="macro-dot dot-cal"></span>
-        <div class="macro-body">
-          <span class="macro-value"
-            >{{ result.calories_kcal | number: "1.0-0"
-            }}<span class="macro-unit"> kcal</span></span
-          >
-          <span class="macro-label">Calories</span>
-        </div>
-      </div>
+      <input
+        #fileInput
+        type="file"
+        accept="image/*"
+        class="hidden-input"
+        (change)="onFileChange($event)"
+      />
     </div>
+  }
 
-    @if (result.items?.length) {
-      <div class="items-row">
-        @for (it of result.items!; track it.name) {
-          <span class="item-chip" matTooltip="AI confidence score">
-            {{ it.name }}
-            @if (it.confidence != null) {
-              <small>({{ it.confidence * 100 | number: "1.0-0" }}%)</small>
-            }
-          </span>
+  <!-- ── BARCODE MODE ── -->
+  @if (mode === 'barcode') {
+
+    @if (!product) {
+      <div class="barcode-area">
+
+        @if (!scanning) {
+          <!-- Idle state -->
+          <div class="barcode-idle">
+            <mat-icon class="dz-icon">qr_code_scanner</mat-icon>
+            <div class="dz-text">
+              <span class="dz-primary">Scan a product barcode</span>
+              <span class="dz-sub">Point your camera at any food product barcode</span>
+            </div>
+            <button
+              mat-stroked-button
+              class="dz-btn"
+              type="button"
+              (click)="startScanning()"
+              [disabled]="disabled || barcodeLoading"
+            >
+              <mat-icon>videocam</mat-icon> Start Camera
+            </button>
+          </div>
+
+          <!-- Manual entry -->
+          <div class="manual-entry">
+            <span class="manual-label">or enter barcode manually</span>
+            <div class="manual-row">
+              <input
+                class="barcode-input"
+                [(ngModel)]="manualBarcode"
+                placeholder="e.g. 5900259127082"
+                (keyup.enter)="lookupBarcode(manualBarcode)"
+                [disabled]="barcodeLoading"
+              />
+              <button
+                mat-flat-button
+                class="btn-lookup"
+                type="button"
+                (click)="lookupBarcode(manualBarcode)"
+                [disabled]="!manualBarcode.trim() || barcodeLoading"
+              >
+                @if (barcodeLoading) {
+                  <mat-progress-spinner diameter="18" mode="indeterminate"></mat-progress-spinner>
+                } @else {
+                  <mat-icon>search</mat-icon>
+                }
+              </button>
+            </div>
+          </div>
+
+        } @else {
+          <!-- Camera scanning -->
+          <div class="scanner-wrap">
+            <video #scannerVideo class="scanner-video" autoplay playsinline muted></video>
+            <div class="scanner-overlay">
+              <div class="scanner-frame">
+                <div class="scanner-line"></div>
+              </div>
+              <span class="scanner-hint">Align barcode within the frame</span>
+            </div>
+            <button
+              mat-stroked-button
+              class="stop-scan-btn"
+              type="button"
+              (click)="stopScanning()"
+            >
+              <mat-icon>stop_circle</mat-icon> Stop
+            </button>
+          </div>
         }
+
       </div>
     }
 
-    <div class="meal-type-row">
-      <span class="meal-type-label">Meal type</span>
-      <div class="meal-type-chips">
-        @for (t of mealTypes; track t) {
-          <button
-            type="button"
-            class="type-chip"
-            [class.type-chip--active]="selectedMealType === t"
-            (click)="selectedMealType = t"
-          >{{ t }}</button>
+    <!-- Product card (after scan) -->
+    @if (product) {
+      <div class="product-card">
+        <div class="product-header">
+          @if (product.imageUrl) {
+            <img [src]="product.imageUrl" class="product-img" alt="Product" />
+          }
+          <div class="product-info">
+            <span class="product-name">{{ product.name }}</span>
+            @if (product.brand) {
+              <span class="product-brand">{{ product.brand }}</span>
+            }
+            <div class="product-badges">
+              @if (product.nutriScore) {
+                <span class="nutriscore-badge" [style.background]="nutriScoreBg(product.nutriScore)">
+                  Nutri-Score {{ product.nutriScore }}
+                </span>
+              }
+              <span class="quality-badge" [style.background]="qualityColor(product.qualityScore)">
+                {{ product.qualityScore }}/10 · {{ product.qualityLabel }}
+              </span>
+              @if (product.novaGroup) {
+                <span class="nova-badge nova-{{ product.novaGroup }}">NOVA {{ product.novaGroup }}</span>
+              }
+            </div>
+          </div>
+          <button mat-icon-button class="close-product-btn" type="button" (click)="clearBarcode()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="serving-row">
+          <span class="serving-label">Serving size</span>
+          <input
+            type="number"
+            class="serving-input"
+            [(ngModel)]="servingG"
+            (ngModelChange)="onServingChange()"
+            min="1"
+            max="9999"
+          />
+          <span class="serving-unit">g</span>
+          <span class="per100-note">
+            per 100 g: P {{ product.macrosPer100g.protein_g }}g &middot;
+            C {{ product.macrosPer100g.carbs_g }}g &middot;
+            F {{ product.macrosPer100g.fats_g }}g &middot;
+            {{ product.macrosPer100g.calories_kcal }} kcal
+          </span>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- ── MACROS RESULT (shared between modes) ── -->
+  @if (result) {
+    <div class="result-block">
+      <div class="result-header">
+        <mat-icon class="result-icon">auto_awesome</mat-icon>
+        <span>{{ mode === 'barcode' ? 'Product Nutrition' : 'AI Analysis Result' }}</span>
+      </div>
+
+      <div class="macros-grid">
+        <div class="macro-tile">
+          <span class="macro-dot dot-protein"></span>
+          <div class="macro-body">
+            <span class="macro-value">{{ result.protein_g | number: "1.0-0" }}<span class="macro-unit"> g</span></span>
+            <span class="macro-label">Protein</span>
+          </div>
+        </div>
+        <div class="macro-tile">
+          <span class="macro-dot dot-carbs"></span>
+          <div class="macro-body">
+            <span class="macro-value">{{ result.carbs_g | number: "1.0-0" }}<span class="macro-unit"> g</span></span>
+            <span class="macro-label">Carbs</span>
+          </div>
+        </div>
+        <div class="macro-tile">
+          <span class="macro-dot dot-fats"></span>
+          <div class="macro-body">
+            <span class="macro-value">{{ result.fats_g | number: "1.0-0" }}<span class="macro-unit"> g</span></span>
+            <span class="macro-label">Fats</span>
+          </div>
+        </div>
+        @if (result.calories_kcal != null) {
+          <div class="macro-tile">
+            <span class="macro-dot dot-cal"></span>
+            <div class="macro-body">
+              <span class="macro-value">{{ result.calories_kcal | number: "1.0-0" }}<span class="macro-unit"> kcal</span></span>
+              <span class="macro-label">Calories</span>
+            </div>
+          </div>
         }
       </div>
-    </div>
 
-    <div class="result-actions">
-      <button
-        mat-flat-button
-        class="btn-save-meal"
-        type="button"
-        (click)="saveToNutrition()"
-        [disabled]="disabled || loading || saving"
-      >
-        <mat-icon>bookmark_add</mat-icon>
-        Save as meal
-      </button>
-      <button
-        mat-flat-button
-        class="btn-add"
-        type="button"
-        (click)="addToUser()"
-        [disabled]="disabled || loading"
-      >
-        <mat-icon>add_circle</mat-icon>
-        Add to Today
-      </button>
-    </div>
-  </div>
+      @if (result.items?.length) {
+        <div class="items-row">
+          @for (it of result.items!; track it.name) {
+            <span class="item-chip">
+              {{ it.name }}
+              @if (it.confidence != null) {
+                <small>({{ it.confidence * 100 | number: "1.0-0" }}%)</small>
+              }
+            </span>
+          }
+        </div>
+      }
 
-  <div *ngIf="errorMsg" class="error-msg">
-    <mat-icon>error_outline</mat-icon>
-    {{ errorMsg }}
-  </div>
+      <div class="meal-type-row">
+        <span class="meal-type-label">Meal type</span>
+        <div class="meal-type-chips">
+          @for (t of mealTypes; track t) {
+            <button
+              type="button"
+              class="type-chip"
+              [class.type-chip--active]="selectedMealType === t"
+              (click)="selectedMealType = t"
+            >{{ t }}</button>
+          }
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button
+          mat-flat-button
+          class="btn-save-meal"
+          type="button"
+          (click)="saveToNutrition()"
+          [disabled]="disabled || loading || saving"
+        >
+          <mat-icon>bookmark_add</mat-icon>
+          Save as meal
+        </button>
+        <button
+          mat-flat-button
+          class="btn-add"
+          type="button"
+          (click)="addToUser()"
+          [disabled]="disabled || loading"
+        >
+          <mat-icon>add_circle</mat-icon>
+          Add to Today
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (errorMsg) {
+    <div class="error-msg">
+      <mat-icon>error_outline</mat-icon>
+      {{ errorMsg }}
+    </div>
+  }
+
 </div>

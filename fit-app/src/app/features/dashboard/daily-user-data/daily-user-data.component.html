@@ -55,6 +55,22 @@
           </div>
         </button>
 
+        <div class="ctrl-sep"></div>
+
+        <button
+          class="ctrl-section ctrl-balance"
+          type="button"
+          (click)="openCalorieBalance()"
+        >
+          <div class="ctrl-balance-icon">
+            <mat-icon>show_chart</mat-icon>
+          </div>
+          <div class="ctrl-body">
+            <span class="ctrl-lbl">Calories</span>
+            <span class="ctrl-val">Weekly balance</span>
+          </div>
+        </button>
+
         <div class="ctrl-end">
           <span
             class="save-badge"
@@ -463,6 +479,29 @@
           </button>
         </div>
       </ng-container>
+    </div>
+  </div>
+
+  <!-- Calorie Balance Modal -->
+  <div *ngIf="showCalorieBalance" class="modal-bg" (click)="closeCalorieBalance()">
+    <div class="modal-box cb-box" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-icon-wrap cb-icon-wrap">
+          <mat-icon>show_chart</mat-icon>
+        </div>
+        <div>
+          <span class="modal-title">Calorie Balance</span>
+        </div>
+        <button
+          mat-icon-button
+          class="modal-close"
+          type="button"
+          (click)="closeCalorieBalance()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <app-calorie-balance-card></app-calorie-balance-card>
     </div>
   </div>
 
