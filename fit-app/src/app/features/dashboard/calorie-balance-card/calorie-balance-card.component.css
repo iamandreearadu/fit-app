@@ -40,7 +40,7 @@
   font-size: 20px;
   width: 20px;
   height: 20px;
-  color: #ff4081;
+  color: var(--accent);
 }
 
 .card-title {
@@ -78,8 +78,8 @@
   flex-shrink: 0;
 }
 
-.dot-intake { background: rgba(255, 64, 129, 0.85); }
-.dot-burned { background: rgba(124, 77, 255, 0.85); }
+.dot-intake { background: rgba(255, 64, 129, 0.85); } /* --accent */
+.dot-burned { background: rgba(124, 77, 255, 0.85); } /* --primary */
 
 /* ── CHART ── */
 .chart-wrap {
@@ -143,8 +143,8 @@
 }
 
 /* ── Colors ── */
-.intake-color  { color: #ff4081; }
-.burned-color  { color: #7c4dff; }
+.intake-color  { color: var(--accent); }
+.burned-color  { color: var(--primary); }
 .surplus-color { color: #ff9800; }
 .deficit-color { color: #4caf50; }
 .neutral-color { color: rgba(255,255,255,0.6); }

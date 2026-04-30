@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { GroqAiApiService } from '../../api/groq-ai-api.service';
 import { GroqAiService as GroqInMemoryService } from '../../api/groq-ai.service';
+import { OpenFoodFactsService } from '../../api/open-food-facts.service';
 import { GrogAiService as GrogCoreService } from '../services/grog-ai.service';
 import { ChatMessage } from '../models/groq-ai.model';
+import { BarcodeProduct } from '../models/barcode-product.model';
 import { MealMacros } from '../models/meal-macros';
 import { UserProfile } from '../models/user.model';
 import { WorkoutTemplate } from '../models/workouts-tab.model';
@@ -12,6 +14,7 @@ export class GroqAiFacade {
   private state = inject(GrogCoreService);
   private groqInMemoryService = inject(GroqInMemoryService);
   private groqService = inject(GroqAiApiService);
+  private offService = inject(OpenFoodFactsService);
 
   messages = this.state.messages;
   conversations = this.state.conversations;
@@ -156,6 +159,14 @@ export class GroqAiFacade {
     workout: WorkoutTemplate,
   ): Promise<{ calories: number; explanation: string }> {
     return this.groqService.calculateWorkoutCalories(user, workout);
+  }
+
+  // ========================================================
+  //  FUNCTION: BARCODE PRODUCT LOOKUP
+  // ========================================================
+
+  async lookupBarcode(barcode: string): Promise<BarcodeProduct> {
+    return this.offService.getByBarcode(barcode);
   }
 
   async deleteConversation(id: string): Promise<void> {

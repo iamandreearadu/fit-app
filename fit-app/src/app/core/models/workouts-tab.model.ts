@@ -34,6 +34,6 @@ export interface WorkoutTemplate {
   cardio?: CardioDetails;
   notes?: string;
 
-  createdAt?: any;
-  updatedAt?: any;
+  createdAt?: string;
+  updatedAt?: string;
 }

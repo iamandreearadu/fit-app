@@ -423,6 +423,7 @@ public class SocialService(
 
     public async Task<PaginatedResponse<PostResponse>> GetProfilePostsAsync(string userId, string requestingUserId, int page, int pageSize)
     {
+        pageSize = Math.Min(pageSize, 50);
         var followingIds = await db.Follows
             .Where(f => f.FollowerId == requestingUserId)
             .Select(f => f.FollowingId)
@@ -561,6 +562,7 @@ public class SocialService(
 
     public async Task<PaginatedResponse<PostResponse>> GetArchivedPostsAsync(string userId, string requestingUserId, int page, int pageSize)
     {
+        pageSize = Math.Min(pageSize, 50);
         if (userId != requestingUserId)
             throw new UnauthorizedAccessException("Cannot view another user's archived posts.");
         var query = db.Posts
@@ -591,6 +593,7 @@ public class SocialService(
 
     public async Task<PaginatedResponse<ProfileWorkoutSummary>> GetProfileWorkoutsAsync(string userId, string requestingUserId, int page, int pageSize)
     {
+        pageSize = Math.Min(pageSize, 50);
         var query = db.WorkoutTemplates
             .Where(w => w.UserId == userId && !w.IsArchived)
             .OrderByDescending(w => w.CreatedAt);
@@ -639,6 +642,7 @@ public class SocialService(
 
     public async Task<PaginatedResponse<ProfileBlogSummary>> GetProfileBlogsAsync(string userId, string requestingUserId, int page, int pageSize)
     {
+        pageSize = Math.Min(pageSize, 50);
         var query = db.BlogPosts
             .Where(b => b.AuthorId == userId && !b.IsArchived)
             .OrderByDescending(b => b.CreatedAt);

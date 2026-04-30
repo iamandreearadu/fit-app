@@ -9,13 +9,12 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../../core/material/material.module';
 import { GroqAiFacade } from '../../../../core/facade/groq-ai.facade';
 import { MealMacros } from '../../../../core/models/meal-macros';
 import { MealType } from '../../../../core/models/nutrition-tab.model';
-import { OpenFoodFactsService } from '../../../../api/open-food-facts.service';
 import { BarcodeProduct } from '../../../../core/models/barcode-product.model';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 
@@ -24,13 +23,12 @@ type AnalyzerMode = 'photo' | 'barcode';
 @Component({
   selector: 'app-ai-meal-analyzer',
   standalone: true,
-  imports: [CommonModule, MaterialModule, FormsModule],
+  imports: [DecimalPipe, MaterialModule, FormsModule],
   templateUrl: './ai-meal-analyzer.component.html',
   styleUrl: './ai-meal-analyzer.component.css',
 })
 export class AiMealAnalyzerComponent implements OnDestroy {
   private groqFacade = inject(GroqAiFacade);
-  private offService = inject(OpenFoodFactsService);
   private ngZone = inject(NgZone);
 
   @Input() disabled = false;
@@ -202,7 +200,7 @@ export class AiMealAnalyzerComponent implements OnDestroy {
     this.barcodeLoading = true;
     this.errorMsg = null;
     try {
-      this.product = await this.offService.getByBarcode(barcode.trim());
+      this.product = await this.groqFacade.lookupBarcode(barcode.trim());
       this.servingG = this.product.servingSizeG;
       this.result = this.buildMacrosFromProduct(this.product, this.servingG);
       this.analyzed.emit(this.result);

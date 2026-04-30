@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { NgChartsModule } from 'ng2-charts';
 import { ChartData, ChartOptions } from 'chart.js';
@@ -15,7 +15,7 @@ interface DayPoint {
 @Component({
   selector: 'app-calorie-balance-card',
   standalone: true,
-  imports: [CommonModule, MatIconModule, NgChartsModule],
+  imports: [DecimalPipe, MatIconModule, NgChartsModule],
   templateUrl: './calorie-balance-card.component.html',
   styleUrl: './calorie-balance-card.component.css',
 })

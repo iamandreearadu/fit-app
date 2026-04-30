@@ -19,7 +19,7 @@ public class DailyDataController(DailyDataService dailyService) : ControllerBase
     public async Task<IActionResult> GetForDate([FromQuery] string date)
     {
         if (string.IsNullOrEmpty(date))
-            return BadRequest(new { message = "date query parameter is required." });
+            return Problem(statusCode: 400, detail: "date query parameter is required.");
 
         var entry = await dailyService.GetForDateAsync(UserId, date);
         if (entry is null) return NotFound();

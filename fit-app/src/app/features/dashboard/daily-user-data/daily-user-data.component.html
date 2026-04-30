@@ -1,10 +1,11 @@
 <div class="daily-root">
   <!-- Picker backdrop (closes picker when clicking outside) -->
-  <div
-    *ngIf="showActivityPicker"
-    class="picker-bd"
-    (click)="showActivityPicker = false"
-  ></div>
+  @if (showActivityPicker) {
+    <div
+      class="picker-bd"
+      (click)="showActivityPicker = false"
+    ></div>
+  }
 
   <form [formGroup]="form" novalidate>
     <!-- ── CONTROL BAR ── -->
@@ -79,11 +80,15 @@
             [class.sb-saved]="autoSaveStatus === 'saved'"
             [class.sb-error]="autoSaveStatus === 'error'"
           >
-            <mat-icon *ngIf="autoSaveStatus === 'saving'">sync</mat-icon>
-            <mat-icon *ngIf="autoSaveStatus === 'saved'">check_circle</mat-icon>
-            <mat-icon *ngIf="autoSaveStatus === 'error'"
-              >error_outline</mat-icon
-            >
+            @if (autoSaveStatus === 'saving') {
+              <mat-icon>sync</mat-icon>
+            }
+            @if (autoSaveStatus === 'saved') {
+              <mat-icon>check_circle</mat-icon>
+            }
+            @if (autoSaveStatus === 'error') {
+              <mat-icon>error_outline</mat-icon>
+            }
           </span>
           <button
             mat-icon-button
@@ -98,39 +103,42 @@
       </div>
 
       <!-- ── ACTIVITY PICKER PANEL ── -->
-      <div
-        *ngIf="showActivityPicker"
-        class="act-panel"
-        (click)="$event.stopPropagation()"
-      >
-        <div class="act-group-lbl">Standard</div>
-        <button
-          *ngFor="let opt of activityOptions"
-          class="act-opt"
-          type="button"
-          [class.act-active]="form.get('activityType')?.value === opt.value"
-          (click)="selectActivity(opt.value)"
+      @if (showActivityPicker) {
+        <div
+          class="act-panel"
+          (click)="$event.stopPropagation()"
         >
-          <mat-icon class="act-ico">{{ opt.icon }}</mat-icon>
-          <span>{{ opt.label }}</span>
-        </button>
-        <ng-container *ngIf="workoutsFacade.templates.length > 0">
-          <div class="act-divider"></div>
-          <div class="act-group-lbl">My Workouts</div>
-          <button
-            *ngFor="let w of workoutsFacade.templates"
-            class="act-opt"
-            type="button"
-            [class.act-active]="
-              form.get('activityType')?.value === 'workout:' + w.uid
-            "
-            (click)="selectActivity('workout:' + w.uid)"
-          >
-            <mat-icon class="act-ico">sports</mat-icon>
-            <span>{{ w.title }}</span>
-          </button>
-        </ng-container>
-      </div>
+          <div class="act-group-lbl">Standard</div>
+          @for (opt of activityOptions; track opt.value) {
+            <button
+              class="act-opt"
+              type="button"
+              [class.act-active]="form.get('activityType')?.value === opt.value"
+              (click)="selectActivity(opt.value)"
+            >
+              <mat-icon class="act-ico">{{ opt.icon }}</mat-icon>
+              <span>{{ opt.label }}</span>
+            </button>
+          }
+          @if (workoutsFacade.templates.length > 0) {
+            <div class="act-divider"></div>
+            <div class="act-group-lbl">My Workouts</div>
+            @for (w of workoutsFacade.templates; track w.uid) {
+              <button
+                class="act-opt"
+                type="button"
+                [class.act-active]="
+                  form.get('activityType')?.value === 'workout:' + w.uid
+                "
+                (click)="selectActivity('workout:' + w.uid)"
+              >
+                <mat-icon class="act-ico">sports</mat-icon>
+                <span>{{ w.title }}</span>
+              </button>
+            }
+          }
+        </div>
+      }
     </div>
 
     <!-- ── CONTENT GRID ── -->
@@ -145,15 +153,16 @@
             <span class="card-title">Nutrition</span>
           </div>
           <div class="card-head-right">
-            <button
-              *ngIf="lastAppliedMeal"
-              type="button"
-              class="btn-undo"
-              (click)="undoLastMeal()"
-              title="Undo last meal"
-            >
-              <mat-icon>undo</mat-icon>
-            </button>
+            @if (lastAppliedMeal) {
+              <button
+                type="button"
+                class="btn-undo"
+                (click)="undoLastMeal()"
+                title="Undo last meal"
+              >
+                <mat-icon>undo</mat-icon>
+              </button>
+            }
             <span class="card-badge b-purple"
               >{{ facade.dailyDataStats().totalCalories }} kcal</span
             >
@@ -382,153 +391,169 @@
   </form>
 
   <!-- Loading overlay -->
-  <div *ngIf="facade.dailyDataLoading()" class="load-overlay">
-    <mat-progress-spinner
-      mode="indeterminate"
-      diameter="40"
-    ></mat-progress-spinner>
-  </div>
+  @if (facade.dailyDataLoading()) {
+    <div class="load-overlay">
+      <mat-progress-spinner
+        mode="indeterminate"
+        diameter="40"
+      ></mat-progress-spinner>
+    </div>
+  }
 
   <!-- Meal Picker Modal -->
-  <div *ngIf="showMealPicker" class="modal-bg" (click)="closeMealPicker()">
-    <div class="modal-box mp-box" (click)="$event.stopPropagation()">
-      <div class="modal-head">
-        <div class="modal-icon-wrap mp-icon-wrap">
-          <mat-icon>restaurant_menu</mat-icon>
-        </div>
-        <div class="mp-head-text">
-          <span class="modal-title">Pick a Meal</span>
-          <span class="mp-subtitle"
-            >Macros will be added to today's values</span
-          >
-        </div>
-        <button
-          mat-icon-button
-          class="modal-close"
-          type="button"
-          (click)="closeMealPicker()"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-
-      <div class="mp-search-wrap">
-        <mat-icon class="mp-search-ico">search</mat-icon>
-        <input
-          class="mp-search"
-          type="text"
-          placeholder="Search by name or type…"
-          [value]="mealPickerSearch"
-          (input)="mealPickerSearch = $any($event.target).value"
-        />
-        <button
-          *ngIf="mealPickerSearch"
-          class="mp-clear"
-          type="button"
-          (click)="mealPickerSearch = ''"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-
-      <div *ngIf="mealPickerLoading" class="mp-loading">
-        <mat-progress-spinner
-          mode="indeterminate"
-          diameter="32"
-        ></mat-progress-spinner>
-      </div>
-
-      <ng-container *ngIf="!mealPickerLoading">
-        <div *ngIf="filteredPickerMeals.length === 0" class="mp-empty">
-          <mat-icon>no_meals</mat-icon>
-          <span>No meals found</span>
-          <small *ngIf="nutritionFacade.meals.length === 0"
-            >Add meals in the Nutrition tab first</small
-          >
-        </div>
-
-        <div *ngIf="filteredPickerMeals.length > 0" class="mp-list">
+  @if (showMealPicker) {
+    <div class="modal-bg" (click)="closeMealPicker()">
+      <div class="modal-box mp-box" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div class="modal-icon-wrap mp-icon-wrap">
+            <mat-icon>restaurant_menu</mat-icon>
+          </div>
+          <div class="mp-head-text">
+            <span class="modal-title">Pick a Meal</span>
+            <span class="mp-subtitle"
+              >Macros will be added to today's values</span
+            >
+          </div>
           <button
-            *ngFor="let m of filteredPickerMeals"
+            mat-icon-button
+            class="modal-close"
             type="button"
-            class="mp-item"
-            (click)="selectMeal(m)"
+            (click)="closeMealPicker()"
           >
-            <div class="mp-item-body">
-              <div class="mp-item-top">
-                <span class="mp-name">{{ m.name }}</span>
-                <span class="mp-kcal">
-                  <mat-icon>local_fire_department</mat-icon
-                  >{{ m.totalCalories }} kcal
-                </span>
-              </div>
-              <div class="mp-chips">
-                <span class="mp-chip mp-p"
-                  >P {{ m.totalProtein_g | number: "1.0-1" }}g</span
-                >
-                <span class="mp-chip mp-c"
-                  >C {{ m.totalCarbs_g | number: "1.0-1" }}g</span
-                >
-                <span class="mp-chip mp-f"
-                  >F {{ m.totalFats_g | number: "1.0-1" }}g</span
-                >
-                <span class="mp-type-pill">{{ m.type }}</span>
-              </div>
-            </div>
-            <mat-icon class="mp-add-ico">add_circle</mat-icon>
+            <mat-icon>close</mat-icon>
           </button>
         </div>
-      </ng-container>
+
+        <div class="mp-search-wrap">
+          <mat-icon class="mp-search-ico">search</mat-icon>
+          <input
+            class="mp-search"
+            type="text"
+            placeholder="Search by name or type…"
+            [value]="mealPickerSearch"
+            (input)="mealPickerSearch = $any($event.target).value"
+          />
+          @if (mealPickerSearch) {
+            <button
+              class="mp-clear"
+              type="button"
+              (click)="mealPickerSearch = ''"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </div>
+
+        @if (mealPickerLoading) {
+          <div class="mp-loading">
+            <mat-progress-spinner
+              mode="indeterminate"
+              diameter="32"
+            ></mat-progress-spinner>
+          </div>
+        } @else {
+          @if (filteredPickerMeals.length === 0) {
+            <div class="mp-empty">
+              <mat-icon>no_meals</mat-icon>
+              <span>No meals found</span>
+              @if (nutritionFacade.meals.length === 0) {
+                <small>Add meals in the Nutrition tab first</small>
+              }
+            </div>
+          }
+
+          @if (filteredPickerMeals.length > 0) {
+            <div class="mp-list">
+              @for (m of filteredPickerMeals; track m.id) {
+                <button
+                  type="button"
+                  class="mp-item"
+                  (click)="selectMeal(m)"
+                >
+                  <div class="mp-item-body">
+                    <div class="mp-item-top">
+                      <span class="mp-name">{{ m.name }}</span>
+                      <span class="mp-kcal">
+                        <mat-icon>local_fire_department</mat-icon
+                        >{{ m.totalCalories }} kcal
+                      </span>
+                    </div>
+                    <div class="mp-chips">
+                      <span class="mp-chip mp-p"
+                        >P {{ m.totalProtein_g | number: "1.0-1" }}g</span
+                      >
+                      <span class="mp-chip mp-c"
+                        >C {{ m.totalCarbs_g | number: "1.0-1" }}g</span
+                      >
+                      <span class="mp-chip mp-f"
+                        >F {{ m.totalFats_g | number: "1.0-1" }}g</span
+                      >
+                      <span class="mp-type-pill">{{ m.type }}</span>
+                    </div>
+                  </div>
+                  <mat-icon class="mp-add-ico">add_circle</mat-icon>
+                </button>
+              }
+            </div>
+          }
+        }
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Calorie Balance Modal -->
-  <div *ngIf="showCalorieBalance" class="modal-bg" (click)="closeCalorieBalance()">
-    <div class="modal-box cb-box" (click)="$event.stopPropagation()">
-      <div class="modal-head">
-        <div class="modal-icon-wrap cb-icon-wrap">
-          <mat-icon>show_chart</mat-icon>
+  @if (showCalorieBalance) {
+    <div class="modal-bg" (click)="closeCalorieBalance()">
+      <div class="modal-box cb-box" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div class="modal-icon-wrap cb-icon-wrap">
+            <mat-icon>show_chart</mat-icon>
+          </div>
+          <div>
+            <span class="modal-title">Calorie Balance</span>
+          </div>
+          <button
+            mat-icon-button
+            class="modal-close"
+            type="button"
+            (click)="closeCalorieBalance()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
-        <div>
-          <span class="modal-title">Calorie Balance</span>
-        </div>
-        <button
-          mat-icon-button
-          class="modal-close"
-          type="button"
-          (click)="closeCalorieBalance()"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
+        <app-calorie-balance-card></app-calorie-balance-card>
       </div>
-      <app-calorie-balance-card></app-calorie-balance-card>
     </div>
-  </div>
+  }
 
   <!-- Analyze Modal -->
-  <div *ngIf="showAnalyzeOverlay" class="modal-bg" (click)="closeMealAnalyze()">
-    <div class="modal-box" (click)="$event.stopPropagation()">
-      <div class="modal-head">
-        <div class="modal-icon-wrap">
-          <mat-icon>auto_awesome</mat-icon>
+  @if (showAnalyzeOverlay) {
+    <div class="modal-bg" (click)="closeMealAnalyze()">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div class="modal-icon-wrap">
+            <mat-icon>auto_awesome</mat-icon>
+          </div>
+          <span class="modal-title">Analyze Meal with AI</span>
+          <button
+            mat-icon-button
+            class="modal-close"
+            type="button"
+            (click)="closeMealAnalyze()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
-        <span class="modal-title">Analyze Meal with AI</span>
-        <button
-          mat-icon-button
-          class="modal-close"
-          type="button"
-          (click)="closeMealAnalyze()"
+        <app-ai-meal-analyzer
+          (added)="onAnalyzerAdded($event)"
+          (saveMeal)="onAnalyzerSaveMeal($event)"
+          (error)="onAnalyzerError($event)"
         >
-          <mat-icon>close</mat-icon>
-        </button>
+        </app-ai-meal-analyzer>
+        @if (analyzeError) {
+          <div class="modal-err">{{ analyzeError }}</div>
+        }
       </div>
-      <app-ai-meal-analyzer
-        (added)="onAnalyzerAdded($event)"
-        (saveMeal)="onAnalyzerSaveMeal($event)"
-        (error)="onAnalyzerError($event)"
-      >
-      </app-ai-meal-analyzer>
-      <div *ngIf="analyzeError" class="modal-err">{{ analyzeError }}</div>
     </div>
-  </div>
+  }
 </div>
