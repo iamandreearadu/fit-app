@@ -8,37 +8,37 @@ FitApp is a full-stack web application for tracking workouts, nutrition, and dai
 
 **Frontend**
 
-- Angular 19 (standalone components, Signals)
-- Angular Material 19
-- TypeScript 5.7
-- @microsoft/signalr (real-time)
+* Angular
+* Angular Material
+* TypeScript
 
 **Backend**
 
-- .NET 10 / ASP.NET Core
-- Entity Framework Core 10 (SQLite)
-- JWT Authentication
-- SignalR (WebSocket hubs)
+* .NET / ASP.NET Core
+* Entity Framework Core
+* SQLite
+* JWT Authentication
 
 **External Services**
 
-- Groq API — LLM inference (Llama 3.1 + Llama 4 Scout vision)
-- Gmail SMTP — transactional emails via MailKit
+* Groq API (LLM integration)
+* Gmail SMTP (emails)
 
 ---
 
 ## Architecture
 
-- **Frontend:** Components → Facades → Services → HTTP/SignalR → Backend
-- **Backend:** Controllers → Services → EF Core → SQLite + SignalR Hubs
+Clean layered architecture:
+
+* **Frontend:** Components → Facades → Services → API
+* **Backend:** Controllers → Services → EF Core → Database
 
 Key concepts:
 
-- Signal-based state management (Angular 19)
-- Facade pattern for separation of concerns
-- JWT Bearer authentication (HS256)
-- Route guards & HTTP interceptors
-- Real-time push via SignalR (`NotificationHub`, `ChatHub`)
+* Signal-based state management (Angular)
+* Facade pattern for separation of concerns
+* JWT-based authentication
+* Route guards & HTTP interceptors
 
 ---
 
@@ -46,14 +46,14 @@ Key concepts:
 
 ### Authentication
 
-- Register / login with JWT
-- Secure BCrypt password hashing
-- Persistent sessions via localStorage
+* Register / login with JWT
+* Secure password hashing
+* Persistent sessions
 
 ### User Profile & Metrics
 
-- Personal data & fitness goals
-- Auto-calculated: BMI, BMR, TDEE, daily calorie needs, water intake target
+* Personal data & fitness goals
+* Auto-calculated metrics: BMI, BMR, Daily calorie needs, Water intake
 
 ### Daily Tracking
 
@@ -75,28 +75,14 @@ Key concepts:
 
 ### AI Features
 
-- AI fitness assistant (chat with history)
-- Meal image analysis (base64 → Groq vision)
-- Workout calorie estimation
+* AI fitness assistant (chat)
+* Meal image analysis
+* Workout calorie estimation
 
-### Public Blog
+### Blog
 
-- Admin-published articles
-- Public listing & post detail
-
-### beSocial — Social Platform
-
-- **Feed** — posts from followed users (paginated, infinite scroll)
-- **Discover** — explore non-followed users
-- **Posts** — text, image (3:4 portrait), linked workout/meal/daily entry
-- **Articles** — user-written long-form content with cover image; inline expand in feed and profile
-- **Comments** — threaded comments per post
-- **Likes** — optimistic UI toggle
-- **Follow / Unfollow** — with real-time follower count
-- **Profile** — posts grid, workouts, articles, stats tabs; avatar upload
-- **Direct Messages** — real-time chat via SignalR; unread badge in nav
-- **Notifications** — likes, comments, follows; real-time push via SignalR
-- **Responsive** — desktop sidebar nav + mobile bottom nav
+* Public articles
+* Admin content management
 
 ---
 
@@ -123,11 +109,10 @@ FitApp/
 
 ## Security
 
-- JWT Bearer (HS256) — userId always from JWT, never from request body
-- BCrypt password hashing
-- Role-based access (admin)
-- Protected routes (frontend guards)
-- CORS restricted to localhost:4200
+* JWT authentication
+* Role-based access (admin support)
+* Protected routes (frontend guards)
+* Secure password hashing
 
 ---
 
@@ -147,41 +132,16 @@ dotnet run
 ```bash
 cd fit-app
 npm install
-npm start
-# App available at http://localhost:4200
+ng serve
 ```
 
-### Environment
+---
 
-Backend — `appsettings.json`:
+## Environment Setup
 
-```json
-{
-  "ConnectionStrings": { "Default": "Data Source=fitapp.db" },
-  "Jwt": {
-    "Secret": "...",
-    "Issuer": "fitapp-api",
-    "Audience": "fitapp-angular"
-  },
-  "Groq": {
-    "BaseUrl": "...",
-    "ApiKey": "...",
-    "TextModel": "llama-3.1-8b-instant",
-    "VisionModel": "meta-llama/llama-4-scout-17b-16e-instruct"
-  },
-  "Email": {
-    "SmtpHost": "smtp.gmail.com",
-    "SmtpPort": 587,
-    "Username": "...",
-    "Password": "..."
-  }
-}
-```
+Configure:
 
-### Commands
-
-```ts
-
-ng build -c production
-
-```
+* JWT secret
+* Database connection
+* AI API key
+* Email credentials

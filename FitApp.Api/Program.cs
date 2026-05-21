@@ -138,7 +138,7 @@ if (File.Exists(dbPath))
         """);
 
     // Check which new columns exist
-    var hasArticleId = Scalar(raw, "SELECT COUNT(*) FROM pragma_table_info('Posts') WHERE name='ArticleId'") > 0;
+    var hasArticleId  = Scalar(raw, "SELECT COUNT(*) FROM pragma_table_info('Posts') WHERE name='ArticleId'")  > 0;
     var hasOnboarding = Scalar(raw, "SELECT COUNT(*) FROM pragma_table_info('Users') WHERE name='OnboardingCompleted'") > 0;
 
     // Apply missing columns directly — idempotent, no dependency on migration history
