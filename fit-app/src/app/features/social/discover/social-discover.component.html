@@ -11,6 +11,9 @@
         [value]="searchQuery()"
         (input)="onSearchInput($any($event.target).value)"
         autocomplete="off"
+        autocorrect="off"
+        autocapitalize="none"
+        spellcheck="false"
       />
       @if (searchQuery().length > 0) {
         <button class="discover-search-clear" (click)="clearSearchInput()" type="button" aria-label="Clear search">

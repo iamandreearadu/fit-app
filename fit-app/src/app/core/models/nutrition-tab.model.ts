@@ -29,6 +29,6 @@ export interface MealEntry {
   totalCarbs_g: number;
   totalFats_g: number;
   notes?: string;
-  createdAt?: any;
-  updatedAt?: any;
+  createdAt?: string;
+  updatedAt?: string;
 }

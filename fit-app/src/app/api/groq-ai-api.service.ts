@@ -68,9 +68,10 @@ export class GroqAiApiService {
         }),
       );
     } catch (err: unknown) {
-      const e = err as { error?: unknown; message?: string };
-      console.error('[AI IMAGE] Backend error:', e?.error ?? e?.message ?? err);
-      throw err;
+      const e = err as { error?: { detail?: string; title?: string }; message?: string };
+      const detail = e?.error?.detail ?? e?.error?.title ?? e?.message ?? 'AI analysis failed.';
+      console.error('[AI IMAGE] Backend error:', detail, err);
+      throw new Error(detail);
     }
     const json = this.safeExtractJson(res.content);
     return this.validateMealMacros(json);
@@ -158,7 +159,7 @@ export class GroqAiApiService {
     try {
       return JSON.parse(text);
     } catch {
-      console.log('An error occured');
+      // fallback: strip markdown fences then retry below
     }
     const start = text.indexOf('{');
     const end = text.lastIndexOf('}');
@@ -182,8 +183,11 @@ export class GroqAiApiService {
       items: Array.isArray(obj?.['items'])
         ? (obj['items'] as Record<string, unknown>[]).map((it) => ({
             name: String(it?.['name'] ?? ''),
-            confidence:
-              it?.['confidence'] != null ? Number(it['confidence']) : undefined,
+            confidence: it?.['confidence'] != null ? Number(it['confidence']) : undefined,
+            protein_g: it?.['protein_g'] != null ? n(it['protein_g']) : undefined,
+            carbs_g: it?.['carbs_g'] != null ? n(it['carbs_g']) : undefined,
+            fats_g: it?.['fats_g'] != null ? n(it['fats_g']) : undefined,
+            calories_kcal: it?.['calories_kcal'] != null ? n(it['calories_kcal']) : undefined,
           }))
         : [],
     };

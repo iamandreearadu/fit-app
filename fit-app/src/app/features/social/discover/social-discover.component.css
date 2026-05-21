@@ -149,7 +149,8 @@
 
 .user-card-follow-btn {
   padding: 6px 16px;
-  height: 36px;
+  /* removed explicit height: 36px — min-height controls the size */
+  min-height: 48px;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
@@ -158,7 +159,6 @@
   background: var(--primary);
   border: none;
   color: var(--white);
-  min-height: 48px;
   width: 100%;
 }
 
@@ -370,7 +370,8 @@
 
 .search-result-follow-btn {
   padding: 6px 16px;
-  height: 34px;
+  /* removed explicit height: 34px — min-height controls the size */
+  min-height: 48px;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
@@ -380,7 +381,6 @@
   border: none;
   color: var(--white);
   flex-shrink: 0;
-  min-height: 44px;
 }
 
 .search-result-follow-btn:hover {

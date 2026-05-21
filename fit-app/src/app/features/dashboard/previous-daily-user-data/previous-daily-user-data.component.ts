@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { DailyUserData } from '../../../core/models/daily-user-data.model';
-import { CommonModule, NgFor } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { MaterialModule } from '../../../core/material/material.module';
 import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
 
@@ -14,7 +14,7 @@ interface WeekGroup {
 @Component({
   selector: 'app-previous-daily-user-data',
   standalone: true,
-  imports: [CommonModule, NgFor, MaterialModule],
+  imports: [DatePipe, DecimalPipe, MaterialModule],
   templateUrl: './previous-daily-user-data.component.html',
   styleUrl: './previous-daily-user-data.component.css'
 })

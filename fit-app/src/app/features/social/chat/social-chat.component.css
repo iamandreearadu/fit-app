@@ -26,6 +26,33 @@
   color: var(--white);
   margin: 0;
   letter-spacing: -0.4px;
+  flex: 1;
+}
+
+.chat-compose-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.chat-compose-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--white);
+}
+
+.chat-compose-btn mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
 }
 
 /* ── Error ──────────────────────────────────────────────────────────────────── */
@@ -277,32 +304,21 @@
   flex-shrink: 0;
 }
 
-/* ── FAB ────────────────────────────────────────────────────────────────────── */
-.conv-fab {
-  position: fixed;
-  bottom: 88px;
-  right: 20px;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--primary);
-  border: none;
-  cursor: pointer;
-  color: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(124,77,255,0.45);
-  z-index: 50;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.conv-fab:hover { transform: scale(1.06); opacity: 0.9; }
-
-.conv-fab mat-icon { font-size: 22px; width: 22px; height: 22px; }
 
 /* ── Animations ─────────────────────────────────────────────────────────────── */
 @keyframes shimmer {
   0%, 100% { opacity: 0.6; }
   50%       { opacity: 0.25; }
+}
+
+/* ── Mobile ─────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .chat-list-header {
+    padding: 16px 20px 16px;
+  }
+
+  .chat-list-page {
+    max-width: 100%;
+    padding: 0 0 100px;
+  }
 }

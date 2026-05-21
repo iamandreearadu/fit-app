@@ -1,11 +1,12 @@
 {
-  "name": "signal.template",
+  "name": "nova-fit",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "node --max-old-space-size=4096 node_modules/@angular/cli/bin/ng.js serve",
-    "build": "node --max-old-space-size=4096 node_modules/@angular/cli/bin/ng.js build",
-    "watch": "node --max-old-space-size=4096 node_modules/@angular/cli/bin/ng.js build --watch --configuration development",
+    "start": "node --max-old-space-size=8192 node_modules/@angular/cli/bin/ng.js serve",
+    "start:prod": "node --max-old-space-size=8192 node_modules/@angular/cli/bin/ng.js serve --configuration production",
+    "build": "node --max-old-space-size=8192 node_modules/@angular/cli/bin/ng.js build",
+    "watch": "node --max-old-space-size=8192 node_modules/@angular/cli/bin/ng.js build --watch --configuration development",
     "test": "ng test"
   },
   "private": true,
@@ -21,6 +22,7 @@
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
     "@microsoft/signalr": "^10.0.0",
+    "@zxing/browser": "^0.2.0",
     "chart.js": "^4.5.1",
     "ng2-charts": "^4.1.1",
     "ngx-toastr": "^19.1.0",

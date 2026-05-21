@@ -5,7 +5,7 @@ using FitApp.Api.Models.DTOs;
 
 namespace FitApp.Api.Services;
 
-public class AiProxyService(IConfiguration config, IHttpClientFactory httpFactory)
+public class AiProxyService(IConfiguration config, IHttpClientFactory httpFactory, ILogger<AiProxyService> logger)
 {
     private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower };
 
@@ -60,11 +60,18 @@ public class AiProxyService(IConfiguration config, IHttpClientFactory httpFactor
         var body = JsonSerializer.Serialize(new { model, messages, temperature = 0.7 }, JsonOpts);
         var content = new StringContent(body, Encoding.UTF8, "application/json");
 
+        logger.LogInformation("Groq request → model={Model}, messages={Count}", model, messages.Count);
+
         var response = await client.PostAsync("/openai/v1/chat/completions", content);
         var json = await response.Content.ReadAsStringAsync();
 
+        logger.LogInformation("Groq response ← status={Status}", (int)response.StatusCode);
+
         if (!response.IsSuccessStatusCode)
-            throw new HttpRequestException($"Groq API error {(int)response.StatusCode}: {json}");
+        {
+            logger.LogError("Groq error body: {Body}", json);
+            throw new HttpRequestException($"Groq {(int)response.StatusCode}: {json}");
+        }
 
         using var doc = JsonDocument.Parse(json);
         var text = doc.RootElement

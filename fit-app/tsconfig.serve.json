@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.app.json",
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": false,
+    "strictTemplates": false
+  }
+}

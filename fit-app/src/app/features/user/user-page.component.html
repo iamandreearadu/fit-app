@@ -49,6 +49,16 @@
             </button>
           </div>
 
+          <!-- Streak mini-display -->
+          <div *ngIf="!sidebarCollapsed && streak() as s" class="sb-streak" [class.at-risk]="s.atRisk">
+            <mat-icon class="sb-flame-icon" [class.animated]="s.loggedToday && s.current > 0">local_fire_department</mat-icon>
+            <div class="sb-streak-info">
+              <span class="sb-streak-current">{{ s.current }}<span class="sb-streak-unit"> day streak</span></span>
+              <span *ngIf="s.longest > 1" class="sb-streak-best">Best: {{ s.longest }}d</span>
+            </div>
+            <span *ngIf="s.atRisk" class="sb-streak-risk-badge">AT RISK</span>
+          </div>
+
           <nav class="sb-nav">
             <button class="sb-item" [class.active]="activeTab === 'profile'" (click)="setActiveTab('profile')" type="button">
               <mat-icon>person</mat-icon>

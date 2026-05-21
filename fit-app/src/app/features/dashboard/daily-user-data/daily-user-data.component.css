@@ -294,6 +294,67 @@
   background: rgba(124, 77, 255, 0.28);
 }
 
+/* ─── CALORIE BALANCE BUTTON ─── */
+.ctrl-balance {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  height: 100%;
+  cursor: pointer;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.ctrl-balance:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ctrl-balance-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(255, 152, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ffb74d;
+  transition: background 0.15s;
+}
+
+.ctrl-balance-icon mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.ctrl-balance:hover .ctrl-balance-icon {
+  background: rgba(255, 152, 0, 0.25);
+}
+
+/* ─── CALORIE BALANCE MODAL ─── */
+.cb-box {
+  max-width: 520px !important;
+  position: relative;
+}
+
+.cb-box .modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.cb-icon-wrap {
+  background: rgba(255, 152, 0, 0.12) !important;
+  color: #ffb74d !important;
+}
+
 /* ─── CONTENT GRID ─── */
 .content-grid {
   display: grid;
@@ -996,7 +1057,39 @@
   .ctrl-sep {
     display: none;
   }
+  /* Row 1: Today (order 0) + Reset (order 1, pushed right) */
   .ctrl-end {
+    order: 1;
     margin-left: auto;
+  }
+  /* Row 2: Activity full-width */
+  .ctrl-grow {
+    order: 2;
+  }
+  /* Row 3: AI + Balance equal halves */
+  .ctrl-ai    { order: 3; }
+  .ctrl-balance { order: 4; }
+
+  .ctrl-ai,
+  .ctrl-balance {
+    flex: 1;
+    min-width: 0;
+    min-height: 48px;
+    height: auto;
+    padding: 8px 10px;
+    justify-content: center;
+    gap: 8px;
+  }
+  /* Show descriptive label, hide the short one */
+  .ctrl-ai .ctrl-lbl,
+  .ctrl-balance .ctrl-lbl {
+    display: none;
+  }
+  .ctrl-ai .ctrl-val,
+  .ctrl-balance .ctrl-val {
+    display: block;
+    font-size: 11px;
+    white-space: normal;
+    line-height: 1.3;
   }
 }

@@ -495,7 +495,7 @@
     width: 300px;
     max-width: 85vw;
     height: 100dvh;
-    z-index: 300;
+    z-index: 950;
     background: var(--surface);
     box-shadow: -8px 0 40px rgba(0, 0, 0, 0.5);
     transform: translateX(100%);

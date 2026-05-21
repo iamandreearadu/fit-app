@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { DailyUserData } from '../../../core/models/daily-user-data.model';
@@ -7,10 +7,11 @@ import { MaterialModule } from '../../../core/material/material.module';
 import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
 import { MealMacros } from '../../../core/models/meal-macros';
 import { AiMealAnalyzerComponent } from './ai-meal-analyzer/ai-meal-analyzer.component';
+import { CalorieBalanceCardComponent } from '../calorie-balance-card/calorie-balance-card.component';
 import { AlertService } from '../../../shared/services/alert.service';
 import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
 import { NutritionTabFacade } from '../../../core/facade/nutrition-tab.facade';
-import { MealEntry } from '../../../core/models/nutrition-tab.model';
+import { MealEntry, MealType } from '../../../core/models/nutrition-tab.model';
 
 import { from, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -19,7 +20,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   standalone: true,
   selector: 'app-daily-user-data',
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule, AiMealAnalyzerComponent],
+  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, MaterialModule, AiMealAnalyzerComponent, CalorieBalanceCardComponent],
   host: { class: 'd-block' },
   templateUrl: './daily-user-data.component.html',
   styleUrls: ['./daily-user-data.component.css']
@@ -40,6 +41,7 @@ export class DailyUserDataComponent implements OnInit {
   public showAnalyzeOverlay = false;
   public analyzeError: string | null = null;
   public showActivityPicker = false;
+  public showCalorieBalance = false;
 
   public showMealPicker = false;
   public mealPickerSearch = '';
@@ -105,6 +107,14 @@ export class DailyUserDataComponent implements OnInit {
     this.showAnalyzeOverlay = false;
   }
 
+  openCalorieBalance(): void {
+    this.showCalorieBalance = true;
+  }
+
+  closeCalorieBalance(): void {
+    this.showCalorieBalance = false;
+  }
+
   async openMealPicker(): Promise<void> {
     this.mealPickerSearch = '';
     this.showMealPicker = true;
@@ -154,7 +164,43 @@ export class DailyUserDataComponent implements OnInit {
     this.alerts.error('Macros analysis failed.');
   }
 
- 
+  async onAnalyzerSaveMeal(event: { macros: MealMacros; mealType: MealType }): Promise<void> {
+    const { macros, mealType } = event;
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: false });
+    const items = macros.items && macros.items.length > 0
+      ? macros.items.map(it => ({
+          name: it.name,
+          grams: 0,
+          calories: it.calories_kcal ?? 0,
+          protein_g: it.protein_g ?? 0,
+          carbs_g: it.carbs_g ?? 0,
+          fats_g: it.fats_g ?? 0,
+        }))
+      : [{
+          name: 'Mixed meal',
+          grams: 0,
+          calories: macros.calories_kcal ?? 0,
+          protein_g: macros.protein_g,
+          carbs_g: macros.carbs_g,
+          fats_g: macros.fats_g,
+        }];
+
+    try {
+      await this.nutritionFacade.saveMeal({
+        name: `AI Meal ${timeStr}`,
+        type: mealType,
+        date: this.facade.todayDate,
+        items,
+      });
+      this.alerts.success('Meal saved to nutrition log.');
+      this.closeMealAnalyze();
+    } catch {
+      this.alerts.error('Failed to save meal. Please try again.');
+    }
+  }
+
+
 
   // ===================== AUTOSAVE =====================
 

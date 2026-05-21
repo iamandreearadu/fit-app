@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../core/material/material.module';
@@ -10,6 +10,7 @@ import { AccountFacade } from '../../core/facade/account.facade';
 import { UserStore } from '../../core/store/user.store';
 import { WorkoutsTabComponent } from './workouts-tab/workouts-tab.component';
 import { NutritionTabComponent } from './nutrition-tab/nutrition-tab.component';
+import { UserFacade } from '../../core/facade/user.facade';
 
 @Component({
   standalone: true,
@@ -18,9 +19,16 @@ import { NutritionTabComponent } from './nutrition-tab/nutrition-tab.component';
   templateUrl: './user-page.component.html',
   styleUrl: './user-page.component.css'
 })
-export class UserPageComponent {
+export class UserPageComponent implements OnInit {
   public accountFacade = inject(AccountFacade);
   public userStore = inject(UserStore);
+  private userFacade = inject(UserFacade);
+
+  public streak = this.userFacade.streak;
+
+  ngOnInit(): void {
+    this.userFacade.loadStreak();
+  }
 
   activeTab: 'profile' | 'physical' | 'workouts' | 'nutrition' | 'progress' | 'goals' | 'settings' | 'notifications' = 'profile';
   sidebarCollapsed = false;

@@ -158,11 +158,13 @@ export class SocialProfileComponent implements OnInit {
   }
 
   openCreatePost(): void {
+    const isMobile = window.innerWidth <= 640;
     this.dialog
       .open(CreateContentComponent, {
         panelClass: 'create-post-panel',
-        maxWidth: '600px',
+        maxWidth: isMobile ? '100vw' : '600px',
         width: '100%',
+        position: isMobile ? { bottom: '0' } : undefined,
       })
       .afterClosed()
       .subscribe((created) => {
@@ -200,11 +202,13 @@ export class SocialProfileComponent implements OnInit {
 
   editPost(e: Event, post: Post): void {
     e.stopPropagation();
+    const isMobile = window.innerWidth <= 640;
     this.dialog.open(EditPostComponent, {
       data: { post },
-      panelClass: 'create-post-panel',
-      maxWidth: '560px',
+      panelClass: 'edit-post-panel',
+      maxWidth: isMobile ? '100vw' : '560px',
       width: '100%',
+      position: isMobile ? { bottom: '0' } : undefined,
     });
   }
 

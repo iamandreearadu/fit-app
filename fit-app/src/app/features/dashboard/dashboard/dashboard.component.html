@@ -1,24 +1,49 @@
 <div class="dashboard-root">
-  <ng-container *ngIf="user() as u; else noData">
-    <ng-container *ngIf="metrics()">
+  @if (user(); as u) {
+    @if (metrics()) {
       <div class="greeting-strip">
         <div class="gs-main">
           <span class="gs-hello">{{ greeting }},</span>
           <span class="gs-name">{{ firstName }}!</span>
+          @if (streak(); as s) {
+            @if (s.current > 0 || s.loggedToday) {
+              <span
+                class="streak-chip"
+                [class.logged-today]="s.loggedToday"
+                [class.at-risk]="s.atRisk">
+                <mat-icon class="streak-icon" [class.animated]="s.loggedToday && s.current > 0">local_fire_department</mat-icon>
+                <strong>{{ s.current }}</strong>&nbsp;day streak
+              </span>
+            }
+          }
         </div>
         <div class="gs-sub">
           <span class="gs-date">{{ today | date: "EEEE, d MMMM" }}</span>
           <span class="gs-dot">·</span>
-          <span class="goal-badge" [ngClass]="goalClass">{{ goalLabel }}</span>
-          <span *ngIf="bmi" class="gs-bmi"
-            >BMI <strong>{{ bmi | number: "1.1-1" }}</strong></span
-          >
+          <span class="goal-badge" [class]="goalClass">{{ goalLabel }}</span>
+          @if (bmi) {
+            <span class="gs-bmi"
+              >BMI <strong>{{ bmi | number: "1.1-1" }}</strong></span
+            >
+          }
+          @if (streak(); as s) {
+            @if (s.longest > 1) {
+              <span class="gs-longest">
+                Best: <strong>{{ s.longest }}</strong>d
+              </span>
+            }
+          }
         </div>
       </div>
-    </ng-container>
-  </ng-container>
+    }
 
-  <ng-template #noData>
+    @if (streak()?.atRisk) {
+      <div class="at-risk-strip">
+        <mat-icon>warning_amber</mat-icon>
+        <span>Your <strong>{{ streak()?.current }}-day streak</strong> is at risk — log today's data before midnight!</span>
+      </div>
+    }
+  } @else {
     <div class="no-data-banner">
       <mat-icon>person_off</mat-icon>
       <span
@@ -26,5 +51,5 @@
         add your information.</span
       >
     </div>
-  </ng-template>
+  }
 </div>

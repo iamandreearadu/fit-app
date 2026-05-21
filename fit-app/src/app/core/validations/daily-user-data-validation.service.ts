@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
-import { Validators } from '@angular/forms';
+import { ValidatorFn, Validators } from '@angular/forms';
 
 export interface DailyValidators {
-  date: any[];
-  waterConsumedL: any[];
-  steps: any[];
-  stepTarget: any[];
+  date: ValidatorFn[];
+  waterConsumedL: ValidatorFn[];
+  steps: ValidatorFn[];
+  stepTarget: ValidatorFn[];
   macrosPct: {
-    protein: any[];
-    carbs: any[];
-    fats: any[];
+    protein: ValidatorFn[];
+    carbs: ValidatorFn[];
+    fats: ValidatorFn[];
   };
-  caloriesBurned: any[];
-  caloriesIntake: any[];
-  caloriesTotal: any[];
+  caloriesBurned: ValidatorFn[];
+  caloriesIntake: ValidatorFn[];
+  caloriesTotal: ValidatorFn[];
 }
 
 
