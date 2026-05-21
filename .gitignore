@@ -63,3 +63,5 @@ fit-app/src/environments/environment.development.ts
 fit-app/src/environments/environment.prod.ts
 
 *.log
+
+wwwroot/*

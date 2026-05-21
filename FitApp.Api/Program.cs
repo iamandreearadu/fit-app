@@ -53,8 +53,12 @@ builder.Services.AddAuthorization();
 // ── CORS ──────────────────────────────────────────────────────────────────────
 builder.Services.AddCors(opt =>
 {
+    var origins = builder.Environment.IsDevelopment()
+        ? new[] { "http://localhost:4200", "https://localhost:4200" }
+        : new[] { "https://nove-fit.net", "https://www.nove-fit.net" };
+
     opt.AddPolicy("Angular", policy => policy
-        .WithOrigins("http://localhost:4200", "https://localhost:4200")
+        .WithOrigins(origins)
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials());  // Required for SignalR WebSocket
@@ -116,8 +120,9 @@ var app = builder.Build();
 
 // ── Auto-migrate on startup ───────────────────────────────────────────────────
 // Use a standalone connection so writes are committed before EF Core's Migrate() runs.
-var dbPath = builder.Configuration.GetConnectionString("Default")!
-    .Replace("Data Source=", "", StringComparison.OrdinalIgnoreCase).Trim();
+var connStr = builder.Configuration.GetConnectionString("Default")
+    ?? throw new InvalidOperationException("Connection string 'Default' is missing from appsettings.json.");
+var dbPath = connStr.Replace("Data Source=", "", StringComparison.OrdinalIgnoreCase).Trim();
 
 if (File.Exists(dbPath))
 {
@@ -204,11 +209,34 @@ if (app.Environment.IsDevelopment())
 app.UseCors("Angular");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// ── Static files ──────────────────────────────────────────────────────────────
 app.UseStaticFiles();
+
+// Serve Angular SPA from wwwroot/angular-build/browser in production
+if (!app.Environment.IsDevelopment())
+{
+    var spaPath = Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "angular-build", "browser");
+    if (Directory.Exists(spaPath))
+    {
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(spaPath),
+            RequestPath = ""
+        });
+    }
+}
+
 app.MapControllers();
 
 // ── SignalR Hubs ──────────────────────────────────────────────────────────────
 app.MapHub<ChatHub>("/hubs/chat");
 app.MapHub<NotificationHub>("/hubs/notifications");
+
+// ── Angular SPA fallback (non-API / non-hub routes → index.html) ──────────────
+if (!app.Environment.IsDevelopment())
+{
+    app.MapFallbackToFile("angular-build/browser/index.html");
+}
 
 app.Run();
