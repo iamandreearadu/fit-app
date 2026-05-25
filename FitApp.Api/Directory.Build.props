@@ -1,6 +1,2 @@
 <Project>
-  <PropertyGroup>
-    <BaseOutputPath>$(USERPROFILE)\fitapp-build\</BaseOutputPath>
-    <BaseIntermediateOutputPath>$(USERPROFILE)\fitapp-build\obj\</BaseIntermediateOutputPath>
-  </PropertyGroup>
 </Project>

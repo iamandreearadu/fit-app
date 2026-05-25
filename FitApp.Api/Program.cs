@@ -177,6 +177,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+    await FitApp.Api.Data.Seeds.BlogPostSeeder.SeedAsync(db);
+    await FitApp.Api.Data.Seeds.UserSeeder.SeedAsync(db);
 }
 
 static void Exec(SqliteConnection c, string sql)

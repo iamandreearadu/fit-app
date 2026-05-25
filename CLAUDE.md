@@ -400,24 +400,43 @@ export const environment = {
 
 ## Agent Team — Roles & When to Use
 
-| Agent                 | Model      | Role                                                                                   |
-| --------------------- | ---------- | -------------------------------------------------------------------------------------- |
-| `@tech-architect`     | Opus 4.6   | Architecture decisions, ADRs, API contracts — **always first**                         |
-| `@dotnet-developer`   | Sonnet 4.6 | FitApp.Api/ — controllers, services, EF, SignalR, migrations                           |
-| `@angular-developer`  | Sonnet 4.6 | fit-app/ — components, facades, signals, SignalR, routing                              |
-| `@uiux-designer`      | Sonnet 4.6 | UI specs, design system compliance, UX flows                                           |
-| `@code-reviewer`      | Sonnet 4.6 | Quality, security, clean architecture enforcement                                      |
-| `@product-strategist` | Opus 4.6   | Feature prioritization, monetization, UX strategy, competitor analysis, user retention |
+| Agent                      | Model      | Role                                                                                   |
+| -------------------------- | ---------- | -------------------------------------------------------------------------------------- |
+| `@tech-architect`          | Opus 4.6   | Architecture decisions, ADRs, API contracts — **always first**                         |
+| `@dotnet-developer`        | Sonnet 4.6 | FitApp.Api/ — controllers, services, EF, SignalR, migrations                           |
+| `@angular-developer`       | Sonnet 4.6 | fit-app/ — components, facades, signals, SignalR, routing                              |
+| `@uiux-designer`           | Sonnet 4.6 | UI specs, design system compliance, UX flows                                           |
+| `@code-reviewer`           | Sonnet 4.6 | Quality, clean architecture enforcement                                                |
+| `@product-strategist`      | Opus 4.6   | Feature prioritization, monetization, UX strategy, competitor analysis, user retention |
+| `@test-engineer`           | Sonnet 4.6 | xUnit (.NET) + Jasmine/Karma (Angular) — unit, integration, edge cases                 |
+| `@devops-engineer`         | Sonnet 4.6 | Docker, CI/CD pipelines, deployment scripts, environment configuration                 |
+| `@performance-engineer`    | Sonnet 4.6 | Bundle optimization, EF Core queries, caching, N+1 detection, profiling                |
+| `@bug-hunter`              | Sonnet 4.6 | Stack trace analysis, root cause diagnosis, minimal fix proposals                      |
+| `@db-migration-specialist` | Sonnet 4.6 | EF Core migrations, rollback safety, index strategy, data seeding                      |
+| `@security-auditor`        | Opus 4.6   | JWT, health data privacy, input sanitization, OWASP Top 10, authorization              |
 
 ### Workflow for a new feature
 
 ```
-0. @product-strategist → business validation (worth building? impact vs effort? success metric?)
-1. @tech-architect  → ADR + API contract + data model
-2. @uiux-designer   → UI spec (if has UI)
-3. @dotnet-developer → backend implementation
-4. @angular-developer → frontend implementation
-5. @code-reviewer   → review both layers
+0. @product-strategist      → business validation (worth building? impact vs effort? success metric?)
+1. @tech-architect          → ADR + API contract + data model
+2. @uiux-designer           → UI spec (if has UI)
+3. @db-migration-specialist → migration plan + index strategy (if schema changes)
+4. @dotnet-developer        → backend implementation
+5. @angular-developer       → frontend implementation
+6. @test-engineer           → automated test suite
+7. @code-reviewer           → quality + architecture review
+8. @security-auditor        → security + privacy audit (before production)
+9. @performance-engineer    → performance audit (before production)
+10. @devops-engineer        → deployment + CI/CD (on release)
+```
+
+### Workflow for a bug report
+
+```
+1. @bug-hunter              → root cause diagnosis + minimal fix
+2. @test-engineer           → regression test for the fixed bug
+3. @code-reviewer           → verify fix doesn't introduce new issues
 ```
 
 ---

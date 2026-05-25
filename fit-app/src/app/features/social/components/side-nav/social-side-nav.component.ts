@@ -5,6 +5,7 @@ import { UserStore } from '../../../../core/store/user.store';
 import { SocialFacade } from '../../../../core/facade/social.facade';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateContentComponent } from '../create-content/create-content.component';
+import { AccountFacade } from '../../../../core/facade/account.facade';
 
 interface NavItem {
   label: string;
@@ -26,6 +27,7 @@ export class SocialSideNavComponent {
   @Input() unreadMessages = 0;
 
   protected readonly facade = inject(SocialFacade);
+  protected readonly accountFacade = inject(AccountFacade);
   private readonly dialog = inject(MatDialog);
 
   private readonly userStore = inject(UserStore);
@@ -63,6 +65,10 @@ export class SocialSideNavComponent {
       exact: false,
     },
   ];
+
+  logout(): void {
+    void this.accountFacade.logout();
+  }
 
   openCreatePost(): void {
     this.dialog

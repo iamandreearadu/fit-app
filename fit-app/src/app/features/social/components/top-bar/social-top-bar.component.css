@@ -1,3 +1,5 @@
+/* ── Top bar ─────────────────────────────────────────────────────────────── */
+
 .social-topbar {
   position: fixed;
   top: 0;
@@ -19,8 +21,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  text-decoration: none;
-  cursor: default;
 }
 
 .social-topbar-brand-icon {
@@ -58,39 +58,220 @@
 .social-topbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 
-.social-topbar-new-btn {
-  position: relative;
+/* ── Menu trigger button ─────────────────────────────────────────────────── */
+
+.social-topbar-menu-btn {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: transparent;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: opacity 0.15s, transform 0.15s;
-  flex-shrink: 0;
   padding: 0;
+  color: rgba(255, 255, 255, 0.75);
 }
 
-.social-topbar-new-btn::before {
-  content: '';
-  position: absolute;
-  inset: -6px;
+.social-topbar-menu-btn mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
 }
 
-.social-topbar-new-btn mat-icon {
+.social-topbar-menu-btn:hover {
+  opacity: 1;
+  color: var(--white);
+  transform: scale(1.1);
+}
+
+/* ── Backdrop ────────────────────────────────────────────────────────────── */
+
+.social-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: backdropIn 0.2s ease;
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Side drawer ─────────────────────────────────────────────────────────── */
+
+.social-menu-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 280px;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  background: #0d0d10;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.social-menu-drawer--open {
+  transform: translateX(0);
+}
+
+/* ── Drawer header ───────────────────────────────────────────────────────── */
+
+.social-menu-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 60px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.social-menu-drawer-title {
   font-size: 20px;
-  width: 20px;
-  height: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
   color: var(--white);
 }
 
-.social-topbar-new-btn:hover {
-  opacity: 0.85;
-  transform: scale(1.05);
+.social-menu-drawer-title-gradient {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.social-menu-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.15s, background 0.15s;
+  padding: 0;
+}
+
+.social-menu-close-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.social-menu-close-btn:hover {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* ── Menu items ──────────────────────────────────────────────────────────── */
+
+.social-menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 12px;
+  flex: 1;
+}
+
+.social-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+  text-decoration: none;
+  width: 100%;
+  text-align: left;
+}
+
+.social-menu-item mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.45);
+  transition: color 0.15s;
+}
+
+.social-menu-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--white);
+  transform: translateX(3px);
+}
+
+.social-menu-item:hover mat-icon {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Primary — New Post / Article */
+.social-menu-item--primary {
+  background: rgba(124, 77, 255, 0.1);
+  border: 1px solid rgba(124, 77, 255, 0.2);
+  color: var(--primary);
+}
+
+.social-menu-item--primary mat-icon {
+  color: var(--primary);
+}
+
+.social-menu-item--primary:hover {
+  background: rgba(124, 77, 255, 0.18);
+  color: #a07cff;
+  transform: translateX(3px);
+}
+
+.social-menu-item--primary:hover mat-icon {
+  color: #a07cff;
+}
+
+/* ── Drawer footer — logout ──────────────────────────────────────────────── */
+
+.social-menu-drawer-footer {
+  padding: 12px 12px 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.social-menu-item--logout {
+  color: rgba(255, 82, 82, 0.8);
+  border: 1px solid rgba(255, 82, 82, 0.15);
+  background: rgba(255, 82, 82, 0.06);
+}
+
+.social-menu-item--logout mat-icon {
+  color: rgba(255, 82, 82, 0.7);
+}
+
+.social-menu-item--logout:hover {
+  background: rgba(255, 82, 82, 0.13);
+  color: #ff5252;
+  transform: translateX(3px);
+}
+
+.social-menu-item--logout:hover mat-icon {
+  color: #ff5252;
 }
