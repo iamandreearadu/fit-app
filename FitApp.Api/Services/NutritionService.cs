@@ -7,14 +7,20 @@ namespace FitApp.Api.Services;
 
 public class NutritionService(AppDbContext db)
 {
-    public async Task<List<MealEntryDto>> ListAsync(string userId)
+    public async Task<(List<MealEntryDto> Items, bool HasMore)> ListAsync(string userId, int page = 1, int pageSize = 20)
     {
-        var meals = await db.MealEntries
+        pageSize = Math.Min(pageSize, 50);
+        var query = db.MealEntries
+            .AsNoTracking()
             .Include(m => m.Items.OrderBy(f => f.Order))
             .Where(m => m.UserId == userId)
-            .OrderByDescending(m => m.UpdatedAt)
+            .OrderByDescending(m => m.UpdatedAt);
+        var total = await query.CountAsync();
+        var meals = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
-        return meals.Select(MapToDto).ToList();
+        return (meals.Select(MapToDto).ToList(), page * pageSize < total);
     }
 
     public async Task<MealEntryDto> CreateAsync(string userId, SaveMealRequest req)

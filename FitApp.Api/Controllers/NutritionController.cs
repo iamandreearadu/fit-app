@@ -15,10 +15,10 @@ public class NutritionController(NutritionService nutritionService) : Controller
         ?? User.FindFirstValue("sub")!;
 
     [HttpGet]
-    public async Task<IActionResult> List()
+    public async Task<IActionResult> List([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
-        var meals = await nutritionService.ListAsync(UserId);
-        return Ok(meals);
+        var (items, hasMore) = await nutritionService.ListAsync(UserId, page, pageSize);
+        return Ok(new { items, hasMore, page, pageSize });
     }
 
     [HttpPost]

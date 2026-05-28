@@ -41,13 +41,18 @@ public class DailyDataService(AppDbContext db)
         return MapToDto(entry);
     }
 
-    public async Task<List<DailyEntryDto>> GetAllAsync(string userId)
+    public async Task<(List<DailyEntryDto> Items, bool HasMore)> GetAllAsync(string userId, int page = 1, int pageSize = 30)
     {
-        var entries = await db.DailyEntries
+        pageSize = Math.Min(pageSize, 90);
+        var query = db.DailyEntries
             .Where(d => d.UserId == userId)
-            .OrderByDescending(d => d.Date)
+            .OrderByDescending(d => d.Date);
+        var total = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
-        return entries.Select(MapToDto).ToList();
+        return (items.Select(MapToDto).ToList(), page * pageSize < total);
     }
 
     public async Task<StreakDto> GetStreakAsync(string userId)

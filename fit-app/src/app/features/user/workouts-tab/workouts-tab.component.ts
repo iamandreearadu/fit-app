@@ -1,18 +1,21 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../core/material/material.module';
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
 import { WorkoutTemplate, WorkoutType } from '../../../core/models/workouts-tab.model';
 import { UserStore } from '../../../core/store/user.store';
 import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
 import { AlertService } from '../../../shared/services/alert.service';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-workouts-tab',
   standalone: true,
-  imports: [CommonModule, MaterialModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, MaterialModule, ReactiveFormsModule, FormsModule, MatDialogModule],
   templateUrl: './workouts-tab.component.html',
   styleUrl: './workouts-tab.component.css'
 })
@@ -23,6 +26,7 @@ export class WorkoutsTabComponent implements OnInit {
   private groqFacade = inject(GroqAiFacade);
   private destroyRef = inject(DestroyRef);
   private alerts = inject(AlertService);
+  private dialog = inject(MatDialog);
 
   loading = false;
   aiCalories: Partial<Record<string, { loading: boolean; calories?: number; explanation?: string }>> = {};
@@ -246,7 +250,15 @@ async estimateCalories(w: WorkoutTemplate, event: Event): Promise<void> {
 
   async delete(uid?: string): Promise<void> {
     if (!uid) return;
-    if (!window.confirm('Delete this workout?')) return;
+    const confirmed = await firstValueFrom(
+      this.dialog.open(ConfirmDialogComponent, {
+        data: { message: 'Delete this workout?', dangerous: true },
+        panelClass: 'confirm-dialog-panel',
+        maxWidth: '360px',
+        width: '100%',
+      }).afterClosed()
+    );
+    if (!confirmed) return;
 
     this.loading = true;
     try {

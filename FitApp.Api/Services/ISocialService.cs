@@ -21,6 +21,7 @@ public interface ISocialService
     Task<ArchiveToggleResponse> ToggleArchivePostAsync(int id, string userId);
     Task<PaginatedResponse<PostResponse>> GetArchivedPostsAsync(string userId, string requestingUserId, int page, int pageSize);
     Task<PaginatedResponse<ProfileWorkoutSummary>> GetProfileWorkoutsAsync(string userId, string requestingUserId, int page, int pageSize);
+    Task<PaginatedResponse<ProfileWorkoutSummary>> GetArchivedWorkoutsAsync(string userId, int page, int pageSize);
     Task<ArchiveToggleResponse> ToggleArchiveWorkoutAsync(int id, string userId);
     Task DeleteWorkoutFromProfileAsync(int id, string userId);
     Task<PaginatedResponse<ProfileBlogSummary>> GetProfileBlogsAsync(string userId, string requestingUserId, int page, int pageSize);

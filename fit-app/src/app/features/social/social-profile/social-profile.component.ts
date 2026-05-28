@@ -123,6 +123,7 @@ export class SocialProfileComponent implements OnInit {
     this.showMoreMenu.set(false);
     this.showArchivedSection.set(true);
     this.facade.loadArchivedPosts(this.userId);
+    this.facade.loadArchivedWorkouts(this.userId);
   }
 
   closeArchived(): void {
@@ -171,6 +172,7 @@ export class SocialProfileComponent implements OnInit {
         if (created) {
           this.facade.loadProfile(this.userId);
           this.facade.loadProfileBlogs(this.userId);
+          this.facade.loadProfileWorkouts(this.userId);
         }
       });
   }
@@ -224,11 +226,13 @@ export class SocialProfileComponent implements OnInit {
   async archivePost(e: Event, postId: number): Promise<void> {
     e.stopPropagation();
     await this.facade.archivePost(postId);
+    this.alert.success('Post archived.');
   }
 
   async unarchivePost(e: Event, postId: number): Promise<void> {
     e.stopPropagation();
     await this.facade.unarchivePost(postId);
+    this.alert.success('Post restored.');
   }
 
   // ── Workout actions ────────────────────────────────────────────────────────
@@ -298,6 +302,13 @@ export class SocialProfileComponent implements OnInit {
   }
 
   // ── Avatar upload ──────────────────────────────────────────────────────────
+
+  onAvatarError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    const fallback = img.parentElement?.querySelector('.profile-avatar--fallback') as HTMLElement | null;
+    if (fallback) fallback.style.display = 'flex';
+  }
 
   async onAvatarFileChange(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;

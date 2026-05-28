@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FitApp.Api.Models.DTOs;
 
 public class DailyEntryDto
@@ -23,6 +25,7 @@ public class MacrosPctDto
 
 public class SaveDailyEntryRequest
 {
+    [RegularExpression(@"^\d{4}-\d{2}-\d{2}$", ErrorMessage = "Date must be in yyyy-MM-dd format.")]
     public string Date { get; set; } = string.Empty;
     public string? ActivityType { get; set; }
     public double WaterConsumedL { get; set; }

@@ -7,7 +7,9 @@ import { UserMetricsService } from "./user-metrics.service";
 })
 export class DailyUserDataService {
 
-  readonly todayDate = new Date().toISOString().slice(0, 10);
+  get todayDate(): string {
+    return new Date().toISOString().slice(0, 10);
+  }
 
   private readonly userMetricsSrv = inject(UserMetricsService);
 

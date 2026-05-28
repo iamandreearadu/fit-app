@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FitApp.Api.Models.DTOs;
 
 public class UserProfileDto
@@ -35,8 +37,11 @@ public class UpdateUserProfileRequest
 {
     public string? FullName { get; set; }
     public string? Gender { get; set; }
+    [Range(1, 120)]
     public int? Age { get; set; }
+    [Range(50, 300)]
     public double? HeightCm { get; set; }
+    [Range(20, 500)]
     public double? WeightKg { get; set; }
     public string? Goal { get; set; }
     public string? Activity { get; set; }

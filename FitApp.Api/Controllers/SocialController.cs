@@ -308,6 +308,15 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         catch (Exception ex) { logger.LogError(ex, "Error getting profile workouts"); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
     }
 
+    // GET /api/social/profile/{userId}/workouts/archived
+    [HttpGet("profile/{userId}/workouts/archived")]
+    public async Task<IActionResult> GetArchivedWorkouts(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 12)
+    {
+        if (userId != UserId) return Forbid();
+        try { return Ok(await socialService.GetArchivedWorkoutsAsync(userId, page, pageSize)); }
+        catch (Exception ex) { logger.LogError(ex, "Error getting archived workouts for user {UserId}", userId); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
+    }
+
     // PATCH /api/social/profile/workouts/{id}/archive
     [HttpPatch("profile/workouts/{id:int}/archive")]
     public async Task<IActionResult> ToggleArchiveWorkout(int id)

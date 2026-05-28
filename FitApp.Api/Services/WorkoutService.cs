@@ -7,20 +7,27 @@ namespace FitApp.Api.Services;
 
 public class WorkoutService(AppDbContext db)
 {
-    public async Task<List<WorkoutTemplateDto>> ListAsync(string userId)
+    public async Task<(List<WorkoutTemplateDto> Items, bool HasMore)> ListAsync(string userId, int page = 1, int pageSize = 20)
     {
-        var workouts = await db.WorkoutTemplates
+        pageSize = Math.Min(pageSize, 50);
+        var query = db.WorkoutTemplates
+            .AsNoTracking()
             .Include(w => w.Exercises.OrderBy(e => e.Order))
             .Include(w => w.Cardio)
             .Where(w => w.UserId == userId)
-            .OrderByDescending(w => w.UpdatedAt)
+            .OrderByDescending(w => w.UpdatedAt);
+        var total = await query.CountAsync();
+        var workouts = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
-        return workouts.Select(MapToDto).ToList();
+        return (workouts.Select(MapToDto).ToList(), page * pageSize < total);
     }
 
     public async Task<WorkoutTemplateDto?> GetAsync(string userId, int id)
     {
         var workout = await db.WorkoutTemplates
+            .AsNoTracking()
             .Include(w => w.Exercises.OrderBy(e => e.Order))
             .Include(w => w.Cardio)
             .FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId);

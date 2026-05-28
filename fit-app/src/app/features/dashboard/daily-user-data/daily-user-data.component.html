@@ -430,14 +430,14 @@
             class="mp-search"
             type="text"
             placeholder="Search by name or type…"
-            [value]="mealPickerSearch"
-            (input)="mealPickerSearch = $any($event.target).value"
+            [value]="mealPickerSearch()"
+            (input)="mealPickerSearch.set($any($event.target).value)"
           />
-          @if (mealPickerSearch) {
+          @if (mealPickerSearch()) {
             <button
               class="mp-clear"
               type="button"
-              (click)="mealPickerSearch = ''"
+              (click)="mealPickerSearch.set('')"
             >
               <mat-icon>close</mat-icon>
             </button>
@@ -452,7 +452,7 @@
             ></mat-progress-spinner>
           </div>
         } @else {
-          @if (filteredPickerMeals.length === 0) {
+          @if (filteredPickerMeals().length === 0) {
             <div class="mp-empty">
               <mat-icon>no_meals</mat-icon>
               <span>No meals found</span>
@@ -462,9 +462,9 @@
             </div>
           }
 
-          @if (filteredPickerMeals.length > 0) {
+          @if (filteredPickerMeals().length > 0) {
             <div class="mp-list">
-              @for (m of filteredPickerMeals; track m.id) {
+              @for (m of filteredPickerMeals(); track m.id) {
                 <button
                   type="button"
                   class="mp-item"

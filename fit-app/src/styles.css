@@ -114,8 +114,7 @@ app-root {
 }
 
 button {
-  font-size: 12px !important;
-  font-weight: 400 !important;
+  font-family: inherit;
 }
 
 /* CUSTOM SCROLLBAR */
@@ -257,7 +256,10 @@ mat-select {
 /* ─── MODAL DIALOG PANEL — remove white bg from mat-dialog surface ─── */
 .create-post-panel .mat-mdc-dialog-container,
 .create-post-panel .mdc-dialog__container,
-.create-post-panel .mdc-dialog__surface {
+.create-post-panel .mdc-dialog__surface,
+.edit-post-panel .mat-mdc-dialog-container,
+.edit-post-panel .mdc-dialog__container,
+.edit-post-panel .mdc-dialog__surface {
   background: transparent !important;
   box-shadow: none !important;
   padding: 0 !important;

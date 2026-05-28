@@ -57,8 +57,10 @@ export class SocialFacade {
   profileWorkouts = signal<ProfileWorkout[]>([]);
   profileBlogs = signal<ProfileBlog[]>([]);
   archivedPosts = signal<Post[]>([]);
+  archivedWorkouts = signal<ProfileWorkout[]>([]);
   private profileSectionLoadingCount = signal(0);
   isLoadingProfileSections = computed(() => this.profileSectionLoadingCount() > 0);
+  profileSectionsError = signal<string | null>(null);
 
   async loadFeed(reset = false): Promise<void> {
     if (reset) {
@@ -89,22 +91,22 @@ export class SocialFacade {
     // Capture snapshot before optimistic update so we can restore on failure
     const prevFeed = this.feed();
     const prevProfilePosts = this.profilePosts();
+    const prevDiscoverPosts = this.discoverPosts();
 
-    // Optimistic update
-    this.feed.update(posts => posts.map(p =>
-      p.id === postId
-        ? { ...p, isLikedByMe: !p.isLikedByMe, likesCount: p.isLikedByMe ? p.likesCount - 1 : p.likesCount + 1 }
-        : p
-    ));
-    this.profilePosts.update(posts => posts.map(p =>
-      p.id === postId
-        ? { ...p, isLikedByMe: !p.isLikedByMe, likesCount: p.isLikedByMe ? p.likesCount - 1 : p.likesCount + 1 }
-        : p
-    ));
+    const applyLike = (p: Post) => p.id === postId
+      ? { ...p, isLikedByMe: !p.isLikedByMe, likesCount: p.isLikedByMe ? p.likesCount - 1 : p.likesCount + 1 }
+      : p;
+
+    // Optimistic update on all three stores
+    this.feed.update(posts => posts.map(applyLike));
+    this.profilePosts.update(posts => posts.map(applyLike));
+    this.discoverPosts.update(posts => posts.map(applyLike));
+
     firstValueFrom(this.socialSvc.toggleLike(postId)).catch(() => {
       // Revert from pre-mutation snapshot — avoids double-flip on concurrent actions
       this.feed.set(prevFeed);
       this.profilePosts.set(prevProfilePosts);
+      this.discoverPosts.set(prevDiscoverPosts);
     });
   }
 
@@ -172,7 +174,9 @@ export class SocialFacade {
     try {
       const res = await firstValueFrom(this.socialSvc.getProfileWorkouts(userId));
       this.profileWorkouts.set(res.items);
-    } catch { /* silently ignore */ } finally {
+    } catch {
+      this.profileSectionsError.set('Failed to load workouts.');
+    } finally {
       this.profileSectionLoadingCount.update(n => Math.max(0, n - 1));
     }
   }
@@ -182,7 +186,9 @@ export class SocialFacade {
     try {
       const res = await firstValueFrom(this.socialSvc.getProfileBlogs(userId));
       this.profileBlogs.set(res.items);
-    } catch { /* silently ignore */ } finally {
+    } catch {
+      this.profileSectionsError.set('Failed to load articles.');
+    } finally {
       this.profileSectionLoadingCount.update(n => Math.max(0, n - 1));
     }
   }
@@ -192,7 +198,9 @@ export class SocialFacade {
     try {
       const res = await firstValueFrom(this.socialSvc.getArchivedPosts(userId));
       this.archivedPosts.set(res.items);
-    } catch { /* silently ignore */ } finally {
+    } catch {
+      this.profileSectionsError.set('Failed to load archived posts.');
+    } finally {
       this.profileSectionLoadingCount.update(n => Math.max(0, n - 1));
     }
   }
@@ -208,9 +216,22 @@ export class SocialFacade {
     this.archivedPosts.update(f => f.filter(p => p.id !== id));
   }
 
+  async loadArchivedWorkouts(userId: string): Promise<void> {
+    this.profileSectionLoadingCount.update(n => n + 1);
+    try {
+      const res = await firstValueFrom(this.socialSvc.getArchivedWorkouts(userId));
+      this.archivedWorkouts.set(res.items);
+    } catch {
+      this.profileSectionsError.set('Failed to load archived workouts.');
+    } finally {
+      this.profileSectionLoadingCount.update(n => Math.max(0, n - 1));
+    }
+  }
+
   async archiveWorkout(id: number): Promise<void> {
     await firstValueFrom(this.socialSvc.archiveWorkout(id));
     this.profileWorkouts.update(f => f.filter(w => w.id !== id));
+    this.archivedWorkouts.update(f => f.filter(w => w.id !== id));
   }
 
   async deleteWorkout(id: number): Promise<void> {

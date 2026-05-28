@@ -15,10 +15,10 @@ public class WorkoutsController(WorkoutService workoutService) : ControllerBase
         ?? User.FindFirstValue("sub")!;
 
     [HttpGet]
-    public async Task<IActionResult> List()
+    public async Task<IActionResult> List([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
-        var workouts = await workoutService.ListAsync(UserId);
-        return Ok(workouts);
+        var (items, hasMore) = await workoutService.ListAsync(UserId, page, pageSize);
+        return Ok(new { items, hasMore, page, pageSize });
     }
 
     [HttpGet("{id:int}")]

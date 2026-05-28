@@ -24,7 +24,7 @@
     <app-post-card
       [post]="post()!"
       (likeToggled)="onLikePost()"
-      (commentClicked)="onLikePost()"
+      (commentClicked)="scrollToComposer()"
       (followToggled)="facade.toggleFollow($event)"
       (deleteClicked)="onDeletePost($event)"
       (editClicked)="onEditPost($event)"

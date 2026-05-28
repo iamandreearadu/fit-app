@@ -18,7 +18,7 @@ public class UsersController(UserService userService) : ControllerBase
     public async Task<IActionResult> GetProfile()
     {
         var profile = await userService.GetProfileAsync(UserId);
-        if (profile is null) return NotFound();
+        if (profile is null) return Unauthorized(); // valid JWT but account no longer exists — stale session
         return Ok(profile);
     }
 

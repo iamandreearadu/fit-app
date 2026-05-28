@@ -50,10 +50,11 @@ export class NutritionTabService {
 
   async listMeals(): Promise<MealEntry[]> {
     try {
-      const dtos = await firstValueFrom(this.http.get<any[]>(this.baseUrl));
+      const res = await firstValueFrom(this.http.get<any>(this.baseUrl));
+      const dtos: any[] = Array.isArray(res) ? res : (res?.items ?? []);
       return dtos.map(d => this.mapMeal(d));
     } catch (err) {
-      this.alerts?.warn('Failed to load meals', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to load meals');
       return [];
     }
   }
@@ -70,7 +71,7 @@ export class NutritionTabService {
       const dto = await firstValueFrom(this.http.post<any>(this.baseUrl, body));
       return this.mapMeal(dto);
     } catch (err) {
-      this.alerts?.warn('Failed to add meal', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to add meal');
       return null;
     }
   }
@@ -88,7 +89,7 @@ export class NutritionTabService {
       const dto = await firstValueFrom(this.http.put<any>(`${this.baseUrl}/${docId}`, body));
       return this.mapMeal(dto);
     } catch (err) {
-      this.alerts?.warn('Failed to update meal', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to update meal');
       return null;
     }
   }
@@ -100,7 +101,7 @@ export class NutritionTabService {
       this.alerts?.success('Meal deleted');
       return true;
     } catch (err) {
-      this.alerts?.warn('Failed to delete meal', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to delete meal');
       return false;
     }
   }

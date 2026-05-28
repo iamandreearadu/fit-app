@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FitApp.Api.Models.DTOs;
 
 public class WorkoutTemplateDto
@@ -32,6 +34,8 @@ public class CardioDetailsDto
 
 public class SaveWorkoutRequest
 {
+    [Required]
+    [MaxLength(200)]
     public string Title { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public int DurationMin { get; set; }

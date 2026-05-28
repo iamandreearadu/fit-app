@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, effect } from '@angular/core';
+import { Component, inject, OnInit, effect, signal, computed } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { UserFacade } from '../../../core/facade/user.facade';
@@ -44,17 +44,17 @@ export class DailyUserDataComponent implements OnInit {
   public showCalorieBalance = false;
 
   public showMealPicker = false;
-  public mealPickerSearch = '';
+  public readonly mealPickerSearch = signal('');
   public mealPickerLoading = false;
   public lastAppliedMeal: MealMacros | null = null;
 
-  public get filteredPickerMeals(): MealEntry[] {
-    const term = this.mealPickerSearch.trim().toLowerCase();
+  public readonly filteredPickerMeals = computed<MealEntry[]>(() => {
+    const term = this.mealPickerSearch().trim().toLowerCase();
     if (!term) return this.nutritionFacade.meals;
     return this.nutritionFacade.meals.filter(m =>
       m.name.toLowerCase().includes(term) || m.type.toLowerCase().includes(term)
     );
-  }
+  });
 
   public readonly activityOptions = [
     { value: 'strength-training', label: 'Strength Training', icon: 'fitness_center' },
@@ -116,7 +116,7 @@ export class DailyUserDataComponent implements OnInit {
   }
 
   async openMealPicker(): Promise<void> {
-    this.mealPickerSearch = '';
+    this.mealPickerSearch.set('');
     this.showMealPicker = true;
     this.mealPickerLoading = true;
     await this.nutritionFacade.loadMeals();

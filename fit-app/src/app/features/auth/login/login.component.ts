@@ -41,7 +41,7 @@ export class LoginComponent {
     if (ok) {
       await this.router.navigate(['/user-dashboard']);
     } else {
-      this.form.reset();
+      this.form.get('password')?.reset();
     }
   }
 }

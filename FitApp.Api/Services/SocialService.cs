@@ -17,11 +17,13 @@ public class SocialService(
     public async Task<PostResponse> GetPostByIdAsync(int id, string requestingUserId)
     {
         var post = await db.Posts
+            .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.LinkedWorkout)
             .Include(p => p.LinkedMeal)
             .Include(p => p.LinkedDailyEntry)
             .Include(p => p.Article)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(p => p.Id == id)
             ?? throw new KeyNotFoundException("Post not found.");
 
@@ -48,11 +50,13 @@ public class SocialService(
         var allowedUserIds = followingIds.Append(userId).ToList();
 
         var query = db.Posts
+            .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.LinkedWorkout)
             .Include(p => p.LinkedMeal)
             .Include(p => p.LinkedDailyEntry)
             .Include(p => p.Article)
+            .AsSplitQuery()
             .Where(p => allowedUserIds.Contains(p.UserId) && !p.IsArchived)
             .OrderByDescending(p => p.CreatedAt);
 
@@ -90,11 +94,13 @@ public class SocialService(
             .ToHashSetAsync();
 
         var query = db.Posts
+            .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.LinkedWorkout)
             .Include(p => p.LinkedMeal)
             .Include(p => p.LinkedDailyEntry)
             .Include(p => p.Article)
+            .AsSplitQuery()
             .Where(p => p.UserId != userId && !followingIds.Contains(p.UserId) && !p.IsArchived)
             .OrderByDescending(p => p.CreatedAt);
 
@@ -222,22 +228,33 @@ public class SocialService(
 
         var actor = await db.Users.FindAsync(userId);
 
-        if (existing is not null)
+        await using var tx = await db.Database.BeginTransactionAsync();
+        try
         {
-            db.Likes.Remove(existing);
-            await db.SaveChangesAsync();
-            await db.Posts.Where(p => p.Id == postId)
-                .ExecuteUpdateAsync(s => s.SetProperty(p => p.LikesCount,
-                    p => p.LikesCount > 0 ? p.LikesCount - 1 : 0));
-            isLiked = false;
+            if (existing is not null)
+            {
+                db.Likes.Remove(existing);
+                await db.SaveChangesAsync();
+                await db.Posts.Where(p => p.Id == postId)
+                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.LikesCount,
+                        p => p.LikesCount > 0 ? p.LikesCount - 1 : 0));
+                isLiked = false;
+            }
+            else
+            {
+                db.Likes.Add(new Like { UserId = userId, PostId = postId });
+                await db.SaveChangesAsync();
+                await db.Posts.Where(p => p.Id == postId)
+                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.LikesCount, p => p.LikesCount + 1));
+                isLiked = true;
+            }
+
+            await tx.CommitAsync();
         }
-        else
+        catch
         {
-            db.Likes.Add(new Like { UserId = userId, PostId = postId });
-            await db.SaveChangesAsync();
-            await db.Posts.Where(p => p.Id == postId)
-                .ExecuteUpdateAsync(s => s.SetProperty(p => p.LikesCount, p => p.LikesCount + 1));
-            isLiked = true;
+            await tx.RollbackAsync();
+            throw;
         }
 
         var updatedCount = await db.Posts.Where(p => p.Id == postId).Select(p => p.LikesCount).FirstAsync();
@@ -261,6 +278,7 @@ public class SocialService(
     {
         pageSize = Math.Min(pageSize, 50);
         var query = db.Comments
+            .AsNoTracking()
             .Include(c => c.User)
             .Where(c => c.PostId == postId)
             .OrderBy(c => c.CreatedAt);
@@ -430,11 +448,13 @@ public class SocialService(
             .ToHashSetAsync();
 
         var query = db.Posts
+            .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.LinkedWorkout)
             .Include(p => p.LinkedMeal)
             .Include(p => p.LinkedDailyEntry)
             .Include(p => p.Article)
+            .AsSplitQuery()
             .Where(p => p.UserId == userId && !p.IsArchived && p.ArticleId == null)
             .OrderByDescending(p => p.CreatedAt);
 
@@ -463,6 +483,7 @@ public class SocialService(
 
     public async Task<List<UserSearchResult>> SearchUsersAsync(string query, string requestingUserId, int limit = 20)
     {
+        limit = Math.Min(limit, 50);
         if (string.IsNullOrWhiteSpace(query)) return [];
 
         var q = query.Trim().ToLower();
@@ -471,10 +492,13 @@ public class SocialService(
             .Where(u => u.Id != requestingUserId && u.FullName.ToLower().Contains(q))
             .OrderBy(u => u.FullName)
             .Take(limit)
+            .Select(u => new { u.Id, u.FullName, u.ImageUrl })
             .ToListAsync();
 
+        var userIds = users.Select(u => u.Id).ToList();
+
         var followingIds = await db.Follows
-            .Where(f => f.FollowerId == requestingUserId && users.Select(u => u.Id).Contains(f.FollowingId))
+            .Where(f => f.FollowerId == requestingUserId && userIds.Contains(f.FollowingId))
             .Select(f => f.FollowingId)
             .ToHashSetAsync();
 
@@ -566,10 +590,13 @@ public class SocialService(
         if (userId != requestingUserId)
             throw new UnauthorizedAccessException("Cannot view another user's archived posts.");
         var query = db.Posts
+            .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.LinkedWorkout)
             .Include(p => p.LinkedMeal)
             .Include(p => p.LinkedDailyEntry)
+            .Include(p => p.Article)
+            .AsSplitQuery()
             .Where(p => p.UserId == userId && p.IsArchived)
             .OrderByDescending(p => p.CreatedAt);
 
@@ -595,6 +622,7 @@ public class SocialService(
     {
         pageSize = Math.Min(pageSize, 50);
         var query = db.WorkoutTemplates
+            .AsNoTracking()
             .Where(w => w.UserId == userId && !w.IsArchived)
             .OrderByDescending(w => w.CreatedAt);
 
@@ -613,6 +641,37 @@ public class SocialService(
                 CreatedAt = w.CreatedAt,
                 IsArchived = w.IsArchived,
                 IsOwnWorkout = w.UserId == requestingUserId
+            }).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = total,
+            HasMore = page * pageSize < total
+        };
+    }
+
+    public async Task<PaginatedResponse<ProfileWorkoutSummary>> GetArchivedWorkoutsAsync(string userId, int page, int pageSize)
+    {
+        pageSize = Math.Min(pageSize, 50);
+        var query = db.WorkoutTemplates
+            .AsNoTracking()
+            .Where(w => w.UserId == userId && w.IsArchived)
+            .OrderByDescending(w => w.CreatedAt);
+
+        var total = await query.CountAsync();
+        var workouts = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return new PaginatedResponse<ProfileWorkoutSummary>
+        {
+            Items = workouts.Select(w => new ProfileWorkoutSummary
+            {
+                Id = w.Id,
+                Title = w.Title,
+                Type = w.Type,
+                DurationMin = w.DurationMin,
+                CaloriesEstimateKcal = w.CaloriesEstimateKcal,
+                CreatedAt = w.CreatedAt,
+                IsArchived = w.IsArchived,
+                IsOwnWorkout = true
             }).ToList(),
             Page = page,
             PageSize = pageSize,
@@ -644,6 +703,7 @@ public class SocialService(
     {
         pageSize = Math.Min(pageSize, 50);
         var query = db.BlogPosts
+            .AsNoTracking()
             .Where(b => b.AuthorId == userId && !b.IsArchived)
             .OrderByDescending(b => b.CreatedAt);
 
@@ -722,22 +782,32 @@ public class SocialService(
             Date = DateTime.UtcNow.ToString("MMMM d, yyyy"),
             AuthorId = userId
         };
-        db.BlogPosts.Add(blog);
-        await db.SaveChangesAsync();
-
-        // Create a linked feed post so followers see the article
-        var feedPost = new Post
+        await using var tx = await db.Database.BeginTransactionAsync();
+        try
         {
-            UserId = userId,
-            Content = !string.IsNullOrWhiteSpace(request.Caption)
-                ? request.Caption
-                : !string.IsNullOrWhiteSpace(request.Title)
-                    ? request.Title
-                    : request.Description[..Math.Min(150, request.Description.Length)],
-            ArticleId = blog.Id
-        };
-        db.Posts.Add(feedPost);
-        await db.SaveChangesAsync();
+            db.BlogPosts.Add(blog);
+            await db.SaveChangesAsync(); // obține blog.Id pentru FK
+
+            // Create a linked feed post so followers see the article
+            var feedPost = new Post
+            {
+                UserId = userId,
+                Content = !string.IsNullOrWhiteSpace(request.Caption)
+                    ? request.Caption
+                    : !string.IsNullOrWhiteSpace(request.Title)
+                        ? request.Title
+                        : request.Description[..Math.Min(150, request.Description.Length)],
+                ArticleId = blog.Id
+            };
+            db.Posts.Add(feedPost);
+            await db.SaveChangesAsync();
+            await tx.CommitAsync();
+        }
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
 
         return new ProfileBlogSummary
         {

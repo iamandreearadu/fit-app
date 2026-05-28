@@ -135,6 +135,11 @@ export class SocialService {
     return this.http.get<PaginatedResponse<ProfileWorkout>>(`${this.base}/profile/${userId}/workouts`, { params });
   }
 
+  getArchivedWorkouts(userId: string, page = 1, pageSize = 12): Observable<PaginatedResponse<ProfileWorkout>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginatedResponse<ProfileWorkout>>(`${this.base}/profile/${userId}/workouts/archived`, { params });
+  }
+
   archiveWorkout(id: number): Observable<ArchiveToggleResponse> {
     return this.http.patch<ArchiveToggleResponse>(`${this.base}/profile/workouts/${id}/archive`, {});
   }

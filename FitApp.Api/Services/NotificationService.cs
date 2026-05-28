@@ -132,13 +132,9 @@ public class NotificationService(
 
     public async Task MarkOneReadAsync(int notificationId, string userId)
     {
-        var notification = await db.Notifications
-            .FirstOrDefaultAsync(n => n.Id == notificationId && n.RecipientId == userId);
-
-        if (notification is null) return;
-
-        notification.IsRead = true;
-        await db.SaveChangesAsync();
+        await db.Notifications
+            .Where(n => n.Id == notificationId && n.RecipientId == userId)
+            .ExecuteUpdateAsync(s => s.SetProperty(n => n.IsRead, true));
     }
 
     private static NotificationResponse MapToResponse(Notification n) => new()

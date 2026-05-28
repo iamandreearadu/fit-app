@@ -1,15 +1,19 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../core/material/material.module';
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NutritionTabFacade } from '../../../core/facade/nutrition-tab.facade';
 import { MealEntry, MealType } from '../../../core/models/nutrition-tab.model';
+import { AlertService } from '../../../shared/services/alert.service';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-nutrition-tab',
   standalone: true,
-  imports: [CommonModule, MaterialModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, MaterialModule, ReactiveFormsModule, FormsModule, MatDialogModule],
   templateUrl: './nutrition-tab.component.html',
   styleUrl: './nutrition-tab.component.css'
 })
@@ -18,6 +22,8 @@ export class NutritionTabComponent implements OnInit {
   readonly facade = inject(NutritionTabFacade);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
+  private dialog = inject(MatDialog);
+  private alerts = inject(AlertService);
 
   loading = false;
   meals: MealEntry[] = [];
@@ -169,7 +175,21 @@ export class NutritionTabComponent implements OnInit {
 
   async deleteMeal(uid?: string): Promise<void> {
     if (!uid) return;
-    await this.facade.deleteMeal(uid);
+    const confirmed = await firstValueFrom(
+      this.dialog.open(ConfirmDialogComponent, {
+        data: { message: 'Delete this meal?', dangerous: true },
+        panelClass: 'confirm-dialog-panel',
+        maxWidth: '360px',
+        width: '100%',
+      }).afterClosed()
+    );
+    if (!confirmed) return;
+    try {
+      await this.facade.deleteMeal(uid);
+      this.alerts.success('Meal deleted.');
+    } catch {
+      this.alerts.error('Failed to delete meal.');
+    }
   }
 
   stop(e: Event): void { e.stopPropagation(); }

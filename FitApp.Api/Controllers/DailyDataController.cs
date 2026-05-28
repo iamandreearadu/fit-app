@@ -36,10 +36,10 @@ public class DailyDataController(DailyDataService dailyService) : ControllerBase
 
     // GET api/daily/history
     [HttpGet("history")]
-    public async Task<IActionResult> GetHistory()
+    public async Task<IActionResult> GetHistory([FromQuery] int page = 1, [FromQuery] int pageSize = 30)
     {
-        var entries = await dailyService.GetAllAsync(UserId);
-        return Ok(entries);
+        var (items, hasMore) = await dailyService.GetAllAsync(UserId, page, pageSize);
+        return Ok(new { items, hasMore, page, pageSize });
     }
 
     // POST api/daily

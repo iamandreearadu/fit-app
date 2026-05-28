@@ -40,6 +40,7 @@
             class="profile-avatar"
             [src]="facade.currentProfile()!.avatarUrl"
             [alt]="facade.currentProfile()!.displayName"
+            (error)="onAvatarError($event)"
           />
         } @else {
           <div class="profile-avatar profile-avatar--fallback">
@@ -268,6 +269,31 @@
                     type="button"
                   >
                     <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- ── Archived Workouts ──────────────────────────────────────────── -->
+        @if (facade.archivedWorkouts().length > 0) {
+          <div class="archived-section-header" style="margin-top: 16px;">
+            <span class="archived-title">Archived Workouts</span>
+          </div>
+          <div class="profile-posts-grid">
+            @for (workout of facade.archivedWorkouts(); track workout.id) {
+              <div class="profile-post-cell profile-post-text-cell">
+                <p>{{ workout.title }}</p>
+                <span style="font-size: 11px; opacity: 0.5;">{{ workout.type }} · {{ workout.durationMin }} min</span>
+                <div class="profile-item-overlay">
+                  <button
+                    class="profile-overlay-btn"
+                    (click)="archiveWorkout($event, workout.id)"
+                    title="Unarchive"
+                    type="button"
+                  >
+                    <mat-icon>unarchive</mat-icon>
                   </button>
                 </div>
               </div>

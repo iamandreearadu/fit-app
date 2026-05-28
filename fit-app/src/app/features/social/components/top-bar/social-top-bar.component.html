@@ -16,9 +16,12 @@
 </header>
 
 <!-- Backdrop -->
-@if (menuOpen()) {
-  <div class="social-menu-backdrop" (click)="closeMenu()" aria-hidden="true"></div>
-}
+<div
+  class="social-menu-backdrop"
+  [class.social-menu-backdrop--visible]="menuOpen()"
+  (click)="closeMenu()"
+  aria-hidden="true"
+></div>
 
 <!-- Side drawer -->
 <aside class="social-menu-drawer" [class.social-menu-drawer--open]="menuOpen()" aria-label="beSocial menu">

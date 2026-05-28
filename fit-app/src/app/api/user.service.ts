@@ -20,7 +20,7 @@ export class UserService {
       );
       return this.mapDtoToProfile(dto);
     } catch (err) {
-      this.alerts.warn('Failed to load user profile', String(err));
+      this.alerts.warn('Failed to load user profile');
       return null;
     }
   }
@@ -43,7 +43,7 @@ export class UserService {
       );
       this.alerts.success('Profile saved');
     } catch (err) {
-      this.alerts.warn('Failed to save profile', String(err));
+      this.alerts.warn('Failed to save profile');
     }
   }
 
@@ -65,7 +65,7 @@ export class UserService {
       return this.mapDtoToDaily(dto);
     } catch (err: any) {
       if (err?.status === 404) return null;
-      this.alerts.warn('Failed to load daily data', String(err));
+      this.alerts.warn('Failed to load daily data');
       return null;
     }
   }
@@ -85,21 +85,22 @@ export class UserService {
         })
       );
     } catch (err) {
-      this.alerts.warn('Failed to save daily data', String(err));
+      this.alerts.warn('Failed to save daily data');
     }
   }
 
   public async getAllPreviousData(): Promise<DailyUserData[]> {
     try {
-      const dtos = await firstValueFrom(
-        this.http.get<any[]>(`${this.baseUrl}/api/daily/history`)
+      const res = await firstValueFrom(
+        this.http.get<any>(`${this.baseUrl}/api/daily/history`)
       );
+      const dtos: any[] = Array.isArray(res) ? res : (res?.items ?? []);
       const todayIso = new Date().toISOString().slice(0, 10);
       return dtos
         .map(d => this.mapDtoToDaily(d))
         .filter(d => d.date !== todayIso);
     } catch (err) {
-      this.alerts.warn('Failed to load daily history', String(err));
+      this.alerts.warn('Failed to load daily history');
       return [];
     }
   }
