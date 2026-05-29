@@ -43,7 +43,7 @@
       </mat-select>
     </mat-form-field>
 
-    <div class="loading" *ngIf="loading">
+    <div class="loading" *ngIf="loading()">
       <mat-progress-spinner
         mode="indeterminate"
         diameter="24"
@@ -62,13 +62,25 @@
     </div>
 
     <div class="card-body">
-      <div *ngIf="filtered.length === 0" class="empty">
-        <mat-icon>fitness_center</mat-icon>
-        <p>No workouts yet</p>
-        <span>Click "New workout" to create your first template</span>
-      </div>
+      <!-- Fix 7: guided empty — shows when API returns only system templates -->
+      @if (isGuidedEmpty()) {
+        <app-workouts-guided-empty
+          [templates]="facade.templatesSignal()"
+          (createOwn)="openCreate()"
+        />
+      } @else if (filtered.length === 0) {
+        <div class="empty">
+          <mat-icon>fitness_center</mat-icon>
+          @if (searchTerm || selectedType !== 'all') {
+            <p>No workouts match your search</p>
+          } @else {
+            <p>No workouts yet</p>
+            <span>Click "New workout" to create your first template</span>
+          }
+        </div>
+      }
 
-      <div class="list" *ngIf="filtered.length > 0">
+      <div class="list" *ngIf="filtered.length > 0 && !isGuidedEmpty()">
         <div class="row-wrap" *ngFor="let w of filtered">
           <div class="row clickable" (click)="togglePreview(w)">
             <div class="row-main">
@@ -141,6 +153,18 @@
                 No exercises added yet.
               </div>
             </ng-container>
+
+            <!-- Start Workout button -->
+            <div class="start-workout-section" *ngIf="w.type !== 'Cardio'">
+              <button
+                type="button"
+                class="btn-start-workout"
+                (click)="startWorkout(w, $event)"
+                title="Start this workout"
+              >
+                <mat-icon>play_arrow</mat-icon>Start Workout
+              </button>
+            </div>
 
             <!-- AI calorie estimate -->
             <div class="ai-section">

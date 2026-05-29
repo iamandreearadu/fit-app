@@ -1,7 +1,8 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MaterialModule } from '../../../core/material/material.module';
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -11,24 +12,26 @@ import { UserStore } from '../../../core/store/user.store';
 import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { WorkoutsGuidedEmptyComponent } from '../../workouts/guided-empty/workouts-guided-empty.component';
 
 @Component({
   selector: 'app-workouts-tab',
   standalone: true,
-  imports: [CommonModule, MaterialModule, ReactiveFormsModule, FormsModule, MatDialogModule],
+  imports: [CommonModule, MaterialModule, ReactiveFormsModule, FormsModule, MatDialogModule, WorkoutsGuidedEmptyComponent],
   templateUrl: './workouts-tab.component.html',
   styleUrl: './workouts-tab.component.css'
 })
 export class WorkoutsTabComponent implements OnInit {
   readonly facade = inject(WorkoutsTabFacade);
-  private fb = inject(FormBuilder);
-  private userStore = inject(UserStore);
-  private groqFacade = inject(GroqAiFacade);
-  private destroyRef = inject(DestroyRef);
-  private alerts = inject(AlertService);
-  private dialog = inject(MatDialog);
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly userStore = inject(UserStore);
+  private readonly groqFacade = inject(GroqAiFacade);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly alerts = inject(AlertService);
+  private readonly dialog = inject(MatDialog);
 
-  loading = false;
+  readonly loading = signal(false);
   aiCalories: Partial<Record<string, { loading: boolean; calories?: number; explanation?: string }>> = {};
 
   templates: WorkoutTemplate[] = [];
@@ -61,6 +64,17 @@ export class WorkoutsTabComponent implements OnInit {
     notes: this.fb.control<string>('')
   });
 
+  /**
+   * True when the backend returned only system templates (user has no personal ones).
+   * Drives visibility of WorkoutsGuidedEmptyComponent inside the card body.
+   * Reactive: re-evaluates whenever loading or templatesSignal changes.
+   */
+  readonly isGuidedEmpty = computed(() =>
+    !this.loading() &&
+    this.facade.templatesSignal().length > 0 &&
+    this.facade.templatesSignal().every(t => t.isSystemTemplate)
+  );
+
   ngOnInit(): void {
     this.facade.templates$.pipe(
       takeUntilDestroyed(this.destroyRef)
@@ -69,8 +83,8 @@ export class WorkoutsTabComponent implements OnInit {
       this.applyFilters();
     });
 
-    this.loading = true;
-    this.facade.loadTemplates().finally(() => (this.loading = false));
+    this.loading.set(true);
+    this.facade.loadTemplates().finally(() => this.loading.set(false));
 
     this.form.controls.type.valueChanges.pipe(
       takeUntilDestroyed(this.destroyRef)
@@ -237,12 +251,12 @@ async estimateCalories(w: WorkoutTemplate, event: Event): Promise<void> {
       payload.cardio = undefined;
     }
 
-    this.loading = true;
+    this.loading.set(true);
     try {
       await this.facade.createOrUpdateTemplate(payload);
       await this.facade.loadTemplates();
     } finally {
-      this.loading = false;
+      this.loading.set(false);
       this.showEditor = false;
       this.editing = false;
     }
@@ -260,14 +274,14 @@ async estimateCalories(w: WorkoutTemplate, event: Event): Promise<void> {
     );
     if (!confirmed) return;
 
-    this.loading = true;
+    this.loading.set(true);
     try {
       await this.facade.deleteTemplate(uid);
       this.alerts.success('Workout deleted.');
     } catch {
       this.alerts.error('Failed to delete workout.');
     } finally {
-      this.loading = false;
+      this.loading.set(false);
     }
   }
 
@@ -288,6 +302,12 @@ async estimateCalories(w: WorkoutTemplate, event: Event): Promise<void> {
   removeExercise(index: number): void {
     if (this.exercises.length <= 1) return;
     this.exercises.removeAt(index);
+  }
+
+  startWorkout(w: WorkoutTemplate, event: Event): void {
+    event.stopPropagation();
+    if (!w.id) return;
+    this.router.navigate(['/workout-session', w.id]);
   }
 
   private onTypeChange(type: WorkoutType): void {

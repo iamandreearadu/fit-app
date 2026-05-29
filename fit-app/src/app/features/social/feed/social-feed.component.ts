@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, signal, computed } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +11,8 @@ import { Post } from '../../../core/models/social.model';
 import { PostCardComponent } from '../components/post-card/post-card.component';
 import { CreateContentComponent } from '../components/create-content/create-content.component';
 import { EditPostComponent } from '../components/edit-post/edit-post.component';
+import { SocialFeedGuidedEmptyComponent } from './guided-empty/social-feed-guided-empty.component';
+import { AuthenticationStore } from '../../../core/store/auth.store';
 
 @Component({
   selector: 'app-social-feed',
@@ -21,7 +24,8 @@ import { EditPostComponent } from '../components/edit-post/edit-post.component';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatDialogModule,
-    PostCardComponent
+    PostCardComponent,
+    SocialFeedGuidedEmptyComponent,
   ],
   templateUrl: './social-feed.component.html',
   styleUrl: './social-feed.component.css'
@@ -30,6 +34,8 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly facade = inject(SocialFacade);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
+  private readonly authStore = inject(AuthenticationStore);
+  private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('sentinel') sentinelRef!: ElementRef;
   private observer: IntersectionObserver | null = null;
@@ -38,6 +44,11 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.facade.loadFeed(true);
+    // Fix 7: load current user's following count to decide whether to show guided empty state
+    const myId = this.authStore.authUser()?.id;
+    if (myId) {
+      this.facade.loadMyFollowingCount(myId);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -96,7 +107,9 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
       maxWidth: isMobile ? '100vw' : '600px',
       width: '100%',
       position: isMobile ? { bottom: '0' } : undefined,
-    }).afterClosed().subscribe(result => {
+    }).afterClosed().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(result => {
       if (result) this.facade.loadFeed(true);
     });
   }
