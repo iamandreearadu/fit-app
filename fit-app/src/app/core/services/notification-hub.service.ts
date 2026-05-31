@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
 import { Subject } from 'rxjs';
-import { SocialNotification } from '../models/notification.model';
+import { SocialNotification, StreakUpdatedPayload } from '../models/notification.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -10,6 +10,10 @@ export class NotificationHubService {
 
   private readonly notifSubject = new Subject<SocialNotification>();
   readonly notification$ = this.notifSubject.asObservable();
+
+  // Fix 5 — streak-updated event (distinct from ReceiveNotification)
+  private readonly streakSubject = new Subject<StreakUpdatedPayload>();
+  readonly streakUpdated$ = this.streakSubject.asObservable();
 
   async connect(token: string): Promise<void> {
     if (this.connection?.state === HubConnectionState.Connected) return;
@@ -20,6 +24,7 @@ export class NotificationHubService {
       .build();
 
     this.connection.on('ReceiveNotification', (n: SocialNotification) => this.notifSubject.next(n));
+    this.connection.on('streak-updated', (p: StreakUpdatedPayload) => this.streakSubject.next(p));
 
     await this.connection.start();
   }

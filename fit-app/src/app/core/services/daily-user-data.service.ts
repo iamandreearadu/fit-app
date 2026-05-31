@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { DailyUserDataStats, DailyUserData } from "../models/daily-user-data.model";
+import { DailyEntrySummary, DailyUserDataStats, DailyUserData } from "../models/daily-user-data.model";
 import { UserMetricsService } from "./user-metrics.service";
 
 @Injectable({
@@ -18,10 +18,12 @@ export class DailyUserDataService {
   private readonly _daily = signal<DailyUserData | null>(null);
   private readonly _loading = signal(false);
   private readonly _history = signal<DailyUserData[]>([]);
+  private readonly _todaySummary = signal<DailyEntrySummary | null>(null);
 
   readonly daily = this._daily.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly history = this._history.asReadonly();
+  readonly todaySummary = this._todaySummary.asReadonly();
 
   readonly stats = computed<DailyUserDataStats>(() =>
     this.computeStats(this._daily())
@@ -63,7 +65,9 @@ export class DailyUserDataService {
       macrosPct: { protein: 0, carbs: 0, fats: 0 },
       caloriesIntake: 0,
       caloriesBurned: 0,
-      caloriesTotal: 0
+      caloriesTotal: 0,
+      manualWeight: undefined,
+      energyLevel: undefined,
     });
   }
 
@@ -73,6 +77,10 @@ export class DailyUserDataService {
 
   public setHistory(list: DailyUserData[]): void {
     this._history.set(list);
+  }
+
+  public setTodaySummary(summary: DailyEntrySummary | null): void {
+    this._todaySummary.set(summary);
   }
 
   // ----------------- PUBLIC API (mutations) -----------------
@@ -165,6 +173,8 @@ export class DailyUserDataService {
       caloriesIntake: caloriesIntake,
       caloriesBurned: caloriesBurned,
       caloriesTotal: this.caloriesTotal(caloriesIntake, caloriesBurned),
+      manualWeight: patch.manualWeight !== undefined ? patch.manualWeight : existing?.manualWeight,
+      energyLevel: patch.energyLevel !== undefined ? patch.energyLevel : existing?.energyLevel,
     };
 
     if (result.caloriesIntake == null) {

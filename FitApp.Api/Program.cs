@@ -73,6 +73,16 @@ builder.Services.AddHttpClient("Groq", client =>
     client.Timeout = TimeSpan.FromSeconds(60);
 });
 
+// ── HTTP Client for USDA FoodData Central ────────────────────────────────────
+builder.Services.AddHttpClient("USDA", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Usda:BaseUrl"]!);
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
+
+// ── In-memory cache (food search results, 30-min sliding TTL) ────────────────
+builder.Services.AddMemoryCache();
+
 // ── SignalR ───────────────────────────────────────────────────────────────────
 builder.Services.AddSignalR();
 
@@ -83,7 +93,9 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<DailyDataService>();
 builder.Services.AddScoped<WorkoutService>();
+builder.Services.AddScoped<WorkoutSessionService>();
 builder.Services.AddScoped<NutritionService>();
+builder.Services.AddScoped<FoodSearchService>();
 builder.Services.AddScoped<BlogService>();
 builder.Services.AddScoped<AiProxyService>();
 builder.Services.AddScoped<EmailService>();
@@ -117,6 +129,15 @@ builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 
 var app = builder.Build();
+
+// ── Startup guards ────────────────────────────────────────────────────────────
+var usdaKey = app.Configuration["Usda:ApiKey"];
+if (string.IsNullOrWhiteSpace(usdaKey) || usdaKey == "DEMO_KEY")
+{
+    app.Logger.LogWarning(
+        "USDA API key is DEMO_KEY or empty (30 req/hr limit). " +
+        "Register a production key at https://api.data.gov/signup/");
+}
 
 // ── Auto-migrate on startup ───────────────────────────────────────────────────
 // Use a standalone connection so writes are committed before EF Core's Migrate() runs.
@@ -179,6 +200,7 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
     await FitApp.Api.Data.Seeds.BlogPostSeeder.SeedAsync(db);
     await FitApp.Api.Data.Seeds.UserSeeder.SeedAsync(db);
+    await FitApp.Api.Data.Seeds.WorkoutTemplateSeeder.SeedAsync(db);
 }
 
 static void Exec(SqliteConnection c, string sql)

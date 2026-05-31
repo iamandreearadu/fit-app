@@ -9,21 +9,23 @@ import { NutritionTabFacade } from '../../../core/facade/nutrition-tab.facade';
 import { MealEntry, MealType } from '../../../core/models/nutrition-tab.model';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { NutritionGuidedEmptyComponent } from './guided-empty/nutrition-guided-empty.component';
+import { AiMealAnalyzerDialogComponent } from '../../dashboard/daily-user-data/ai-meal-analyzer/ai-meal-analyzer-dialog.component';
 
 @Component({
   selector: 'app-nutrition-tab',
   standalone: true,
-  imports: [CommonModule, MaterialModule, ReactiveFormsModule, FormsModule, MatDialogModule],
+  imports: [CommonModule, MaterialModule, ReactiveFormsModule, FormsModule, MatDialogModule, NutritionGuidedEmptyComponent],
   templateUrl: './nutrition-tab.component.html',
   styleUrl: './nutrition-tab.component.css'
 })
 export class NutritionTabComponent implements OnInit {
 
   readonly facade = inject(NutritionTabFacade);
-  private fb = inject(FormBuilder);
-  private destroyRef = inject(DestroyRef);
-  private dialog = inject(MatDialog);
-  private alerts = inject(AlertService);
+  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
+  private readonly alerts = inject(AlertService);
 
   loading = false;
   meals: MealEntry[] = [];
@@ -193,4 +195,21 @@ export class NutritionTabComponent implements OnInit {
   }
 
   stop(e: Event): void { e.stopPropagation(); }
+
+  /**
+   * Fix 7: Opens the AI Meal Analyzer inline as a MatDialog — zero navigation,
+   * zero activation energy. On save, the meal list reloads automatically.
+   */
+  onOpenAiAnalyzer(): void {
+    this.dialog
+      .open(AiMealAnalyzerDialogComponent, {
+        panelClass: 'ai-analyzer-panel',
+        maxWidth: window.innerWidth <= 640 ? '100vw' : '560px',
+        width: '100%',
+      })
+      .afterClosed()
+      .subscribe((mealSaved: boolean) => {
+        if (mealSaved) this.facade.loadMeals();
+      });
+  }
 }

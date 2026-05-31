@@ -19,7 +19,8 @@ import {
   UpdateBioRequest,
   CreateBlogRequest,
   UpdateBlogRequest,
-  ArticleDetail
+  ArticleDetail,
+  SuggestedUser,
 } from '../core/models/social.model';
 
 /** Ensures imageUrl is always a renderable src (handles legacy raw-base64 posts). */
@@ -175,5 +176,16 @@ export class SocialService {
 
   getArticle(id: number): Observable<ArticleDetail> {
     return this.http.get<ArticleDetail>(`${this.base}/articles/${id}`);
+  }
+
+  /** GET /api/social/discover/suggested — Fix 7 guided empty state */
+  getSuggestedUsers(limit = 5): Observable<SuggestedUser[]> {
+    const params = new HttpParams().set('limit', Math.min(limit, 5));
+    return this.http.get<SuggestedUser[]>(`${this.base}/discover/suggested`, { params });
+  }
+
+  /** GET /api/social/profile/me/following-count — lightweight count-only endpoint */
+  getMyFollowingCount(): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(`${this.base}/profile/me/following-count`);
   }
 }

@@ -4,11 +4,12 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
 import { CreateContentComponent } from '../create-content/create-content.component';
 import { AccountFacade } from '../../../../core/facade/account.facade';
+import { StreakBadgeComponent } from '../../../../shared/components/streak-badge/streak-badge.component';
 
 @Component({
   selector: 'app-social-top-bar',
   standalone: true,
-  imports: [MatIconModule, MatDialogModule, RouterLink],
+  imports: [MatIconModule, MatDialogModule, RouterLink, StreakBadgeComponent],
   templateUrl: './social-top-bar.component.html',
   styleUrl: './social-top-bar.component.css'
 })

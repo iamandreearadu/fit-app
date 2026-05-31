@@ -1026,6 +1026,71 @@
   transform: scale(1.15);
 }
 
+/* ─── CHECK-IN DIVIDER ─── */
+.checkin-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 2px 0;
+}
+
+/* ─── ENERGY SECTION ─── */
+.energy-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.energy-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.energy-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.energy-btn {
+  flex: 1;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--white-soft);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s,
+    transform 0.12s;
+}
+
+.energy-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.energy-active {
+  background: var(--primary-glow) !important;
+  border-color: var(--primary) !important;
+  color: var(--white) !important;
+}
+
+.energy-selected-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--primary);
+  text-align: center;
+  min-height: 16px;
+}
+
 /* Mobile */
 @media (max-width: 540px) {
   .daily-root {

@@ -37,6 +37,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'workout-session/:templateId',
+    loadComponent: () =>
+      import('./features/workouts/active-session/active-workout-session.component').then(
+        (m) => m.ActiveWorkoutSessionComponent,
+      ),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'ai-assistant',
     loadComponent: () =>
       import('./features/openai/openai.component').then(

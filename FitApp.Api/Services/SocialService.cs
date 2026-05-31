@@ -479,6 +479,81 @@ public class SocialService(
         };
     }
 
+    // ── Suggested Users (guided-empty-state) ──────────────────────────────────
+
+    /// <summary>
+    /// Returns up to <paramref name="limit"/> user suggestions for new users with no follows.
+    /// Algorithm:
+    ///   1. Exclude self and already-followed users.
+    ///   2. Prioritise users whose Goal matches the requesting user's Goal.
+    ///   3. Secondary sort: workouts completed in the current calendar month (UTC).
+    ///   4. Hard cap: limit is always clamped to 5.
+    ///
+    /// PRIVACY: only userId, displayName, avatarUrl, fitnessGoal (raw Goal string), and
+    /// workoutsThisMonth are returned. BMI / weight / calories / BMR / TDEE are never included.
+    /// </summary>
+    public async Task<List<SuggestedUserResponse>> GetSuggestedUsersAsync(string requestingUserId, int limit = 5)
+    {
+        limit = Math.Min(limit, 5); // hard cap — never more than 5
+
+        // Get the requesting user's fitness goal for priority matching
+        var myGoal = await db.Users
+            .Where(u => u.Id == requestingUserId)
+            .Select(u => u.Goal)
+            .FirstOrDefaultAsync();
+
+        // Get already-followed user IDs (no need to suggest users the caller follows)
+        var followingIds = await db.Follows
+            .Where(f => f.FollowerId == requestingUserId)
+            .Select(f => f.FollowingId)
+            .ToHashSetAsync();
+
+        // Pull candidate users — not self, not already followed — ordered and capped in DB
+        int poolCap = limit * 3;
+
+        var pool = await db.Users
+            .AsNoTracking()
+            .Where(u => u.Id != requestingUserId && !followingIds.Contains(u.Id))
+            .Select(u => new
+            {
+                u.Id,
+                u.FullName,
+                u.ImageUrl,
+                u.Goal,
+                GoalMatch = (!string.IsNullOrEmpty(myGoal) && u.Goal == myGoal) ? 1 : 0
+            })
+            .OrderByDescending(u => u.GoalMatch)
+            .Take(poolCap)
+            .ToListAsync();
+
+        if (pool.Count == 0) return [];
+
+        // Count completed sessions this month for each candidate in the pool
+        var poolIds = pool.Select(u => u.Id).ToList();
+        var monthStart = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1,
+            0, 0, 0, DateTimeKind.Utc);
+
+        var workoutCounts = await db.WorkoutSessions
+            .Where(s => poolIds.Contains(s.UserId) && s.FinishedAt >= monthStart)
+            .GroupBy(s => s.UserId)
+            .Select(g => new { UserId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.UserId, x => x.Count);
+
+        return pool
+            .Select(u => new SuggestedUserResponse
+            {
+                UserId       = u.Id,
+                DisplayName  = u.FullName,
+                AvatarUrl    = u.ImageUrl,
+                FitnessGoal  = string.IsNullOrEmpty(u.Goal) ? null : u.Goal,
+                WorkoutsThisMonth = workoutCounts.GetValueOrDefault(u.Id, 0)
+            })
+            .OrderByDescending(u => !string.IsNullOrEmpty(myGoal) && u.FitnessGoal == myGoal ? 1 : 0)
+            .ThenByDescending(u => u.WorkoutsThisMonth)
+            .Take(limit)
+            .ToList();
+    }
+
     // ── User Search ───────────────────────────────────────────────────────────
 
     public async Task<List<UserSearchResult>> SearchUsersAsync(string query, string requestingUserId, int limit = 20)
@@ -510,6 +585,11 @@ public class SocialService(
             IsFollowedByMe = followingIds.Contains(u.Id)
         }).ToList();
     }
+
+    // ── Following Count ───────────────────────────────────────────────────────
+
+    public async Task<FollowingCountDto> GetFollowingCountAsync(string userId)
+        => new(await db.Follows.CountAsync(f => f.FollowerId == userId));
 
     // ── Private helpers ───────────────────────────────────────────────────────
 

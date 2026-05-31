@@ -48,6 +48,7 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
   commentSkeletons = Array.from({ length: 4 });
 
   @ViewChild('commentsList') commentsListRef!: ElementRef;
+  @ViewChild('composerTextarea') composerTextareaRef!: ElementRef;
 
   protected postId = 0;
   private returnUrl = '/social/feed';
@@ -92,6 +93,11 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
     }).finally(() => {
       this.isLoadingComments.set(false);
     });
+  }
+
+  scrollToComposer(): void {
+    this.composerTextareaRef?.nativeElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    this.composerTextareaRef?.nativeElement?.focus();
   }
 
   onLikePost(): void {

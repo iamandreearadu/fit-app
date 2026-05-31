@@ -33,6 +33,16 @@ public class UserMetricsDto
 
 public record StreakDto(int Current, int Longest, bool LoggedToday, bool AtRisk);
 
+// Navigation badge streak — minimal fields; deliberately excludes health metrics
+// (no BMI, weight, BMR, TDEE, goal calories). Consumed by GET /api/users/me/streak.
+public record UserStreakDto(
+    int CurrentStreak,
+    string? LastLogDate,  // "yyyy-MM-dd" of most recent DailyEntry; null if no entries
+    bool AtRiskToday,     // !loggedToday && currentStreak > 0 && UTC hour >= 18
+    bool LoggedToday,     // DailyEntry exists for today's UTC date
+    bool IsNewRecord      // currentStreak > 0 && currentStreak == allTimeLongest
+);
+
 public class UpdateUserProfileRequest
 {
     public string? FullName { get; set; }

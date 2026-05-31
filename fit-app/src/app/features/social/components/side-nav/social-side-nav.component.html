@@ -20,6 +20,11 @@
     <span class="social-sidenav-user-name">{{ userName() }}</span>
   </div>
 
+  <!-- Streak badge — visible on desktop social shell -->
+  <div class="social-sidenav-streak">
+    <app-streak-badge />
+  </div>
+
   <!-- Nav items -->
   <nav aria-label="beSocial navigation">
     @for (item of navItems; track item.route) {

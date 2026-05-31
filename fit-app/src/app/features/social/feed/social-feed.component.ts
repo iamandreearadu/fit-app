@@ -47,7 +47,7 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
     // Fix 7: load current user's following count to decide whether to show guided empty state
     const myId = this.authStore.authUser()?.id;
     if (myId) {
-      this.facade.loadMyFollowingCount(myId);
+      this.facade.loadMyFollowingCount();
     }
   }
 

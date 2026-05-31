@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { AlertService } from '../shared/services/alert.service';
 import { StreakData, UserProfile } from '../core/models/user.model';
-import { DailyUserData } from '../core/models/daily-user-data.model';
+import { DailyEntrySummary, DailyUserData } from '../core/models/daily-user-data.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -70,6 +70,17 @@ export class UserService {
     }
   }
 
+  public async getTodaySummary(): Promise<DailyEntrySummary | null> {
+    try {
+      return await firstValueFrom(
+        this.http.get<DailyEntrySummary>(`${this.baseUrl}/api/daily/today/summary`)
+      );
+    } catch (err: any) {
+      this.alerts.warn('Failed to load daily summary');
+      return null;
+    }
+  }
+
   public async saveDailyForDate(dateIso: string, data: DailyUserData): Promise<void> {
     try {
       await firstValueFrom(
@@ -81,7 +92,9 @@ export class UserService {
           stepTarget: data.stepTarget,
           macrosPct: data.macrosPct,
           caloriesBurned: data.caloriesBurned,
-          caloriesIntake: data.caloriesIntake,
+          // caloriesIntake REMOVED — now server-computed from MealEntries (Fix 10)
+          manualWeight: data.manualWeight ?? null,
+          energyLevel: data.energyLevel ?? null,
         })
       );
     } catch (err) {
@@ -137,6 +150,8 @@ export class UserService {
         carbs: d.macrosPct?.carbs ?? 0,
         fats: d.macrosPct?.fats ?? 0,
       },
+      manualWeight: d.manualWeight ?? undefined,
+      energyLevel: d.energyLevel ?? undefined,
     };
   }
 }

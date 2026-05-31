@@ -1,0 +1,158 @@
+<!-- Loading state -->
+@if (loading()) {
+  <div class="session-loading">
+    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+    <p>Loading session…</p>
+  </div>
+}
+
+<!-- Session page -->
+@if (!loading()) {
+
+  <!-- ── Sticky header ── -->
+  <header class="session-header">
+    <button type="button" class="icon-btn-round" (click)="exitSession()" aria-label="Exit session">
+      <mat-icon>close</mat-icon>
+    </button>
+    <span class="session-title">{{ templateTitle() }}</span>
+    <span class="session-elapsed" aria-live="off">{{ elapsedLabel() }}</span>
+  </header>
+
+  <!-- ── Exercise sections ── -->
+  <div class="session-content">
+
+    @if (sections().length === 0) {
+      <div class="empty session-empty">
+        <mat-icon>fitness_center</mat-icon>
+        <p>No exercises in this template</p>
+      </div>
+    }
+
+    <div class="session-sections">
+      @for (section of sections(); let si = $index; track section.exercise.name) {
+        <div class="session-section">
+
+          <!-- Exercise header -->
+          <div class="session-exercise-hdr">
+            <span class="session-ex-name">{{ section.exercise.name }}</span>
+            <span class="pill-subtle">
+              {{ getSectionSetsCompleted(section) }} / {{ section.sets.length }}
+            </span>
+            @if (getSectionSetsCompleted(section) === section.sets.length && section.sets.length > 0) {
+              <mat-icon class="session-ex-done">check_circle</mat-icon>
+            }
+          </div>
+
+          <!-- Set rows -->
+          <div class="session-sets">
+            @for (set of section.sets; let ri = $index; track set.setNumber) {
+              <app-workout-set-row
+                [setNumber]="set.setNumber"
+                [exerciseName]="section.exercise.name"
+                [targetWeightKg]="set.weightKg"
+                [targetReps]="set.reps"
+                [lastSession]="facade.lastSessionMap().get(section.exercise.name) ?? null"
+                (completed)="onSetCompleted(si, ri, $event)"
+                (deleted)="onSetDeleted(si, ri)"
+              >
+              </app-workout-set-row>
+            }
+          </div>
+
+          <!-- Add set button -->
+          <button type="button" class="btn-add-ex session-add-set-btn" (click)="addSet(si)">
+            <mat-icon>add_circle_outline</mat-icon>Add set
+          </button>
+
+        </div>
+      }
+    </div>
+
+  </div>
+
+  <!-- ── Rest timer toast ── -->
+  @if (restTimerVisible()) {
+    <div class="session-rest-timer" role="timer" aria-live="polite"
+         [attr.aria-label]="'Rest timer: ' + restLabel()">
+
+      <!-- Duration selector (visible before user makes first choice) -->
+      @if (!restDurationChosen()) {
+        <div class="rest-duration-selector">
+          @for (dur of restDurations; track dur) {
+            <button
+              type="button"
+              class="pill-subtle rest-dur-btn"
+              [class.rest-dur-btn--active]="restDuration() === dur"
+              (click)="setRestDuration(dur)"
+            >
+              {{ dur >= 60 ? (dur / 60) + 'm' : dur + 's' }}
+              @if (restDuration() === dur) { ✓ }
+            </button>
+          }
+        </div>
+      }
+
+      <div class="rest-timer-row">
+        <mat-icon class="rest-icon">timer</mat-icon>
+        <span class="rest-label-text">Rest</span>
+
+        <!-- Progress bar -->
+        <div class="rest-bar-track" aria-hidden="true">
+          <div class="rest-bar-fill" [style.width.%]="restFillPct()"></div>
+        </div>
+
+        <!-- Countdown -->
+        <span
+          class="rest-countdown"
+          [class.rest-countdown--warn]="restWarning()"
+        >
+          {{ restLabel() }}
+        </span>
+
+        <button type="button" class="btn-ghost rest-btn" (click)="skipRest()">Skip</button>
+        <button type="button" class="btn-ghost rest-btn" (click)="addRestTime()">+30s</button>
+      </div>
+    </div>
+  }
+
+  <!-- ── Finish FAB ── -->
+  <button
+    type="button"
+    class="session-finish-fab"
+    [class.session-finish-fab--pulse]="allComplete()"
+    [disabled]="finishing()"
+    (click)="openFinishConfirm()"
+    aria-label="Finish workout"
+  >
+    @if (finishing()) {
+      <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>
+    } @else {
+      <mat-icon>flag</mat-icon>
+      Finish
+    }
+  </button>
+
+  <!-- ── Finish confirmation overlay ── -->
+  @if (showFinishConfirm()) {
+    <div class="overlay" (click)="cancelFinish()">
+      <div class="session-confirm-sheet" (click)="$event.stopPropagation()">
+        <div class="session-confirm-header">
+          <div class="mh-icon-wrap"><mat-icon>fitness_center</mat-icon></div>
+          <div>
+            <div class="session-confirm-title">End workout?</div>
+            <div class="session-confirm-sub">
+              You've completed {{ completedSets() }} of {{ totalSets() }} sets.
+            </div>
+          </div>
+        </div>
+        <div class="session-confirm-actions">
+          <button type="button" class="btn-ghost" (click)="cancelFinish()">Keep going</button>
+          <button type="button" class="btn-primary" (click)="confirmFinish()">
+            <mat-icon>flag</mat-icon>End workout
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+}

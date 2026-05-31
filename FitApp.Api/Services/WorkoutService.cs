@@ -10,12 +10,24 @@ public class WorkoutService(AppDbContext db)
     public async Task<(List<WorkoutTemplateDto> Items, bool HasMore)> ListAsync(string userId, int page = 1, int pageSize = 20)
     {
         pageSize = Math.Min(pageSize, 50);
-        var query = db.WorkoutTemplates
+
+        // When the user has at least one personal template, return their templates only.
+        // When they have none, fall back to the seeded system templates so the frontend
+        // always has something to render (all items will have IsSystemTemplate = true,
+        // which the frontend uses as the trigger condition for the guided empty state).
+        var hasPersonal = await db.WorkoutTemplates
+            .AnyAsync(w => w.UserId == userId && !w.IsSystemTemplate);
+
+        IQueryable<WorkoutTemplate> baseQuery = hasPersonal
+            ? db.WorkoutTemplates.Where(w => w.UserId == userId && !w.IsSystemTemplate)
+            : db.WorkoutTemplates.Where(w => w.IsSystemTemplate);
+
+        var query = baseQuery
             .AsNoTracking()
             .Include(w => w.Exercises.OrderBy(e => e.Order))
             .Include(w => w.Cardio)
-            .Where(w => w.UserId == userId)
             .OrderByDescending(w => w.UpdatedAt);
+
         var total = await query.CountAsync();
         var workouts = await query
             .Skip((page - 1) * pageSize)
@@ -124,6 +136,7 @@ public class WorkoutService(AppDbContext db)
         Notes = w.Notes,
         CreatedAt = w.CreatedAt,
         UpdatedAt = w.UpdatedAt,
+        IsSystemTemplate = w.IsSystemTemplate,
         Exercises = w.Exercises.OrderBy(e => e.Order).Select(e => new WorkoutExerciseDto
         {
             Name = e.Name,

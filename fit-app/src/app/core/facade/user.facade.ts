@@ -1,4 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserStore } from '../store/user.store';
 import { UserMetricsService } from '../services/user-metrics.service';
 import { UserValidationService } from '../validations/user-validation.service';
@@ -8,6 +9,11 @@ import { UserService } from '../../api/user.service';
 import { DailyUserData } from '../models/daily-user-data.model';
 import { LocalStorageService } from '../../shared/services/local-storage.service';
 import { DailyUserDataService } from '../services/daily-user-data.service';
+import { NotificationHubService } from '../services/notification-hub.service';
+import { NutritionTabFacade } from './nutrition-tab.facade';
+import { WorkoutsTabFacade } from './workouts-tab.facade';
+import { MealEntry } from '../models/nutrition-tab.model';
+import { WorkoutTemplate } from '../models/workouts-tab.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserFacade {
@@ -17,11 +23,16 @@ export class UserFacade {
   private userMetricsSrv = inject(UserMetricsService);
   private userSrv = inject(UserService);
   private dailyUserSrv = inject(DailyUserDataService);
+  private notifHub = inject(NotificationHubService);
 
   private userValidationSrv = inject(UserValidationService);
   private dailyValidationSrv = inject(DailyUserDataValidationService);
 
   private userStore = inject(UserStore);
+
+  // Delegated sub-facades — DailyUserDataComponent must use UserFacade as its sole dependency
+  private readonly nutritionTabFacade = inject(NutritionTabFacade);
+  private readonly workoutsTabFacade  = inject(WorkoutsTabFacade);
 
   readonly streak = signal<StreakData | null>(null);
 
@@ -75,9 +86,21 @@ export class UserFacade {
     return this.dailyUserSrv.history;
   }
 
+  get todaySummary() {
+    return this.dailyUserSrv.todaySummary;
+  }
+
   // ========== Initialization ==========
 
-  constructor() { }
+  constructor() {
+    // Fix 5 — real-time streak badge update via SignalR streak-updated event.
+    // Merges only current + isNewRecord; preserves longest so the Dashboard "Best" display is unaffected.
+    this.notifHub.streakUpdated$.pipe(takeUntilDestroyed()).subscribe(p => {
+      this.streak.update(s =>
+        s ? { ...s, current: p.currentStreak, isNewRecord: p.isNewRecord } : s
+      );
+    });
+  }
 
   public async loadCurrentUser(): Promise<void> {
     try {
@@ -94,6 +117,11 @@ export class UserFacade {
 
 
   // ========== Daily User Data operations ==========
+
+  public async loadTodaySummary(): Promise<void> {
+    const summary = await this.userSrv.getTodaySummary();
+    this.dailyUserSrv.setTodaySummary(summary);
+  }
 
   public async loadDaily(dateIso?: string): Promise<void> {
     this.dailyUserSrv.setLoading(true);
@@ -178,6 +206,28 @@ export class UserFacade {
     }
   }
 
+
+  // ========== Nutrition delegations ==========
+
+  /** Loaded meal list — same signal as NutritionTabFacade.meals */
+  get meals(): MealEntry[] { return this.nutritionTabFacade.meals; }
+
+  async loadMeals(): Promise<void> {
+    await this.nutritionTabFacade.loadMeals();
+  }
+
+  async saveMeal(data: Partial<MealEntry>): Promise<void> {
+    await this.nutritionTabFacade.saveMeal(data);
+  }
+
+  // ========== Workout template delegations ==========
+
+  /** Loaded workout template list — same signal as WorkoutsTabFacade.templates */
+  get workoutTemplates(): WorkoutTemplate[] { return this.workoutsTabFacade.templates; }
+
+  async loadWorkoutTemplates(): Promise<void> {
+    await this.workoutsTabFacade.loadTemplates();
+  }
 
   // === Domain logic delegations ===
 

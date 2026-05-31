@@ -52,6 +52,7 @@ export class AccountFacade {
     if (fromLs) {
       this.authStore.setAuth(fromLs);
       await this.userFacade.loadCurrentUser();
+      void this.userFacade.loadStreak();
 
       // Connect hubs if token available
       if (fromLs.token) {
@@ -77,6 +78,7 @@ export class AccountFacade {
         this.ls.set(this.authKey, u);
 
         await this.userFacade.loadCurrentUser();
+        void this.userFacade.loadStreak();
 
         // Connect real-time hubs
         if (u.token) {
@@ -106,6 +108,7 @@ export class AccountFacade {
         this.ls.set(this.authKey, u);
 
         await this.userFacade.loadCurrentUser();
+        void this.userFacade.loadStreak();
 
         // Connect real-time hubs
         if (u.token) {
@@ -134,6 +137,7 @@ export class AccountFacade {
       void this.notifHub.disconnect();
 
       this.authStore.clear();
+      this.userFacade.streak.set(null);   // Fix 5 — clear stale streak on logout
       this.ls.remove(this.authKey);
       this.ls.remove(this.userKey);
 

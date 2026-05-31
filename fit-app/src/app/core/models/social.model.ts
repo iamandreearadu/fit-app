@@ -165,3 +165,13 @@ export interface UpdateBlogRequest {
   category: string;
   image?: string;
 }
+
+/** Returned by GET /api/social/discover/suggested — Fix 7 guided empty state */
+export interface SuggestedUser {
+  userId: string;
+  displayName: string;
+  avatarUrl: string | null;
+  /** Raw User.Goal category: 'lose' | 'gain' | 'maintain'. null if not set. */
+  fitnessGoal: 'lose' | 'gain' | 'maintain' | null;
+  workoutsThisMonth: number;
+}

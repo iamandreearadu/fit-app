@@ -31,4 +31,17 @@ public interface ISocialService
     Task<ProfileBlogSummary> CreateUserBlogAsync(string userId, CreateUserBlogRequest request);
     Task<ProfileBlogSummary> UpdateUserBlogAsync(int id, string userId, UpdateUserBlogRequest request);
     Task<ArticleDetailResponse> GetArticleAsync(int id, string requestingUserId);
+
+    /// <summary>
+    /// Returns up to <paramref name="limit"/> user suggestions for the social feed guided
+    /// empty state. Same-goal users are prioritised; then sorted by workouts this month.
+    /// NEVER exposes BMI, weight, calories, BMR or TDEE.
+    /// </summary>
+    Task<List<SuggestedUserResponse>> GetSuggestedUsersAsync(string requestingUserId, int limit = 5);
+
+    /// <summary>
+    /// Returns the count of users that <paramref name="userId"/> is currently following.
+    /// Used by GET /api/social/profile/me/following-count to avoid a full profile fetch.
+    /// </summary>
+    Task<FollowingCountDto> GetFollowingCountAsync(string userId);
 }

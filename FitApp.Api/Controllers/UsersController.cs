@@ -9,7 +9,7 @@ namespace FitApp.Api.Controllers;
 [ApiController]
 [Route("api/users")]
 [Authorize]
-public class UsersController(UserService userService) : ControllerBase
+public class UsersController(UserService userService, DailyDataService dailyService) : ControllerBase
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
         ?? User.FindFirstValue("sub")!;
@@ -36,5 +36,13 @@ public class UsersController(UserService userService) : ControllerBase
         var stats = await userService.GetPublicStatsAsync(userId);
         if (stats is null) return NotFound();
         return Ok(stats);
+    }
+
+    // GET /api/users/me/streak — navigation badge data (minimal, no health metrics)
+    [HttpGet("me/streak")]
+    public async Task<IActionResult> GetMyStreak()
+    {
+        var dto = await dailyService.GetUserStreakAsync(UserId);
+        return Ok(dto);
     }
 }

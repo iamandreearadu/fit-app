@@ -1,0 +1,73 @@
+<div class="guided-empty-container" role="region" aria-label="Nutrition getting started">
+
+  <!-- ── Icon area ── -->
+  <div class="guided-empty-icon">
+    <mat-icon>restaurant</mat-icon>
+  </div>
+
+  <h2 class="guided-empty-headline">What's on the menu today?</h2>
+  <p class="guided-empty-sub">Track your first meal — AI handles the macro math</p>
+
+  <!-- ── Error banner ── -->
+  @if (hasError && !isLoading) {
+    <div class="nutrition-error-banner" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <span>Couldn't load today's meals</span>
+      <button type="button" class="btn-ghost nutrition-retry-btn" (click)="openManualEntry.emit()">
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- ── Loading skeleton ── -->
+  @if (isLoading) {
+    <div class="nutrition-skeleton-block" aria-hidden="true"></div>
+  }
+
+  <!-- ── AI CTA card ── -->
+  @if (!isLoading && !hasError) {
+    <div
+      class="nutrition-ai-cta-wrap"
+    >
+      <!-- Speed badge anchored to card top-right -->
+      <span class="nutrition-ai-badge" aria-hidden="true">~ 10 SECONDS</span>
+
+      <div
+        class="nutrition-ai-cta"
+        role="button"
+        tabindex="0"
+        aria-label="Analyze meal with AI"
+        (click)="openAiAnalyzer.emit()"
+        (keydown.enter)="openAiAnalyzer.emit()"
+        (keydown.space)="openAiAnalyzer.emit()"
+      >
+        <!-- Camera icon -->
+        <div class="nutrition-ai-cam">
+          <mat-icon aria-hidden="true">photo_camera</mat-icon>
+        </div>
+
+        <!-- Text block -->
+        <div class="nutrition-ai-text">
+          <div class="nutrition-ai-title">Analyze with AI</div>
+          <div class="nutrition-ai-subtitle">Snap a photo · macros fill in seconds</div>
+        </div>
+
+        <!-- Chevron -->
+        <mat-icon class="nutrition-ai-chevron" aria-hidden="true">chevron_right</mat-icon>
+      </div>
+    </div>
+
+    <!-- ── "Add manually" secondary link ── -->
+    <div class="nutrition-manual-row">
+      <span class="nutrition-manual-prefix">Prefer to type?&nbsp;</span>
+      <button
+        type="button"
+        class="nutrition-manual-link"
+        (click)="openManualEntry.emit()"
+      >
+        Add manually
+      </button>
+    </div>
+  }
+
+</div>

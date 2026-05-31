@@ -1,7 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(npx tsc *)",
+      "Read(//Users/franzio/Documents/Andreea/FitApp/**)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet ef *)",
+      "Bash(cd *)",
+      "Read(//Users/franzio/Documents/Andreea/**)",
+      "Bash(git -C /Users/franzio/Documents/Andreea/FitApp/fit-app rev-parse --show-toplevel)",
+      "Bash(git -C /Users/franzio/Documents/Andreea/FitApp/fit-app diff HEAD~1 HEAD -- FitApp.Api/Services/FoodSearchService.cs FitApp.Api/Program.cs FitApp.Api/Models/DTOs/NutritionDtos.cs FitApp.Api/Models/Entities/MealEntry.cs FitApp.Api/Services/NutritionService.cs FitApp.Api/Migrations/20260531111555_AddFoodItemSource.cs)",
+      "Bash(git *)"
     ]
   }
 }

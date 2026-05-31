@@ -1,0 +1,27 @@
+<div class="dialog-header">
+  <div class="dialog-title-wrap">
+    <div class="dialog-icon">
+      <mat-icon>auto_awesome</mat-icon>
+    </div>
+    <div>
+      <div class="dialog-title">AI Meal Analyzer</div>
+      <div class="dialog-subtitle">Photo or barcode &middot; instant macros</div>
+    </div>
+  </div>
+  <button
+    type="button"
+    class="icon-btn-round"
+    (click)="close()"
+    aria-label="Close AI Meal Analyzer"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dialog-body">
+  <app-ai-meal-analyzer
+    (saveMeal)="onSaveMeal($event)"
+    (added)="onAdded()"
+    (error)="onError($event)"
+  />
+</mat-dialog-content>

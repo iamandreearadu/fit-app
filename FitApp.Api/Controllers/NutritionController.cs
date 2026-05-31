@@ -9,10 +9,14 @@ namespace FitApp.Api.Controllers;
 [ApiController]
 [Route("api/nutrition")]
 [Authorize]
-public class NutritionController(NutritionService nutritionService) : ControllerBase
+public class NutritionController(
+    NutritionService nutritionService,
+    FoodSearchService foodSearchService) : ControllerBase
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
         ?? User.FindFirstValue("sub")!;
+
+    // ── Meal CRUD ─────────────────────────────────────────────────────────────
 
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -42,5 +46,36 @@ public class NutritionController(NutritionService nutritionService) : Controller
         var deleted = await nutritionService.DeleteAsync(UserId, id);
         if (!deleted) return NotFound();
         return NoContent();
+    }
+
+    // ── Food Search (Fix 1) ───────────────────────────────────────────────────
+
+    /// <summary>
+    /// GET /api/nutrition/foods/search?q=chicken&amp;pageSize=10
+    /// Proxies USDA FoodData Central. Cached 30 min. Returns per-100g values.
+    /// Always returns 200 — empty array on short query or USDA error.
+    /// </summary>
+    [HttpGet("foods/search")]
+    public async Task<ActionResult<IEnumerable<FoodSearchResultDto>>> SearchFoods(
+        [FromQuery] string? q,
+        [FromQuery] int pageSize = 10)
+    {
+        if (string.IsNullOrWhiteSpace(q) || q.Trim().Length < 2)
+            return Ok(Array.Empty<FoodSearchResultDto>());
+
+        var results = await foodSearchService.SearchAsync(q, pageSize);
+        return Ok(results);
+    }
+
+    /// <summary>
+    /// GET /api/nutrition/foods/recent
+    /// Last 10 distinct food items logged by the authenticated user, ordered by most recent use.
+    /// Zero external API calls. Always returns 200.
+    /// </summary>
+    [HttpGet("foods/recent")]
+    public async Task<ActionResult<IEnumerable<RecentFoodItemDto>>> GetRecentFoods()
+    {
+        var results = await foodSearchService.GetRecentFoodsAsync(UserId);
+        return Ok(results);
     }
 }

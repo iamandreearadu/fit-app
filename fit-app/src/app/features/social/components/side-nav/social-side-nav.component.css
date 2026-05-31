@@ -62,6 +62,11 @@
   background-clip: text;
 }
 
+/* ── Streak badge wrapper (Fix 5 — desktop social) ── */
+.social-sidenav-streak {
+  padding: 4px 6px 12px;
+}
+
 /* ── User mini-profile ── */
 .social-sidenav-user {
   display: flex;

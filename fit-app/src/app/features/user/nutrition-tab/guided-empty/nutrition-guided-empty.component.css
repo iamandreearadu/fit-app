@@ -1,0 +1,199 @@
+/* ── AI CTA card wrapper (needed for badge positioning) ── */
+.nutrition-ai-cta-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 10px;
+}
+
+/* ── Speed badge ── */
+.nutrition-ai-badge {
+  position: absolute;
+  top: -10px;
+  right: 16px;
+  background: rgba(74, 222, 128, 0.14);
+  border: 1px solid rgba(74, 222, 128, 0.28);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #4ade80;
+  pointer-events: none;
+}
+
+/* ── AI CTA card ── */
+.nutrition-ai-cta {
+  background: rgba(124, 77, 255, 0.07);
+  border: 1.5px solid rgba(124, 77, 255, 0.30);
+  border-radius: 16px;
+  padding: 20px 22px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+  outline: none;
+}
+
+.nutrition-ai-cta:hover,
+.nutrition-ai-cta:focus-visible {
+  background: rgba(124, 77, 255, 0.12);
+  border-color: rgba(124, 77, 255, 0.50);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(124, 77, 255, 0.22);
+}
+
+.nutrition-ai-cta:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ── Camera icon container ── */
+.nutrition-ai-cam {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(124, 77, 255, 0.16);
+  border: 1px solid rgba(124, 77, 255, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nutrition-ai-cam mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  color: var(--primary);
+}
+
+/* ── Text block ── */
+.nutrition-ai-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.nutrition-ai-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 3px;
+}
+
+.nutrition-ai-subtitle {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* ── Chevron ── */
+.nutrition-ai-chevron {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: rgba(124, 77, 255, 0.65);
+  flex-shrink: 0;
+}
+
+/* ── "Add manually" secondary row ── */
+.nutrition-manual-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  font-size: 13px;
+}
+
+.nutrition-manual-prefix {
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 500;
+}
+
+.nutrition-manual-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.15s;
+  font-family: inherit;
+}
+
+.nutrition-manual-link:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.nutrition-manual-link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── Skeleton loading block ── */
+.nutrition-skeleton-block {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  height: 84px;
+  width: 100%;
+  max-width: 400px;
+  animation: pulse 1.8s ease-in-out infinite;
+  margin-top: 10px;
+}
+
+/* ── Error banner ── */
+.nutrition-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 64, 129, 0.10);
+  border: 1px solid rgba(255, 64, 129, 0.25);
+  border-radius: 12px;
+  padding: 12px 16px;
+  width: 100%;
+  max-width: 400px;
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.nutrition-error-banner mat-icon {
+  flex-shrink: 0;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.nutrition-retry-btn {
+  margin-left: auto;
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+  min-height: 32px;
+}
+
+/* ── Responsive: mobile ── */
+@media (max-width: 479px) {
+  .nutrition-ai-cta {
+    padding: 16px 18px;
+  }
+
+  .nutrition-ai-cam {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}

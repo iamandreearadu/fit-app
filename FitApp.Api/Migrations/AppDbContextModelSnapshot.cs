@@ -237,6 +237,9 @@ namespace FitApp.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("EnergyLevel")
+                        .HasColumnType("INTEGER");
+
                     b.Property<double>("MacrosCarbs")
                         .HasColumnType("REAL");
 
@@ -244,6 +247,9 @@ namespace FitApp.Api.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<double>("MacrosProtein")
+                        .HasColumnType("REAL");
+
+                    b.Property<double?>("ManualWeight")
                         .HasColumnType("REAL");
 
                     b.Property<int>("StepTarget")
@@ -361,6 +367,9 @@ namespace FitApp.Api.Migrations
 
                     b.Property<double>("Protein_g")
                         .HasColumnType("REAL");
+
+                    b.Property<string>("Source")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -493,10 +502,10 @@ namespace FitApp.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("CommentsCount")
+                    b.Property<int?>("ArticleId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("ArticleId")
+                    b.Property<int>("CommentsCount")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Content")
@@ -571,6 +580,9 @@ namespace FitApp.Api.Migrations
                     b.Property<double?>("Bmr")
                         .HasColumnType("REAL");
 
+                    b.Property<string>("DietaryPreference")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -599,14 +611,11 @@ namespace FitApp.Api.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("OnboardingCompleted")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("DietaryPreference")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime?>("MetricsUpdatedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("OnboardingCompleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -667,6 +676,76 @@ namespace FitApp.Api.Migrations
                     b.ToTable("WorkoutExercises");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.WorkoutSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DurationMin")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("EstimatedCaloriesKcal")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("FinishedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SetsCompleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TemplateTitle")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("WorkoutTemplateId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkoutTemplateId");
+
+                    b.HasIndex("UserId", "FinishedAt");
+
+                    b.ToTable("WorkoutSessions");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.WorkoutSessionSet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ActualReps")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("ActualWeightKg")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("ExerciseName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SetNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("WorkoutSessionId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkoutSessionId", "ExerciseName");
+
+                    b.ToTable("WorkoutSessionSets");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.WorkoutTemplate", b =>
                 {
                     b.Property<int>("Id")
@@ -685,6 +764,9 @@ namespace FitApp.Api.Migrations
                     b.Property<bool>("IsArchived")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsSystemTemplate")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Notes")
                         .HasColumnType("TEXT");
 
@@ -700,7 +782,6 @@ namespace FitApp.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -904,8 +985,7 @@ namespace FitApp.Api.Migrations
                 {
                     b.HasOne("FitApp.Api.Models.Entities.BlogPost", "Article")
                         .WithMany()
-                        .HasForeignKey("ArticleId")
-                        .OnDelete(DeleteBehavior.ClientSetNull);
+                        .HasForeignKey("ArticleId");
 
                     b.HasOne("FitApp.Api.Models.Entities.DailyEntry", "LinkedDailyEntry")
                         .WithMany()
@@ -950,13 +1030,41 @@ namespace FitApp.Api.Migrations
                     b.Navigation("WorkoutTemplate");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.WorkoutSession", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FitApp.Api.Models.Entities.WorkoutTemplate", "WorkoutTemplate")
+                        .WithMany()
+                        .HasForeignKey("WorkoutTemplateId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+
+                    b.Navigation("WorkoutTemplate");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.WorkoutSessionSet", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.WorkoutSession", "WorkoutSession")
+                        .WithMany("Sets")
+                        .HasForeignKey("WorkoutSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WorkoutSession");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.WorkoutTemplate", b =>
                 {
                     b.HasOne("FitApp.Api.Models.Entities.User", "User")
                         .WithMany("WorkoutTemplates")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
@@ -1008,6 +1116,11 @@ namespace FitApp.Api.Migrations
                     b.Navigation("ReceivedNotifications");
 
                     b.Navigation("WorkoutTemplates");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.WorkoutSession", b =>
+                {
+                    b.Navigation("Sets");
                 });
 
             modelBuilder.Entity("FitApp.Api.Models.Entities.WorkoutTemplate", b =>

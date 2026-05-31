@@ -169,6 +169,39 @@ public class ArchiveToggleResponse
     public bool IsArchived { get; set; }
 }
 
+/// <summary>
+/// Response for GET /api/social/discover/suggested.
+/// Used by the social feed guided-empty-state to show up to 5 follow suggestions.
+///
+/// PRIVACY CONSTRAINT: must NEVER include BMI, weight, calories, BMR, or TDEE.
+/// FitnessGoal is the raw User.Goal string ("lose" | "gain" | "maintain") — safe to expose.
+/// WorkoutsThisMonth is a count with no health data embedded.
+/// </summary>
+public class SuggestedUserResponse
+{
+    public string UserId { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    public string? AvatarUrl { get; set; }
+
+    /// <summary>
+    /// Raw User.Goal value: "lose" | "gain" | "maintain" — or null if the user hasn't set one.
+    /// Frontend maps these to badge colours; not the same as calories or health metrics.
+    /// </summary>
+    public string? FitnessGoal { get; set; }
+
+    /// <summary>
+    /// Number of completed workout sessions in the current calendar month (UTC).
+    /// Zero when the user has no sessions this month.
+    /// </summary>
+    public int WorkoutsThisMonth { get; set; }
+}
+
+/// <summary>
+/// Response for GET /api/social/profile/me/following-count.
+/// Returns the number of users the authenticated user is currently following.
+/// </summary>
+public record FollowingCountDto(int Count);
+
 public class UpdateBioRequest
 {
     [MaxLength(200)]

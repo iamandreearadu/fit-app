@@ -13,17 +13,24 @@ export class NutritionTabFacade {
 
   private readonly _meals = signal<MealEntry[]>([]);
   private readonly _loading = signal(false);
+  private readonly _error = signal<string | null>(null);
 
   readonly meals$ = toObservable(this._meals);
 
   get meals(): MealEntry[] { return this._meals(); }
   get loading(): boolean { return this._loading(); }
 
+  /** Non-null when the last loadMeals() call failed — used by NutritionGuidedEmptyComponent. */
+  readonly error = this._error.asReadonly();
+
   async loadMeals(): Promise<void> {
     this._loading.set(true);
+    this._error.set(null);
     try {
       const meals = await this.svc.listMeals();
       this._meals.set(meals);
+    } catch {
+      this._error.set('Failed to load meals. Please try again.');
     } finally {
       this._loading.set(false);
     }

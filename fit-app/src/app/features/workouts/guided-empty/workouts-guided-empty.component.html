@@ -1,0 +1,107 @@
+<div class="guided-empty-container" role="region" aria-label="Workouts getting started">
+
+  <!-- ── Icon area ── -->
+  <div class="guided-empty-icon">
+    <mat-icon>fitness_center</mat-icon>
+  </div>
+
+  <h2 class="guided-empty-headline">Your first workout is one tap away</h2>
+  <p class="guided-empty-sub">Choose a starter template — no setup needed</p>
+
+  <!-- ── Template cards grid ── -->
+  <div class="guided-templates-grid">
+    @for (template of templates; track template.id) {
+      @let cfg = getConfig(template);
+      @let isStarting = startingId() === template.id;
+
+      <div
+        class="guided-template-card"
+        role="article"
+        [attr.aria-label]="template.title + ' template: ' + (template.exercises?.length ?? 0) + ' exercises, ' + getTotalSets(template) + ' sets'"
+      >
+        <!-- Icon + Badge row -->
+        <div class="guided-card-top">
+          <div class="guided-card-icon">
+            <mat-icon>{{ cfg.icon }}</mat-icon>
+          </div>
+          <span class="guided-card-badge" [class]="'badge-' + cfg.badgeColor">
+            {{ cfg.badge }}
+          </span>
+        </div>
+
+        <!-- Title + Muscle groups -->
+        <div class="guided-card-title">{{ template.title }}</div>
+        <div class="guided-card-muscles">{{ cfg.muscleGroups }}</div>
+
+        <!-- Divider -->
+        <div class="guided-card-divider"></div>
+
+        <!-- Exercise preview list -->
+        <div class="guided-card-exercises">
+          @for (ex of getPreviewExercises(template); track ex.name) {
+            <div class="guided-exercise-row">
+              <span class="guided-ex-name">
+                <span class="guided-ex-dot" aria-hidden="true">●</span>{{ ex.name }}
+              </span>
+              <span class="guided-ex-sets">{{ ex.sets }} × {{ ex.reps }}</span>
+            </div>
+          }
+        </div>
+
+        @if (getMoreCount(template) > 0) {
+          <div class="guided-card-more">
+            + {{ getMoreCount(template) }} more exercise{{ getMoreCount(template) > 1 ? 's' : '' }}
+          </div>
+        }
+
+        <!-- Divider -->
+        <div class="guided-card-divider"></div>
+
+        <!-- Stats row -->
+        <div class="guided-card-stats">
+          <span>
+            <span class="guided-stat-dot" aria-hidden="true">●</span>
+            {{ template.exercises?.length ?? 0 }} exercises
+          </span>
+          <span>
+            <span class="guided-stat-dot" aria-hidden="true">●</span>
+            {{ getTotalSets(template) }} sets
+          </span>
+        </div>
+
+        <!-- Start button -->
+        <button
+          type="button"
+          class="btn-primary guided-start-btn"
+          [disabled]="startingId() !== null"
+          [class.guided-start-btn--loading]="isStarting"
+          [attr.aria-busy]="isStarting"
+          [attr.aria-label]="'Start ' + template.title + ' workout'"
+          (click)="startWorkout(template, $event)"
+        >
+          @if (isStarting) {
+            <mat-progress-spinner
+              diameter="18"
+              mode="indeterminate"
+              aria-hidden="true"
+            />
+            Saving…
+          } @else {
+            <mat-icon aria-hidden="true">play_arrow</mat-icon>
+            Start this workout
+          }
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- ── Escape link ── -->
+  <button
+    type="button"
+    class="guided-empty-escape"
+    (click)="createOwn.emit()"
+  >
+    Or create your own workout →
+  </button>
+
+</div>

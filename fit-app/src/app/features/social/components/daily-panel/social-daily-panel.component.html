@@ -47,12 +47,14 @@
       <div class="daily-cal-grid">
         <div class="daily-cal-item">
           <span class="daily-cal-item-label">Intake</span>
-          <span class="daily-cal-item-value">{{ stats().caloriesIntake | number }}</span>
+          <span class="daily-cal-item-value">
+            {{ (todaySummary()?.caloriesFromNutritionLog ?? stats().caloriesIntake) | number }}
+          </span>
           <span class="daily-cal-item-unit">kcal</span>
         </div>
         <div class="daily-cal-item daily-cal-item--burned">
           <span class="daily-cal-item-label">Burned</span>
-          <span class="daily-cal-item-value">{{ stats().caloriesBurned | number }}</span>
+          <span class="daily-cal-item-value">{{ (todaySummary()?.caloriesBurned ?? stats().caloriesBurned) | number }}</span>
           <span class="daily-cal-item-unit">kcal</span>
         </div>
         <div class="daily-cal-item daily-cal-net" [class]="'daily-cal-net--' + calSignClass()">
@@ -173,7 +175,7 @@
           <text x="50" y="46" text-anchor="middle"
                 font-size="12" font-weight="800" fill="white"
                 font-family="Poppins, sans-serif">
-            {{ stats().caloriesIntake | number }}
+            {{ (todaySummary()?.caloriesFromNutritionLog ?? stats().caloriesIntake) | number }}
           </text>
           <text x="50" y="58" text-anchor="middle"
                 font-size="8" fill="rgba(255,255,255,0.35)"

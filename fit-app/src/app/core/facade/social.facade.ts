@@ -16,7 +16,8 @@ import {
   CreateBlogRequest,
   UpdateBlogRequest,
   ArticleDetail,
-  PaginatedResponse
+  PaginatedResponse,
+  SuggestedUser,
 } from '../models/social.model';
 import { UserPublicStats } from '../models/stats.model';
 
@@ -52,6 +53,17 @@ export class SocialFacade {
   searchResults = signal<UserSearchResult[]>([]);
   isSearching = signal(false);
   searchError = signal<string | null>(null);
+
+  // ── Fix 7: Guided empty state ─────────────────────────────────────────────────
+
+  /** Current user's own following count — used to decide if guided empty shows. */
+  myFollowingCount = signal<number>(0);
+  isLoadingFollowingCount = signal(false);
+
+  /** Suggested users for the social feed guided empty state. */
+  suggestedUsers = signal<SuggestedUser[]>([]);
+  isLoadingSuggestions = signal(false);
+  suggestionsError = signal<string | null>(null);
 
   // Profile sections state
   profileWorkouts = signal<ProfileWorkout[]>([]);
@@ -299,6 +311,47 @@ export class SocialFacade {
 
   async deleteComment(postId: number, commentId: number): Promise<void> {
     return firstValueFrom(this.socialSvc.deleteComment(postId, commentId));
+  }
+
+  // ── Fix 7: Guided empty state methods ─────────────────────────────────────────
+
+  /**
+   * Loads the current user's following count from the dedicated lightweight endpoint.
+   * Used by SocialFeedComponent to decide whether to show the guided empty state.
+   * Silently fails — defaults to 0, which shows the guided state (safe fallback).
+   */
+  async loadMyFollowingCount(): Promise<void> {
+    this.isLoadingFollowingCount.set(true);
+    try {
+      const result = await firstValueFrom(this.socialSvc.getMyFollowingCount());
+      this.myFollowingCount.set(result.count);
+    } catch {
+      // silent — 0 is the safe default (shows guided state)
+    } finally {
+      this.isLoadingFollowingCount.set(false);
+    }
+  }
+
+  /** Increments myFollowingCount after a successful follow from the guided state. */
+  incrementMyFollowingCount(): void {
+    this.myFollowingCount.update(n => n + 1);
+  }
+
+  /**
+   * Loads up to `limit` (max 5) suggested users for the social-feed guided empty.
+   * Uses GET /api/social/discover/suggested.
+   */
+  async loadSuggestedUsers(limit = 5): Promise<void> {
+    this.isLoadingSuggestions.set(true);
+    this.suggestionsError.set(null);
+    try {
+      const users = await firstValueFrom(this.socialSvc.getSuggestedUsers(limit));
+      this.suggestedUsers.set(users);
+    } catch {
+      this.suggestionsError.set("Couldn't load suggestions. Please try again.");
+    } finally {
+      this.isLoadingSuggestions.set(false);
+    }
   }
 
   async loadPublicStats(userId: string): Promise<void> {

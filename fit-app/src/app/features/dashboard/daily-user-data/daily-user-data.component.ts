@@ -8,9 +8,8 @@ import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
 import { MealMacros } from '../../../core/models/meal-macros';
 import { AiMealAnalyzerComponent } from './ai-meal-analyzer/ai-meal-analyzer.component';
 import { CalorieBalanceCardComponent } from '../calorie-balance-card/calorie-balance-card.component';
+import { DailyEntryCalorieSummaryComponent } from '../daily-entry-calorie-summary/daily-entry-calorie-summary.component';
 import { AlertService } from '../../../shared/services/alert.service';
-import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
-import { NutritionTabFacade } from '../../../core/facade/nutrition-tab.facade';
 import { MealEntry, MealType } from '../../../core/models/nutrition-tab.model';
 
 import { from, of } from 'rxjs';
@@ -20,7 +19,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   standalone: true,
   selector: 'app-daily-user-data',
-  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, MaterialModule, AiMealAnalyzerComponent, CalorieBalanceCardComponent],
+  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, MaterialModule, AiMealAnalyzerComponent, CalorieBalanceCardComponent, DailyEntryCalorieSummaryComponent],
   host: { class: 'd-block' },
   templateUrl: './daily-user-data.component.html',
   styleUrls: ['./daily-user-data.component.css']
@@ -29,14 +28,12 @@ export class DailyUserDataComponent implements OnInit {
 
   public form: FormGroup;
 
-  public facade = inject(UserFacade);
-  public groqFacade = inject(GroqAiFacade);
-  public alerts = inject(AlertService);
-  public workoutsFacade = inject(WorkoutsTabFacade);
-  public nutritionFacade = inject(NutritionTabFacade);
-  private fb = inject(FormBuilder);
+  protected readonly facade = inject(UserFacade);
+  protected readonly groqFacade = inject(GroqAiFacade);
+  protected readonly alerts = inject(AlertService);
+  protected readonly fb = inject(FormBuilder);
 
-  public history = this.facade.history;
+  protected readonly history = this.facade.history;
 
   public showAnalyzeOverlay = false;
   public analyzeError: string | null = null;
@@ -50,11 +47,20 @@ export class DailyUserDataComponent implements OnInit {
 
   public readonly filteredPickerMeals = computed<MealEntry[]>(() => {
     const term = this.mealPickerSearch().trim().toLowerCase();
-    if (!term) return this.nutritionFacade.meals;
-    return this.nutritionFacade.meals.filter(m =>
+    if (!term) return this.facade.meals;
+    return this.facade.meals.filter(m =>
       m.name.toLowerCase().includes(term) || m.type.toLowerCase().includes(term)
     );
   });
+
+  public readonly energyLevels = [1, 2, 3, 4, 5] as const;
+  public readonly energyLabels: Record<number, string> = {
+    1: 'Exhausted',
+    2: 'Low',
+    3: 'Moderate',
+    4: 'Energised',
+    5: 'Peak',
+  };
 
   public readonly activityOptions = [
     { value: 'strength-training', label: 'Strength Training', icon: 'fitness_center' },
@@ -70,7 +76,7 @@ export class DailyUserDataComponent implements OnInit {
     if (found) return found;
     if (val.startsWith('workout:')) {
       const uid = val.replace('workout:', '');
-      const t = this.workoutsFacade.templates.find(t => t.uid === uid);
+      const t = this.facade.workoutTemplates.find(t => t.uid === uid);
       if (t) return { label: t.title, icon: 'sports' };
     }
     return { label: 'Select activity', icon: 'bolt' };
@@ -95,7 +101,8 @@ export class DailyUserDataComponent implements OnInit {
 
   ngOnInit(): void {
     this.facade.loadDaily();
-    this.workoutsFacade.loadTemplates();
+    this.facade.loadTodaySummary();
+    this.facade.loadWorkoutTemplates();
   }
 
   openMealAnalyze(): void {
@@ -119,7 +126,7 @@ export class DailyUserDataComponent implements OnInit {
     this.mealPickerSearch.set('');
     this.showMealPicker = true;
     this.mealPickerLoading = true;
-    await this.nutritionFacade.loadMeals();
+    await this.facade.loadMeals();
     this.mealPickerLoading = false;
   }
 
@@ -147,9 +154,7 @@ export class DailyUserDataComponent implements OnInit {
       carbs:   Math.max(0, Math.round(Number(macros.get('carbs')?.value   ?? 0) - (m.carbs_g   || 0))),
       fats:    Math.max(0, Math.round(Number(macros.get('fats')?.value    ?? 0) - (m.fats_g    || 0))),
     });
-    const intakeCtrl = this.form.get('caloriesIntake');
-    const kcal = m.calories_kcal ?? Math.round((m.protein_g || 0) * 4 + (m.carbs_g || 0) * 4 + (m.fats_g || 0) * 9);
-    intakeCtrl?.setValue(Math.max(0, Math.round(Number(intakeCtrl.value ?? 0) - kcal)));
+    // caloriesIntake no longer mutated here — now server-computed from MealEntries (Fix 10)
     this.form.markAsDirty();
     this.lastAppliedMeal = null;
   }
@@ -187,7 +192,7 @@ export class DailyUserDataComponent implements OnInit {
         }];
 
     try {
-      await this.nutritionFacade.saveMeal({
+      await this.facade.saveMeal({
         name: `AI Meal ${timeStr}`,
         type: mealType,
         date: this.facade.todayDate,
@@ -248,7 +253,7 @@ export class DailyUserDataComponent implements OnInit {
       filter((v): v is string => typeof v === 'string' && v.startsWith('workout:'))
     ).subscribe(value => {
       const uid = value.replace('workout:', '');
-      const template = this.workoutsFacade.templates.find(t => t.uid === uid);
+      const template = this.facade.workoutTemplates.find(t => t.uid === uid);
       if (template && template.caloriesEstimateKcal > 0) {
         this.form.get('caloriesBurned')?.setValue(template.caloriesEstimateKcal);
         this.form.markAsDirty();
@@ -271,14 +276,7 @@ export class DailyUserDataComponent implements OnInit {
       carbs: nextCarbs,
       fats: nextFats
     });
-
-    const intakeCtrl = this.form.get('caloriesIntake');
-    const currIntake = Number(intakeCtrl?.value ?? 0);
-    const kcal = (meal.calories_kcal != null)
-      ? Number(meal.calories_kcal)
-      : Math.round((meal.protein_g || 0) * 4 + (meal.carbs_g || 0) * 4 + (meal.fats_g || 0) * 9);
-
-    intakeCtrl?.setValue(Math.max(0, Math.round(currIntake + kcal)));
+    // caloriesIntake no longer mutated here — now server-computed from MealEntries (Fix 10)
     this.form.markAsDirty();
   }
 
@@ -334,9 +332,19 @@ export class DailyUserDataComponent implements OnInit {
         fats: [0, v.macrosPct?.fats ?? []],
       }),
       caloriesBurned: [0, v.caloriesBurned ?? []],
-      caloriesIntake: [0, v.caloriesIntake ?? []],
-      caloriesTotal: [0, v.caloriesTotal ?? []],
+      // caloriesIntake REMOVED — now server-computed from MealEntries (Fix 10)
+      // caloriesTotal REMOVED — now server-computed from backend (Fix 10)
+      manualWeight: [null as number | null],   // Fix 10: daily weigh-in (kg)
+      energyLevel: [null as number | null],    // Fix 10: 1-5 energy scale
     });
+  }
+
+  public setEnergyLevel(lvl: number): void {
+    const ctrl = this.form.get('energyLevel');
+    if (!ctrl) return;
+    // Toggle: clicking the same level again clears it
+    ctrl.setValue(ctrl.value === lvl ? null : lvl);
+    this.form.markAsDirty();
   }
 
   public adjustCaloriesBurned(delta: number): void {

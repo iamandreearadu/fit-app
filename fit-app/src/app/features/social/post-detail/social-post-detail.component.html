@@ -105,6 +105,7 @@
     <mat-form-field appearance="outline" class="composer-field">
       <mat-label>Add a comment...</mat-label>
       <textarea
+        #composerTextarea
         matInput
         [value]="commentInput()"
         (input)="commentInput.set($any($event.target).value)"

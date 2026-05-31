@@ -163,11 +163,14 @@
                 <mat-icon>undo</mat-icon>
               </button>
             }
-            <span class="card-badge b-purple"
-              >{{ facade.dailyDataStats().totalCalories }} kcal</span
-            >
+            <span class="card-badge b-purple">
+              {{ (facade.todaySummary()?.caloriesFromNutritionLog ?? 0) | number: '1.0-0' }} kcal
+            </span>
           </div>
         </div>
+
+        <!-- Fix 10: read-only calorie summary from nutrition log -->
+        <app-daily-entry-calorie-summary />
 
         <fieldset formGroupName="macrosPct" class="macros-list">
           <div class="macro-row">
@@ -177,7 +180,7 @@
               subscriptSizing="dynamic"
               class="mf"
             >
-              <mat-label>Protein</mat-label>
+              <mat-label>Protein (g)</mat-label>
               <input matInput type="number" formControlName="protein" min="0" />
             </mat-form-field>
           </div>
@@ -188,7 +191,7 @@
               subscriptSizing="dynamic"
               class="mf"
             >
-              <mat-label>Carbs</mat-label>
+              <mat-label>Carbs (g)</mat-label>
               <input matInput type="number" formControlName="carbs" min="0" />
             </mat-form-field>
           </div>
@@ -199,7 +202,7 @@
               subscriptSizing="dynamic"
               class="mf"
             >
-              <mat-label>Fats</mat-label>
+              <mat-label>Fats (g)</mat-label>
               <input matInput type="number" formControlName="fats" min="0" />
             </mat-form-field>
           </div>
@@ -209,6 +212,45 @@
           <mat-icon>restaurant_menu</mat-icon>
           <span>Pick from saved meals</span>
         </button>
+
+        <!-- ── WEIGHT & ENERGY CHECK-IN ── -->
+        <div class="checkin-divider"></div>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="full-f"
+        >
+          <mat-label>Today's weight (kg)</mat-label>
+          <input
+            matInput
+            type="number"
+            min="0"
+            step="0.1"
+            formControlName="manualWeight"
+          />
+          <mat-icon matSuffix>monitor_weight</mat-icon>
+        </mat-form-field>
+
+        <div class="energy-section">
+          <span class="energy-label">Energy level</span>
+          <div class="energy-btns">
+            @for (lvl of energyLevels; track lvl) {
+              <button
+                type="button"
+                class="energy-btn"
+                [class.energy-active]="form.get('energyLevel')?.value === lvl"
+                [title]="energyLabels[lvl]"
+                (click)="setEnergyLevel(lvl)"
+              >
+                {{ lvl }}
+              </button>
+            }
+          </div>
+          @if (form.get('energyLevel')?.value; as lvl) {
+            <span class="energy-selected-label">{{ energyLabels[lvl] }}</span>
+          }
+        </div>
       </div>
 
       <!-- CALORIES BURNED -->
@@ -276,12 +318,12 @@
         </div>
 
         <div class="net-row">
-          <span class="net-label"
-            ><mat-icon>calculate</mat-icon> Net Calories</span
-          >
-          <span class="net-value"
-            >{{ facade.dailyDataStats().netCalories }} kcal</span
-          >
+          <span class="net-label">
+            <mat-icon>calculate</mat-icon> Net Calories
+          </span>
+          <span class="net-value">
+            {{ (facade.todaySummary()?.caloriesTotal ?? facade.dailyDataStats().netCalories) }} kcal
+          </span>
         </div>
       </div>
 

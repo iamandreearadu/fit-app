@@ -65,6 +65,25 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         }
     }
 
+    // GET /api/social/discover/suggested?limit=5
+    // Used by SocialFeedGuidedEmptyComponent to populate follow suggestions.
+    // Returns up to 5 users; same-goal users are surfaced first.
+    // PRIVACY: never includes BMI, weight, calories, BMR, or TDEE.
+    [HttpGet("discover/suggested")]
+    public async Task<IActionResult> GetSuggestedUsers([FromQuery] int limit = 5)
+    {
+        try
+        {
+            var results = await socialService.GetSuggestedUsersAsync(UserId, limit);
+            return Ok(results);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error getting suggested users for {UserId}", UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
     // POST /api/social/posts
     [HttpPost("posts")]
     [RequestSizeLimit(20 * 1024 * 1024)]
@@ -246,6 +265,11 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
             return Problem(statusCode: 500, detail: "An unexpected error occurred.");
         }
     }
+
+    // GET /api/social/profile/me/following-count
+    [HttpGet("profile/me/following-count")]
+    public async Task<ActionResult<FollowingCountDto>> GetMyFollowingCount()
+        => Ok(await socialService.GetFollowingCountAsync(UserId));
 
     // GET /api/social/profile/{userId}
     [HttpGet("profile/{userId}")]

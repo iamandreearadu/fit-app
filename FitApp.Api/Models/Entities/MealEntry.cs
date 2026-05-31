@@ -32,5 +32,9 @@ public class FoodItem
     public double Fats_g { get; set; }
     public int Order { get; set; }
 
+    // Fix 1: Track where the food item data originated
+    // Values: "search" | "recent" | "manual" | "ai_analyzer" | null (legacy)
+    public string? Source { get; set; }
+
     public MealEntry MealEntry { get; set; } = null!;
 }

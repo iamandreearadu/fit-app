@@ -7,6 +7,8 @@ namespace FitApp.Api.Services;
 
 public class NutritionService(AppDbContext db)
 {
+    private static readonly HashSet<string> ValidSources =
+        ["search", "recent", "manual", "ai_analyzer"];
     public async Task<(List<MealEntryDto> Items, bool HasMore)> ListAsync(string userId, int page = 1, int pageSize = 20)
     {
         pageSize = Math.Min(pageSize, 50);
@@ -81,6 +83,7 @@ public class NutritionService(AppDbContext db)
             Protein_g = f.Protein_g,
             Carbs_g = f.Carbs_g,
             Fats_g = f.Fats_g,
+            Source = f.Source is not null && ValidSources.Contains(f.Source) ? f.Source : null,
             Order = i
         }).ToList();
 
@@ -112,7 +115,8 @@ public class NutritionService(AppDbContext db)
             Calories = f.Calories,
             Protein_g = f.Protein_g,
             Carbs_g = f.Carbs_g,
-            Fats_g = f.Fats_g
+            Fats_g = f.Fats_g,
+            Source = f.Source   // Fix 1
         }).ToList()
     };
 }
