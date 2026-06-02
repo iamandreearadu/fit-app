@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
 import { Subject } from 'rxjs';
 import { SocialNotification, StreakUpdatedPayload } from '../models/notification.model';
+import { WorkoutCompletionSummary } from '../models/workouts-tab.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -15,6 +16,10 @@ export class NotificationHubService {
   private readonly streakSubject = new Subject<StreakUpdatedPayload>();
   readonly streakUpdated$ = this.streakSubject.asObservable();
 
+  // Fix 3 — workout-completed event pushed after POST /api/workouts/sessions
+  private readonly workoutCompletedSubject = new Subject<WorkoutCompletionSummary>();
+  readonly workoutCompleted$ = this.workoutCompletedSubject.asObservable();
+
   async connect(token: string): Promise<void> {
     if (this.connection?.state === HubConnectionState.Connected) return;
 
@@ -25,6 +30,8 @@ export class NotificationHubService {
 
     this.connection.on('ReceiveNotification', (n: SocialNotification) => this.notifSubject.next(n));
     this.connection.on('streak-updated', (p: StreakUpdatedPayload) => this.streakSubject.next(p));
+    this.connection.on('workout-completed', (s: WorkoutCompletionSummary) =>
+      this.workoutCompletedSubject.next(s));
 
     await this.connection.start();
   }

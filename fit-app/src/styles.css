@@ -2,6 +2,7 @@
 
 :root {
   --primary: #7c4dff;
+  --primary-rgb: 124, 77, 255;
   --primary-light: #a78bfa;
   --primary-glow: rgba(124, 77, 255, 0.35);
   --surface: #0d0d10;
@@ -420,6 +421,11 @@ mat-select {
   color: rgba(255, 64, 129, 0.75);
   border-color: rgba(255, 64, 129, 0.25);
 }
+/* ── Character counter colour states (used by ShareToSocialBottomSheetComponent) ── */
+.char-green  { color: rgba(255, 255, 255, 0.2); }
+.char-yellow { color: var(--color-warning); }
+.char-red    { color: var(--color-error); }
+
 .btn-ghost.danger:hover {
   background: rgba(255, 64, 129, 0.1);
   color: #ff4081;
@@ -935,4 +941,28 @@ mat-select {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* ─── SHARE TO BESOCIAL BOTTOM SHEET ─── */
+mat-bottom-sheet-container.share-sheet-panel {
+  background: var(--surface) !important;
+  border-radius: 24px 24px 0 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-bottom: none !important;
+  padding: 0 !important;
+  max-height: 85dvh !important;
+  box-shadow: 0 -8px 48px rgba(0, 0, 0, 0.7) !important;
+  overflow: hidden !important;
+}
+
+@media (min-width: 640px) {
+  .cdk-overlay-pane:has(mat-bottom-sheet-container.share-sheet-panel) {
+    max-width: 480px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+
+  mat-bottom-sheet-container.share-sheet-panel {
+    border-radius: 24px 24px 0 0 !important;
+  }
 }

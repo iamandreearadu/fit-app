@@ -208,6 +208,45 @@ public class UpdateBioRequest
     public string? Bio { get; set; }
 }
 
+// ── Fix 2: Share to beSocial ──────────────────────────────────────────────────
+
+/// <summary>
+/// Request body for POST /api/social/posts/from-workout/{sessionId}.
+/// Caption is the only user-controlled field — all health metrics are stripped server-side.
+/// Body may be omitted or sent as {} — caption defaults to null.
+/// </summary>
+public class PostFromWorkoutRequest
+{
+    [MaxLength(300)]
+    public string? Caption { get; set; }
+}
+
+/// <summary>
+/// Request body for POST /api/social/posts/from-meal/{mealId}.
+/// Caption is the only user-controlled field — all calorie/macro data stripped server-side.
+/// Body may be omitted or sent as {} — caption defaults to null.
+/// </summary>
+public class PostFromMealRequest
+{
+    [MaxLength(300)]
+    public string? Caption { get; set; }
+}
+
+/// <summary>
+/// Response for POST /api/social/posts/from-workout/{sessionId} and
+/// POST /api/social/posts/from-meal/{mealId}.
+///
+/// PRIVACY INVARIANT: <see cref="PreviewText"/> MUST NEVER contain calories,
+/// macros, BMI, weight, BMR, TDEE, or any health metric.
+/// Workout: only TemplateTitle, DurationMin, exerciseCount, SetsCompleted.
+/// Meal: only meal Name.
+/// </summary>
+public class SharePostResponse
+{
+    public int PostId { get; set; }
+    public string PreviewText { get; set; } = string.Empty;
+}
+
 public class CreateUserBlogRequest
 {
     [MaxLength(150)]

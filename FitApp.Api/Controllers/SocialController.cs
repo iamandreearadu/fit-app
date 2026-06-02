@@ -428,4 +428,68 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         catch (KeyNotFoundException ex) { return Problem(statusCode: 404, detail: ex.Message); }
         catch (Exception ex) { logger.LogError(ex, "Error getting article {ArticleId}", id); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
     }
+
+    // ── Fix 2: Share to beSocial ──────────────────────────────────────────────
+
+    /// <summary>
+    /// POST /api/social/posts/from-workout/{sessionId}
+    ///
+    /// Creates a pre-composed social post from a completed workout session.
+    /// Post content is generated server-side from session data — no health metrics included.
+    /// Body may be {} or omitted (caption defaults to null).
+    /// Returns 201 Created with SharePostResponse.
+    /// Returns 404 when the session is not found or belongs to another user.
+    /// </summary>
+    [HttpPost("posts/from-workout/{sessionId:int}")]
+    public async Task<IActionResult> ShareFromWorkout(
+        int sessionId,
+        [FromBody] PostFromWorkoutRequest? request)
+    {
+        try
+        {
+            var result = await socialService.CreatePostFromWorkoutAsync(UserId, sessionId, request);
+            return StatusCode(StatusCodes.Status201Created, result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return Problem(statusCode: 404, detail: ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex,
+                "Error sharing workout session {SessionId} for user {UserId}", sessionId, UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
+    /// <summary>
+    /// POST /api/social/posts/from-meal/{mealId}
+    ///
+    /// Creates a pre-composed social post from a logged meal entry.
+    /// Post content contains only the meal name — no calories, macros, or food-item data.
+    /// Body may be {} or omitted (caption defaults to null).
+    /// Returns 201 Created with SharePostResponse.
+    /// Returns 404 when the meal is not found or belongs to another user.
+    /// </summary>
+    [HttpPost("posts/from-meal/{mealId:int}")]
+    public async Task<IActionResult> ShareFromMeal(
+        int mealId,
+        [FromBody] PostFromMealRequest? request)
+    {
+        try
+        {
+            var result = await socialService.CreatePostFromMealAsync(UserId, mealId, request);
+            return StatusCode(StatusCodes.Status201Created, result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return Problem(statusCode: 404, detail: ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex,
+                "Error sharing meal {MealId} for user {UserId}", mealId, UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
 }

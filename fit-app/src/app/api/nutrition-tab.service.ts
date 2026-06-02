@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { AlertService } from '../shared/services/alert.service';
-import { FoodItem, MealEntry, MealType } from '../core/models/nutrition-tab.model';
+import { FoodItem, FoodSearchResult, MacroProgressDto, MealEntry, MealType, RecentFoodItem } from '../core/models/nutrition-tab.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -27,6 +27,7 @@ export class NutritionTabService {
           protein_g: Number(i.protein_g ?? 0),
           carbs_g: Number(i.carbs_g ?? 0),
           fats_g: Number(i.fats_g ?? 0),
+          source: i.source ?? undefined,   // Fix 1: pass through source
         }))
       : [];
 
@@ -103,6 +104,40 @@ export class NutritionTabService {
     } catch (err) {
       this.alerts?.warn('Failed to delete meal');
       return false;
+    }
+  }
+
+  // Fix 1 — USDA food database search (proxied through backend, per 100g values)
+  async searchFoods(query: string): Promise<FoodSearchResult[]> {
+    try {
+      const params = { q: query.trim(), pageSize: 10 };
+      return await firstValueFrom(
+        this.http.get<FoodSearchResult[]>(`${this.baseUrl}/foods/search`, { params })
+      );
+    } catch {
+      return [];
+    }
+  }
+
+  // Fix 1 — last 10 distinct foods logged by the authenticated user
+  async getRecentFoods(): Promise<RecentFoodItem[]> {
+    try {
+      return await firstValueFrom(
+        this.http.get<RecentFoodItem[]>(`${this.baseUrl}/foods/recent`)
+      );
+    } catch {
+      return [];
+    }
+  }
+
+  // Fix 3 — today's macro totals vs TDEE-derived gram targets
+  async getTodayMacroProgress(): Promise<MacroProgressDto | null> {
+    try {
+      return await firstValueFrom(
+        this.http.get<MacroProgressDto>(`${this.baseUrl}/today/macro-progress`)
+      );
+    } catch {
+      return null;
     }
   }
 }

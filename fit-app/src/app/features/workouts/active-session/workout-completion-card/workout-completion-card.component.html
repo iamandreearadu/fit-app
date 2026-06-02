@@ -1,0 +1,108 @@
+<!-- Backdrop -->
+<button
+  class="completion-backdrop"
+  type="button"
+  aria-label="Close workout summary"
+  (click)="dismiss()"
+></button>
+
+<!-- Card -->
+<div
+  class="completion-card"
+  [class.is-dismissing]="isDismissing()"
+  [style.transform]="cardTranslateY() > 0 ? 'translateY(' + cardTranslateY() + 'px)' : null"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="completion-title"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp()"
+>
+  <!-- Drag handle (mobile only) -->
+  <div class="completion-drag-handle" aria-hidden="true"></div>
+
+  <!-- Success badge -->
+  <div class="completion-badge">
+    <mat-icon>check_circle</mat-icon>
+    WORKOUT COMPLETE
+  </div>
+
+  <!-- Workout name -->
+  <h2 class="completion-title" id="completion-title">{{ summary.templateTitle }}</h2>
+
+  <!-- Date / time -->
+  <p class="completion-date">{{ formattedDate }}</p>
+
+  <!-- Stat tiles grid -->
+  <div class="completion-stats-grid">
+    <!-- Duration -->
+    <article
+      class="completion-stat-tile completion-stat-tile--1"
+      aria-label="Duration: {{ summary.durationMin }} minutes"
+    >
+      <mat-icon class="tile-icon tile-icon--primary">timer</mat-icon>
+      <span class="tile-value">{{ summary.durationMin }}</span>
+      <span class="tile-label">MIN</span>
+    </article>
+
+    <!-- Exercises -->
+    <article
+      class="completion-stat-tile completion-stat-tile--2"
+      aria-label="Exercises: {{ summary.exerciseCount }}"
+    >
+      <mat-icon class="tile-icon tile-icon--muted">fitness_center</mat-icon>
+      <span class="tile-value">{{ summary.exerciseCount }}</span>
+      <span class="tile-label">EXERCISES</span>
+    </article>
+
+    <!-- Calories estimate -->
+    <article
+      class="completion-stat-tile completion-stat-tile--3"
+      aria-label="Estimated calories: {{ summary.estimatedCaloriesKcal }} kcal"
+    >
+      <mat-icon class="tile-icon tile-icon--accent">local_fire_department</mat-icon>
+      <span class="tile-value">{{ caloriesLabel }}</span>
+      <span class="tile-label">KCAL EST.</span>
+    </article>
+  </div>
+
+  <!-- Separator -->
+  <div class="completion-separator" aria-hidden="true"></div>
+
+  <!-- Streak section -->
+  <div class="completion-streak">
+    <div class="completion-streak-row">
+      <mat-icon class="streak-flame" aria-hidden="true">local_fire_department</mat-icon>
+      <span
+        class="completion-streak-count"
+        aria-live="polite"
+        [attr.aria-label]="'Current streak: ' + streakDisplay() + ' days'"
+      >{{ streakDisplay() }}</span>
+      <span class="streak-unit">days</span>
+    </div>
+
+    <span class="streak-caption">CURRENT STREAK</span>
+    <p class="completion-motivation">{{ motivationalCopy }}</p>
+  </div>
+
+  <!-- CTA buttons -->
+  <button
+    type="button"
+    class="btn-ghost completion-share-btn"
+    (click)="onShare()"
+    aria-label="Share workout to beSocial"
+  >
+    <mat-icon>share</mat-icon>
+    Share to beSocial
+  </button>
+
+  <button
+    type="button"
+    class="btn-primary completion-close-btn"
+    (click)="dismiss()"
+    cdkFocusInitial
+    aria-label="Close workout summary"
+  >
+    Close
+  </button>
+</div>

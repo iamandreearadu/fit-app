@@ -1,0 +1,117 @@
+<div class="sbs-shell">
+
+  <!-- Drag handle — mobile only -->
+  <div class="sbs-drag-handle" aria-hidden="true"></div>
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <div class="sbs-header">
+    <div class="sbs-header-icon" aria-hidden="true">
+      <mat-icon>send</mat-icon>
+    </div>
+    <span id="sbs-title" class="sbs-header-title">Share to beSocial</span>
+    <button
+      class="sbs-close-btn"
+      mat-icon-button
+      type="button"
+      (click)="onClose()"
+      [disabled]="state() === 'loading'"
+      aria-label="Close share sheet"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- ── ACTIVE / ERROR states ───────────────────────────────────────────── -->
+  @if (state() !== 'success') {
+
+    <!-- Post preview -->
+    <div class="sbs-preview-section">
+      <span class="sbs-preview-label">POST PREVIEW</span>
+      <div
+        class="sbs-preview-bubble"
+        role="region"
+        aria-label="Post preview"
+        aria-live="polite"
+      >{{ previewText() }}</div>
+    </div>
+
+    <!-- Caption -->
+    <div class="sbs-caption-section">
+      <label class="sbs-caption-label" for="sbs-caption-input">
+        CAPTION <span class="sbs-caption-optional">(optional)</span>
+      </label>
+      <div
+        class="sbs-textarea-wrap"
+        [class.focused]="captionFocused()"
+      >
+        <textarea
+          id="sbs-caption-input"
+          class="sbs-textarea"
+          [value]="caption()"
+          (input)="caption.set($any($event.target).value)"
+          (focus)="captionFocused.set(true)"
+          (blur)="captionFocused.set(false)"
+          [disabled]="state() === 'loading'"
+          maxlength="300"
+          placeholder="What's on your mind?"
+          [attr.aria-describedby]="'sbs-char-count'"
+          rows="3"
+        ></textarea>
+      </div>
+      <span
+        id="sbs-char-count"
+        class="sbs-char-counter"
+        [ngClass]="counterClass()"
+        [attr.aria-label]="charCount() + ' of 300 characters used'"
+      >{{ charCount() }} / 300</span>
+    </div>
+
+    <!-- Error banner -->
+    @if (state() === 'error') {
+      <div class="sbs-error-banner" role="alert">
+        <mat-icon>warning_amber</mat-icon>
+        <span>Couldn't share. Please try again.</span>
+      </div>
+    }
+
+    <!-- Footer -->
+    <div class="sbs-footer">
+      <button
+        class="sbs-publish-btn"
+        type="button"
+        (click)="onPublish()"
+        [disabled]="state() === 'loading'"
+        [attr.aria-busy]="state() === 'loading' ? 'true' : null"
+        [attr.aria-label]="state() === 'loading' ? 'Publishing...' : 'Publish post to beSocial'"
+      >
+        @if (state() === 'loading') {
+          <mat-spinner [diameter]="16" class="sbs-spinner" />
+          Publishing...
+        } @else {
+          <mat-icon>send</mat-icon>
+          Publish
+        }
+      </button>
+
+      @if (state() !== 'loading') {
+        <button
+          class="sbs-skip-btn"
+          type="button"
+          (click)="onSkip()"
+          aria-label="Skip sharing"
+        >Skip</button>
+      }
+    </div>
+
+  }
+
+  <!-- ── SUCCESS state ───────────────────────────────────────────────────── -->
+  @if (state() === 'success') {
+    <div class="sbs-success" aria-live="assertive">
+      <mat-icon class="sbs-success-icon">check_circle</mat-icon>
+      <p class="sbs-success-title">Posted to beSocial!</p>
+      <p class="sbs-success-sub">Your post is now live.</p>
+    </div>
+  }
+
+</div>

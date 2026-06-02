@@ -13,6 +13,14 @@
     </div>
   </div>
 
+  <!-- Fix 3 — inline macro progress feedback (shown after meal save) -->
+  @if (showFeedback() && lastSavedMeal()) {
+    <app-meal-completion-feedback
+      [savedMeal]="lastSavedMeal()!"
+      (dismissed)="onFeedbackDismissed()"
+    />
+  }
+
   <!-- Filters -->
   <div class="filters">
     <mat-form-field appearance="outline" class="field">
@@ -225,6 +233,12 @@
           <div class="section">
             <div class="sec-head"><mat-icon>set_meal</mat-icon><span>Food Items</span></div>
 
+            @if (facade.recentFoods().length > 0 || facade.recentLoading()) {
+              <app-recent-foods
+                (foodSelected)="onRecentFoodSelected($event)"
+              />
+            }
+
             <div formArrayName="items" class="ex-list">
               @for (item of items.controls; track $index; let i = $index) {
                 <div class="ex-item" [formGroupName]="i">
@@ -242,10 +256,13 @@
                   </div>
 
                   <div class="grid-2 tight">
-                    <mat-form-field appearance="outline" class="span-2">
-                      <mat-label>Food name</mat-label>
-                      <input matInput formControlName="name" placeholder="e.g. Chicken breast" />
-                    </mat-form-field>
+                    <app-food-search
+                      [initialValue]="item.get('name')?.value"
+                      [itemIndex]="i"
+                      (foodSelected)="onFoodSelected($event, i)"
+                      (nameChange)="onNameChange($event, i)"
+                      (manualMode)="onManualMode(i)"
+                    />
 
                     <mat-form-field appearance="outline">
                       <mat-label>Grams (g)</mat-label>

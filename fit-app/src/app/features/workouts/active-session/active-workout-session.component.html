@@ -1,3 +1,11 @@
+<!-- Fix 3 — Workout completion overlay (shown after session saved successfully) -->
+@if (facade.completionSummary()) {
+  <app-workout-completion-card
+    [summary]="facade.completionSummary()!"
+    (dismissed)="onCompletionDismissed()"
+  />
+}
+
 <!-- Loading state -->
 @if (loading()) {
   <div class="session-loading">

@@ -73,3 +73,25 @@ public class RecentFoodItemDto
     public string? Source { get; set; }
     public DateTime LastUsed { get; set; }
 }
+
+/// <summary>
+/// Today's macro totals vs TDEE-derived macro targets.
+/// Consumed by GET /api/nutrition/today/macro-progress (Fix 3 — MealCompletionFeedbackComponent).
+/// Private user health data — Bearer required, MUST NEVER appear in social endpoints or feed.
+///
+/// Macro targets are derived from GoalCalories using a standard 30 / 40 / 30 split:
+///   Protein  30 % of GoalCalories / 4 kcal per gram
+///   Carbs    40 % of GoalCalories / 4 kcal per gram
+///   Fat      30 % of GoalCalories / 9 kcal per gram
+/// All target fields return 0 when the user has not completed onboarding.
+/// </summary>
+public record MacroProgressDto(
+    double TotalProtein,
+    double TargetProtein,
+    double TotalCarbs,
+    double TargetCarbs,
+    double TotalFat,
+    double TargetFat,
+    double TotalCalories,
+    double TargetCalories
+);

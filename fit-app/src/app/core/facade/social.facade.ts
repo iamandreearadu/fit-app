@@ -2,6 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { SocialService } from '../../api/social.service';
 import { StatsService } from '../../api/stats.service';
+import { AlertService } from '../../shared/services/alert.service';
 import {
   Post,
   Comment,
@@ -18,6 +19,9 @@ import {
   ArticleDetail,
   PaginatedResponse,
   SuggestedUser,
+  PostFromWorkoutRequest,
+  PostFromMealRequest,
+  SharePostResponse,
 } from '../models/social.model';
 import { UserPublicStats } from '../models/stats.model';
 
@@ -25,6 +29,7 @@ import { UserPublicStats } from '../models/stats.model';
 export class SocialFacade {
   private readonly socialSvc = inject(SocialService);
   private readonly statsSvc = inject(StatsService);
+  private readonly alerts = inject(AlertService);
 
   // Public stats state (other profiles)
   publicStats = signal<UserPublicStats | null>(null);
@@ -351,6 +356,36 @@ export class SocialFacade {
       this.suggestionsError.set("Couldn't load suggestions. Please try again.");
     } finally {
       this.isLoadingSuggestions.set(false);
+    }
+  }
+
+  // ── Fix 2 — Share to beSocial ──────────────────────────────────────────────
+
+  /**
+   * Creates a social post from a completed workout session.
+   * PRIVACY: caption is the only user-provided field — no health metrics are sent.
+   */
+  async shareWorkout(sessionId: number, caption?: string): Promise<SharePostResponse | null> {
+    try {
+      const req: PostFromWorkoutRequest | undefined = caption ? { caption } : undefined;
+      return await firstValueFrom(this.socialSvc.shareWorkout(sessionId, req));
+    } catch {
+      this.alerts.error('Failed to share workout. Please try again.');
+      return null;
+    }
+  }
+
+  /**
+   * Creates a social post from a logged meal entry.
+   * PRIVACY: caption is the only user-provided field — no macro or calorie data is sent.
+   */
+  async shareMeal(mealId: number, caption?: string): Promise<SharePostResponse | null> {
+    try {
+      const req: PostFromMealRequest | undefined = caption ? { caption } : undefined;
+      return await firstValueFrom(this.socialSvc.shareMeal(mealId, req));
+    } catch {
+      this.alerts.error('Failed to share meal. Please try again.');
+      return null;
     }
   }
 

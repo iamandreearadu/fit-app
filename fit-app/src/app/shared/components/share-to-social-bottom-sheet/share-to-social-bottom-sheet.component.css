@@ -1,0 +1,347 @@
+/* ── Shell ────────────────────────────────────────────────────────────────── */
+.sbs-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ── Drag handle (mobile only) ────────────────────────────────────────────── */
+.sbs-drag-handle {
+  width: 44px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 10px auto 0;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .sbs-drag-handle {
+    display: none;
+  }
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.sbs-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.sbs-header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(var(--primary-rgb), 0.14);
+  border: 1px solid rgba(var(--primary-rgb), 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sbs-header-icon mat-icon {
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+  color: var(--primary);
+}
+
+.sbs-header-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+  flex: 1;
+}
+
+.sbs-close-btn {
+  color: rgba(255, 255, 255, 0.35) !important;
+  transition: color 0.15s ease;
+  min-width: 48px;
+  min-height: 48px;
+}
+
+.sbs-close-btn:hover:not([disabled]) {
+  color: var(--white) !important;
+}
+
+.sbs-close-btn[disabled] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ── Post preview ─────────────────────────────────────────────────────────── */
+.sbs-preview-section {
+  padding: 16px 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sbs-preview-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sbs-preview-bubble {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 14px 16px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--white-soft);
+  line-height: 1.6;
+  min-height: 52px;
+  transition: border-color 0.18s;
+}
+
+.sbs-preview-bubble:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* ── Caption section ──────────────────────────────────────────────────────── */
+.sbs-caption-section {
+  padding: 4px 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sbs-caption-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sbs-caption-optional {
+  font-size: 10px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.2);
+  text-transform: none;
+}
+
+.sbs-textarea-wrap {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 0.18s;
+}
+
+.sbs-textarea-wrap.focused {
+  border-color: rgba(var(--primary-rgb), 0.45);
+}
+
+.sbs-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.65;
+  padding: 12px 14px;
+  resize: none;
+  outline: none;
+  min-height: 72px;
+  max-height: 120px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: block;
+  border-radius: 12px;
+}
+
+.sbs-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.22);
+}
+
+.sbs-textarea:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sbs-char-counter {
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  text-align: right;
+  padding-right: 2px;
+  transition: color 0.2s ease;
+}
+
+/* ── Error banner ─────────────────────────────────────────────────────────── */
+.sbs-error-banner {
+  margin: 0 18px 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255, 64, 129, 0.1);
+  border: 1px solid rgba(255, 64, 129, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideUp 0.2s ease-out;
+}
+
+.sbs-error-banner mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.sbs-error-banner span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+.sbs-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 18px calc(20px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .sbs-footer {
+    padding-bottom: 24px;
+  }
+}
+
+/* ── Publish button ───────────────────────────────────────────────────────── */
+.sbs-publish-btn {
+  width: 100%;
+  height: 48px;
+  background: var(--primary);
+  border: none;
+  border-radius: 12px;
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.sbs-publish-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.sbs-publish-btn:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.sbs-publish-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* mat-spinner inside publish button — force white */
+.sbs-spinner {
+  --mdc-circular-progress-active-indicator-color: var(--white);
+}
+
+/* ── Skip button ──────────────────────────────────────────────────────────── */
+.sbs-skip-btn {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  min-height: 48px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.sbs-skip-btn:hover {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Success state ────────────────────────────────────────────────────────── */
+.sbs-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 24px calc(32px + env(safe-area-inset-bottom, 0px));
+  gap: 10px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.sbs-success-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--color-success);
+  animation: sbs-icon-pop 0.3s ease-out;
+}
+
+.sbs-success-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.sbs-success-sub {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* ── Animations (component-scoped) ───────────────────────────────────────── */
+@keyframes sbs-icon-pop {
+  0%   { transform: scale(0);   opacity: 0; }
+  65%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 380px) {
+  .sbs-header-title {
+    font-size: 14px;
+  }
+
+  .sbs-preview-bubble {
+    font-size: 13px;
+    padding: 12px 14px;
+  }
+
+  .sbs-publish-btn {
+    font-size: 13px;
+  }
+
+  .sbs-footer {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}

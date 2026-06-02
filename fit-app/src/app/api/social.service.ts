@@ -21,6 +21,9 @@ import {
   UpdateBlogRequest,
   ArticleDetail,
   SuggestedUser,
+  PostFromWorkoutRequest,
+  PostFromMealRequest,
+  SharePostResponse,
 } from '../core/models/social.model';
 
 /** Ensures imageUrl is always a renderable src (handles legacy raw-base64 posts). */
@@ -187,5 +190,23 @@ export class SocialService {
   /** GET /api/social/profile/me/following-count — lightweight count-only endpoint */
   getMyFollowingCount(): Observable<{ count: number }> {
     return this.http.get<{ count: number }>(`${this.base}/profile/me/following-count`);
+  }
+
+  // ── Fix 2 — Share to beSocial ──────────────────────────────────────────────
+
+  /** POST /api/social/posts/from-workout/{sessionId} — creates a post from a completed session */
+  shareWorkout(sessionId: number, req?: PostFromWorkoutRequest): Observable<SharePostResponse> {
+    return this.http.post<SharePostResponse>(
+      `${this.base}/posts/from-workout/${sessionId}`,
+      req ?? {},
+    );
+  }
+
+  /** POST /api/social/posts/from-meal/{mealId} — creates a post from a logged meal entry */
+  shareMeal(mealId: number, req?: PostFromMealRequest): Observable<SharePostResponse> {
+    return this.http.post<SharePostResponse>(
+      `${this.base}/posts/from-meal/${mealId}`,
+      req ?? {},
+    );
   }
 }

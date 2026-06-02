@@ -15,6 +15,7 @@ import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
 import { AlertService } from '../../../shared/services/alert.service';
 import { WorkoutSetRowComponent, CompletedSetPayload } from '../../../shared/components/workout-set-row/workout-set-row.component';
 import { CompletedSet, WorkoutExercise } from '../../../core/models/workouts-tab.model';
+import { WorkoutCompletionCardComponent } from './workout-completion-card/workout-completion-card.component';
 
 // Rest timer duration options in seconds
 const REST_DURATIONS = [30, 60, 90, 120, 180, 300] as const;
@@ -36,7 +37,7 @@ interface ExerciseSection {
   selector: 'app-active-workout-session',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MaterialModule, WorkoutSetRowComponent],
+  imports: [CommonModule, MaterialModule, WorkoutSetRowComponent, WorkoutCompletionCardComponent],
   templateUrl: './active-workout-session.component.html',
   styleUrl: './active-workout-session.component.css',
 })
@@ -303,17 +304,21 @@ export class ActiveWorkoutSessionComponent implements OnInit, OnDestroy {
 
     this.finishing.set(false);
 
-    if (summary) {
-      // Fix 8 will read facade.completionSummary() signal on the summary page
-      this.router.navigate(['/plans']);
-    }
-    // On null (error), alerts.error was already shown in the service
+    // Fix 3 — on success, completionSummary() signal is non-null →
+    // WorkoutCompletionCardComponent slides up as an overlay on this page.
+    // Navigation happens when the user dismisses the card (onCompletionDismissed).
+    // On null (error), alerts.error was already shown in the service.
   }
 
   // ── Navigation ─────────────────────────────────────────────────────────────
 
   exitSession(): void {
-    // TODO Fix 8: warn if session has unsaved sets
+    this.router.navigate(['/plans']);
+  }
+
+  /** Fix 3 — called by WorkoutCompletionCardComponent's (dismissed) output. */
+  onCompletionDismissed(): void {
+    this.facade.resetCompletionSummary();
     this.router.navigate(['/plans']);
   }
 

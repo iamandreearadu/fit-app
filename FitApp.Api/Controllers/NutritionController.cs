@@ -48,6 +48,22 @@ public class NutritionController(
         return NoContent();
     }
 
+    // ── Fix 3: Today's Macro Progress ────────────────────────────────────────
+
+    /// <summary>
+    /// GET /api/nutrition/today/macro-progress
+    ///
+    /// Returns today's logged macro totals vs TDEE-derived macro targets.
+    /// Consumed by MealCompletionFeedbackComponent immediately after each meal save
+    /// so the inline progress bars update to reflect the current running totals.
+    ///
+    /// Private user health data — Bearer required.
+    /// MUST NEVER be proxied to social endpoints or included in feed responses.
+    /// </summary>
+    [HttpGet("today/macro-progress")]
+    public async Task<ActionResult<MacroProgressDto>> GetTodayMacroProgress()
+        => Ok(await nutritionService.GetTodayMacroProgressAsync(UserId));
+
     // ── Food Search (Fix 1) ───────────────────────────────────────────────────
 
     /// <summary>

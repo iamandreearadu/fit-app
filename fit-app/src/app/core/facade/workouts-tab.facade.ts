@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import {
   CompleteSessionRequest,
   LastExerciseSession,
@@ -8,6 +8,7 @@ import {
   WorkoutType,
 } from "../models/workouts-tab.model";
 import { WorkoutsTabService } from "../../api/workouts-tab.service";
+import { NotificationHubService } from "../services/notification-hub.service";
 
 @Injectable({
   providedIn: "root"
@@ -15,6 +16,17 @@ import { WorkoutsTabService } from "../../api/workouts-tab.service";
 
 export class WorkoutsTabFacade {
   private workoutsSvc = inject(WorkoutsTabService);
+  private readonly notifHub = inject(NotificationHubService);
+
+  constructor() {
+    // Fix 3 — listen for workout-completed SignalR push as a backup pathway.
+    // The REST response in completeSession() sets completionSummary() first;
+    // this subscription handles cases where the SignalR event arrives before the
+    // REST promise resolves (rare) or when the facade is used across multiple tabs.
+    this.notifHub.workoutCompleted$.pipe(takeUntilDestroyed()).subscribe(summary => {
+      this.completionSummary.set(summary);
+    });
+  }
 
   private readonly _templates = signal<WorkoutTemplate[]>([]);
   private readonly _selectedTemplate = signal<WorkoutTemplate | null>(null);
@@ -163,12 +175,20 @@ export class WorkoutsTabFacade {
 
   /**
    * Saves a completed workout session.
-   * Sets completionSummary signal on success (consumed by Fix 8 summary card).
-   * Returns the summary so the caller can navigate immediately.
+   * Sets completionSummary signal on success (triggers WorkoutCompletionCardComponent).
+   * Returns the summary so callers can branch on success/failure.
    */
   async completeSession(req: CompleteSessionRequest): Promise<WorkoutCompletionSummary | null> {
     const summary = await this.workoutsSvc.completeSession(req);
     this.completionSummary.set(summary);
     return summary;
+  }
+
+  /**
+   * Fix 3 — called by WorkoutCompletionCardComponent on dismiss.
+   * Resets signal so the overlay is removed from DOM.
+   */
+  resetCompletionSummary(): void {
+    this.completionSummary.set(null);
   }
 }

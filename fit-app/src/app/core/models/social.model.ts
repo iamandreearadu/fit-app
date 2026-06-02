@@ -166,6 +166,48 @@ export interface UpdateBlogRequest {
   image?: string;
 }
 
+// ── Fix 2 — Share to beSocial ────────────────────────────────────────────────
+
+export interface PostFromWorkoutRequest {
+  caption?: string;
+}
+
+export interface PostFromMealRequest {
+  caption?: string;
+}
+
+export interface SharePostResponse {
+  postId: number;
+  previewText: string;
+}
+
+/**
+ * Discriminated union for share bottom sheet input data.
+ * PRIVACY: estimatedCaloriesKcal intentionally absent from workout variant.
+ * PRIVACY: macro totals intentionally absent from meal variant.
+ */
+export type ShareToSocialData =
+  | {
+      type: 'workout';
+      sessionId: number;
+      templateTitle: string;
+      durationMin: number;
+      exerciseCount: number;
+      // estimatedCaloriesKcal: INTENTIONALLY OMITTED — health metric
+    }
+  | {
+      type: 'meal';
+      mealId: number;
+      mealName: string;
+      mealType: string;
+      // totalCalories / totalProtein_g / etc.: INTENTIONALLY OMITTED — health metrics
+    };
+
+export interface ShareSheetResult {
+  published: boolean;
+  postId?: number;
+}
+
 /** Returned by GET /api/social/discover/suggested — Fix 7 guided empty state */
 export interface SuggestedUser {
   userId: string;

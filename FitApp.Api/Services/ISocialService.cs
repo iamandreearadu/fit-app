@@ -44,4 +44,30 @@ public interface ISocialService
     /// Used by GET /api/social/profile/me/following-count to avoid a full profile fetch.
     /// </summary>
     Task<FollowingCountDto> GetFollowingCountAsync(string userId);
+
+    // ── Fix 2: Share to beSocial ──────────────────────────────────────────────
+
+    /// <summary>
+    /// Creates a pre-composed social post from a completed workout session.
+    /// Ownership is enforced: throws <see cref="KeyNotFoundException"/> when the session
+    /// is not found or belongs to a different user.
+    ///
+    /// PRIVACY: generated Content includes only TemplateTitle, DurationMin, exerciseCount,
+    /// SetsCompleted. EstimatedCaloriesKcal, ActualWeightKg, and all health metrics are
+    /// NEVER written to Post.Content.
+    /// </summary>
+    Task<SharePostResponse> CreatePostFromWorkoutAsync(
+        string userId, int sessionId, PostFromWorkoutRequest? request);
+
+    /// <summary>
+    /// Creates a pre-composed social post from a logged meal entry.
+    /// Ownership is enforced: throws <see cref="KeyNotFoundException"/> when the meal
+    /// is not found or belongs to a different user.
+    ///
+    /// PRIVACY: generated Content includes only MealEntry.Name. TotalCalories,
+    /// TotalProtein_g, TotalCarbs_g, TotalFats_g, TotalGrams, and all FoodItem data
+    /// are NEVER written to Post.Content.
+    /// </summary>
+    Task<SharePostResponse> CreatePostFromMealAsync(
+        string userId, int mealId, PostFromMealRequest? request);
 }

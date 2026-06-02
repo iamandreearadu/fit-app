@@ -923,6 +923,120 @@ public class SocialService(
         };
     }
 
+    // ── Fix 2: Share to beSocial ──────────────────────────────────────────────
+
+    /// <summary>
+    /// Creates a pre-composed social post from a completed workout session.
+    ///
+    /// Content format (no caption):
+    ///   🏋️ Pull Day A
+    ///   ⏱️ 47 min · 3 exercises · 12 sets
+    ///
+    /// Content format (with caption):
+    ///   Crushed it today! 💪
+    ///
+    ///   🏋️ Pull Day A
+    ///   ⏱️ 47 min · 3 exercises · 12 sets
+    ///
+    /// PRIVACY ENFORCEMENT — none of the following are written to Post.Content:
+    ///   - WorkoutSession.EstimatedCaloriesKcal  (calories burned = health metric)
+    ///   - WorkoutTemplate.CaloriesEstimateKcal  (calorie estimate = health metric)
+    ///   - WorkoutSessionSet.ActualWeightKg      (exercise weight = body-capacity metric)
+    ///   - WorkoutSessionSet.ActualReps          (not included for simplicity in v1)
+    /// </summary>
+    public async Task<SharePostResponse> CreatePostFromWorkoutAsync(
+        string userId, int sessionId, PostFromWorkoutRequest? request)
+    {
+        // Load session + Sets for exercise-count calculation.
+        // Ownership check: session.UserId == userId — KeyNotFoundException on failure.
+        var session = await db.WorkoutSessions
+            .AsNoTracking()
+            .Include(s => s.Sets)
+            .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == userId)
+            ?? throw new KeyNotFoundException("Workout session not found.");
+
+        // Distinct exercise count from set rows.
+        // OrdinalIgnoreCase: defensive; ExerciseName values are already trimmed on save.
+        var exerciseCount = session.Sets
+            .Select(s => s.ExerciseName)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Count();
+
+        // Server-composed body — PRIVACY: only title, duration, counts; zero health metrics.
+        var body = $"🏋️ {session.TemplateTitle}\n⏱️ {session.DurationMin} min · {exerciseCount} exercises · {session.SetsCompleted} sets";
+
+        var content = !string.IsNullOrWhiteSpace(request?.Caption)
+            ? $"{request.Caption.Trim()}\n\n{body}"
+            : body;
+
+        // Link to WorkoutTemplate FK (nullable — null when the template was deleted;
+        // the post is still created because TemplateTitle is snapshotted in the session).
+        var post = new Post
+        {
+            UserId = userId,
+            Content = content,
+            LinkedWorkoutId = session.WorkoutTemplateId   // may be null — that is fine
+        };
+
+        db.Posts.Add(post);
+        await db.SaveChangesAsync();
+
+        return new SharePostResponse { PostId = post.Id, PreviewText = content };
+    }
+
+    /// <summary>
+    /// Creates a pre-composed social post from a logged meal entry.
+    ///
+    /// Content format (no caption):
+    ///   🍽️ Chicken &amp; Rice Bowl
+    ///
+    /// Content format (with caption):
+    ///   Post-workout fuel 🔥
+    ///
+    ///   🍽️ Chicken &amp; Rice Bowl
+    ///
+    /// PRIVACY ENFORCEMENT — none of the following are written to Post.Content:
+    ///   - MealEntry.TotalCalories    (calorie intake = health metric)
+    ///   - MealEntry.TotalProtein_g   (macro = health metric)
+    ///   - MealEntry.TotalCarbs_g     (macro = health metric)
+    ///   - MealEntry.TotalFats_g      (macro = health metric)
+    ///   - MealEntry.TotalGrams       (food weight = not useful publicly)
+    ///   - FoodItem.*                 (individual item data = health metric)
+    /// The projection below selects ONLY Id and Name from the DB row to enforce this
+    /// at the query level — macro columns are never materialised into the service method.
+    /// </summary>
+    public async Task<SharePostResponse> CreatePostFromMealAsync(
+        string userId, int mealId, PostFromMealRequest? request)
+    {
+        // Project only Id + Name — PRIVACY: macro/calorie columns are never loaded.
+        // Ownership check: meal.UserId == userId — KeyNotFoundException on failure.
+        var meal = await db.MealEntries
+            .AsNoTracking()
+            .Where(m => m.Id == mealId && m.UserId == userId)
+            .Select(m => new { m.Id, m.Name })
+            .FirstOrDefaultAsync()
+            ?? throw new KeyNotFoundException("Meal entry not found.");
+
+        // Server-composed body — PRIVACY: only meal name; no calories, macros, or items.
+        var body = $"🍽️ {meal.Name}";
+
+        var content = !string.IsNullOrWhiteSpace(request?.Caption)
+            ? $"{request.Caption.Trim()}\n\n{body}"
+            : body;
+
+        var post = new Post
+        {
+            UserId = userId,
+            Content = content,
+            LinkedMealId = mealId
+        };
+
+        db.Posts.Add(post);
+        await db.SaveChangesAsync();
+
+        return new SharePostResponse { PostId = post.Id, PreviewText = content };
+    }
+
     private static LinkedContentPreview? BuildLinkedContentPreview(Post post)
     {
         if (post.LinkedWorkout is not null)
@@ -930,7 +1044,7 @@ public class SocialService(
             {
                 Type = "workout",
                 Title = post.LinkedWorkout.Title,
-                Subtitle = $"{post.LinkedWorkout.DurationMin} min · {post.LinkedWorkout.CaloriesEstimateKcal} kcal"
+                Subtitle = $"{post.LinkedWorkout.DurationMin} min · {post.LinkedWorkout.Type}"
             };
 
         if (post.LinkedMeal is not null)
@@ -938,7 +1052,7 @@ public class SocialService(
             {
                 Type = "meal",
                 Title = post.LinkedMeal.Name,
-                Subtitle = $"{post.LinkedMeal.Type} · {Math.Round(post.LinkedMeal.TotalCalories)} kcal"
+                Subtitle = post.LinkedMeal.Type
             };
 
         if (post.LinkedDailyEntry is not null)
@@ -946,7 +1060,7 @@ public class SocialService(
             {
                 Type = "daily",
                 Title = $"Daily Log — {post.LinkedDailyEntry.Date}",
-                Subtitle = $"{post.LinkedDailyEntry.Steps} steps · {post.LinkedDailyEntry.CaloriesBurned} kcal burned"
+                Subtitle = $"{post.LinkedDailyEntry.Steps} steps"
             };
 
         return null;

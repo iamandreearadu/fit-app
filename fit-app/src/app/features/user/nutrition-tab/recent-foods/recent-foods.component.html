@@ -1,0 +1,46 @@
+<div class="rf-section">
+  <div class="rf-header">
+    <mat-icon>schedule</mat-icon>
+    <span class="rf-label">Recently Used</span>
+  </div>
+
+  <div class="rf-scroll-track">
+    <div class="rf-chip-list">
+
+      @if (recentLoading()) {
+        <!-- Loading skeleton chips -->
+        <div class="rf-skeleton-chip" aria-hidden="true"></div>
+        <div class="rf-skeleton-chip" aria-hidden="true"></div>
+        <div class="rf-skeleton-chip" aria-hidden="true"></div>
+        <div class="rf-skeleton-chip" aria-hidden="true"></div>
+
+      } @else {
+        <!-- Actual chips -->
+        @for (item of recentFoods(); track item.name + item.lastUsed) {
+          <div
+            class="rf-chip"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="item.name + ', ' + item.calories + ' kcal, tap to add'"
+            (click)="onChipClick(item)"
+            (keydown)="onChipKeydown($event, item)"
+          >
+            <span class="rf-chip-name">{{ item.name }}</span>
+            <span class="rf-chip-cal">{{ item.calories | number:'1.0-0' }} kcal</span>
+
+            @if (showSourceBadge(item.source)) {
+              <span
+                class="rf-chip-source"
+                [class.search]="item.source === 'search'"
+                [class.ai]="item.source === 'ai_analyzer'"
+              >
+                {{ sourceBadgeLabel(item.source) }}
+              </span>
+            }
+          </div>
+        }
+      }
+
+    </div>
+  </div>
+</div>
