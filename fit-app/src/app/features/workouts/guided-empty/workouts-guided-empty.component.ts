@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -50,6 +50,7 @@ const PREVIEW_COUNT = 4;
   imports: [MatIconModule, MatProgressSpinnerModule],
   templateUrl: './workouts-guided-empty.component.html',
   styleUrl: './workouts-guided-empty.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkoutsGuidedEmptyComponent {
   /** System templates from the backend — passed by workouts-tab parent. */

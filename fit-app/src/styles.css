@@ -966,3 +966,28 @@ mat-bottom-sheet-container.share-sheet-panel {
     border-radius: 24px 24px 0 0 !important;
   }
 }
+
+/* ─── AI CHAT BOTTOM SHEET PANEL ─── */
+mat-bottom-sheet-container.ai-chat-sheet-panel {
+  background: rgba(13, 13, 16, 0.97) !important;
+  border-radius: 24px 24px 0 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-bottom: none !important;
+  padding: 0 !important;
+  height: 70dvh !important;
+  max-height: 70dvh !important;
+  box-shadow: 0 -8px 48px rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+@media (min-width: 640px) {
+  .cdk-overlay-pane:has(mat-bottom-sheet-container.ai-chat-sheet-panel) {
+    max-width: 520px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+}

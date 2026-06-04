@@ -9,7 +9,10 @@ namespace FitApp.Api.Controllers;
 [ApiController]
 [Route("api/users")]
 [Authorize]
-public class UsersController(UserService userService, DailyDataService dailyService) : ControllerBase
+public class UsersController(
+    UserService userService,
+    DailyDataService dailyService,
+    OnboardingService onboardingService) : ControllerBase
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
         ?? User.FindFirstValue("sub")!;
@@ -45,4 +48,22 @@ public class UsersController(UserService userService, DailyDataService dailyServ
         var dto = await dailyService.GetUserStreakAsync(UserId);
         return Ok(dto);
     }
+
+    /// <summary>
+    /// GET /api/users/me/numbers
+    ///
+    /// Returns the authenticated user's computed fitness metrics:
+    /// BMI, BMI category, BMR, TDEE, GoalCalories, DailyCalorieTarget, WaterLiters, Goal.
+    ///
+    /// Returns 200 with zero/empty defaults when biometrics have not been submitted yet
+    /// (user hasn't completed the onboarding biometrics step). Never returns 404.
+    ///
+    /// PRIVACY CONSTRAINT — this endpoint:
+    ///   • Requires Bearer JWT
+    ///   • Returns data for the authenticated user ONLY (userId from JWT, never route param)
+    ///   • MUST NEVER be called from SocialService, SocialController, or any feed endpoint
+    /// </summary>
+    [HttpGet("me/numbers")]
+    public async Task<ActionResult<YourNumbersResponse>> GetMyNumbers()
+        => Ok(await onboardingService.GetYourNumbersAsync(UserId));
 }

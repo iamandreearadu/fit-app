@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using FitApp.Api.Models.DTOs;
 using FitApp.Api.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -10,12 +11,20 @@ namespace FitApp.Api.Controllers;
 [Authorize]
 public class AiController(AiProxyService aiProxy, ILogger<AiController> logger) : ControllerBase
 {
+    private string UserId =>
+        User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? User.FindFirstValue("sub")
+        ?? throw new UnauthorizedAccessException("User identity not resolved.");
+
     [HttpPost("text")]
     public async Task<IActionResult> AskText([FromBody] AiTextRequest req)
     {
+        if (!ModelState.IsValid)
+            return ValidationProblem(ModelState);
+
         try
         {
-            var result = await aiProxy.AskTextAsync(req);
+            var result = await aiProxy.AskTextAsync(req, UserId);
             return Ok(result);
         }
         catch (Exception ex)

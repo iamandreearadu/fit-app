@@ -118,19 +118,19 @@
 
 .pill-goal-lose {
   background: rgba(255, 64, 129, 0.12);
-  color: #ff4081;
+  color: var(--accent);
   border-color: rgba(255, 64, 129, 0.20);
 }
 
 .pill-goal-gain {
   background: rgba(74, 222, 128, 0.10);
-  color: #4ade80;
+  color: var(--color-success);
   border-color: rgba(74, 222, 128, 0.18);
 }
 
 .pill-goal-maintain {
   background: rgba(56, 189, 248, 0.10);
-  color: #38bdf8;
+  color: var(--color-info);
   border-color: rgba(56, 189, 248, 0.18);
 }
 

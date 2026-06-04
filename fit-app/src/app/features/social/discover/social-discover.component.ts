@@ -13,6 +13,7 @@ import { SocialFacade } from '../../../core/facade/social.facade';
 import { Post, UserSummary } from '../../../core/models/social.model';
 import { PostCardComponent } from '../components/post-card/post-card.component';
 import { EditPostComponent } from '../components/edit-post/edit-post.component';
+import { SuggestedUsersComponent } from '../components/suggested-users/suggested-users.component';
 
 @Component({
   selector: 'app-social-discover',
@@ -25,7 +26,8 @@ import { EditPostComponent } from '../components/edit-post/edit-post.component';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatDialogModule,
-    PostCardComponent
+    PostCardComponent,
+    SuggestedUsersComponent,
   ],
   templateUrl: './social-discover.component.html',
   styleUrl: './social-discover.component.css'

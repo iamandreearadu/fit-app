@@ -1,19 +1,51 @@
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using FitApp.Api.Data;
 using FitApp.Api.Models.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitApp.Api.Services;
 
-public class AiProxyService(IConfiguration config, IHttpClientFactory httpFactory, ILogger<AiProxyService> logger)
+public class AiProxyService(
+    IConfiguration config,
+    IHttpClientFactory httpFactory,
+    ILogger<AiProxyService> logger,
+    NutritionService nutritionService,
+    DailyDataService dailyDataService,
+    AppDbContext db)
 {
     private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower };
 
-    public async Task<AiResponse> AskTextAsync(AiTextRequest req)
+    /// <summary>
+    /// Sends a text prompt to Groq, optionally enriching the system prompt with the user's
+    /// live operational data from the specified module.
+    ///
+    /// Message construction order when moduleContext is set:
+    ///   [0] system  — module context supplement (operational data only, no health metrics)
+    ///   [1] system  — client's systemPrompt (if provided)
+    ///   [2] user    — user's prompt
+    ///
+    /// PRIVACY: the context supplement is injected into the Groq request only.
+    /// It is NOT stored in any entity and NOT returned in AiResponse.
+    /// </summary>
+    public async Task<AiResponse> AskTextAsync(AiTextRequest req, string userId)
     {
         var messages = new List<object>();
+
+        // Inject module context as the first system message (server-side only)
+        if (!string.IsNullOrEmpty(req.ModuleContext))
+        {
+            var contextSupplement = await BuildModuleContextAsync(userId, req.ModuleContext);
+            if (contextSupplement is not null)
+            {
+                messages.Add(new { role = "system", content = contextSupplement });
+                logger.LogDebug("Module context injected for user {UserId}, module={Module}", userId, req.ModuleContext);
+            }
+        }
+
         if (!string.IsNullOrEmpty(req.SystemPrompt))
             messages.Add(new { role = "system", content = req.SystemPrompt });
+
         messages.Add(new { role = "user", content = req.Prompt });
 
         return await CallGroqAsync(config["Groq:TextModel"]!, messages);
@@ -53,6 +85,120 @@ public class AiProxyService(IConfiguration config, IHttpClientFactory httpFactor
 
         return await CallGroqAsync(config["Groq:TextModel"]!, messages);
     }
+
+    // ── Context builders ──────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Loads operational data for the given module and formats it as a context string
+    /// to prepend to the Groq system prompt.
+    ///
+    /// Returns null when no relevant data exists (new user with no entries) — in that
+    /// case no context system message is added and the request proceeds as-is.
+    ///
+    /// PRIVACY constraints (enforced here):
+    /// - No BMI, BMR, TDEE, GoalCalories, WeightKg, or HeightCm are included
+    /// - Only operational/behavioural data: macro totals vs targets, workout names/durations,
+    ///   session counts, steps, water
+    /// - Never logged at INFO level
+    /// </summary>
+    private async Task<string?> BuildModuleContextAsync(string userId, string moduleContext)
+    {
+        try
+        {
+            return moduleContext switch
+            {
+                "nutrition"  => await BuildNutritionContextAsync(userId),
+                "workouts"   => await BuildWorkoutsContextAsync(userId),
+                "dashboard"  => await BuildDashboardContextAsync(userId),
+                "social"     => "User is browsing the social feed. Respond about fitness community topics, motivation, or social engagement.",
+                _            => null
+            };
+        }
+        catch (Exception ex)
+        {
+            // Context injection failure must NEVER break the AI request — degrade gracefully
+            logger.LogWarning(ex, "BuildModuleContextAsync failed for user {UserId}, module={Module}. Proceeding without context.", userId, moduleContext);
+            return null;
+        }
+    }
+
+    private async Task<string?> BuildNutritionContextAsync(string userId)
+    {
+        var macros = await nutritionService.GetTodayMacroProgressAsync(userId);
+
+        // No meals logged today — skip context (avoids confusing "0g protein" responses)
+        if (macros.TotalCalories == 0 && macros.TargetCalories == 0)
+            return null;
+
+        return $"User's nutrition today: " +
+               $"{macros.TotalProtein}g protein of {macros.TargetProtein}g target, " +
+               $"{macros.TotalCarbs}g carbs of {macros.TargetCarbs}g target, " +
+               $"{macros.TotalFat}g fat of {macros.TargetFat}g target. " +
+               $"Total calories: {macros.TotalCalories} of {macros.TargetCalories} target.";
+    }
+
+    private async Task<string?> BuildWorkoutsContextAsync(string userId)
+    {
+        // Most recent non-archived workout template owned by this user
+        var template = await db.WorkoutTemplates
+            .AsNoTracking()
+            .Where(t => t.UserId == userId && !t.IsArchived)
+            .OrderByDescending(t => t.UpdatedAt)
+            .Select(t => new { t.Title, t.Type, t.DurationMin })
+            .FirstOrDefaultAsync();
+
+        // Most recent completed session
+        var session = await db.WorkoutSessions
+            .AsNoTracking()
+            .Where(s => s.UserId == userId)
+            .OrderByDescending(s => s.FinishedAt)
+            .Select(s => new { s.TemplateTitle, s.FinishedAt, s.SetsCompleted, s.DurationMin })
+            .FirstOrDefaultAsync();
+
+        if (template is null && session is null)
+            return null;
+
+        var parts = new List<string>();
+
+        if (template is not null)
+            parts.Add($"Most recent workout template: '{template.Title}' ({template.Type}, {template.DurationMin} min)");
+
+        if (session is not null)
+            parts.Add($"Last completed session: '{session.TemplateTitle}' on {session.FinishedAt:yyyy-MM-dd}, {session.SetsCompleted} sets, {session.DurationMin} min");
+
+        return "User's workout context: " + string.Join(". ", parts) + ".";
+    }
+
+    private async Task<string?> BuildDashboardContextAsync(string userId)
+    {
+        var streak = await dailyDataService.GetStreakAsync(userId);
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd");
+        var entry = await db.DailyEntries
+            .AsNoTracking()
+            .Where(d => d.UserId == userId && d.Date == today)
+            .Select(d => new { d.Steps, d.WaterConsumedL, d.EnergyLevel })
+            .FirstOrDefaultAsync();
+
+        // No streak and no today entry — skip context
+        if (streak.Current == 0 && entry is null)
+            return null;
+
+        var sb = new StringBuilder("User's dashboard context: ");
+        sb.Append($"Current streak: {streak.Current} days.");
+
+        if (entry is not null)
+        {
+            sb.Append($" Today: {entry.Steps} steps, {entry.WaterConsumedL}L water");
+            if (entry.EnergyLevel.HasValue)
+                sb.Append($", energy {entry.EnergyLevel}/5");
+            sb.Append('.');
+        }
+
+        return sb.ToString();
+    }
+
+    // ── Groq HTTP layer ───────────────────────────────────────────────────────────
 
     private async Task<AiResponse> CallGroqAsync(string model, List<object> messages)
     {

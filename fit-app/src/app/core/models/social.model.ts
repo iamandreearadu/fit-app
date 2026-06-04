@@ -15,6 +15,7 @@ export interface UserSummary {
   id: string;
   displayName: string;
   avatarUrl?: string;
+  isVerified?: boolean;     // Fix 9 — renders verification badge inline with display name
 }
 
 export interface LinkedContentPreview {
@@ -36,6 +37,7 @@ export interface Post {
   isOwnPost: boolean;
   isArchived: boolean;
   createdAt: string;
+  isSeedContent?: boolean;  // Fix 9 — drives .post-card--seed editorial rendering mode
   // Article-type post fields
   articleId?: number;
   articleTitle?: string;
@@ -76,6 +78,7 @@ export interface UserSocialProfile {
   followingCount: number;
   isFollowedByMe: boolean;
   isOwnProfile: boolean;
+  isVerified?: boolean;     // Fix 9 — renders badge on profile page header
 }
 
 export interface LikeToggleResponse {

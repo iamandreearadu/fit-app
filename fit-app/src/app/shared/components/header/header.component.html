@@ -42,13 +42,6 @@
       </a>
       @if (accountFacade.authUser()) {
         <a
-          class="hdr-link"
-          routerLink="/ai-assistant"
-          [class.active]="navService.isActive('/ai-assistant')"
-        >
-          <mat-icon>chat</mat-icon><span>AI Assistant</span>
-        </a>
-        <a
           class="hdr-link-social"
           routerLink="/social"
           routerLinkActive="active"
@@ -177,14 +170,6 @@
         <mat-icon>fitness_center</mat-icon><span>Plans</span>
       </a>
       @if (accountFacade.authUser()) {
-        <a
-          class="mob-link"
-          routerLink="/ai-assistant"
-          (click)="closeMobileNav()"
-          [class.active]="navService.isActive('/ai-assistant')"
-        >
-          <mat-icon>chat</mat-icon><span>AI Assistant</span>
-        </a>
         <a
           class="mob-link mob-link-social"
           routerLink="/social"

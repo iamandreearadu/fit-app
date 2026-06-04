@@ -10,6 +10,7 @@ import { UserFacade } from './user.facade';
 import { ChatHubService } from '../services/chat-hub.service';
 import { NotificationHubService } from '../services/notification-hub.service';
 import { NotificationFacade } from './notification.facade';
+import { OnboardingFacade } from './onboarding.facade';
 
 @Injectable({ providedIn: 'root' })
 export class AccountFacade {
@@ -23,6 +24,7 @@ export class AccountFacade {
   private chatHub = inject(ChatHubService);
   private notifHub = inject(NotificationHubService);
   private notifFacade = inject(NotificationFacade);
+  private onboardingFacade = inject(OnboardingFacade);
 
   private readonly authKey = environment.authKey;
   private readonly userKey = environment.userKey;
@@ -138,6 +140,7 @@ export class AccountFacade {
 
       this.authStore.clear();
       this.userFacade.streak.set(null);   // Fix 5 — clear stale streak on logout
+      this.onboardingFacade.resetStatus(); // Fix 4 — reset cached onboarding state
       this.ls.remove(this.authKey);
       this.ls.remove(this.userKey);
 

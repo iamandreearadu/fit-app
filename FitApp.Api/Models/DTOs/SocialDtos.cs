@@ -9,6 +9,7 @@ public class UserSummary
     public string Id { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
+    public bool IsVerified { get; set; }   // true for NovaFit Official and any verified account
 }
 
 public class LinkedContentPreview
@@ -64,6 +65,13 @@ public class PostResponse
     public bool IsOwnPost { get; set; }
     public bool IsArchived { get; set; }
     public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// True when this post is cold-start seed content from the NovaFit Official account.
+    /// Set in-memory during feed assembly — never stored on the Post entity.
+    /// Frontend uses this for "Suggested for you" visual label only.
+    /// </summary>
+    public bool IsSeedContent { get; set; }
 
     // Article-type post fields (null for regular posts)
     public int? ArticleId { get; set; }
@@ -129,6 +137,7 @@ public class UserSocialProfileResponse
     public int FollowingCount { get; set; }
     public bool IsFollowedByMe { get; set; }
     public bool IsOwnProfile { get; set; }
+    public bool IsVerified { get; set; }   // true for NovaFit Official and verified accounts
 }
 
 public class UserSearchResult
@@ -137,6 +146,7 @@ public class UserSearchResult
     public string DisplayName { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
     public bool IsFollowedByMe { get; set; }
+    public bool IsVerified { get; set; }   // defensive consistency — verified badge in search results
 }
 
 public class ProfileWorkoutSummary

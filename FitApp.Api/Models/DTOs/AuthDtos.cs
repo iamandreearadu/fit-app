@@ -21,6 +21,15 @@ public class RegisterRequest
 
     [Required, MinLength(2)]
     public string FullName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Primary fitness goal — optional for backward compatibility.
+    /// Defaults to "maintain" when omitted. Stored on User.Goal and used by
+    /// MetricsService to compute GoalCalories (lose = TDEE-500, gain = TDEE+500, maintain = TDEE).
+    /// </summary>
+    [RegularExpression("^(lose|gain|maintain)$",
+        ErrorMessage = "Goal must be 'lose', 'gain', or 'maintain'.")]
+    public string? Goal { get; set; }
 }
 
 public class AuthResponse

@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -12,6 +12,7 @@ import { AlertService } from '../../../../shared/services/alert.service';
   imports: [RouterLink, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './social-feed-guided-empty.component.html',
   styleUrl: './social-feed-guided-empty.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SocialFeedGuidedEmptyComponent implements OnInit {
   protected readonly facade = inject(SocialFacade);

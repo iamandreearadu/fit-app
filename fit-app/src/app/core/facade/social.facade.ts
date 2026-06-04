@@ -44,7 +44,8 @@ export class SocialFacade {
   private feedPage = 1;
 
   // Discover state
-  discoverPosts = signal<Post[]>([]);
+  private readonly _discoverPosts = signal<Post[]>([]);
+  readonly discoverPosts = this._discoverPosts.asReadonly();
   isLoadingDiscover = signal(false);
   discoverError = signal<string | null>(null);
 
@@ -55,7 +56,8 @@ export class SocialFacade {
   profileError = signal<string | null>(null);
 
   // Search state
-  searchResults = signal<UserSearchResult[]>([]);
+  private readonly _searchResults = signal<UserSearchResult[]>([]);
+  readonly searchResults = this._searchResults.asReadonly();
   isSearching = signal(false);
   searchError = signal<string | null>(null);
 
@@ -66,8 +68,10 @@ export class SocialFacade {
   isLoadingFollowingCount = signal(false);
 
   /** Suggested users for the social feed guided empty state. */
-  suggestedUsers = signal<SuggestedUser[]>([]);
-  isLoadingSuggestions = signal(false);
+  private readonly _suggestedUsers = signal<SuggestedUser[]>([]);
+  private readonly _isLoadingSuggestions = signal(false);
+  readonly suggestedUsers = this._suggestedUsers.asReadonly();
+  readonly isLoadingSuggestions = this._isLoadingSuggestions.asReadonly();
   suggestionsError = signal<string | null>(null);
 
   // Profile sections state
@@ -117,13 +121,13 @@ export class SocialFacade {
     // Optimistic update on all three stores
     this.feed.update(posts => posts.map(applyLike));
     this.profilePosts.update(posts => posts.map(applyLike));
-    this.discoverPosts.update(posts => posts.map(applyLike));
+    this._discoverPosts.update(posts => posts.map(applyLike));
 
     firstValueFrom(this.socialSvc.toggleLike(postId)).catch(() => {
       // Revert from pre-mutation snapshot — avoids double-flip on concurrent actions
       this.feed.set(prevFeed);
       this.profilePosts.set(prevProfilePosts);
-      this.discoverPosts.set(prevDiscoverPosts);
+      this._discoverPosts.set(prevDiscoverPosts);
     });
   }
 
@@ -139,7 +143,7 @@ export class SocialFacade {
   async updatePost(id: number, req: UpdatePostRequest): Promise<Post> {
     const updated = await firstValueFrom(this.socialSvc.updatePost(id, req));
     this.feed.update(f => f.map(p => p.id === id ? { ...p, ...updated } : p));
-    this.discoverPosts.update(f => f.map(p => p.id === id ? { ...p, ...updated } : p));
+    this._discoverPosts.update(f => f.map(p => p.id === id ? { ...p, ...updated } : p));
     this.profilePosts.update(f => f.map(p => p.id === id ? { ...p, ...updated } : p));
     return updated;
   }
@@ -147,7 +151,7 @@ export class SocialFacade {
   async deletePost(id: number): Promise<void> {
     await firstValueFrom(this.socialSvc.deletePost(id));
     this.feed.update(f => f.filter(p => p.id !== id));
-    this.discoverPosts.update(f => f.filter(p => p.id !== id));
+    this._discoverPosts.update(f => f.filter(p => p.id !== id));
     this.profilePosts.update(f => f.filter(p => p.id !== id));
   }
 
@@ -156,7 +160,7 @@ export class SocialFacade {
     this.discoverError.set(null);
     try {
       const res = await firstValueFrom(this.socialSvc.getDiscover());
-      this.discoverPosts.set(res.items);
+      this._discoverPosts.set(res.items);
     } catch {
       this.discoverError.set('Failed to load discover. Please try again.');
     } finally {
@@ -166,14 +170,14 @@ export class SocialFacade {
 
   async searchUsers(q: string): Promise<void> {
     if (!q.trim()) {
-      this.searchResults.set([]);
+      this._searchResults.set([]);
       return;
     }
     this.isSearching.set(true);
     this.searchError.set(null);
     try {
       const results = await firstValueFrom(this.socialSvc.searchUsers(q));
-      this.searchResults.set(results);
+      this._searchResults.set(results);
     } catch {
       this.searchError.set('Search failed. Please try again.');
     } finally {
@@ -182,7 +186,7 @@ export class SocialFacade {
   }
 
   clearSearch(): void {
-    this.searchResults.set([]);
+    this._searchResults.set([]);
     this.searchError.set(null);
   }
 
@@ -347,15 +351,15 @@ export class SocialFacade {
    * Uses GET /api/social/discover/suggested.
    */
   async loadSuggestedUsers(limit = 5): Promise<void> {
-    this.isLoadingSuggestions.set(true);
+    this._isLoadingSuggestions.set(true);
     this.suggestionsError.set(null);
     try {
       const users = await firstValueFrom(this.socialSvc.getSuggestedUsers(limit));
-      this.suggestedUsers.set(users);
+      this._suggestedUsers.set(users);
     } catch {
       this.suggestionsError.set("Couldn't load suggestions. Please try again.");
     } finally {
-      this.isLoadingSuggestions.set(false);
+      this._isLoadingSuggestions.set(false);
     }
   }
 

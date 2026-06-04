@@ -3,7 +3,7 @@ import { GroqAiApiService } from '../../api/groq-ai-api.service';
 import { GroqAiService as GroqInMemoryService } from '../../api/groq-ai.service';
 import { OpenFoodFactsService } from '../../api/open-food-facts.service';
 import { GrogAiService as GrogCoreService } from '../services/grog-ai.service';
-import { ChatMessage } from '../models/groq-ai.model';
+import { ChatMessage, ModuleContext } from '../models/groq-ai.model';
 import { BarcodeProduct } from '../models/barcode-product.model';
 import { MealMacros } from '../models/meal-macros';
 import { UserProfile } from '../models/user.model';
@@ -111,6 +111,7 @@ export class GroqAiFacade {
     prompt: string,
     file?: File,
     imagePreview?: string,
+    moduleContext?: ModuleContext,
   ): Promise<void> {
     this.state.setLoading(true);
 
@@ -120,9 +121,10 @@ export class GroqAiFacade {
       let aiResponse = '';
 
       if (file) {
+        // Image analysis — moduleContext does not apply
         aiResponse = await this.groqService.analyzeImage(prompt, file);
       } else {
-        aiResponse = await this.groqService.askText(prompt);
+        aiResponse = await this.groqService.askText(prompt, moduleContext);
       }
 
       await this.saveMessage('assistant', aiResponse);

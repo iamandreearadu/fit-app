@@ -1,0 +1,394 @@
+/* ═══════════════════════════════════════════════════════════════
+   Onboarding Biometrics — all classes prefixed .bio-*
+   Component-scoped: no additions to styles.css
+═══════════════════════════════════════════════════════════════ */
+
+/* ─── Page shell ────────────────────────────────────────────── */
+.ob-page {
+  min-height: 100dvh;
+  background: var(--surface);
+  position: relative;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ambient orbs (reused from auth / carousel) */
+.ob-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+.ob-orb-1 {
+  width: 380px;
+  height: 380px;
+  background: rgba(124, 77, 255, 0.14);
+  top: -100px;
+  left: -60px;
+  animation: orbFloat1 22s ease-in-out infinite;
+}
+.ob-orb-2 {
+  width: 260px;
+  height: 260px;
+  background: rgba(255, 64, 129, 0.10);
+  bottom: 60px;
+  right: -60px;
+  animation: orbFloat2 26s ease-in-out infinite;
+}
+
+/* ─── Sticky navigation bar ─────────────────────────────────── */
+.bio-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 8px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(13, 13, 16, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bio-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: 48px;
+  padding: 0 8px;
+  transition: color 0.15s ease;
+}
+.bio-back-btn:hover { color: rgba(255, 255, 255, 0.75); }
+.bio-back-btn mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.bio-step-indicator {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Step progress bar */
+.bio-step-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0 20px;
+  position: sticky;
+  top: 57px;
+  z-index: 9;
+}
+.bio-step-fill {
+  height: 100%;
+  width: 66%; /* 2/3 complete */
+  background: var(--primary);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* ─── Scrollable content ────────────────────────────────────── */
+.bio-scroll {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ─── Live TDEE preview card ────────────────────────────────── */
+.bio-tdee-card {
+  width: calc(100% - 40px);
+  max-width: 500px;
+  margin: 16px 20px 0;
+  padding: 18px 20px;
+  background: rgba(124, 77, 255, 0.06);
+  border: 1px solid rgba(124, 77, 255, 0.18);
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+.bio-tdee-card--active {
+  background: rgba(124, 77, 255, 0.10);
+  border-color: rgba(124, 77, 255, 0.35);
+  box-shadow: 0 0 32px rgba(124, 77, 255, 0.10);
+}
+
+.bio-tdee-card-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(124, 77, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bio-tdee-sparkle {
+  font-size: 12px !important;
+  width: 12px !important;
+  height: 12px !important;
+  color: var(--primary);
+}
+
+.bio-tdee-numbers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.bio-tdee-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.bio-tdee-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--white);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  transition: color 0.25s ease;
+}
+.bio-tdee-value--empty {
+  color: rgba(255, 255, 255, 0.15);
+}
+.bio-tdee-unit {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.bio-tdee-sublabel {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 2px;
+}
+.bio-tdee-placeholder-text {
+  margin: 10px 0 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.25);
+  font-style: italic;
+}
+
+/* ─── Form ──────────────────────────────────────────────────── */
+.bio-form-content {
+  width: calc(100% - 40px);
+  max-width: 500px;
+  padding: 20px 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.bio-section-header { margin-bottom: 4px; }
+.bio-section-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.5px;
+  margin: 0 0 4px;
+}
+.bio-section-sub {
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.38);
+  margin: 0;
+}
+
+/* Angular Material outlined field overrides are in styles.css — don't re-override */
+.bio-field {
+  width: 100%;
+}
+.bio-field-suffix {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ─── Field group (label + selector) ───────────────────────── */
+.bio-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bio-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.bio-optional {
+  text-transform: none;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* ─── Pill selectors (gender, dietary) ─────────────────────── */
+.bio-pill-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bio-diet-group {
+  flex-wrap: wrap;
+}
+.bio-pill-btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+.bio-pill-btn:hover {
+  border-color: rgba(124, 77, 255, 0.3);
+  background: rgba(124, 77, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+}
+.bio-pill-btn--selected {
+  border-color: var(--primary);
+  background: rgba(124, 77, 255, 0.14);
+  color: var(--white);
+  box-shadow: 0 0 0 1px rgba(124, 77, 255, 0.2);
+}
+
+/* ─── Activity level cards (horizontal scroll) ──────────────── */
+.bio-activity-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.bio-activity-row::-webkit-scrollbar { display: none; }
+
+.bio-activity-card {
+  flex-shrink: 0;
+  width: 100px;
+  padding: 12px 10px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.18s ease;
+  min-height: 48px;
+}
+.bio-activity-card:hover {
+  border-color: rgba(124, 77, 255, 0.3);
+  background: rgba(124, 77, 255, 0.08);
+}
+.bio-activity-card--selected {
+  border-color: var(--primary);
+  background: rgba(124, 77, 255, 0.12);
+  box-shadow: 0 0 0 1px rgba(124, 77, 255, 0.15);
+}
+.bio-activity-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--white-soft, rgba(255,255,255,0.85));
+}
+.bio-activity-desc {
+  font-size: 10px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.35);
+  line-height: 1.4;
+}
+
+/* ─── Submit button ─────────────────────────────────────────── */
+.bio-submit-btn {
+  width: 100%;
+  height: 52px;
+  background: var(--primary);
+  border: none;
+  border-radius: 14px;
+  color: var(--white);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px var(--primary-glow);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.15s ease;
+  margin-top: 8px;
+}
+.bio-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px var(--primary-glow);
+}
+.bio-submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.bio-submit-btn mat-icon {
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+.bio-spinner {
+  --mdc-circular-progress-active-indicator-color: #fff;
+}
+
+/* ─── Animations ────────────────────────────────────────────── */
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(22px, -18px) scale(1.04); }
+  66%      { transform: translate(-16px, 14px) scale(0.97); }
+}
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%      { transform: translate(-18px, 22px) scale(1.05); }
+  70%      { transform: translate(14px, -10px) scale(0.96); }
+}
+
+/* ─── Desktop layout ────────────────────────────────────────── */
+@media (min-width: 640px) {
+  .bio-tdee-card { margin: 20px auto 0; }
+  .bio-form-content { margin: 0 auto; }
+  .bio-tdee-value { font-size: 32px; }
+  .bio-activity-row { flex-wrap: wrap; overflow-x: visible; }
+  .bio-activity-card { width: auto; min-width: 100px; }
+}
+
+/* ─── Reduced motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ob-orb { animation: none !important; }
+}

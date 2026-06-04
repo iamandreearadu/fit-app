@@ -71,14 +71,56 @@ public class SocialService(
             .Select(l => l.PostId)
             .ToHashSetAsync();
 
-        var items = posts.Select(p => MapToPostResponse(p, userId, likedPostIds, followingIds.ToHashSet())).ToList();
+        var followingSet = followingIds.ToHashSet();
+        var items = posts.Select(p => MapToPostResponse(p, userId, likedPostIds, followingSet)).ToList();
+
+        // ── Cold-start seed injection (page 1 only) ──────────────────────────
+        // Appended only on page 1 when the user follows < 3 people and has spare slots.
+        // Restricting to page 1 avoids the Skip offset instability that occurs when
+        // seedNeeded varies between pages (real-post count changes, so a fixed
+        // (page-1)*seedNeeded skip would duplicate or skip seed posts on page 2+).
+        // Cold-start users follow someone before reaching page 2 — multi-page seeding
+        // adds complexity with no practical benefit.
+        // TotalCount and HasMore are based on REAL posts only so pagination stops correctly.
+        if (page == 1 && followingIds.Count < 3 && items.Count < pageSize)
+        {
+            var realPostIds = posts.Select(p => p.Id).ToHashSet();
+            var seedNeeded  = pageSize - items.Count;
+
+            var seedPosts = await db.Posts
+                .AsNoTracking()
+                .Include(p => p.User)
+                .Include(p => p.Article)
+                .Where(p => p.User!.IsSystemAccount
+                            && !p.IsArchived
+                            && !realPostIds.Contains(p.Id))
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(seedNeeded)
+                .ToListAsync();
+
+            if (seedPosts.Count > 0)
+            {
+                var seedPostIds = seedPosts.Select(p => p.Id).ToList();
+                var seedLikedIds = await db.Likes
+                    .Where(l => l.UserId == userId && seedPostIds.Contains(l.PostId))
+                    .Select(l => l.PostId)
+                    .ToHashSetAsync();
+
+                foreach (var sp in seedPosts)
+                {
+                    var mapped = MapToPostResponse(sp, userId, seedLikedIds, followingSet);
+                    mapped.IsSeedContent = true;
+                    items.Add(mapped);
+                }
+            }
+        }
 
         return new PaginatedResponse<PostResponse>
         {
             Items = items,
             Page = page,
             PageSize = pageSize,
-            TotalCount = total,
+            TotalCount = total,          // real posts only — NOT including seed content
             HasMore = page * pageSize < total
         };
     }
@@ -417,6 +459,7 @@ public class SocialService(
                 u.FullName,
                 u.ImageUrl,
                 u.Bio,
+                u.IsVerified,
                 PostsCount     = u.Posts.Count(p => !p.IsArchived),
                 FollowersCount = u.Followers.Count(),
                 FollowingCount = u.Following.Count(),
@@ -435,7 +478,8 @@ public class SocialService(
             FollowersCount = stats.FollowersCount,
             FollowingCount = stats.FollowingCount,
             IsFollowedByMe = stats.IsFollowedByMe,
-            IsOwnProfile = userId == requestingUserId
+            IsOwnProfile = userId == requestingUserId,
+            IsVerified = stats.IsVerified
         };
     }
 
@@ -513,7 +557,9 @@ public class SocialService(
 
         var pool = await db.Users
             .AsNoTracking()
-            .Where(u => u.Id != requestingUserId && !followingIds.Contains(u.Id))
+            .Where(u => u.Id != requestingUserId
+                        && !followingIds.Contains(u.Id)
+                        && !u.IsSystemAccount)    // exclude NovaFit Official and other system accounts
             .Select(u => new
             {
                 u.Id,
@@ -564,10 +610,12 @@ public class SocialService(
         var q = query.Trim().ToLower();
 
         var users = await db.Users
-            .Where(u => u.Id != requestingUserId && u.FullName.ToLower().Contains(q))
+            .Where(u => u.Id != requestingUserId
+                        && u.FullName.ToLower().Contains(q)
+                        && !u.IsSystemAccount)   // exclude NovaFit Official and system accounts from search
             .OrderBy(u => u.FullName)
             .Take(limit)
-            .Select(u => new { u.Id, u.FullName, u.ImageUrl })
+            .Select(u => new { u.Id, u.FullName, u.ImageUrl, u.IsVerified })
             .ToListAsync();
 
         var userIds = users.Select(u => u.Id).ToList();
@@ -582,7 +630,8 @@ public class SocialService(
             Id = u.Id,
             DisplayName = u.FullName,
             AvatarUrl = u.ImageUrl,
-            IsFollowedByMe = followingIds.Contains(u.Id)
+            IsFollowedByMe = followingIds.Contains(u.Id),
+            IsVerified = u.IsVerified
         }).ToList();
     }
 
@@ -649,7 +698,8 @@ public class SocialService(
     {
         Id = user.Id,
         DisplayName = user.FullName,
-        AvatarUrl = user.ImageUrl
+        AvatarUrl = user.ImageUrl,
+        IsVerified = user.IsVerified
     };
 
     // ── Archive / Profile Sections ────────────────────────────────────────────

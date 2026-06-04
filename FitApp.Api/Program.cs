@@ -96,6 +96,7 @@ builder.Services.AddScoped<WorkoutService>();
 builder.Services.AddScoped<WorkoutSessionService>();
 builder.Services.AddScoped<NutritionService>();
 builder.Services.AddScoped<FoodSearchService>();
+builder.Services.AddScoped<OnboardingService>();
 builder.Services.AddScoped<BlogService>();
 builder.Services.AddScoped<AiProxyService>();
 builder.Services.AddScoped<EmailService>();
@@ -172,6 +173,10 @@ if (File.Exists(dbPath))
     {
         Exec(raw, "ALTER TABLE \"Users\" ADD COLUMN \"OnboardingCompleted\" INTEGER NOT NULL DEFAULT 0");
         Exec(raw, "ALTER TABLE \"Users\" ADD COLUMN \"DietaryPreference\" TEXT");
+        // Backfill: users with biometric data (Age > 0 OR HeightCm > 0)
+        // are marked as onboarding complete — they used the old wizard.
+        // Users with no biometrics will be routed through the new carousel
+        // on next login. Intentional — they benefit from the new flow.
         Exec(raw, "UPDATE \"Users\" SET \"OnboardingCompleted\" = 1 WHERE \"Age\" > 0 OR \"HeightCm\" > 0");
     }
 
@@ -201,6 +206,7 @@ using (var scope = app.Services.CreateScope())
     await FitApp.Api.Data.Seeds.BlogPostSeeder.SeedAsync(db);
     await FitApp.Api.Data.Seeds.UserSeeder.SeedAsync(db);
     await FitApp.Api.Data.Seeds.WorkoutTemplateSeeder.SeedAsync(db);
+    await FitApp.Api.Data.Seeds.NovaFitOfficialSeeder.SeedAsync(db);
 }
 
 static void Exec(SqliteConnection c, string sql)

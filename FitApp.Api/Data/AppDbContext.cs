@@ -18,6 +18,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<ChatConversation> ChatConversations => Set<ChatConversation>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
 
+    // Onboarding (Fix 4)
+    public DbSet<OnboardingStep> OnboardingSteps => Set<OnboardingStep>();
+
     // Social / Messaging / Notifications
     public DbSet<Post> Posts => Set<Post>();
     public DbSet<Like> Likes => Set<Like>();
@@ -221,6 +224,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .HasForeignKey(m => m.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(m => new { m.ConversationId, m.SentAt });
+        });
+
+        // ── Onboarding (Fix 4) ────────────────────────────────────────────────
+
+        modelBuilder.Entity<OnboardingStep>(e =>
+        {
+            e.HasKey(o => o.Id);
+            // Unique per (user, step) — idempotent insert checks against this constraint.
+            e.HasIndex(o => new { o.UserId, o.StepName }).IsUnique();
+            e.HasOne(o => o.User)
+                .WithMany(u => u.OnboardingSteps)
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ── Notifications ─────────────────────────────────────────────────────

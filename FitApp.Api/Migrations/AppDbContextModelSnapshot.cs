@@ -496,6 +496,31 @@ namespace FitApp.Api.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.OnboardingStep", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CompletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StepName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "StepName")
+                        .IsUnique();
+
+                    b.ToTable("OnboardingSteps");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -609,6 +634,12 @@ namespace FitApp.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsAdmin")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsSystemAccount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsVerified")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("MetricsUpdatedAt")
@@ -981,6 +1012,17 @@ namespace FitApp.Api.Migrations
                     b.Navigation("Recipient");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.OnboardingStep", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.User", "User")
+                        .WithMany("OnboardingSteps")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.Post", b =>
                 {
                     b.HasOne("FitApp.Api.Models.Entities.BlogPost", "Article")
@@ -1110,6 +1152,8 @@ namespace FitApp.Api.Migrations
                     b.Navigation("Likes");
 
                     b.Navigation("MealEntries");
+
+                    b.Navigation("OnboardingSteps");
 
                     b.Navigation("Posts");
 

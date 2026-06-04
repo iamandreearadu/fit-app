@@ -1,0 +1,224 @@
+<div class="ob-page">
+  <!-- Ambient orbs -->
+  <div class="ob-orb ob-orb-1" aria-hidden="true"></div>
+  <div class="ob-orb ob-orb-2" aria-hidden="true"></div>
+
+  <!-- ─── Sticky nav bar ──────────────────────────────────────── -->
+  <nav class="bio-nav" aria-label="Onboarding step navigation">
+    <button
+      type="button"
+      class="bio-back-btn"
+      (click)="goBack()"
+      aria-label="Back to registration"
+    >
+      <mat-icon>arrow_back</mat-icon>
+      Back
+    </button>
+    <span class="bio-step-indicator" aria-label="Step 2 of 3">Step 2 of 3</span>
+  </nav>
+  <!-- Progress bar -->
+  <div class="bio-step-bar" aria-hidden="true">
+    <div class="bio-step-fill"></div>
+  </div>
+
+  <!-- ─── Scrollable content ──────────────────────────────────── -->
+  <div class="bio-scroll">
+
+    <!-- Live TDEE preview card -->
+    <div
+      class="bio-tdee-card"
+      [class.bio-tdee-card--active]="liveEstimate() !== null"
+      aria-live="polite"
+      aria-label="Live estimated daily calorie needs"
+    >
+      <div class="bio-tdee-card-label">
+        <mat-icon class="bio-tdee-sparkle">auto_awesome</mat-icon>
+        YOUR ESTIMATED DAILY NEEDS
+      </div>
+
+      @if (liveEstimate(); as est) {
+        <div class="bio-tdee-numbers">
+          <div class="bio-tdee-block">
+            <span
+              class="bio-tdee-value"
+              [attr.aria-label]="'Estimated TDEE updated: ' + est.tdee + ' calories per day'"
+            >~{{ est.tdee | number:'1.0-0' }}</span>
+            <span class="bio-tdee-unit">KCAL/DAY</span>
+            <span class="bio-tdee-sublabel">Maintenance (TDEE)</span>
+          </div>
+          <div class="bio-tdee-block">
+            <span
+              class="bio-tdee-value"
+              [attr.aria-label]="'Estimated goal target: ' + est.goalCalories + ' calories per day'"
+            >~{{ est.goalCalories | number:'1.0-0' }}</span>
+            <span class="bio-tdee-unit">KCAL/DAY</span>
+            <span class="bio-tdee-sublabel">Your goal target</span>
+          </div>
+        </div>
+      } @else {
+        <div class="bio-tdee-numbers">
+          <div class="bio-tdee-block">
+            <span class="bio-tdee-value bio-tdee-value--empty">—</span>
+            <span class="bio-tdee-unit">KCAL/DAY</span>
+            <span class="bio-tdee-sublabel">Maintenance (TDEE)</span>
+          </div>
+          <div class="bio-tdee-block">
+            <span class="bio-tdee-value bio-tdee-value--empty">—</span>
+            <span class="bio-tdee-unit">KCAL/DAY</span>
+            <span class="bio-tdee-sublabel">Your goal target</span>
+          </div>
+        </div>
+        <p class="bio-tdee-placeholder-text">Fill in your details to see your numbers</p>
+      }
+    </div>
+
+    <!-- Form section -->
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      class="bio-form-content"
+      novalidate
+    >
+      <div class="bio-section-header">
+        <h1 class="bio-section-title">Tell us about yourself.</h1>
+        <p class="bio-section-sub">We'll calculate your exact numbers.</p>
+      </div>
+
+      <!-- Height -->
+      <mat-form-field appearance="outline" class="bio-field">
+        <mat-label>Height</mat-label>
+        <input
+          matInput
+          type="number"
+          inputmode="decimal"
+          placeholder="175"
+          formControlName="heightCm"
+          aria-label="Height in centimetres"
+        />
+        <span matSuffix class="bio-field-suffix">cm</span>
+        @if (form.get('heightCm')?.touched && form.get('heightCm')?.invalid) {
+          <mat-error>Enter a height between 100 and 250 cm</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Weight -->
+      <mat-form-field appearance="outline" class="bio-field">
+        <mat-label>Weight</mat-label>
+        <input
+          matInput
+          type="number"
+          inputmode="decimal"
+          placeholder="72"
+          formControlName="weightKg"
+          aria-label="Weight in kilograms"
+        />
+        <span matSuffix class="bio-field-suffix">kg</span>
+        @if (form.get('weightKg')?.touched && form.get('weightKg')?.invalid) {
+          <mat-error>Enter a weight between 30 and 300 kg</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Age -->
+      <mat-form-field appearance="outline" class="bio-field">
+        <mat-label>Age</mat-label>
+        <input
+          matInput
+          type="number"
+          inputmode="numeric"
+          placeholder="28"
+          formControlName="age"
+          aria-label="Age in years"
+        />
+        <span matSuffix class="bio-field-suffix">years</span>
+        @if (form.get('age')?.touched && form.get('age')?.invalid) {
+          <mat-error>Enter an age between 13 and 120</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Gender -->
+      <div class="bio-field-group">
+        <label class="bio-group-label">Biological sex</label>
+        <div
+          class="bio-pill-group"
+          role="radiogroup"
+          aria-label="Biological sex selector"
+        >
+          @for (g of genderOptions; track g.value) {
+            <button
+              type="button"
+              class="bio-pill-btn"
+              [class.bio-pill-btn--selected]="selectedGender() === g.value"
+              role="radio"
+              [attr.aria-checked]="selectedGender() === g.value"
+              [attr.aria-label]="g.label"
+              (click)="selectGender(g.value)"
+            >{{ g.label }}</button>
+          }
+        </div>
+      </div>
+
+      <!-- Activity level -->
+      <div class="bio-field-group">
+        <label class="bio-group-label">Activity level</label>
+        <div
+          class="bio-activity-row"
+          role="region"
+          aria-label="Activity level selector"
+        >
+          @for (opt of activityOptions; track opt.value) {
+            <button
+              type="button"
+              class="bio-activity-card"
+              [class.bio-activity-card--selected]="selectedActivity() === opt.value"
+              role="radio"
+              [attr.aria-checked]="selectedActivity() === opt.value"
+              [attr.aria-label]="opt.label + ': ' + opt.description"
+              (click)="selectActivity(opt.value)"
+            >
+              <span class="bio-activity-name">{{ opt.label }}</span>
+              <span class="bio-activity-desc">{{ opt.description }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Dietary preference (optional) -->
+      <div class="bio-field-group">
+        <label class="bio-group-label">Dietary preference <span class="bio-optional">(optional)</span></label>
+        <div
+          class="bio-pill-group bio-diet-group"
+          role="radiogroup"
+          aria-label="Dietary preference selector"
+        >
+          @for (opt of dietOptions; track opt.value) {
+            <button
+              type="button"
+              class="bio-pill-btn"
+              [class.bio-pill-btn--selected]="selectedDiet() === opt.value"
+              role="radio"
+              [attr.aria-checked]="selectedDiet() === opt.value"
+              [attr.aria-label]="opt.label"
+              (click)="selectDiet(opt.value)"
+            >{{ opt.label }}</button>
+          }
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <button
+        type="submit"
+        class="bio-submit-btn"
+        [disabled]="facade.loading()"
+        [class.bio-submit-btn--loading]="facade.loading()"
+      >
+        @if (facade.loading()) {
+          <mat-spinner diameter="18" class="bio-spinner"></mat-spinner>
+          Calculating…
+        } @else {
+          <mat-icon>calculate</mat-icon>
+          Calculate my numbers
+        }
+      </button>
+    </form>
+  </div>
+</div>

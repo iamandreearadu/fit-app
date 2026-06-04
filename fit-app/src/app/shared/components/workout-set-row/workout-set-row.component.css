@@ -45,7 +45,7 @@
 }
 
 .set-row--completed {
-  border-left-color: #4ade80;
+  border-left-color: var(--color-success);
   background: rgba(74, 222, 128, 0.05);
   opacity: 0.7;
   cursor: default;
@@ -74,7 +74,7 @@
 }
 
 .set-row-complete-reveal mat-icon {
-  color: #4ade80;
+  color: var(--color-success);
   font-size: 24px;
   width: 24px;
   height: 24px;
@@ -88,7 +88,7 @@
 }
 
 .set-row-delete-reveal mat-icon {
-  color: #ff4081;
+  color: var(--accent);
   font-size: 24px;
   width: 24px;
   height: 24px;
@@ -122,7 +122,7 @@
 .set-badge--done {
   background: rgba(74, 222, 128, 0.14);
   border-color: rgba(74, 222, 128, 0.28);
-  color: #4ade80;
+  color: var(--color-success);
 }
 
 /* ── Stepper (shared by weight and reps) ────────────────────────────────────── */
@@ -217,7 +217,7 @@
 
 /* ── Completed check icon ─────────────────────────────────────────────────── */
 .set-check-icon {
-  color: #4ade80;
+  color: var(--color-success);
   font-size: 22px;
   width: 22px;
   height: 22px;

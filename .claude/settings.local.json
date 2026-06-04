@@ -13,7 +13,10 @@
       "Bash(git *)",
       "Bash(head -327 /Users/franzio/Documents/Andreea/FitApp/fit-app/.claude/decisions/fix-2-share-besocial.md)",
       "Bash(cat /tmp/fix2-adr-tail.md)",
-      "Bash(cp /tmp/fix2-adr-full.md /Users/franzio/Documents/Andreea/FitApp/fit-app/.claude/decisions/fix-2-share-besocial.md)"
+      "Bash(cp /tmp/fix2-adr-full.md /Users/franzio/Documents/Andreea/FitApp/fit-app/.claude/decisions/fix-2-share-besocial.md)",
+      "Bash(npx ng *)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(echo \"exit $? means grep found nothing — 0 matches confirmed\")"
     ]
   }
 }

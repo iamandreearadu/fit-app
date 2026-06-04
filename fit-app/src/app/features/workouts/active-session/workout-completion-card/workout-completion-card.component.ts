@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   HostListener,
@@ -9,6 +10,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { A11yModule } from '@angular/cdk/a11y';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -19,9 +21,10 @@ import { ShareToSocialData } from '../../../../core/models/social.model';
 @Component({
   selector: 'app-workout-completion-card',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, A11yModule],
   templateUrl: './workout-completion-card.component.html',
   styleUrl: './workout-completion-card.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkoutCompletionCardComponent implements OnInit, OnDestroy {
   @Input({ required: true }) summary!: WorkoutCompletionSummary;

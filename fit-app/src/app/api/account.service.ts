@@ -48,12 +48,16 @@ export class AccountService {
 
   public async register(creds: AuthCredentials & { fullName?: string }): Promise<AuthenticationUser | null> {
     try {
+      const body: Record<string, string> = {
+        email:    creds.email,
+        password: creds.password,
+        fullName: creds.fullName ?? '',
+      };
+      // Fix 4: pass optional goal; backend defaults to "maintain" if omitted
+      if (creds.goal) body['goal'] = creds.goal;
+
       const res = await firstValueFrom(
-        this.http.post<AuthResponse>(`${this.baseUrl}/register`, {
-          email: creds.email,
-          password: creds.password,
-          fullName: creds.fullName ?? '',
-        })
+        this.http.post<AuthResponse>(`${this.baseUrl}/register`, body)
       );
 
       this.alerts.success('Account created and logged in', 'Welcome');

@@ -38,7 +38,7 @@
     <!-- Duration -->
     <article
       class="completion-stat-tile completion-stat-tile--1"
-      aria-label="Duration: {{ summary.durationMin }} minutes"
+      [attr.aria-label]="'Duration: ' + summary.durationMin + ' minutes'"
     >
       <mat-icon class="tile-icon tile-icon--primary">timer</mat-icon>
       <span class="tile-value">{{ summary.durationMin }}</span>
@@ -48,7 +48,7 @@
     <!-- Exercises -->
     <article
       class="completion-stat-tile completion-stat-tile--2"
-      aria-label="Exercises: {{ summary.exerciseCount }}"
+      [attr.aria-label]="'Exercises: ' + summary.exerciseCount"
     >
       <mat-icon class="tile-icon tile-icon--muted">fitness_center</mat-icon>
       <span class="tile-value">{{ summary.exerciseCount }}</span>
@@ -58,7 +58,7 @@
     <!-- Calories estimate -->
     <article
       class="completion-stat-tile completion-stat-tile--3"
-      aria-label="Estimated calories: {{ summary.estimatedCaloriesKcal }} kcal"
+      [attr.aria-label]="'Estimated calories: ' + summary.estimatedCaloriesKcal + ' kcal'"
     >
       <mat-icon class="tile-icon tile-icon--accent">local_fire_department</mat-icon>
       <span class="tile-value">{{ caloriesLabel }}</span>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [MatIconModule],
   templateUrl: './nutrition-guided-empty.component.html',
   styleUrl: './nutrition-guided-empty.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NutritionGuidedEmptyComponent {
   /** Pass the parent facade's loading state so the skeleton shows on init. */

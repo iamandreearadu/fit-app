@@ -11,6 +11,7 @@ import {
   OUTPUT_FORMAT_PROMPT_FOR_MACROS,
 } from '../core/system-prompt/ai-prompts';
 import { MealMacros } from '../core/models/meal-macros';
+import { ModuleContext } from '../core/models/groq-ai.model';
 import { UserProfile } from '../core/models/user.model';
 import { WorkoutTemplate } from '../core/models/workouts-tab.model';
 
@@ -25,12 +26,12 @@ export class GroqAiApiService {
 
   // ================= TEXT =================
 
-  async askText(prompt: string): Promise<string> {
+  async askText(prompt: string, moduleContext?: ModuleContext): Promise<string> {
     const res = await firstValueFrom(
       this.http.post<AiResponse>(`${this.baseUrl}/text`, {
         prompt,
         systemPrompt: `${BASE_SYSTEM_PROMPT}\n\n${OUTPUT_FORMAT_PROMPT}`,
-        temperature: 0.6,
+        moduleContext: moduleContext ?? null,
       }),
     );
     return this.validateGenericResponse(res.content);

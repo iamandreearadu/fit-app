@@ -63,22 +63,22 @@
 
 .badge-strength {
   background: rgba(167, 139, 250, 0.14);
-  color: #a78bfa;
+  color: var(--primary-light);
 }
 
 .badge-gain {
   background: rgba(74, 222, 128, 0.10);
-  color: #4ade80;
+  color: var(--color-success);
 }
 
 .badge-lose {
   background: rgba(255, 64, 129, 0.12);
-  color: #ff4081;
+  color: var(--accent);
 }
 
 .badge-maintain {
   background: rgba(56, 189, 248, 0.10);
-  color: #38bdf8;
+  color: var(--color-info);
 }
 
 /* ── Card title / muscles ── */

@@ -58,6 +58,9 @@
              (change)="onAvatarFileChange($event)" />
       <h1 class="profile-display-name">
         {{ facade.currentProfile()!.displayName }}
+        @if (facade.currentProfile()!.isVerified) {
+          <mat-icon class="profile-verified-badge" aria-label="Verified account">verified</mat-icon>
+        }
       </h1>
     </div>
 

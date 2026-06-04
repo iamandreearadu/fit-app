@@ -1,6 +1,6 @@
 import { Component, inject, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MaterialModule } from '../../core/material/material.module';
 import { HeaderComponent } from '../../shared/components/header/header.component';
 import { ProfileTabComponent } from './profile-tab/profile-tab.component';
@@ -24,6 +24,7 @@ export class UserPageComponent implements OnInit {
   public userStore = inject(UserStore);
   private userFacade = inject(UserFacade);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   public streak = this.userFacade.streak;
 
@@ -65,5 +66,9 @@ export class UserPageComponent implements OnInit {
 
   toggleSidebar() {
     this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
+
+  openAiHistory(): void {
+    this.router.navigate(['/ai-assistant']);
   }
 }

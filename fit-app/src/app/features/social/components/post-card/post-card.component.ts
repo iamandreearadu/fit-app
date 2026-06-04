@@ -27,7 +27,12 @@ export class PostCardComponent {
   imageError = signal(false);
   showMenu = signal(false);
 
-  readonly isArticle = computed(() => !!this.post().articleId);
+  readonly isArticle   = computed(() => !!this.post().articleId);
+
+  // Fix 9 — seed content computed signals
+  readonly isSeed      = computed(() => !!this.post().isSeedContent);
+  readonly isTip       = computed(() => this.isSeed() && !this.post().articleId);
+  readonly isEdArticle = computed(() => this.isSeed() && !!this.post().articleId);
 
   @HostListener('document:click')
   onDocumentClick(): void {

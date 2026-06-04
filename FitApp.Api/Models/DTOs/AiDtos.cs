@@ -1,9 +1,21 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FitApp.Api.Models.DTOs;
 
 public class AiTextRequest
 {
     public string Prompt { get; set; } = string.Empty;
     public string? SystemPrompt { get; set; }
+
+    /// <summary>
+    /// Module the user is currently viewing when asking the AI.
+    /// When non-null, the backend injects the user's real operational data into the
+    /// Groq system prompt server-side. Valid values: nutrition | workouts | dashboard | social.
+    /// PRIVACY: injected context data is server-side only — never returned in AiResponse.
+    /// </summary>
+    [RegularExpression("^(nutrition|workouts|dashboard|social)$",
+        ErrorMessage = "moduleContext must be 'nutrition', 'workouts', 'dashboard', or 'social'.")]
+    public string? ModuleContext { get; set; }
 }
 
 public class AiImageRequest

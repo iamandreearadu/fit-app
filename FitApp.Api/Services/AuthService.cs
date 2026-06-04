@@ -34,7 +34,10 @@ public class AuthService(AppDbContext db, JwtService jwt, EmailService email)
             Id = Guid.NewGuid().ToString(),
             Email = req.Email.ToLower(),
             FullName = req.FullName,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password)
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
+            // Fix 4: capture primary goal at registration for immediate use in biometrics/TDEE flow.
+            // Defaults to "maintain" for backward-compatible clients that omit the field.
+            Goal = req.Goal ?? "maintain"
         };
 
         db.Users.Add(user);
