@@ -46,10 +46,6 @@ public class DailyDataService(
         entry.CaloriesIntake = (int)Math.Round(mealCalories);
         entry.CaloriesTotal = entry.CaloriesIntake - req.CaloriesBurned;
 
-        // Fix 10: persist new optional fields
-        entry.ManualWeight = req.ManualWeight;
-        entry.EnergyLevel = req.EnergyLevel;
-
         entry.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
@@ -117,8 +113,6 @@ public class DailyDataService(
             StepTarget               = entry?.StepTarget               ?? 3000,
             CaloriesBurned           = caloriesBurned,
             CaloriesTotal            = (int)Math.Round(caloriesFromLog) - caloriesBurned,
-            ManualWeight             = entry?.ManualWeight,
-            EnergyLevel              = entry?.EnergyLevel,
             MacrosPct = new MacrosPctDto
             {
                 Protein = entry?.MacrosProtein ?? 0,

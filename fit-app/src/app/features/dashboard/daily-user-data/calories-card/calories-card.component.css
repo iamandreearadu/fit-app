@@ -1,0 +1,73 @@
+.full-f {
+  width: 100%;
+}
+
+.adj-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ab {
+  flex: 1;
+  min-width: 52px;
+  height: 34px !important;
+  border-radius: 9px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+}
+
+.ab-p {
+  border-color: rgba(124, 77, 255, 0.35) !important;
+  color: rgba(124, 77, 255, 0.35) !important;
+}
+
+.ab-p:hover {
+  border-color: rgba(124, 77, 255) !important;
+  color: rgba(124, 77, 255) !important;
+  transition: 0.3s ease-in-out;
+}
+
+.ab-m {
+  border-color: rgba(255, 64, 129, 0.35) !important;
+  color: rgba(255, 64, 129, 0.35) !important;
+}
+
+.ab-m:hover {
+  border-color: rgba(255, 64, 129) !important;
+  color: rgba(255, 64, 129) !important;
+  transition: 0.3s ease-in-out;
+}
+
+.net-row {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.net-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--white-soft);
+  opacity: 0.7;
+}
+
+.net-label mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.net-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+}

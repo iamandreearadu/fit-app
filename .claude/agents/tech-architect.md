@@ -190,6 +190,7 @@ export interface [Model] {
 - **One source of truth** — if a model exists, extend it; don't duplicate
 - **Cascade deletes** — define explicitly on new relationships
 - **New EF entities** — always include migration instructions
-- **CORS** — already configured for `localhost:4200`, don't break it
+- **CORS** — already configured 
+for `localhost:4200`, don't break it
 - **Admin routes** — check `[Authorize(Roles = "Admin")]` pattern in BlogController
 - **No over-engineering** — FitApp is a practical app; solve the problem simply

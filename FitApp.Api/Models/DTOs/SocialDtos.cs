@@ -212,6 +212,20 @@ public class SuggestedUserResponse
 /// </summary>
 public record FollowingCountDto(int Count);
 
+/// <summary>
+/// One user row in the followers / following list.
+/// GET /api/social/profile/{userId}/followers
+/// GET /api/social/profile/{userId}/following
+/// </summary>
+public class FollowUserDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    public string? AvatarUrl { get; set; }
+    public bool IsFollowedByMe { get; set; }
+    public bool IsVerified { get; set; }
+}
+
 public class UpdateBioRequest
 {
     [MaxLength(200)]

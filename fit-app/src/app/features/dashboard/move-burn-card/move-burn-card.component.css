@@ -1,0 +1,115 @@
+.mbc-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mbc-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-4px);
+  }
+}
+
+/* ── Header icon (accent/pink override) ─── */
+.mbc-icon {
+  background: rgba(255, 64, 129, 0.12) !important;
+  border-color: rgba(255, 64, 129, 0.22) !important;
+}
+.mbc-icon mat-icon {
+  color: var(--accent, #ff4081) !important;
+}
+
+/* ── Body ──────────────────────────────── */
+.mbc-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.mbc-ring-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.mbc-goal-hint {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  margin: 0;
+}
+
+.mbc-track-hint {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  margin: 0;
+}
+
+/* ── Counter mode (no ring fill) ────────── */
+.mbc-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 20px;
+}
+.mbc-counter-value {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--primary, #7c4dff);
+  line-height: 1;
+}
+.mbc-counter-unit {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Quick-add chips ─────────────────────── */
+.mbc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* Skeleton chips */
+.mbc-chips--skel { pointer-events: none; }
+.chip-skel {
+  width: 80px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  animation: mbc-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes mbc-shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ── Error strip ────────────────────────── */
+.mbc-error-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 64, 129, 0.08);
+  border: 1px solid rgba(255, 64, 129, 0.15);
+  border-radius: 12px;
+  padding: 12px 16px;
+  width: 100%;
+}
+.mbc-error-strip mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--accent, #ff4081);
+  flex-shrink: 0;
+}
+.mbc-error-strip span { flex: 1; font-size: 14px; color: rgba(255,255,255,0.7); }
+.mbc-retry { padding: 4px 12px !important; font-size: 12px !important; flex-shrink: 0; }

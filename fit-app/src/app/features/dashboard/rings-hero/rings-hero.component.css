@@ -1,0 +1,136 @@
+.rings-hero {
+  padding: var(--nova-space-6) 0;
+  background: transparent;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--nova-space-3);
+}
+
+.rings-hero--complete {
+  background: radial-gradient(circle at 50% 60%, var(--nova-primary-alpha-08) 0%, transparent 60%);
+}
+
+.rings-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nova-space-8);
+}
+
+.ring-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--nova-space-1);
+}
+
+.ring-slot-label {
+  font-size: var(--nova-text-xs);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-hint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Center slot content */
+.ring-center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.ring-val {
+  font-size: var(--nova-text-body-md);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-primary);
+  line-height: 1;
+}
+.ring-val--lg { font-size: 22px; font-weight: var(--nova-weight-extrabold); }
+.ring-val--remain { color: var(--nova-success); }
+.ring-val--over { color: var(--nova-accent); }
+
+.ring-sub {
+  font-size: var(--nova-text-xs);
+  color: var(--nova-text-hint);
+  line-height: 1;
+}
+.ring-sub--over { color: var(--nova-accent); }
+
+/* Calories hover swap */
+.ring-center-content--cal { position: relative; }
+.ring-cal-default,
+.ring-cal-hover-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: opacity var(--nova-duration-standard) var(--nova-ease-out);
+}
+.ring-cal-hover-content {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.ring-slot--center:hover .ring-cal-default { opacity: 0; }
+.ring-slot--center:hover .ring-cal-hover-content { opacity: 1; }
+
+/* Streak badge */
+.rings-streak-row { display: flex; justify-content: center; }
+.rings-streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nova-space-1);
+  padding: var(--nova-space-1) var(--nova-space-3);
+  border-radius: var(--nova-radius-pill);
+  background: var(--nova-primary-alpha-10);
+  border: 1px solid var(--nova-primary-alpha-25);
+}
+.rings-streak-icon {
+  color: var(--nova-streak-warm);
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  line-height: 1 !important;
+}
+.rings-streak-badge--logged .rings-streak-icon {
+  animation: flamePulse 1.5s ease-in-out infinite;
+}
+.rings-streak-count {
+  font-size: var(--nova-text-body-md);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-primary);
+}
+.rings-streak-label {
+  font-size: var(--nova-text-body-sm);
+  color: var(--nova-text-hint);
+}
+
+/* Completion label */
+.rings-completion-label {
+  font-size: var(--nova-text-body-sm);
+  font-weight: var(--nova-weight-medium);
+  color: var(--nova-text-muted);
+  text-align: center;
+  transition: color var(--nova-duration-standard) var(--nova-ease-out);
+}
+.rings-completion-label--progressing { color: var(--nova-text-secondary); }
+.rings-completion-label--complete { color: var(--nova-success); font-weight: var(--nova-weight-bold); }
+
+@keyframes flamePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.15); opacity: 0.85; }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .rings-row { flex-wrap: wrap; gap: var(--nova-space-6); }
+  .ring-slot--center { order: -1; width: 100%; justify-content: center; }
+}

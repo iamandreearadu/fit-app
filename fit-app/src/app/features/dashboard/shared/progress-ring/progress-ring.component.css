@@ -1,0 +1,88 @@
+/* ── Host: position container so ring + center overlay properly ── */
+:host {
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── SVG ring ─────────────────────────────────────────────────────── */
+.progress-ring {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ── Fill arc: animated ──────────────────────────────────────────── */
+.ring-fill {
+  transition: stroke-dashoffset var(--nova-duration-ring, 600ms) ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-fill { transition: none; }
+}
+
+/* ── Loading shimmer ──────────────────────────────────────────────── */
+.ring-shimmer {
+  stroke: rgba(255, 255, 255, 0.04);
+  animation: ring-shimmer-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes ring-shimmer-pulse {
+  0%, 100% { stroke: rgba(255, 255, 255, 0.04); }
+  50%       { stroke: rgba(255, 255, 255, 0.09); }
+}
+
+/* ── Center overlay ──────────────────────────────────────────────── */
+.ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  text-align: center;
+  padding: 4px;
+}
+
+/* ── Center labels ───────────────────────────────────────────────── */
+.ring-label {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  color: var(--white, #fff);
+  line-height: 1.1;
+}
+.ring-label--sm { font-size: 18px; }
+.ring-label--md { font-size: 22px; }
+.ring-label--lg { font-size: 28px; }
+
+.ring-sublabel {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 2px;
+  line-height: 1.2;
+  text-align: center;
+  max-width: 80%;
+}
+
+/* ── Skeleton center blocks ──────────────────────────────────────── */
+.ring-skel-value,
+.ring-skel-label {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  animation: ring-shimmer-pulse 1.6s ease-in-out infinite;
+}
+.ring-skel-value { width: 40px; height: 16px; margin-bottom: 4px; }
+.ring-skel-label { width: 56px; height: 10px; }
+
+/* ── Desktop size upgrade for lg ────────────────────────────────── */
+@media (min-width: 768px) {
+  :host:has(.progress-ring--lg) .progress-ring--lg {
+    width: 240px;
+    height: 240px;
+  }
+  :host:has(.progress-ring--lg) .ring-label--lg {
+    font-size: 32px;
+  }
+}

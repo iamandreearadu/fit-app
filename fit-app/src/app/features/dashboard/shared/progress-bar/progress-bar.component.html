@@ -1,0 +1,34 @@
+<div
+  class="pb-row"
+  [class.pb-row--loading]="loading"
+  [class.pb-row--error]="error"
+  role="group"
+  [attr.aria-label]="ariaLabel"
+>
+  @if (loading) {
+    <!-- Skeleton row -->
+    <div class="pb-dot pb-dot--skel"></div>
+    <div class="pb-name-skel"></div>
+    <div class="pb-bar-skel"></div>
+  } @else if (error) {
+    <!-- Error row -->
+    <span class="pb-error-row">
+      <mat-icon class="pb-error-icon">error_outline</mat-icon>
+      <span class="pb-error-name">{{ name }}</span>
+      <span class="pb-fraction pb-fraction--error">–</span>
+    </span>
+  } @else {
+    <!-- Normal row -->
+    <span class="pb-dot" [class]="'pb-dot--' + colorClass" aria-hidden="true"></span>
+    <span class="pb-name">{{ name }}</span>
+    <div class="pb-track">
+      <div
+        class="pb-fill"
+        [class]="'pb-fill--' + colorClass"
+        [style.width.%]="percentage"
+        role="none"
+      ></div>
+    </div>
+    <span class="pb-fraction">{{ consumed }}{{ unit }} / {{ target }}{{ unit }}</span>
+  }
+</div>

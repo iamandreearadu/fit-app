@@ -66,8 +66,6 @@ export class DailyUserDataService {
       caloriesIntake: 0,
       caloriesBurned: 0,
       caloriesTotal: 0,
-      manualWeight: undefined,
-      energyLevel: undefined,
     });
   }
 
@@ -173,8 +171,6 @@ export class DailyUserDataService {
       caloriesIntake: caloriesIntake,
       caloriesBurned: caloriesBurned,
       caloriesTotal: this.caloriesTotal(caloriesIntake, caloriesBurned),
-      manualWeight: patch.manualWeight !== undefined ? patch.manualWeight : existing?.manualWeight,
-      energyLevel: patch.energyLevel !== undefined ? patch.energyLevel : existing?.energyLevel,
     };
 
     if (result.caloriesIntake == null) {
@@ -207,7 +203,7 @@ export class DailyUserDataService {
     const caloriesIntake = d.caloriesIntake ?? this.caloriesFromMacros(protein, carbs, fats);
     const caloriesBurned = Number(d.caloriesBurned ?? 0);
     const totalCalories = Math.round(this.caloriesFromMacros(protein, carbs, fats));
-    const netCalories = Math.max(0, this.caloriesTotal(caloriesIntake, caloriesBurned));
+    const netCalories = Math.max(0, this.caloriesTotal(totalCalories, caloriesBurned));
 
     const waterConsumedL = Number(d.waterConsumedL ?? 0);
     const steps = Number(d.steps ?? 0);

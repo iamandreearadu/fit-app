@@ -1,31 +1,10 @@
 <div class="cal-summary">
   @if (facade.todaySummary(); as s) {
-    <div class="cal-display">
-      <span class="cal-number">{{ s.caloriesFromNutritionLog | number: '1.0-0' }}</span>
-      <span class="cal-unit">kcal</span>
-    </div>
-    <span class="cal-source">from your nutrition log</span>
-
-    @if (s.mealCount === 0) {
-      <a class="cal-cta" routerLink="/user-profile" [queryParams]="{ tab: 'nutrition' }">
-        <mat-icon>restaurant</mat-icon>
-        Log meals to track calories
-      </a>
-    } @else {
+    @if (s.mealCount > 0) {
       <span class="cal-meal-count">
         <mat-icon>check_circle</mat-icon>
         {{ s.mealCount }} meal{{ s.mealCount === 1 ? '' : 's' }} logged today
       </span>
     }
-  } @else {
-    <div class="cal-display">
-      <span class="cal-number">0</span>
-      <span class="cal-unit">kcal</span>
-    </div>
-    <span class="cal-source">from your nutrition log</span>
-    <a class="cal-cta" routerLink="/user-profile" [queryParams]="{ tab: 'nutrition' }">
-      <mat-icon>restaurant</mat-icon>
-      Log meals to track calories
-    </a>
   }
 </div>

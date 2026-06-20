@@ -1,0 +1,62 @@
+<div class="ring-wrapper ring-wrapper--{{ size }}">
+  <div class="ring-svg-container" [class.ring-complete]="isComplete">
+    <svg [attr.viewBox]="'0 0 ' + diameter + ' ' + diameter"
+         [attr.width]="diameter"
+         [attr.height]="diameter"
+         role="meter"
+         [attr.aria-valuenow]="progressPct"
+         aria-valuemin="0"
+         aria-valuemax="100"
+         [attr.aria-label]="variant + ' progress: ' + progressPct + '%'"
+         [attr.aria-busy]="loading || null">
+      <defs>
+        <linearGradient [id]="gradId" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" [attr.stop-color]="gradStart" />
+          <stop offset="100%" [attr.stop-color]="gradEnd" />
+        </linearGradient>
+      </defs>
+
+      <!-- Track -->
+      <circle [attr.cx]="cx" [attr.cy]="cy" [attr.r]="r"
+              [attr.stroke]="arcColor"
+              [attr.stroke-width]="strokeWidth"
+              stroke-opacity="0.08"
+              fill="none"
+              stroke-linecap="round" />
+
+      @if (!loading) {
+        <circle class="ring-fill"
+                [class.ring-fill--complete]="isComplete"
+                [attr.cx]="cx" [attr.cy]="cy" [attr.r]="r"
+                [attr.stroke]="isComplete ? 'url(#' + gradId + ')' : arcColor"
+                [attr.stroke-width]="strokeWidth"
+                [attr.stroke-dasharray]="circumference"
+                [attr.stroke-dashoffset]="dashOffset"
+                fill="none"
+                stroke-linecap="round"
+                style="transform: rotate(-90deg); transform-origin: 50% 50%;" />
+      }
+
+      @if (loading) {
+        <circle class="ring-loading-arc"
+                [attr.cx]="cx" [attr.cy]="cy" [attr.r]="r"
+                [attr.stroke]="arcColor"
+                [attr.stroke-width]="strokeWidth"
+                [attr.stroke-dasharray]="circumference * 0.25 + ' ' + circumference * 0.75"
+                fill="none"
+                stroke-linecap="round"
+                style="transform-origin: 50% 50%;" />
+      }
+    </svg>
+
+    @if (size !== 'sm') {
+      <div class="ring-center-slot">
+        <ng-content select="[ringCenter]"></ng-content>
+      </div>
+    }
+  </div>
+
+  @if (label) {
+    <div class="ring-label">{{ label }}</div>
+  }
+</div>

@@ -1,0 +1,73 @@
+<section class="nc-card" role="region" aria-labelledby="nc-title">
+
+  <!-- Card header -->
+  <div class="card-hdr">
+    <div class="card-hdr-icon nc-icon">
+      <mat-icon>restaurant_menu</mat-icon>
+    </div>
+    <div class="nc-hdr-text">
+      <h2 id="nc-title" class="card-title">Nutrition</h2>
+      <p class="card-subtitle">Today's macros</p>
+    </div>
+    <button
+      class="btn-ghost nc-log-btn"
+      type="button"
+      (click)="openMealPicker.emit()"
+      aria-label="Log a meal to track nutrition"
+    >Log meal</button>
+  </div>
+
+  <!-- Body -->
+  <div class="card-body">
+
+    @if (error) {
+      <div class="nc-error-strip">
+        <mat-icon class="nc-err-icon">error_outline</mat-icon>
+        <span class="nc-err-text">Couldn't load nutrition data</span>
+        <button class="btn-ghost nc-retry" type="button" (click)="retry.emit()">Retry</button>
+      </div>
+
+    } @else if (loading) {
+      <app-progress-bar [loading]="true" name="Protein" [consumed]="0" [target]="0" colorClass="protein" />
+      <app-progress-bar [loading]="true" name="Carbs"   [consumed]="0" [target]="0" colorClass="carbs"   />
+      <app-progress-bar [loading]="true" name="Fat"     [consumed]="0" [target]="0" colorClass="fat"     />
+
+    } @else {
+      <!-- Macro bars -->
+      @for (macro of (macros ?? []); track macro.name) {
+        <app-progress-bar
+          [name]="macro.name"
+          [consumed]="macro.consumed"
+          [target]="macro.target"
+          [unit]="macro.unit"
+          [colorClass]="colorClass(macro.name)"
+        />
+      }
+
+      @if (isEmpty) {
+        <!-- Empty nudge -->
+        <div class="nc-empty-strip">
+          <mat-icon class="nc-empty-icon">add_circle_outline</mat-icon>
+          <span class="nc-empty-text">Log your first meal to track macros</span>
+        </div>
+      } @else {
+        <!-- Total kcal row -->
+        <div class="nc-total-row">
+          <span class="nc-total-text">Total logged: {{ eaten }} kcal</span>
+        </div>
+      }
+
+      <!-- Log meal CTA -->
+      <button
+        class="btn-add-ex nc-add-btn"
+        type="button"
+        (click)="openMealPicker.emit()"
+        aria-label="Log a meal"
+      >
+        <mat-icon>add</mat-icon>
+        Log a meal
+      </button>
+    }
+
+  </div>
+</section>

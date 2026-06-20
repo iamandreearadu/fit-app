@@ -93,8 +93,6 @@ export class UserService {
           macrosPct: data.macrosPct,
           caloriesBurned: data.caloriesBurned,
           // caloriesIntake REMOVED — now server-computed from MealEntries (Fix 10)
-          manualWeight: data.manualWeight ?? null,
-          energyLevel: data.energyLevel ?? null,
         })
       );
     } catch (err) {
@@ -150,8 +148,6 @@ export class UserService {
         carbs: d.macrosPct?.carbs ?? 0,
         fats: d.macrosPct?.fats ?? 0,
       },
-      manualWeight: d.manualWeight ?? undefined,
-      energyLevel: d.energyLevel ?? undefined,
     };
   }
 }

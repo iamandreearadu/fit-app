@@ -21,6 +21,7 @@ import {
   UpdateBlogRequest,
   ArticleDetail,
   SuggestedUser,
+  FollowUser,
   PostFromWorkoutRequest,
   PostFromMealRequest,
   SharePostResponse,
@@ -192,7 +193,19 @@ export class SocialService {
     return this.http.get<{ count: number }>(`${this.base}/profile/me/following-count`);
   }
 
-  // ── Fix 2 — Share to beSocial ──────────────────────────────────────────────
+  // ── Followers / Following lists ─────────────────────────────────────────────
+
+  getFollowers(userId: string, page = 1, pageSize = 20): Observable<PaginatedResponse<FollowUser>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginatedResponse<FollowUser>>(`${this.base}/profile/${userId}/followers`, { params });
+  }
+
+  getFollowing(userId: string, page = 1, pageSize = 20): Observable<PaginatedResponse<FollowUser>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginatedResponse<FollowUser>>(`${this.base}/profile/${userId}/following`, { params });
+  }
+
+    // ── Fix 2 — Share to beSocial ──────────────────────────────────────────────
 
   /** POST /api/social/posts/from-workout/{sessionId} — creates a post from a completed session */
   shareWorkout(sessionId: number, req?: PostFromWorkoutRequest): Observable<SharePostResponse> {

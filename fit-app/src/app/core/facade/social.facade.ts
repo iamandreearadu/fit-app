@@ -19,6 +19,7 @@ import {
   ArticleDetail,
   PaginatedResponse,
   SuggestedUser,
+  FollowUser,
   PostFromWorkoutRequest,
   PostFromMealRequest,
   SharePostResponse,
@@ -82,6 +83,13 @@ export class SocialFacade {
   private profileSectionLoadingCount = signal(0);
   isLoadingProfileSections = computed(() => this.profileSectionLoadingCount() > 0);
   profileSectionsError = signal<string | null>(null);
+
+  // Follow list state
+  followListUsers = signal<FollowUser[]>([]);
+  followListType = signal<'followers' | 'following' | null>(null);
+  isLoadingFollowList = signal(false);
+  followListHasMore = signal(false);
+  private followListPage = 1;
 
   async loadFeed(reset = false): Promise<void> {
     if (reset) {
@@ -322,7 +330,44 @@ export class SocialFacade {
     return firstValueFrom(this.socialSvc.deleteComment(postId, commentId));
   }
 
-  // ── Fix 7: Guided empty state methods ─────────────────────────────────────────
+  // ── Followers / Following lists ─────────────────────────────────────────────
+
+  async loadFollowList(userId: string, type: 'followers' | 'following', reset = true): Promise<void> {
+    if (reset) {
+      this.followListPage = 1;
+      this.followListUsers.set([]);
+      this.followListHasMore.set(false);
+    }
+    this.followListType.set(type);
+    this.isLoadingFollowList.set(true);
+    try {
+      const res = type === 'followers'
+        ? await firstValueFrom(this.socialSvc.getFollowers(userId, this.followListPage))
+        : await firstValueFrom(this.socialSvc.getFollowing(userId, this.followListPage));
+      this.followListUsers.update(existing => reset ? res.items : [...existing, ...res.items]);
+      this.followListHasMore.set(res.hasMore);
+      this.followListPage++;
+    } catch {
+      this.alerts.error('Failed to load ' + type + '.');
+    } finally {
+      this.isLoadingFollowList.set(false);
+    }
+  }
+
+  async loadMoreFollowList(userId: string): Promise<void> {
+    const type = this.followListType();
+    if (!type || !this.followListHasMore()) return;
+    await this.loadFollowList(userId, type, false);
+  }
+
+  closeFollowList(): void {
+    this.followListType.set(null);
+    this.followListUsers.set([]);
+    this.followListHasMore.set(false);
+    this.followListPage = 1;
+  }
+
+    // ── Fix 7: Guided empty state methods ─────────────────────────────────────────
 
   /**
    * Loads the current user's following count from the dedicated lightweight endpoint.

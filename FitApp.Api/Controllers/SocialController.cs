@@ -271,6 +271,37 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
     public async Task<ActionResult<FollowingCountDto>> GetMyFollowingCount()
         => Ok(await socialService.GetFollowingCountAsync(UserId));
 
+
+    // GET /api/social/profile/{userId}/followers
+    [HttpGet("profile/{userId}/followers")]
+    public async Task<IActionResult> GetFollowers(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    {
+        try
+        {
+            return Ok(await socialService.GetFollowersAsync(userId, UserId, page, pageSize));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error getting followers for user {TargetUserId}", userId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
+    // GET /api/social/profile/{userId}/following
+    [HttpGet("profile/{userId}/following")]
+    public async Task<IActionResult> GetFollowing(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    {
+        try
+        {
+            return Ok(await socialService.GetFollowingAsync(userId, UserId, page, pageSize));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error getting following for user {TargetUserId}", userId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
     // GET /api/social/profile/{userId}
     [HttpGet("profile/{userId}")]
     public async Task<IActionResult> GetProfile(string userId)

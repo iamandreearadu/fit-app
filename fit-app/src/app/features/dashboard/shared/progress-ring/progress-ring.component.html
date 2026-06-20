@@ -1,0 +1,76 @@
+<svg
+  [attr.width]="diameter"
+  [attr.height]="diameter"
+  [attr.viewBox]="'0 0 ' + diameter + ' ' + diameter"
+  role="img"
+  [attr.aria-label]="ariaLabel"
+  [attr.aria-busy]="loading"
+  class="progress-ring"
+  [class]="'progress-ring--' + size"
+>
+  <!-- Gradient definition (only for 'gradient' colorMode) -->
+  @if (colorMode === 'gradient') {
+    <defs>
+      <linearGradient [id]="gradientId" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"   stop-color="#7c4dff" />
+        <stop offset="100%" stop-color="#ff4081" />
+      </linearGradient>
+    </defs>
+  }
+
+  <!-- Background track (always visible) -->
+  <circle
+    [attr.cx]="cx"
+    [attr.cy]="cy"
+    [attr.r]="radius"
+    fill="none"
+    stroke="rgba(255,255,255,0.06)"
+    [attr.stroke-width]="strokeWidth"
+    class="ring-track"
+  />
+
+  @if (loading) {
+    <!-- Loading shimmer arc (full circle, pulsing) -->
+    <circle
+      [attr.cx]="cx"
+      [attr.cy]="cy"
+      [attr.r]="radius"
+      fill="none"
+      [attr.stroke-width]="strokeWidth"
+      [attr.stroke-dasharray]="circumference"
+      stroke-dashoffset="0"
+      [attr.transform]="rotateTransform"
+      stroke-linecap="round"
+      class="ring-shimmer"
+    />
+  } @else if (goal > 0) {
+    <!-- Animated fill arc -->
+    <circle
+      [attr.cx]="cx"
+      [attr.cy]="cy"
+      [attr.r]="radius"
+      fill="none"
+      [attr.stroke]="strokeColor"
+      [attr.stroke-width]="strokeWidth"
+      [attr.stroke-dasharray]="circumference"
+      [attr.stroke-dashoffset]="_animDashoffset()"
+      [attr.transform]="rotateTransform"
+      stroke-linecap="round"
+      class="ring-fill"
+    />
+  }
+</svg>
+
+<!-- Center content -->
+<div class="ring-center" [class]="'ring-center--' + size">
+  @if (loading) {
+    <!-- Skeleton blocks -->
+    <div class="ring-skel-value"></div>
+    <div class="ring-skel-label"></div>
+  } @else {
+    <span class="ring-label" [class]="'ring-label--' + size">{{ label }}</span>
+    @if (sublabel) {
+      <span class="ring-sublabel">{{ sublabel }}</span>
+    }
+  }
+</div>

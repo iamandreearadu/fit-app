@@ -91,6 +91,14 @@ export interface FollowToggleResponse {
   followersCount: number;
 }
 
+export interface FollowUser {
+  id: string;
+  displayName: string;
+  avatarUrl?: string;
+  isFollowedByMe: boolean;
+  isVerified?: boolean;
+}
+
 export interface PaginatedResponse<T> {
   items: T[];
   page: number;

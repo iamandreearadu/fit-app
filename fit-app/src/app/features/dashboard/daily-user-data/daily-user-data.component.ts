@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, effect, signal, computed } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { DailyUserData } from '../../../core/models/daily-user-data.model';
 import { MaterialModule } from '../../../core/material/material.module';
@@ -19,7 +20,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   standalone: true,
   selector: 'app-daily-user-data',
-  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, MaterialModule, AiMealAnalyzerComponent, CalorieBalanceCardComponent, DailyEntryCalorieSummaryComponent],
+  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, MaterialModule, AiMealAnalyzerComponent, CalorieBalanceCardComponent, DailyEntryCalorieSummaryComponent],
   host: { class: 'd-block' },
   templateUrl: './daily-user-data.component.html',
   styleUrls: ['./daily-user-data.component.css']
@@ -53,14 +54,6 @@ export class DailyUserDataComponent implements OnInit {
     );
   });
 
-  public readonly energyLevels = [1, 2, 3, 4, 5] as const;
-  public readonly energyLabels: Record<number, string> = {
-    1: 'Exhausted',
-    2: 'Low',
-    3: 'Moderate',
-    4: 'Energised',
-    5: 'Peak',
-  };
 
   public readonly activityOptions = [
     { value: 'strength-training', label: 'Strength Training', icon: 'fitness_center' },
@@ -334,18 +327,9 @@ export class DailyUserDataComponent implements OnInit {
       caloriesBurned: [0, v.caloriesBurned ?? []],
       // caloriesIntake REMOVED — now server-computed from MealEntries (Fix 10)
       // caloriesTotal REMOVED — now server-computed from backend (Fix 10)
-      manualWeight: [null as number | null],   // Fix 10: daily weigh-in (kg)
-      energyLevel: [null as number | null],    // Fix 10: 1-5 energy scale
     });
   }
 
-  public setEnergyLevel(lvl: number): void {
-    const ctrl = this.form.get('energyLevel');
-    if (!ctrl) return;
-    // Toggle: clicking the same level again clears it
-    ctrl.setValue(ctrl.value === lvl ? null : lvl);
-    this.form.markAsDirty();
-  }
 
   public adjustCaloriesBurned(delta: number): void {
     const ctrl = this.form.get('caloriesBurned');

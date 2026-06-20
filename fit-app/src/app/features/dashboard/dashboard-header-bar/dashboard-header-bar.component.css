@@ -1,0 +1,130 @@
+.dash-header-bar {
+  position: sticky;
+  top: 0;
+  z-index: var(--nova-z-sticky, 100);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px;
+  background: rgba(13, 13, 16, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── Left group ────────────────────────── */
+.dash-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.dash-header-logo-mark mat-icon,
+.dash-header-logo-mark .mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--primary, #7c4dff);
+}
+
+.dash-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.dash-header-date {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Status badge ──────────────────────── */
+.dash-status-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-maintenance {
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+}
+.badge-cutting {
+  background: rgba(255, 64, 129, 0.12);
+  color: var(--accent, #ff4081);
+}
+.badge-bulking {
+  background: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
+}
+
+/* ── Right group ───────────────────────── */
+.dash-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.dash-header-bell-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.bell-btn .mat-icon {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dash-header-unread-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  background: var(--accent, #ff4081);
+  border-radius: 50%;
+}
+
+/* ── Avatar ────────────────────────────── */
+.dash-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(124, 77, 255, 0.35);
+  flex-shrink: 0;
+}
+
+.dash-avatar--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(124, 77, 255, 0.14);
+}
+.dash-avatar--placeholder mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Hide date on smallest screens ─────── */
+@media (max-width: 399px) {
+  .dash-header-date { display: none; }
+  .dash-status-badge { display: none; }
+}

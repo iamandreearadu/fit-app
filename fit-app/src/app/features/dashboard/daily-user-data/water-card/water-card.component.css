@@ -1,0 +1,96 @@
+.track {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.track-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.track-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--white-soft);
+}
+
+.t-icon {
+  font-size: 15px !important;
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.t-blue {
+  color: #38bdf8 !important;
+}
+
+.t-green {
+  color: #4ade80 !important;
+}
+
+.track-frac {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pbar {
+  height: 7px;
+  border-radius: 4px;
+}
+
+.pbar-blue ::ng-deep .mdc-linear-progress__bar-inner {
+  border-color: #38bdf8 !important;
+}
+
+.pbar-green ::ng-deep .mdc-linear-progress__bar-inner {
+  border-color: #4ade80 !important;
+}
+
+.track-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 2px 0;
+}
+
+.adj-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ab {
+  flex: 1;
+  min-width: 52px;
+  height: 34px !important;
+  border-radius: 9px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+}
+
+.ab-p {
+  border-color: rgba(124, 77, 255, 0.35) !important;
+  color: rgba(124, 77, 255, 0.35) !important;
+}
+
+.ab-p:hover {
+  border-color: rgba(124, 77, 255) !important;
+  color: rgba(124, 77, 255) !important;
+  transition: 0.3s ease-in-out;
+}
+
+.ab-m {
+  border-color: rgba(255, 64, 129, 0.35) !important;
+  color: rgba(255, 64, 129, 0.35) !important;
+}
+
+.ab-m:hover {
+  border-color: rgba(255, 64, 129) !important;
+  color: rgba(255, 64, 129) !important;
+  transition: 0.3s ease-in-out;
+}

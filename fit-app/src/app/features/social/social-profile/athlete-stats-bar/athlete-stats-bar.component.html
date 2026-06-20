@@ -1,0 +1,67 @@
+<div
+  class="athlete-stats-bar"
+  role="region"
+  aria-label="Profile statistics"
+>
+  <ul class="asb-list" role="list">
+    <!-- Monthly workouts -->
+    <li class="asb-stat" role="listitem">
+      @if (loading) {
+        <div class="skeleton-block" style="width: 48px; height: 19px;"></div>
+        <div class="skeleton-block" style="width: 40px; height: 11px; margin-top: 4px;"></div>
+      } @else {
+        <span class="asb-stat-count">{{ monthlyWorkouts }}</span>
+        <span class="asb-stat-label">WORKOUTS<br>THIS MO</span>
+      }
+    </li>
+
+    <!-- Followers -->
+    <li
+      class="asb-stat asb-stat--tappable"
+      role="button"
+      tabindex="0"
+      (click)="followersClick.emit()"
+      (keydown.enter)="followersClick.emit()"
+      [attr.aria-label]="followersCount + ' followers, tap to view'"
+    >
+      @if (loading) {
+        <div class="skeleton-block" style="width: 48px; height: 19px;"></div>
+        <div class="skeleton-block" style="width: 40px; height: 11px; margin-top: 4px;"></div>
+      } @else {
+        <span class="asb-stat-count">{{ followersCount }}</span>
+        <span class="asb-stat-label">FOLLOWERS</span>
+      }
+    </li>
+
+    <!-- Following -->
+    <li
+      class="asb-stat asb-stat--tappable"
+      role="button"
+      tabindex="0"
+      (click)="followingClick.emit()"
+      (keydown.enter)="followingClick.emit()"
+      [attr.aria-label]="followingCount + ' following, tap to view'"
+    >
+      @if (loading) {
+        <div class="skeleton-block" style="width: 48px; height: 19px;"></div>
+        <div class="skeleton-block" style="width: 40px; height: 11px; margin-top: 4px;"></div>
+      } @else {
+        <span class="asb-stat-count">{{ followingCount }}</span>
+        <span class="asb-stat-label">FOLLOWING</span>
+      }
+    </li>
+
+    <!-- Mutual followers — ONLY for other users, NEVER own profile -->
+    @if (!isOwnProfile) {
+      <li class="asb-stat" role="listitem">
+        @if (loading) {
+          <div class="skeleton-block" style="width: 48px; height: 19px;"></div>
+          <div class="skeleton-block" style="width: 40px; height: 11px; margin-top: 4px;"></div>
+        } @else {
+          <span class="asb-stat-count">{{ mutualFollowersCount }}</span>
+          <span class="asb-stat-label">MUTUAL</span>
+        }
+      </li>
+    }
+  </ul>
+</div>

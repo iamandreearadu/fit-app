@@ -177,7 +177,7 @@ public class AiProxyService(
         var entry = await db.DailyEntries
             .AsNoTracking()
             .Where(d => d.UserId == userId && d.Date == today)
-            .Select(d => new { d.Steps, d.WaterConsumedL, d.EnergyLevel })
+            .Select(d => new { d.Steps, d.WaterConsumedL })
             .FirstOrDefaultAsync();
 
         // No streak and no today entry — skip context
@@ -190,8 +190,6 @@ public class AiProxyService(
         if (entry is not null)
         {
             sb.Append($" Today: {entry.Steps} steps, {entry.WaterConsumedL}L water");
-            if (entry.EnergyLevel.HasValue)
-                sb.Append($", energy {entry.EnergyLevel}/5");
             sb.Append('.');
         }
 

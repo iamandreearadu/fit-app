@@ -1,0 +1,68 @@
+:host { display: inline-block; }
+
+.ring-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ring-wrapper--sm { width: 48px; height: 48px; }
+.ring-wrapper--md { width: 80px; }
+.ring-wrapper--lg { width: 120px; }
+
+.ring-svg-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring-fill {
+  transition: stroke-dashoffset var(--nova-duration-celebrate) var(--nova-ease-spring);
+}
+
+.ring-loading-arc {
+  animation: ringSpinner 350ms linear infinite;
+}
+
+.ring-center-slot {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.ring-label {
+  font-size: var(--nova-text-sm);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-hint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: var(--nova-space-1);
+  text-align: center;
+}
+
+@keyframes ringSpinner {
+  from { transform: rotate(-90deg); }
+  to   { transform: rotate(270deg); }
+}
+
+@keyframes ringCenterPop {
+  0%   { transform: translate(-50%, -50%) scale(1); }
+  50%  { transform: translate(-50%, -50%) scale(1.08); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.ring-complete .ring-center-slot {
+  animation: ringCenterPop var(--nova-duration-celebrate) var(--nova-ease-spring) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-fill { transition: none; }
+  .ring-loading-arc { animation: none; }
+}

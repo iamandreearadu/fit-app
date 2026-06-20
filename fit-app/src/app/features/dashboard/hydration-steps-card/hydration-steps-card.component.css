@@ -1,0 +1,88 @@
+.hsc-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hsc-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-4px);
+  }
+}
+
+/* ── Header icon (info/blue override) ─── */
+.hsc-icon {
+  background: rgba(56, 189, 248, 0.12) !important;
+  border-color: rgba(56, 189, 248, 0.22) !important;
+}
+.hsc-icon mat-icon {
+  color: #38bdf8 !important;
+}
+
+/* ── 2-col symmetric grid ────────────── */
+.hsc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: 0;
+  align-items: start;
+}
+
+.hsc-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px;
+}
+
+.hsc-divider {
+  background: rgba(255, 255, 255, 0.06);
+  align-self: stretch;
+}
+
+/* ── Quick-add chips ─────────────────── */
+.hsc-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hsc-chip {
+  height: 34px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+}
+
+.hsc-chip--steps {
+  border-color: rgba(74, 222, 128, 0.35) !important;
+  color: rgba(74, 222, 128, 0.8) !important;
+}
+.hsc-chip--steps:hover:not([disabled]) {
+  background: rgba(74, 222, 128, 0.08) !important;
+  border-color: rgba(74, 222, 128, 0.6) !important;
+}
+
+/* ── Error strip ─────────────────────── */
+.hsc-error-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 64, 129, 0.08);
+  border: 1px solid rgba(255, 64, 129, 0.15);
+  border-radius: 12px;
+  padding: 12px 16px;
+  width: 100%;
+}
+.hsc-error-strip mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--accent, #ff4081);
+  flex-shrink: 0;
+}
+.hsc-error-strip span { flex: 1; font-size: 14px; color: rgba(255,255,255,0.7); }
+.hsc-retry { padding: 4px 12px !important; font-size: 12px !important; flex-shrink: 0; }

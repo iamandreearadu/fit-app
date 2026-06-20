@@ -42,10 +42,6 @@ public class DailyEntrySummaryDto
     public int CaloriesBurned { get; set; }
     public int CaloriesTotal { get; set; }          // ROUND(caloriesFromNutritionLog) - caloriesBurned
 
-    // ── From DailyEntry (new fields — Fix 10) ──
-    public double? ManualWeight { get; set; }
-    public int? EnergyLevel { get; set; }
-
     // ── Existing macro percentages (still manual, not yet auto-populated) ──
     public MacrosPctDto MacrosPct { get; set; } = new();
 
@@ -71,10 +67,4 @@ public class SaveDailyEntryRequest
     public int CaloriesBurned { get; set; }
     // CaloriesIntake REMOVED (Fix 10) — now server-computed from MealEntries.
     // Clients sending this field will NOT get a 400; System.Text.Json silently ignores it.
-
-    [Range(0.1, 999.9, ErrorMessage = "ManualWeight must be between 0.1 and 999.9 kg.")]
-    public double? ManualWeight { get; set; }       // Fix 10: daily weigh-in (kg)
-
-    [Range(1, 5, ErrorMessage = "EnergyLevel must be between 1 and 5.")]
-    public int? EnergyLevel { get; set; }            // Fix 10: 1-5 energy scale
 }

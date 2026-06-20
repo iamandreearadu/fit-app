@@ -200,7 +200,39 @@ export class SocialProfileComponent implements OnInit {
     }
   }
 
-  // ── Post actions ───────────────────────────────────────────────────────────
+  // ── Follow list ─────────────────────────────────────────────────────────────
+
+  openFollowList(type: 'followers' | 'following'): void {
+    this.facade.loadFollowList(this.userId, type);
+  }
+
+  closeFollowList(): void {
+    this.facade.closeFollowList();
+  }
+
+  loadMoreFollowList(): void {
+    this.facade.loadMoreFollowList(this.userId);
+  }
+
+  async toggleFollowUser(targetUserId: string): Promise<void> {
+    const res = await this.facade.toggleFollow(targetUserId);
+    // Update the follow list item in-place
+    this.facade.followListUsers.update(users =>
+      users.map(u => u.id === targetUserId
+        ? { ...u, isFollowedByMe: res.isFollowing }
+        : u
+      )
+    );
+    // Reload profile to update counts
+    this.facade.loadProfile(this.userId);
+  }
+
+  navigateToProfile(userId: string): void {
+    this.closeFollowList();
+    this.router.navigate(['/social/profile', userId]);
+  }
+
+    // ── Post actions ───────────────────────────────────────────────────────────
 
   editPost(e: Event, post: Post): void {
     e.stopPropagation();

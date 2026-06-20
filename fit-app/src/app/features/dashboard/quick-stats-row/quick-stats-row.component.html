@@ -1,0 +1,42 @@
+<div class="quick-stats-row" role="list" aria-label="Today's quick stats">
+  <div class="qsr-card" role="listitem">
+    <app-fitness-data-block
+      icon="directions_walk"
+      label="STEPS"
+      [value]="loading ? null : (stats?.stepsToday ?? null)"
+      unit="steps"
+      iconVariant="info"
+      size="md"
+    />
+  </div>
+  <div class="qsr-card" role="listitem">
+    <app-fitness-data-block
+      icon="timer"
+      label="ACTIVE"
+      [value]="loading ? null : (stats?.activeMinutesToday ?? null)"
+      unit="min"
+      iconVariant="success"
+      size="md"
+    />
+  </div>
+  <div class="qsr-card" role="listitem">
+    <app-fitness-data-block
+      icon="water_drop"
+      label="WATER"
+      [value]="loading ? null : (stats?.waterMl ?? null)"
+      unit="ml"
+      iconVariant="info"
+      size="md"
+    />
+  </div>
+  <div class="qsr-card" role="listitem">
+    <app-fitness-data-block
+      icon="monitor_weight"
+      label="WEIGHT"
+      [value]="loading ? null : (stats?.weightKg ?? null)"
+      unit="kg"
+      iconVariant="primary"
+      size="md"
+    />
+  </div>
+</div>

@@ -1,0 +1,36 @@
+<mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-f">
+  <mat-label>Manual entry</mat-label>
+  <input
+    matInput
+    type="number"
+    min="0"
+    [value]="dashFacade.caloriesBurned()"
+    (input)="onCaloriesBurnedChange($event)"
+  />
+  <mat-icon matSuffix>edit</mat-icon>
+</mat-form-field>
+
+<div class="adj-row">
+  <button mat-stroked-button class="ab ab-p" type="button" (click)="dashFacade.adjustCaloriesBurned(200)">
+    +200
+  </button>
+  <button mat-stroked-button class="ab ab-p" type="button" (click)="dashFacade.adjustCaloriesBurned(100)">
+    +100
+  </button>
+  <button mat-stroked-button class="ab ab-m" type="button" (click)="dashFacade.adjustCaloriesBurned(-100)">
+    −100
+  </button>
+  <button mat-stroked-button class="ab ab-m" type="button" (click)="dashFacade.adjustCaloriesBurned(-200)">
+    −200
+  </button>
+</div>
+
+<div class="net-row">
+  <span class="net-label">
+    <mat-icon>calculate</mat-icon>
+    Net Calories
+  </span>
+  <span class="net-value">
+    {{ (dashFacade.todaySummary()?.caloriesTotal ?? dashFacade.dailyDataStats().netCalories) }} kcal
+  </span>
+</div>

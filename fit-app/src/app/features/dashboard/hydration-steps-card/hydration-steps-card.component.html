@@ -1,0 +1,132 @@
+<section class="hsc-card" role="region" aria-labelledby="hsc-title">
+
+  <!-- Card header -->
+  <div class="card-hdr">
+    <div class="card-hdr-icon hsc-icon">
+      <mat-icon>water_drop</mat-icon>
+    </div>
+    <div>
+      <h2 id="hsc-title" class="card-title">Hydration &amp; Steps</h2>
+      <p class="card-subtitle" aria-live="polite">{{ loading ? '' : headerSubtitle }}</p>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="card-body">
+
+    @if (error) {
+      <div class="hsc-error-strip">
+        <mat-icon>error_outline</mat-icon>
+        <span>Couldn't load hydration data</span>
+        <button class="btn-ghost hsc-retry" type="button" (click)="retry.emit()">Retry</button>
+      </div>
+
+    } @else {
+      <div class="hsc-grid">
+
+        <!-- Water column -->
+        <div class="hsc-col">
+          @if (loading) {
+            <app-progress-ring [loading]="true" size="sm" colorMode="info" label="" sublabel="" unit="ml" />
+          } @else if (!water || water.value === 0) {
+            <!-- Empty water state -->
+            <app-progress-ring
+              [value]="0" [goal]="1"
+              label="" sublabel="Drink your first glass"
+              unit="ml" size="sm" colorMode="info"
+            />
+          } @else {
+            <app-progress-ring
+              [value]="water.value"
+              [goal]="water.goal"
+              [label]="waterLabel"
+              [sublabel]="waterSublabel"
+              unit="ml"
+              size="sm"
+              colorMode="info"
+              [attr.aria-label]="'Water intake: ' + Math.round(water.value) + ' millilitres of ' + Math.round(water.goal) + ' millilitres goal'"
+            />
+          }
+
+          <!-- Water quick-add chips -->
+          @if (!loading) {
+            <div class="hsc-chips" aria-label="Add water" aria-live="polite">
+              <button
+                class="qa-chip hsc-chip"
+                [class.qa-chip--confirming]="waterConfirming() === 250"
+                type="button"
+                (click)="addWater(250)"
+                aria-label="Add 250 millilitres of water"
+              >
+                @if (waterConfirming() === 250) { +250ml ✓ } @else { +250 ml }
+              </button>
+              <button
+                class="qa-chip hsc-chip"
+                [class.qa-chip--confirming]="waterConfirming() === 500"
+                type="button"
+                (click)="addWater(500)"
+                aria-label="Add 500 millilitres of water"
+              >
+                @if (waterConfirming() === 500) { +500ml ✓ } @else { +500 ml }
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Vertical divider -->
+        <div class="hsc-divider" aria-hidden="true"></div>
+
+        <!-- Steps column -->
+        <div class="hsc-col">
+          @if (loading) {
+            <app-progress-ring [loading]="true" size="sm" colorMode="success" label="" sublabel="" unit="steps" />
+          } @else if (!steps || steps.value === 0) {
+            <!-- Empty steps state -->
+            <app-progress-ring
+              [value]="0" [goal]="1"
+              label="" sublabel="Start moving"
+              unit="steps" size="sm" colorMode="success"
+            />
+          } @else {
+            <app-progress-ring
+              [value]="steps.value"
+              [goal]="steps.goal"
+              [label]="stepsLabel"
+              [sublabel]="stepsSublabel"
+              unit="steps"
+              size="sm"
+              colorMode="success"
+              [attr.aria-label]="'Steps: ' + Math.round(steps.value) + ' of ' + Math.round(steps.goal) + ' steps goal'"
+            />
+          }
+
+          <!-- Steps quick-add chips -->
+          @if (!loading) {
+            <div class="hsc-chips" aria-label="Add steps" aria-live="polite">
+              <button
+                class="qa-chip hsc-chip hsc-chip--steps"
+                [class.qa-chip--confirming]="stepsConfirming() === 500"
+                type="button"
+                (click)="addSteps(500)"
+                aria-label="Add 500 steps"
+              >
+                @if (stepsConfirming() === 500) { +500 ✓ } @else { +500 }
+              </button>
+              <button
+                class="qa-chip hsc-chip hsc-chip--steps"
+                [class.qa-chip--confirming]="stepsConfirming() === 1000"
+                type="button"
+                (click)="addSteps(1000)"
+                aria-label="Add 1000 steps"
+              >
+                @if (stepsConfirming() === 1000) { +1 000 ✓ } @else { +1 000 }
+              </button>
+            </div>
+          }
+        </div>
+
+      </div><!-- /hsc-grid -->
+    }
+
+  </div>
+</section>

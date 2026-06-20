@@ -45,6 +45,20 @@ public interface ISocialService
     /// </summary>
     Task<FollowingCountDto> GetFollowingCountAsync(string userId);
 
+    /// <summary>
+    /// Returns a paginated list of users who follow <paramref name="targetUserId"/>.
+    /// Each item includes IsFollowedByMe relative to <paramref name="requestingUserId"/>.
+    /// </summary>
+    Task<PaginatedResponse<FollowUserDto>> GetFollowersAsync(
+        string targetUserId, string requestingUserId, int page, int pageSize);
+
+    /// <summary>
+    /// Returns a paginated list of users that <paramref name="targetUserId"/> is following.
+    /// Each item includes IsFollowedByMe relative to <paramref name="requestingUserId"/>.
+    /// </summary>
+    Task<PaginatedResponse<FollowUserDto>> GetFollowingAsync(
+        string targetUserId, string requestingUserId, int page, int pageSize);
+
     // ── Fix 2: Share to beSocial ──────────────────────────────────────────────
 
     /// <summary>

@@ -1,0 +1,34 @@
+<div class="fitness-data-block fitness-data-block--{{ size }}"
+     role="group"
+     [attr.aria-label]="isLoading ? 'Loading ' + label : (isZero ? '0' : displayValue()) + (unit ? ' ' + unit : '') + ' ' + label"
+     [attr.aria-busy]="isLoading || null">
+
+  <div class="fdb-icon-wrap"
+       [class.fdb-icon-wrap--zero]="isZero && !isLoading"
+       [style.background]="isLoading ? 'var(--nova-white-alpha-06)' : iconBgVar">
+    <mat-icon [style.color]="isLoading ? 'var(--nova-text-hint)' : iconColorVar">{{ icon }}</mat-icon>
+  </div>
+
+  @if (isLoading) {
+    <div class="fdb-skeleton-value"></div>
+    <div class="fdb-skeleton-label"></div>
+  } @else {
+    <div class="fdb-value-row">
+      <span class="fdb-value" [class.fdb-value--zero]="isZero">
+        {{ isZero ? '--' : displayValue() }}
+      </span>
+      @if (unit && !isZero) {
+        <span class="fdb-unit">{{ unit }}</span>
+      }
+      @if (trend && !isZero) {
+        <span class="fdb-trend"
+              [class.fdb-trend--up]="trend === 'up'"
+              [class.fdb-trend--down]="trend === 'down'"
+              [attr.aria-label]="trend === 'up' ? 'trending up' : 'trending down'">
+          {{ trend === 'up' ? '▲' : '▼' }}
+        </span>
+      }
+    </div>
+    <div class="fdb-label">{{ label }}</div>
+  }
+</div>

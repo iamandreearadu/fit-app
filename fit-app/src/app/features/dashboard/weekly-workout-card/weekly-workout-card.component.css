@@ -1,0 +1,102 @@
+.weekly-workout-card {
+  background: var(--nova-card-tier2-bg);
+  border: var(--nova-card-tier2-border);
+  border-radius: var(--nova-card-tier2-radius);
+  padding: 20px 20px 16px;
+}
+
+.wwc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--nova-space-3);
+}
+
+.wwc-title {
+  font-size: var(--nova-dash-title-size);
+  font-weight: var(--nova-weight-semibold);
+  color: var(--nova-text-primary);
+}
+
+.wwc-count-pill {
+  font-size: var(--nova-text-body-sm);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-primary-light);
+  background: var(--nova-primary-alpha-14);
+  border: 1px solid var(--nova-primary-alpha-25);
+  border-radius: var(--nova-radius-pill);
+  padding: var(--nova-space-1) var(--nova-space-2);
+}
+
+.wwc-chart {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
+  height: 56px;
+  margin: var(--nova-space-3) 0;
+}
+
+.wwc-day-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.wwc-bar {
+  width: 6px;
+  border-radius: 3px;
+  background: var(--nova-white-alpha-06);
+  transition: height var(--nova-duration-slow) var(--nova-ease-out);
+  min-height: 4px;
+}
+
+.wwc-bar--has-workout {
+  background: var(--nova-primary-alpha-35);
+}
+
+.wwc-bar--today {
+  background: var(--nova-primary);
+  box-shadow: 0 0 8px var(--nova-primary-alpha-40);
+}
+
+.wwc-day-label {
+  font-size: var(--nova-text-xs);
+  font-weight: var(--nova-weight-medium);
+  color: var(--nova-text-hint);
+  margin-top: var(--nova-space-1);
+  text-align: center;
+}
+
+.wwc-day-label--today {
+  color: var(--nova-text-primary);
+}
+
+.wwc-today-dot {
+  display: block;
+  width: 4px;
+  height: 4px;
+  background: var(--nova-primary);
+  border-radius: var(--nova-radius-circle);
+  margin-top: 2px;
+}
+
+.wwc-last-workout {
+  margin-top: var(--nova-space-3);
+  font-size: var(--nova-text-body-sm);
+  font-weight: var(--nova-weight-regular);
+  color: var(--nova-text-secondary);
+}
+
+/* ── Skeleton ── */
+.skeleton-block {
+  background: var(--nova-white-alpha-04);
+  border-radius: var(--nova-radius-sm);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

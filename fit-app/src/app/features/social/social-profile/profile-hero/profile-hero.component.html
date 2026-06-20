@@ -1,0 +1,87 @@
+<section class="profile-hero" role="banner">
+  @if (loading || !profile) {
+    <!-- Loading skeleton -->
+    <div class="ph-content ph-content--loading">
+      <div class="ph-avatar-wrap">
+        <div class="ph-avatar skeleton-circle"></div>
+      </div>
+      <div class="ph-info">
+        <div class="skeleton-block" style="width: 160px; height: 22px;"></div>
+        <div class="skeleton-block" style="width: 100px; height: 14px; margin-top: 4px;"></div>
+        <div class="ph-badges-row" style="margin-top: 8px;">
+          <div class="skeleton-block" style="width: 60px; height: 20px; border-radius: 999px;"></div>
+          <div class="skeleton-block" style="width: 60px; height: 20px; border-radius: 999px;"></div>
+        </div>
+        <div class="skeleton-block" style="width: 120px; height: 40px; margin-top: 16px; border-radius: 12px;"></div>
+      </div>
+    </div>
+  } @else {
+    <div class="ph-content">
+      <!-- Avatar -->
+      <div
+        class="ph-avatar-wrap"
+        (click)="isOwnProfile && avatarClick.emit()"
+        [class.ph-avatar-wrap--editable]="isOwnProfile"
+        role="img"
+        [attr.aria-label]="profile.displayName"
+      >
+        @if (profile.avatarUrl) {
+          <img
+            class="ph-avatar"
+            [src]="profile.avatarUrl"
+            [alt]="profile.displayName"
+          />
+        } @else {
+          <div class="ph-avatar-initials" aria-hidden="true">
+            {{ initials }}
+          </div>
+        }
+      </div>
+
+      <!-- Info block -->
+      <div class="ph-info">
+        <h1 class="ph-name">{{ profile.displayName }}</h1>
+
+        <div class="ph-badges-row">
+          <span class="ph-goal-badge" [attr.aria-label]="'Fitness goal: ' + goalLabel">
+            {{ goalLabel }}
+          </span>
+        </div>
+
+        @if (profile.bio) {
+          <p class="ph-bio">{{ profile.bio }}</p>
+        }
+
+        <div class="ph-cta">
+          @if (isOwnProfile) {
+            <button
+              mat-stroked-button
+              class="ph-edit-btn"
+              (click)="editProfile.emit()"
+              aria-label="Edit your profile"
+            >Edit Profile</button>
+          } @else if (isFollowing) {
+            <button
+              mat-stroked-button
+              class="ph-follow-btn ph-follow-btn--following"
+              (click)="follow.emit()"
+              [disabled]="isTogglingFollow"
+              [attr.aria-label]="'Unfollow ' + profile.displayName"
+            >
+              <mat-icon>check</mat-icon>
+              Following
+            </button>
+          } @else {
+            <button
+              mat-raised-button
+              class="ph-follow-btn"
+              (click)="follow.emit()"
+              [disabled]="isTogglingFollow"
+              [attr.aria-label]="'Follow ' + profile.displayName"
+            >Follow</button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</section>

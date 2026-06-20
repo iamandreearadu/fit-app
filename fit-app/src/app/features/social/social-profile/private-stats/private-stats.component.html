@@ -1,0 +1,102 @@
+<div
+  class="private-stats-card"
+  role="region"
+  aria-label="My private stats — only visible to you"
+>
+  <!-- Card header -->
+  <div class="psc-header">
+    <mat-icon class="psc-lock-icon">lock</mat-icon>
+    <span class="psc-title">My Stats</span>
+  </div>
+
+  @if (loading) {
+    <div class="psc-top-grid">
+      <div class="psc-inner-block">
+        <div class="skeleton-block" style="width: 100%; height: 24px; border-radius: 50%;"></div>
+        <div class="skeleton-block" style="width: 80px; height: 10px; margin-top: 8px;"></div>
+        <div class="skeleton-block" style="width: 60px; height: 12px; margin-top: 4px;"></div>
+      </div>
+      <div class="psc-inner-block">
+        <div class="skeleton-block" style="width: 100%; height: 48px;"></div>
+      </div>
+    </div>
+    <div class="skeleton-block psc-skeleton-goal-row"></div>
+  } @else {
+    <!-- Top 2-column grid: BMI + Sparkline -->
+    <div class="psc-top-grid">
+
+      <!-- BMI Trend block -->
+      <div class="psc-inner-block" [attr.aria-label]="'BMI trend: ' + bmiTrend">
+        <span class="psc-block-label">BMI TREND</span>
+        <div class="psc-bmi-indicator">
+          @if (bmiTrend === 'up') {
+            <mat-icon class="psc-bmi-icon psc-bmi-icon--up">arrow_upward</mat-icon>
+            <span class="psc-bmi-text psc-bmi-text--up">Increasing</span>
+          } @else if (bmiTrend === 'down') {
+            <mat-icon class="psc-bmi-icon psc-bmi-icon--down">arrow_downward</mat-icon>
+            <span class="psc-bmi-text psc-bmi-text--down">Decreasing</span>
+          } @else {
+            <mat-icon class="psc-bmi-icon psc-bmi-icon--stable">remove</mat-icon>
+            <span class="psc-bmi-text psc-bmi-text--stable">Stable</span>
+          }
+        </div>
+      </div>
+
+      <!-- Weight sparkline block -->
+      <div class="psc-inner-block">
+        <span class="psc-block-label">WEIGHT TREND</span>
+        @if (hasSparkline) {
+          <svg
+            class="psc-sparkline-svg"
+            viewBox="0 0 120 48"
+            preserveAspectRatio="none"
+            role="img"
+            aria-label="Weight trend chart — shape only"
+          >
+            <defs>
+              <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="var(--nova-primary)" stop-opacity="0.14" />
+                <stop offset="100%" stop-color="var(--nova-primary)" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <path
+              class="psc-sparkline-fill"
+              [attr.d]="sparklineFillPath"
+              fill="url(#sparkGrad)"
+            />
+            <polyline
+              class="psc-sparkline-path"
+              [attr.points]="sparklinePoints"
+              fill="none"
+              stroke="var(--nova-primary)"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        } @else {
+          <p class="psc-sparkline-empty-hint">Log more entries to see trend</p>
+        }
+      </div>
+    </div>
+
+    <!-- Goal progress row (full width) -->
+    <div
+      class="psc-goal-row"
+      role="meter"
+      [attr.aria-valuenow]="goalProgressPct"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      [attr.aria-label]="goalLabel + ': ' + goalProgressPct + '% complete'"
+    >
+      <span class="psc-goal-label">{{ goalLabel }}</span>
+      <div class="psc-goal-bar-track">
+        <div
+          class="psc-goal-bar-fill"
+          [style.width.%]="goalProgressPct"
+        ></div>
+      </div>
+      <span class="psc-goal-pct">{{ goalProgressPct }}%</span>
+    </div>
+  }
+</div>

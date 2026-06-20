@@ -120,10 +120,10 @@
               <span>{{ opt.label }}</span>
             </button>
           }
-          @if (workoutsFacade.templates.length > 0) {
+          @if (facade.workoutTemplates.length > 0) {
             <div class="act-divider"></div>
             <div class="act-group-lbl">My Workouts</div>
-            @for (w of workoutsFacade.templates; track w.uid) {
+            @for (w of facade.workoutTemplates; track w.uid) {
               <button
                 class="act-opt"
                 type="button"
@@ -164,7 +164,7 @@
               </button>
             }
             <span class="card-badge b-purple">
-              {{ (facade.todaySummary()?.caloriesFromNutritionLog ?? 0) | number: '1.0-0' }} kcal
+              {{ facade.dailyDataStats().totalCalories | number: '1.0-0' }} kcal
             </span>
           </div>
         </div>
@@ -213,44 +213,6 @@
           <span>Pick from saved meals</span>
         </button>
 
-        <!-- ── WEIGHT & ENERGY CHECK-IN ── -->
-        <div class="checkin-divider"></div>
-
-        <mat-form-field
-          appearance="outline"
-          subscriptSizing="dynamic"
-          class="full-f"
-        >
-          <mat-label>Today's weight (kg)</mat-label>
-          <input
-            matInput
-            type="number"
-            min="0"
-            step="0.1"
-            formControlName="manualWeight"
-          />
-          <mat-icon matSuffix>monitor_weight</mat-icon>
-        </mat-form-field>
-
-        <div class="energy-section">
-          <span class="energy-label">Energy level</span>
-          <div class="energy-btns">
-            @for (lvl of energyLevels; track lvl) {
-              <button
-                type="button"
-                class="energy-btn"
-                [class.energy-active]="form.get('energyLevel')?.value === lvl"
-                [title]="energyLabels[lvl]"
-                (click)="setEnergyLevel(lvl)"
-              >
-                {{ lvl }}
-              </button>
-            }
-          </div>
-          @if (form.get('energyLevel')?.value; as lvl) {
-            <span class="energy-selected-label">{{ energyLabels[lvl] }}</span>
-          }
-        </div>
       </div>
 
       <!-- CALORIES BURNED -->
@@ -322,7 +284,7 @@
             <mat-icon>calculate</mat-icon> Net Calories
           </span>
           <span class="net-value">
-            {{ (facade.todaySummary()?.caloriesTotal ?? facade.dailyDataStats().netCalories) }} kcal
+            {{ facade.dailyDataStats().netCalories }} kcal
           </span>
         </div>
       </div>
@@ -498,7 +460,7 @@
             <div class="mp-empty">
               <mat-icon>no_meals</mat-icon>
               <span>No meals found</span>
-              @if (nutritionFacade.meals.length === 0) {
+              @if (facade.meals.length === 0) {
                 <small>Add meals in the Nutrition tab first</small>
               }
             </div>

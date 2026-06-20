@@ -1,0 +1,102 @@
+.streak-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+  /* Ensure touch target */
+  min-width: 48px;
+  cursor: default;
+  user-select: none;
+}
+
+.streak-chip--active {
+  background: rgba(124, 77, 255, 0.10);
+  border-color: rgba(124, 77, 255, 0.25);
+}
+
+/* ── Flame icon ──────────────────────────────────────────────────── */
+.streak-flame {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--accent, #ff4081);
+  flex-shrink: 0;
+}
+
+/* Pulse when active */
+.streak-chip--active .streak-flame {
+  animation: streak-pulse 2s ease-in-out infinite;
+}
+
+.streak-flame--inactive {
+  color: rgba(255, 255, 255, 0.2) !important;
+  animation: none !important;
+}
+
+@keyframes streak-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.65; transform: scale(0.92); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .streak-flame { animation: none !important; }
+}
+
+/* ── Streak count (gradient text) ───────────────────────────────── */
+.streak-count {
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary, #7c4dff) 0%, var(--accent, #ff4081) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.streak-suffix {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.streak-sep {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.streak-best {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── Inactive ────────────────────────────────────────────────────── */
+.streak-inactive-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Loading skeleton ────────────────────────────────────────────── */
+.streak-chip--loading {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.streak-skel {
+  width: 100px;
+  height: 14px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  animation: streak-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes streak-shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

@@ -1,0 +1,93 @@
+<div
+  class="macro-progress-card"
+  role="region"
+  aria-label="Today's macro progress"
+>
+  @if (loading) {
+    <div class="mpc-skeleton">
+      <div class="mpc-skeleton-header">
+        <div class="skeleton-block" style="width: 140px; height: 16px;"></div>
+        <div class="skeleton-block" style="width: 80px; height: 20px;"></div>
+      </div>
+      @for (i of [1, 2, 3]; track i) {
+        <div class="mpc-skeleton-row">
+          <div class="mpc-skeleton-label-row">
+            <div class="skeleton-block" style="width: 80px; height: 10px;"></div>
+            <div class="skeleton-block" style="width: 60px; height: 10px;"></div>
+          </div>
+          <div class="skeleton-block" style="width: 100%; height: 6px; margin-top: 6px;"></div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="mpc-header">
+      <span class="mpc-title">Today's Nutrition</span>
+      <span class="mpc-calorie-total" [class.mpc-calorie-total--empty]="!data?.totalCalories">
+        {{ data?.totalCalories ?? 0 | number }} kcal
+      </span>
+    </div>
+
+    <!-- Protein -->
+    <div class="mpc-macro-row">
+      <div class="mpc-macro-label-row">
+        <span class="mpc-macro-name">Protein</span>
+        <span class="mpc-macro-value">{{ data?.proteinConsumedG ?? 0 }}g / {{ data?.proteinTargetG ?? 150 }}g</span>
+      </div>
+      <div class="macro-bar-track"
+           role="meter"
+           [attr.aria-valuenow]="data?.proteinConsumedG ?? 0"
+           aria-valuemin="0"
+           [attr.aria-valuemax]="data?.proteinTargetG ?? 150"
+           aria-label="Protein: {{ data?.proteinConsumedG ?? 0 }}g of {{ data?.proteinTargetG ?? 150 }}g">
+        <div
+          class="macro-bar-fill macro-bar-fill--protein"
+          [class.macro-bar-fill--near-complete]="getBarState(proteinPct) === 'near-complete'"
+          [class.macro-bar-fill--low]="getBarState(proteinPct) === 'low'"
+          [style.width.%]="proteinPct"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Carbs -->
+    <div class="mpc-macro-row">
+      <div class="mpc-macro-label-row">
+        <span class="mpc-macro-name">Carbs</span>
+        <span class="mpc-macro-value">{{ data?.carbsConsumedG ?? 0 }}g / {{ data?.carbsTargetG ?? 225 }}g</span>
+      </div>
+      <div class="macro-bar-track"
+           role="meter"
+           [attr.aria-valuenow]="data?.carbsConsumedG ?? 0"
+           aria-valuemin="0"
+           [attr.aria-valuemax]="data?.carbsTargetG ?? 225"
+           aria-label="Carbs: {{ data?.carbsConsumedG ?? 0 }}g of {{ data?.carbsTargetG ?? 225 }}g">
+        <div
+          class="macro-bar-fill macro-bar-fill--carbs"
+          [class.macro-bar-fill--near-complete]="getBarState(carbsPct) === 'near-complete'"
+          [class.macro-bar-fill--low]="getBarState(carbsPct) === 'low'"
+          [style.width.%]="carbsPct"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Fat -->
+    <div class="mpc-macro-row mpc-macro-row--last">
+      <div class="mpc-macro-label-row">
+        <span class="mpc-macro-name">Fat</span>
+        <span class="mpc-macro-value">{{ data?.fatConsumedG ?? 0 }}g / {{ data?.fatTargetG ?? 65 }}g</span>
+      </div>
+      <div class="macro-bar-track"
+           role="meter"
+           [attr.aria-valuenow]="data?.fatConsumedG ?? 0"
+           aria-valuemin="0"
+           [attr.aria-valuemax]="data?.fatTargetG ?? 65"
+           aria-label="Fat: {{ data?.fatConsumedG ?? 0 }}g of {{ data?.fatTargetG ?? 65 }}g">
+        <div
+          class="macro-bar-fill macro-bar-fill--fat"
+          [class.macro-bar-fill--near-complete]="getBarState(fatPct) === 'near-complete'"
+          [class.macro-bar-fill--low]="getBarState(fatPct) === 'low'"
+          [style.width.%]="fatPct"
+        ></div>
+      </div>
+    </div>
+  }
+</div>

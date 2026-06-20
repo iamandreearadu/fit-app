@@ -1,0 +1,188 @@
+.profile-hero {
+  background: radial-gradient(circle at 50% 0%, var(--nova-primary-alpha-08) 0%, transparent 65%);
+  padding: var(--nova-space-6) var(--nova-space-4) var(--nova-space-5);
+}
+
+.ph-content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--nova-space-4);
+}
+
+/* Desktop: centered column layout */
+@media (min-width: 768px) {
+  .ph-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ph-info {
+    align-items: center;
+  }
+
+  .ph-badges-row {
+    justify-content: center;
+  }
+
+  .ph-name {
+    max-width: unset;
+  }
+}
+
+.ph-avatar-wrap {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--nova-radius-circle);
+  border: 2px solid var(--nova-primary);
+  box-shadow: 0 0 16px var(--nova-primary-alpha-14);
+  overflow: hidden;
+  position: relative;
+}
+
+.ph-avatar-wrap--editable {
+  cursor: pointer;
+}
+
+.ph-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--nova-radius-circle);
+}
+
+.ph-avatar-initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--nova-primary-alpha-14);
+  color: var(--nova-primary-light);
+  font-size: var(--nova-text-heading-sm);
+  font-weight: var(--nova-weight-bold);
+  border-radius: var(--nova-radius-circle);
+}
+
+.ph-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.ph-name {
+  font-size: var(--nova-text-heading-lg);
+  font-weight: var(--nova-weight-extrabold);
+  color: var(--nova-text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.ph-badges-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--nova-space-2);
+  flex-wrap: wrap;
+  margin-top: var(--nova-space-2);
+}
+
+.ph-goal-badge {
+  font-size: var(--nova-text-xs);
+  font-weight: var(--nova-weight-bold);
+  text-transform: uppercase;
+  color: var(--nova-primary);
+  background: var(--nova-primary-alpha-14);
+  border: 1px solid var(--nova-primary-alpha-25);
+  border-radius: var(--nova-radius-pill);
+  padding: var(--nova-space-1) var(--nova-space-2);
+  letter-spacing: var(--nova-tracking-wider);
+}
+
+.ph-streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--nova-text-xs);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-warning);
+  background: var(--nova-warning-bg);
+  border: 1px solid var(--nova-warning-border);
+  border-radius: var(--nova-radius-pill);
+  padding: var(--nova-space-1) var(--nova-space-2);
+}
+
+.ph-streak-badge mat-icon,
+.ph-streak-badge .mat-icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
+
+.ph-bio {
+  font-size: var(--nova-text-body);
+  font-weight: var(--nova-weight-regular);
+  color: var(--nova-text-secondary);
+  margin-top: var(--nova-space-3);
+  margin-bottom: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ph-cta {
+  margin-top: var(--nova-space-4);
+}
+
+.ph-follow-btn {
+  background: var(--nova-primary);
+  color: var(--nova-text-primary);
+  border-radius: var(--nova-radius-md);
+  height: 40px;
+  min-width: 120px;
+  box-shadow: var(--nova-shadow-primary-btn);
+}
+
+.ph-follow-btn--following {
+  background: transparent;
+  border: 1px solid var(--nova-primary-alpha-25);
+  color: var(--nova-primary-light);
+}
+
+.ph-edit-btn {
+  border: 1px solid var(--nova-white-alpha-14);
+  color: var(--nova-text-primary);
+  background: transparent;
+  border-radius: var(--nova-radius-md);
+  height: 40px;
+  min-width: 140px;
+}
+
+/* ── Loading skeleton ── */
+.ph-content--loading .ph-info {
+  gap: var(--nova-space-2);
+}
+
+.skeleton-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--nova-radius-circle);
+  background: var(--nova-white-alpha-06);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-block {
+  background: var(--nova-white-alpha-04);
+  border-radius: var(--nova-radius-sm);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

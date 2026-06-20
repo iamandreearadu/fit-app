@@ -1,0 +1,158 @@
+.recent-activity-feed {
+  background: var(--nova-card-tier3-bg);
+  border: var(--nova-card-tier3-border);
+  border-radius: var(--nova-card-tier3-radius);
+  padding: 16px;
+}
+
+.raf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--nova-space-3);
+}
+
+.raf-title {
+  font-size: var(--nova-dash-title-size);
+  font-weight: var(--nova-weight-semibold);
+  color: var(--nova-text-primary);
+}
+
+.raf-see-all {
+  font-size: var(--nova-text-body-sm);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-primary);
+  text-decoration: none;
+  padding: 12px 0;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.raf-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.raf-item {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-space-3);
+  padding: var(--nova-space-2) var(--nova-space-2);
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.raf-item:hover {
+  background: var(--nova-white-alpha-02);
+}
+
+.raf-item-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--nova-primary);
+}
+
+.raf-item-icon mat-icon,
+.raf-item-icon .mat-icon {
+  font-size: var(--nova-icon-md);
+  width: var(--nova-icon-md);
+  height: var(--nova-icon-md);
+}
+
+.raf-item-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.raf-item-title {
+  font-size: var(--nova-text-body-md);
+  font-weight: var(--nova-weight-semibold);
+  color: var(--nova-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.raf-item-subtitle {
+  font-size: var(--nova-text-body-sm);
+  font-weight: var(--nova-weight-regular);
+  color: var(--nova-text-secondary);
+}
+
+.raf-item-time {
+  font-size: var(--nova-text-body-sm);
+  font-weight: var(--nova-weight-regular);
+  color: var(--nova-text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* raf-divider removed — rows use gap instead */
+
+/* ── Empty state ── */
+.raf-empty {
+  padding: var(--nova-space-8) var(--nova-space-4);
+  text-align: center;
+}
+
+.raf-empty mat-icon,
+.raf-empty .mat-icon {
+  font-size: var(--nova-icon-2xl);
+  width: var(--nova-icon-2xl);
+  height: var(--nova-icon-2xl);
+  color: var(--nova-text-invisible);
+  display: block;
+  margin: 0 auto var(--nova-space-3);
+}
+
+.raf-empty p {
+  font-size: var(--nova-text-body-lg);
+  color: var(--nova-text-ghost);
+  margin: 0;
+}
+
+/* ── Skeleton ── */
+.raf-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-space-3);
+  padding: var(--nova-space-3) 0;
+}
+
+.skeleton-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--nova-radius-circle);
+  background: var(--nova-white-alpha-04);
+  animation: shimmer 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.raf-skeleton-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.skeleton-block {
+  background: var(--nova-white-alpha-04);
+  border-radius: var(--nova-radius-sm);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

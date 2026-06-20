@@ -446,6 +446,99 @@ public class SocialService(
         return new FollowToggleResponse { IsFollowing = isFollowing, FollowersCount = followersCount };
     }
 
+
+    // ── Followers / Following lists ──────────────────────────────────────────
+
+    public async Task<PaginatedResponse<FollowUserDto>> GetFollowersAsync(
+        string targetUserId, string requestingUserId, int page, int pageSize)
+    {
+        pageSize = Math.Min(pageSize, 50);
+
+        var query = db.Follows
+            .AsNoTracking()
+            .Where(f => f.FollowingId == targetUserId)
+            .OrderByDescending(f => f.CreatedAt);
+
+        var totalCount = await query.CountAsync();
+
+        var rows = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(f => new
+            {
+                f.Follower.Id,
+                f.Follower.FullName,
+                f.Follower.ImageUrl,
+                f.Follower.IsVerified,
+                IsFollowedByMe = f.Follower.Followers
+                    .Any(ff => ff.FollowerId == requestingUserId)
+            })
+            .ToListAsync();
+
+        var items = rows.Select(r => new FollowUserDto
+        {
+            Id = r.Id,
+            DisplayName = r.FullName,
+            AvatarUrl = r.ImageUrl,
+            IsFollowedByMe = r.IsFollowedByMe,
+            IsVerified = r.IsVerified,
+        }).ToList();
+
+        return new PaginatedResponse<FollowUserDto>
+        {
+            Items = items,
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            HasMore = page * pageSize < totalCount,
+        };
+    }
+
+    public async Task<PaginatedResponse<FollowUserDto>> GetFollowingAsync(
+        string targetUserId, string requestingUserId, int page, int pageSize)
+    {
+        pageSize = Math.Min(pageSize, 50);
+
+        var query = db.Follows
+            .AsNoTracking()
+            .Where(f => f.FollowerId == targetUserId)
+            .OrderByDescending(f => f.CreatedAt);
+
+        var totalCount = await query.CountAsync();
+
+        var rows = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(f => new
+            {
+                f.Following.Id,
+                f.Following.FullName,
+                f.Following.ImageUrl,
+                f.Following.IsVerified,
+                IsFollowedByMe = f.Following.Followers
+                    .Any(ff => ff.FollowerId == requestingUserId)
+            })
+            .ToListAsync();
+
+        var items = rows.Select(r => new FollowUserDto
+        {
+            Id = r.Id,
+            DisplayName = r.FullName,
+            AvatarUrl = r.ImageUrl,
+            IsFollowedByMe = r.IsFollowedByMe,
+            IsVerified = r.IsVerified,
+        }).ToList();
+
+        return new PaginatedResponse<FollowUserDto>
+        {
+            Items = items,
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            HasMore = page * pageSize < totalCount,
+        };
+    }
+
     // ── Profile ───────────────────────────────────────────────────────────────
 
     public async Task<UserSocialProfileResponse> GetProfileAsync(string userId, string requestingUserId)

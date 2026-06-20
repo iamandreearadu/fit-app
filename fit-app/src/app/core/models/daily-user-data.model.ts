@@ -15,8 +15,6 @@ export interface DailyUserData {
      */
     caloriesIntake?: number;
     caloriesTotal?: number;
-    manualWeight?: number;    // Fix 10: daily weigh-in (kg)
-    energyLevel?: number;     // Fix 10: 1-5 subjective energy scale
 }
 
 export type DayType = 'Strength Training' | 'Cardio' | 'HIIT Training' | 'Active Rest Day' | 'Rest Day'
@@ -50,10 +48,6 @@ export interface DailyEntrySummary {
   stepTarget: number;
   caloriesBurned: number;
   caloriesTotal: number;
-
-  // From DailyEntry (new — Fix 10)
-  manualWeight?: number;
-  energyLevel?: number;
 
   // Existing manual macro percentages
   macrosPct: { protein: number; carbs: number; fats: number };
