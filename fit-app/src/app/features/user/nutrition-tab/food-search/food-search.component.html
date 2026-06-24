@@ -1,0 +1,102 @@
+<div class="fs-wrap">
+
+  <!-- Search input field -->
+  <mat-form-field appearance="outline" class="fs-field">
+    <mat-label>Search food database</mat-label>
+
+    <mat-icon matPrefix [class.selected-icon]="selected()">
+      {{ selected() ? 'check_circle' : 'search' }}
+    </mat-icon>
+
+    <input
+      matInput
+      #searchInput
+      [value]="query()"
+      (input)="onInputChange(searchInput.value)"
+      (keydown)="onKeydown($event)"
+      (focus)="onInputFocus()"
+      [attr.aria-label]="'Search food database for item ' + (itemIndex + 1)"
+      placeholder="Search food database…"
+      autocomplete="off"
+    />
+
+    @if (selected()) {
+      <button
+        matSuffix
+        mat-icon-button
+        type="button"
+        aria-label="Clear selected food"
+        (click)="clearSelection($event)"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </mat-form-field>
+
+  <!-- Results dropdown -->
+  @if (showDropdown()) {
+    <div class="fs-dropdown" role="listbox" aria-label="Food search results">
+
+      @if (searchLoading()) {
+        <!-- Loading skeleton -->
+        <div class="fs-skeleton-list" aria-hidden="true">
+          <div class="fs-skeleton-row"></div>
+          <div class="fs-skeleton-row"></div>
+          <div class="fs-skeleton-row"></div>
+        </div>
+
+      } @else if (results().length > 0) {
+        <!-- Results list -->
+        <div class="fs-result-list">
+          @for (result of results(); track result.fdcId) {
+            <div
+              class="fs-result-item"
+              role="option"
+              tabindex="0"
+              [attr.aria-label]="result.name + ', ' + result.calories + ' kcal per 100g, P ' + result.protein_g + 'g C ' + result.carbs_g + 'g F ' + result.fat_g + 'g'"
+              (click)="selectResult(result)"
+              (keydown)="onResultKeydown($event, result)"
+            >
+              <div class="fs-result-name">{{ result.name }}</div>
+              <div class="fs-result-meta">
+                <span class="fs-per-100g-label">per 100g</span>
+                <span class="macro-chip protein">P {{ result.protein_g | number:'1.0-1' }}g</span>
+                <span class="macro-chip carbs">C {{ result.carbs_g | number:'1.0-1' }}g</span>
+                <span class="macro-chip fats">F {{ result.fat_g | number:'1.0-1' }}g</span>
+              </div>
+              @if (result.servingSize) {
+                <div class="fs-result-serving">
+                  <mat-icon>straighten</mat-icon>{{ result.servingSize }}
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+      } @else {
+        <!-- Empty state — no results for this query -->
+        <div class="fs-empty-state" role="status" aria-live="polite">
+          <mat-icon>restaurant_menu</mat-icon>
+          <p>No results for "{{ query() }}"</p>
+          <p class="fs-empty-hint">Try English: "chicken breast", "brown rice", "banana"</p>
+        </div>
+      }
+
+      <!-- Manual hint — always shown at bottom of open dropdown -->
+      <div class="fs-manual-hint">Not found? Enter manually below ↓</div>
+    </div>
+  }
+
+  <!-- "Enter manually" link — always visible below the field -->
+  <div class="fs-manual-btn-row">
+    <button
+      type="button"
+      class="fs-manual-link"
+      [attr.aria-label]="'Enter food ' + (itemIndex + 1) + ' details manually'"
+      (click)="onEnterManually()"
+    >
+      Enter manually
+    </button>
+  </div>
+
+</div>

@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { GuestGuard } from './core/guards/guest.guard';
-import { SocialShellComponent } from './features/social/social-shell.component';
+import { OnboardingGuard } from './core/guards/onboarding.guard';
 
 export const routes: Routes = [
   {
@@ -34,6 +34,19 @@ export const routes: Routes = [
       import('./features/workouts/workouts.component').then(
         (m) => m.WorkoutsComponent,
       ),
+    canActivate: [AuthGuard, OnboardingGuard],
+  },
+  // OnboardingGuard intentionally omitted — social and session routes
+  // are accessible before onboarding completes per product decision.
+  // Only /user-dashboard requires onboarding completion.
+  // Affected routes: /workout-session/:templateId, /ai-assistant,
+  //                  /account, /social
+  {
+    path: 'workout-session/:templateId',
+    loadComponent: () =>
+      import('./features/workouts/active-session/active-workout-session.component').then(
+        (m) => m.ActiveWorkoutSessionComponent,
+      ),
     canActivate: [AuthGuard],
   },
   {
@@ -45,7 +58,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: 'user-profile',
+    path: 'account',
     loadComponent: () =>
       import('./features/user/user-page.component').then(
         (m) => m.UserPageComponent,
@@ -79,7 +92,8 @@ export const routes: Routes = [
 
   {
     path: 'social',
-    component: SocialShellComponent,
+    loadComponent: () =>
+      import('./features/social/social-shell.component').then(m => m.SocialShellComponent),
     canActivate: [AuthGuard],
     children: [
       {
@@ -138,6 +152,36 @@ export const routes: Routes = [
             (m) => m.SocialNotificationsComponent,
           ),
       },
+    ],
+  },
+
+  // ── Onboarding flow (Fix 4) ───────────────────────────────────────────────
+  {
+    path: 'onboarding',
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: 'carousel',
+        loadComponent: () =>
+          import('./features/onboarding/carousel/onboarding-carousel.component').then(
+            (m) => m.OnboardingCarouselComponent,
+          ),
+      },
+      {
+        path: 'biometrics',
+        loadComponent: () =>
+          import('./features/onboarding/biometrics/onboarding-biometrics.component').then(
+            (m) => m.OnboardingBiometricsComponent,
+          ),
+      },
+      {
+        path: 'your-numbers',
+        loadComponent: () =>
+          import('./features/onboarding/your-numbers/your-numbers-reveal.component').then(
+            (m) => m.YourNumbersRevealComponent,
+          ),
+      },
+      { path: '', redirectTo: 'carousel', pathMatch: 'full' },
     ],
   },
 

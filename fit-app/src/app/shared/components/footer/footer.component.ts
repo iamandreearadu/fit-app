@@ -17,17 +17,17 @@ export class FooterComponent {
   currentYear = new Date().getFullYear();
 
   socialLinks = [
-    { name: 'Facebook', icon: 'facebook', url: '#' },
-    { name: 'Instagram', icon: 'camera_alt', url: '#' },
-    { name: 'Twitter', icon: 'alternate_email', url: '#' },
-    { name: 'LinkedIn', icon: 'work', url: '#' }
+    { name: 'Facebook', icon: 'facebook', url: 'https://www.instagram.com/novafit.dev/' },
+    { name: 'Instagram', icon: 'camera_alt', url: 'https://www.instagram.com/novafit.dev/' },
+    { name: 'Twitter', icon: 'alternate_email', url: 'https://www.instagram.com/novafit.dev/' },
+    { name: 'LinkedIn', icon: 'work', url: 'https://www.instagram.com/novafit.dev/' }
   ];
 
   quickLinks = [
     { label: 'Home', route: '/', requiresAuth: false },
     { label: 'Blog', route: '/blog', requiresAuth: false },
     { label: 'Dashboard', route: '/dashboard', requiresAuth: true },
-    { label: 'Profile', route: '/user-profile', requiresAuth: true }
+    { label: 'Account', route: '/account', requiresAuth: true }
   ];
 
   legalLinks = [

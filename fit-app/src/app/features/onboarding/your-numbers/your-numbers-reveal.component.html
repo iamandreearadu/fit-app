@@ -1,0 +1,138 @@
+<div class="yn-page">
+  <!-- Dramatic radial glow -->
+  <div class="yn-glow" aria-hidden="true"></div>
+
+  <!-- Skip to dashboard — accessible escape hatch -->
+  <a class="yn-skip-to-dashboard" href="/user-dashboard">Skip to dashboard</a>
+
+  <!-- ── Loading state ─────────────────────────────────────── -->
+  @if (isLoading()) {
+    <div class="yn-loading" role="status" aria-label="Loading your numbers">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p class="yn-loading-text">Calculating your numbers…</p>
+    </div>
+
+  <!-- ── Error state ───────────────────────────────────────── -->
+  } @else if (hasError()) {
+    <div class="yn-error" role="alert">
+      <mat-icon class="yn-error-icon">error_outline</mat-icon>
+      <p class="yn-error-text">Couldn't load your numbers</p>
+      <button type="button" class="btn-ghost yn-retry-btn" (click)="retry()">
+        <mat-icon>refresh</mat-icon>
+        Try again
+      </button>
+    </div>
+
+  <!-- ── Loaded state ──────────────────────────────────────── -->
+  } @else {
+    <h1 class="yn-sr-only">Your Fitness Numbers</h1>
+
+    <!-- Header badge -->
+    <div class="yn-badge" aria-hidden="true">
+      <mat-icon class="yn-sparkle">auto_awesome</mat-icon>
+      <span class="yn-badge-text">YOUR NUMBERS ARE IN</span>
+    </div>
+
+    <!-- Numbers grid -->
+    <div class="yn-numbers-grid" role="region" aria-label="Your calculated fitness metrics">
+
+      <!-- TDEE tile -->
+      <article
+        class="yn-tile yn-tile--1"
+        [attr.aria-label]="'TDEE: ' + tdeeDisplay() + ' calories per day'"
+      >
+        <span class="yn-tile-metric">TDEE</span>
+        <span
+          class="yn-tile-value"
+          aria-live="off"
+        >{{ tdeeDisplay() }}</span>
+        <span class="yn-tile-unit">KCAL/DAY</span>
+        <span class="yn-tile-sub">Maintenance calories</span>
+      </article>
+
+      <!-- BMR tile -->
+      <article
+        class="yn-tile yn-tile--2"
+        [attr.aria-label]="'BMR: ' + bmrDisplay() + ' calories per day'"
+      >
+        <span class="yn-tile-metric">BMR</span>
+        <span
+          class="yn-tile-value"
+          aria-live="off"
+        >{{ bmrDisplay() }}</span>
+        <span class="yn-tile-unit">KCAL/DAY</span>
+        <span class="yn-tile-sub">Resting metabolism</span>
+      </article>
+
+      <!-- BMI tile -->
+      <article
+        class="yn-tile yn-tile--3"
+        [attr.aria-label]="'BMI: ' + bmiDisplay() + ' — ' + (numbers()?.bmiCategory ?? '')"
+      >
+        <span class="yn-tile-metric">BMI</span>
+        <span
+          class="yn-tile-value"
+          aria-live="off"
+        >{{ bmiDisplay() }}</span>
+        <span class="yn-tile-unit">kg/m²</span>
+        @if (numbers()?.bmiCategory) {
+          <span
+            class="yn-tile-category"
+            [ngStyle]="bmiCategoryStyle(numbers()!.bmiCategory)"
+          >{{ numbers()!.bmiCategory }}</span>
+        }
+      </article>
+
+      <!-- Goal calories tile -->
+      <article
+        class="yn-tile yn-tile--4"
+        [attr.aria-label]="'Daily target: ' + goalDisplay() + ' calories per day'"
+      >
+        <span class="yn-tile-metric">DAILY TARGET</span>
+        <span
+          class="yn-tile-value"
+          aria-live="off"
+        >{{ goalDisplay() }}</span>
+        <span class="yn-tile-unit">KCAL/DAY</span>
+        <span class="yn-tile-sub">For your goal</span>
+      </article>
+
+    </div>
+
+    <!-- Goal context copy -->
+    @if (goalCopy) {
+      <p class="yn-goal-copy" role="note">{{ goalCopy }}</p>
+    }
+
+    <!-- Water recommendation -->
+    @if (numbers()?.waterLiters) {
+      <div class="yn-water" role="note" [attr.aria-label]="'Drink ' + numbers()!.waterLiters.toFixed(1) + ' litres of water each day'">
+        <mat-icon class="yn-water-icon">water_drop</mat-icon>
+        <span>Drink {{ numbers()!.waterLiters.toFixed(1) }}L of water each day</span>
+      </div>
+    }
+
+    <!-- First action CTAs -->
+    <div class="yn-ctas">
+      <button
+        type="button"
+        class="yn-cta-primary"
+        (click)="onStartWorkout()"
+        aria-label="Start your first workout and begin your fitness journey"
+      >
+        <mat-icon>fitness_center</mat-icon>
+        Start your first workout
+      </button>
+
+      <button
+        type="button"
+        class="yn-cta-secondary"
+        (click)="onLogMeal()"
+        aria-label="Log your first meal in the nutrition tracker"
+      >
+        <mat-icon>restaurant</mat-icon>
+        Log your first meal
+      </button>
+    </div>
+  }
+</div>

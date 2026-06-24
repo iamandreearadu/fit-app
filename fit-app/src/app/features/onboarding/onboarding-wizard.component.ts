@@ -33,6 +33,7 @@ export class OnboardingWizardComponent {
 
   readonly step = signal(0);
   readonly isSaving = signal(false);
+  readonly saveError = signal<string | null>(null);
 
   readonly data: OnboardingData = {
     goal: 'maintain',
@@ -93,6 +94,7 @@ export class OnboardingWizardComponent {
   async finish(action: 'workout' | 'meal' | 'skip'): Promise<void> {
     if (this.isSaving()) return;
     this.isSaving.set(true);
+    this.saveError.set(null);
 
     const current = this.userStore.user();
     try {
@@ -107,16 +109,16 @@ export class OnboardingWizardComponent {
         dietaryPreference: this.data.dietaryPreference,
         onboardingCompleted: true,
       });
+      this.dialogRef.close();
+      if (action === 'workout') {
+        await this.router.navigate(['/workouts']);
+      } else if (action === 'meal') {
+        await this.router.navigate(['/nutrition']);
+      }
+    } catch {
+      this.saveError.set('Could not save your profile. Please try again.');
     } finally {
       this.isSaving.set(false);
-    }
-
-    this.dialogRef.close();
-
-    if (action === 'workout') {
-      await this.router.navigate(['/workouts']);
-    } else if (action === 'meal') {
-      await this.router.navigate(['/nutrition']);
     }
   }
 }

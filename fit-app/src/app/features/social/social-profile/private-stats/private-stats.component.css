@@ -1,0 +1,150 @@
+.private-stats-card {
+  background: var(--nova-glass-card-bg);
+  border: var(--nova-glass-card-border);
+  border-radius: var(--nova-radius-xl);
+  padding: var(--nova-space-4) var(--nova-space-5);
+}
+
+.psc-header {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-space-2);
+  margin-bottom: var(--nova-space-4);
+}
+
+.psc-lock-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--nova-text-tertiary);
+}
+
+.psc-title {
+  font-size: var(--nova-text-subtitle);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-primary);
+}
+
+/* ── 2-col inner grid ── */
+.psc-top-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--nova-space-4);
+  margin-bottom: var(--nova-space-4);
+}
+
+.psc-inner-block {
+  background: var(--nova-white-alpha-03);
+  border: var(--nova-glass-section-border);
+  border-radius: var(--nova-radius-lg);
+  padding: var(--nova-space-3) var(--nova-space-4);
+  display: flex;
+  flex-direction: column;
+}
+
+.psc-block-label {
+  font-size: var(--nova-text-xs);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-hint);
+  text-transform: uppercase;
+  letter-spacing: var(--nova-tracking-wider);
+  margin-bottom: var(--nova-space-2);
+}
+
+/* ── BMI indicator ── */
+.psc-bmi-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-space-1);
+}
+
+.psc-bmi-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.psc-bmi-icon--up    { color: var(--nova-accent); }
+.psc-bmi-icon--down  { color: var(--nova-success); }
+.psc-bmi-icon--stable { color: var(--nova-text-secondary); }
+
+.psc-bmi-text {
+  font-size: var(--nova-text-body-sm);
+}
+
+.psc-bmi-text--up    { color: var(--nova-accent); }
+.psc-bmi-text--down  { color: var(--nova-success); }
+.psc-bmi-text--stable { color: var(--nova-text-secondary); }
+
+/* ── Sparkline ── */
+.psc-sparkline-svg {
+  width: 100%;
+  height: 48px;
+  display: block;
+}
+
+.psc-sparkline-empty-hint {
+  font-size: var(--nova-text-xs);
+  color: var(--nova-text-hint);
+  margin: 0;
+}
+
+/* ── Goal progress row ── */
+.psc-goal-row {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-space-3);
+}
+
+.psc-goal-label {
+  font-size: var(--nova-text-body-sm);
+  font-weight: var(--nova-weight-medium);
+  color: var(--nova-text-secondary);
+  flex: 0 0 auto;
+}
+
+.psc-goal-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--nova-white-alpha-08);
+  border-radius: var(--nova-radius-pill);
+  overflow: hidden;
+}
+
+.psc-goal-bar-fill {
+  background: var(--nova-primary);
+  border-radius: var(--nova-radius-pill);
+  height: 100%;
+  transition: width var(--nova-duration-slow) var(--nova-ease-out);
+}
+
+.psc-goal-pct {
+  font-size: var(--nova-text-body-sm);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-primary);
+  flex: 0 0 auto;
+}
+
+/* ── Responsive ── */
+@media (max-width: 359px) {
+  .psc-top-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Skeleton ── */
+.skeleton-block {
+  background: var(--nova-white-alpha-04);
+  border-radius: var(--nova-radius-sm);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.psc-skeleton-goal-row {
+  width: 100%;
+  height: 20px;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

@@ -101,28 +101,63 @@
           <mat-label>Full name</mat-label>
           <mat-icon matPrefix class="field-icon">person_outline</mat-icon>
           <input matInput formControlName="fullName" autocomplete="name" />
-          <mat-error *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">
-            {{ formErrors.getMessage(form.get('fullName')?.errors) }}
-          </mat-error>
+          @if (form.get('fullName')?.touched && form.get('fullName')?.invalid) {
+            <mat-error>{{ formErrors.getMessage(form.get('fullName')?.errors) }}</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="f-field">
           <mat-label>Email address</mat-label>
           <mat-icon matPrefix class="field-icon">alternate_email</mat-icon>
           <input matInput formControlName="email" type="email" autocomplete="email" />
-          <mat-error *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
-            {{ formErrors.getMessage(form.get('email')?.errors) }}
-          </mat-error>
+          @if (form.get('email')?.touched && form.get('email')?.invalid) {
+            <mat-error>{{ formErrors.getMessage(form.get('email')?.errors) }}</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="f-field">
           <mat-label>Password</mat-label>
           <mat-icon matPrefix class="field-icon">lock_outline</mat-icon>
-          <input matInput type="password" formControlName="password" autocomplete="new-password" />
-          <mat-error *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
-            {{ formErrors.getMessage(form.get('password')?.errors) }}
-          </mat-error>
+          <input matInput [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="new-password" />
+          <button mat-icon-button matSuffix type="button"
+            (click)="showPassword.set(!showPassword())"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+            <mat-icon class="field-icon">{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.get('password')?.touched && form.get('password')?.invalid) {
+            <mat-error>{{ formErrors.getMessage(form.get('password')?.errors) }}</mat-error>
+          }
         </mat-form-field>
+
+        <!-- Goal selector (Fix 4) -->
+        <p class="reg-goal-label">What's your goal?</p>
+        <div
+          class="reg-goal-grid"
+          [class.reg-goal-grid--error]="goalError()"
+          role="radiogroup"
+          aria-label="Select your fitness goal"
+        >
+          @for (opt of goalOptions; track opt.value) {
+            <button
+              type="button"
+              class="reg-goal-card"
+              [class.reg-goal-card--selected]="selectedGoal().value === opt.value"
+              role="radio"
+              [attr.aria-checked]="selectedGoal().value === opt.value"
+              [attr.aria-label]="opt.label"
+              (click)="selectGoal(opt)"
+            >
+              <span class="reg-goal-emoji" aria-hidden="true">{{ opt.emoji }}</span>
+              <span class="reg-goal-name">{{ opt.label }}</span>
+              <span class="reg-goal-check" aria-hidden="true">
+                <mat-icon>check</mat-icon>
+              </span>
+            </button>
+          }
+        </div>
+        @if (goalError()) {
+          <p class="reg-goal-error" role="alert">Please select your goal</p>
+        }
 
         <!-- Terms notice -->
         <div class="terms-notice">
@@ -141,12 +176,15 @@
           class="btn-submit"
           [class.btn-submit--loading]="facade.loading()"
           [disabled]="facade.loading()"
-          aria-label="Create your NovaFit account"
+          aria-label="Continue to onboarding"
         >
           <span class="btn-submit-glow"></span>
-          <mat-spinner *ngIf="facade.loading()" diameter="18" class="btn-spinner"></mat-spinner>
-          <mat-icon *ngIf="!facade.loading()">person_add</mat-icon>
-          <span>{{ facade.loading() ? 'Creating account…' : 'Create Account' }}</span>
+          @if (facade.loading()) {
+            <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+          } @else {
+            <mat-icon>arrow_forward</mat-icon>
+          }
+          <span>{{ facade.loading() ? 'Creating account…' : 'Continue' }}</span>
         </button>
 
         <!-- Divider -->

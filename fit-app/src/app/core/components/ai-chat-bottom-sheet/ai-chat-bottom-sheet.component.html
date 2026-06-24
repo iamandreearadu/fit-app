@@ -1,0 +1,91 @@
+<div class="acbs-shell">
+
+  <!-- Drag handle -->
+  <div class="acbs-handle-zone"
+       (click)="sheetRef.dismiss()"
+       role="button"
+       aria-label="Close AI chat">
+    <div class="acbs-handle"></div>
+  </div>
+
+  <!-- Context header -->
+  <div class="acbs-header">
+    <span class="acbs-ctx-badge" [ngClass]="ctxConfig().cls">
+      <mat-icon>{{ ctxConfig().icon }}</mat-icon>
+      {{ ctxConfig().label }}
+    </span>
+    <button class="acbs-history-btn" (click)="goToHistory()" type="button">
+      History →
+    </button>
+  </div>
+  <div class="acbs-header-divider"></div>
+
+  <!-- Messages area -->
+  <div class="acbs-messages" #messagesContainer aria-live="polite">
+
+    @if (!facade.messages().length && !facade.loading()) {
+      <!-- Empty state -->
+      <div class="acbs-empty">
+        <mat-icon class="acbs-empty-icon">auto_awesome</mat-icon>
+        <p class="acbs-empty-title">What would you like to know?</p>
+        <p class="acbs-empty-sub">Ask anything about your fitness.</p>
+        <div class="acbs-chips">
+          @for (chip of suggestions(); track chip.text) {
+            <button
+              class="acbs-chip"
+              (click)="useSuggestion(chip.text)"
+              type="button"
+              [attr.aria-label]="chip.text">
+              {{ chip.text }}
+            </button>
+          }
+        </div>
+      </div>
+    } @else {
+      <!-- Message list -->
+      @for (msg of facade.messages(); track msg.timestamp) {
+        <div class="msg" [class.msg-user]="msg.role === 'user'" [class.msg-ai]="msg.role === 'assistant'">
+          <div class="bubble">
+            <p class="bubble-text">{{ msg.content }}</p>
+            <span class="bubble-time">{{ formatTime(msg.timestamp) }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Typing indicator -->
+      @if (facade.loading()) {
+        <div class="msg msg-ai">
+          <div class="bubble typing">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+      }
+    }
+
+  </div>
+
+  <!-- Input bar -->
+  <div class="acbs-input-bar">
+    <textarea
+      class="acbs-textarea"
+      [value]="prompt()"
+      (input)="prompt.set($any($event.target).value)"
+      (keydown)="onKeyDown($event)"
+      [disabled]="facade.loading()"
+      placeholder="Ask anything…"
+      rows="1"
+      aria-label="Message input"
+    ></textarea>
+    <button
+      class="acbs-send-btn"
+      (click)="send()"
+      type="button"
+      [disabled]="facade.loading() || !prompt().trim()"
+      aria-label="Send message">
+      <mat-icon>{{ facade.loading() ? 'hourglass_empty' : 'send' }}</mat-icon>
+    </button>
+  </div>
+
+</div>

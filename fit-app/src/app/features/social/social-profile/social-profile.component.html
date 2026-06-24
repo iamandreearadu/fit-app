@@ -40,6 +40,7 @@
             class="profile-avatar"
             [src]="facade.currentProfile()!.avatarUrl"
             [alt]="facade.currentProfile()!.displayName"
+            (error)="onAvatarError($event)"
           />
         } @else {
           <div class="profile-avatar profile-avatar--fallback">
@@ -57,6 +58,9 @@
              (change)="onAvatarFileChange($event)" />
       <h1 class="profile-display-name">
         {{ facade.currentProfile()!.displayName }}
+        @if (facade.currentProfile()!.isVerified) {
+          <mat-icon class="profile-verified-badge" aria-label="Verified account">verified</mat-icon>
+        }
       </h1>
     </div>
 
@@ -68,13 +72,17 @@
         }}</span>
         <span class="profile-stat-label">POSTS</span>
       </div>
-      <div class="profile-stat-cell">
+      <div class="profile-stat-cell profile-stat-cell--clickable"
+           (click)="openFollowList('followers')"
+           role="button" tabindex="0">
         <span class="profile-stat-number">{{
           facade.currentProfile()!.followersCount
         }}</span>
         <span class="profile-stat-label">FOLLOWERS</span>
       </div>
-      <div class="profile-stat-cell">
+      <div class="profile-stat-cell profile-stat-cell--clickable"
+           (click)="openFollowList('following')"
+           role="button" tabindex="0">
         <span class="profile-stat-number">{{
           facade.currentProfile()!.followingCount
         }}</span>
@@ -274,11 +282,129 @@
             }
           </div>
         }
+
+        <!-- ── Archived Workouts ──────────────────────────────────────────── -->
+        @if (facade.archivedWorkouts().length > 0) {
+          <div class="archived-section-header" style="margin-top: 16px;">
+            <span class="archived-title">Archived Workouts</span>
+          </div>
+          <div class="profile-posts-grid">
+            @for (workout of facade.archivedWorkouts(); track workout.id) {
+              <div class="profile-post-cell profile-post-text-cell">
+                <p>{{ workout.title }}</p>
+                <span style="font-size: 11px; opacity: 0.5;">{{ workout.type }} · {{ workout.durationMin }} min</span>
+                <div class="profile-item-overlay">
+                  <button
+                    class="profile-overlay-btn"
+                    (click)="unarchiveWorkout($event, workout.id)"
+                    title="Unarchive"
+                    type="button"
+                  >
+                    <mat-icon>unarchive</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
       </div>
     }
 
-    <!-- ── Tabs ──────────────────────────────────────────────────────────── -->
-    @if (!showArchivedSection()) {
+    <!-- ── Follow List Section ──────────────────────────────────────────── -->
+    @if (facade.followListType()) {
+      <div class="follow-list-section">
+        <div class="follow-list-header">
+          <button
+            class="archived-back-btn"
+            (click)="closeFollowList()"
+            type="button"
+          >
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <span class="archived-title">
+            {{ facade.followListType() === 'followers' ? 'Followers' : 'Following' }}
+          </span>
+        </div>
+
+        @if (facade.isLoadingFollowList() && facade.followListUsers().length === 0) {
+          <div class="follow-list-loading">
+            <mat-progress-spinner
+              mode="indeterminate"
+              diameter="32"
+            ></mat-progress-spinner>
+          </div>
+        } @else if (facade.followListUsers().length === 0) {
+          <div class="profile-empty">
+            <mat-icon>group</mat-icon>
+            <p>
+              {{ facade.followListType() === 'followers'
+                ? 'No followers yet'
+                : 'Not following anyone yet' }}
+            </p>
+          </div>
+        } @else {
+          <div class="follow-list">
+            @for (user of facade.followListUsers(); track user.id) {
+              <div class="follow-list-item">
+                <div class="follow-list-user"
+                     (click)="navigateToProfile(user.id)"
+                     role="button" tabindex="0">
+                  <div class="follow-list-avatar-wrap">
+                    @if (user.avatarUrl) {
+                      <img
+                        class="follow-list-avatar"
+                        [src]="user.avatarUrl"
+                        [alt]="user.displayName"
+                      />
+                    } @else {
+                      <div class="follow-list-avatar follow-list-avatar--fallback">
+                        <mat-icon>person</mat-icon>
+                      </div>
+                    }
+                  </div>
+                  <span class="follow-list-name">
+                    {{ user.displayName }}
+                    @if (user.isVerified) {
+                      <mat-icon class="follow-list-verified">verified</mat-icon>
+                    }
+                  </span>
+                </div>
+                @if (user.id !== userId) {
+                  <button
+                    class="follow-list-btn"
+                    [class.follow-list-btn--following]="user.isFollowedByMe"
+                    (click)="toggleFollowUser(user.id)"
+                    type="button"
+                  >
+                    {{ user.isFollowedByMe ? 'Following' : 'Follow' }}
+                  </button>
+                }
+              </div>
+            }
+            @if (facade.followListHasMore()) {
+              <button
+                class="follow-list-load-more"
+                (click)="loadMoreFollowList()"
+                [disabled]="facade.isLoadingFollowList()"
+                type="button"
+              >
+                @if (facade.isLoadingFollowList()) {
+                  <mat-progress-spinner
+                    mode="indeterminate"
+                    diameter="18"
+                  ></mat-progress-spinner>
+                } @else {
+                  Load more
+                }
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+        <!-- ── Tabs ──────────────────────────────────────────────────────────── -->
+    @if (!showArchivedSection() && !facade.followListType()) {
       <div class="profile-tabs">
         <button
           class="profile-tab-btn"

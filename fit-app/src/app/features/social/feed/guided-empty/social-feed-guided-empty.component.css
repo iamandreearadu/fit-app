@@ -1,0 +1,292 @@
+/* ── Suggestion list ── */
+.feed-suggest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 480px;
+}
+
+/* ── Section label ── */
+.feed-suggest-section-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.feed-suggest-label-text {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+}
+
+.feed-suggest-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Skeleton cards ── */
+.feed-suggest-skeleton {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  height: 72px;
+  width: 100%;
+  max-width: 480px;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+/* ── User card ── */
+.feed-suggest-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.feed-suggest-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.feed-suggest-card--followed {
+  opacity: 0.7;
+}
+
+/* ── Avatar ── */
+.feed-suggest-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(124, 77, 255, 0.16);
+  border: 1.5px solid rgba(124, 77, 255, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+.feed-suggest-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── User info ── */
+.feed-suggest-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feed-suggest-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Goal badge modifiers ── */
+.feed-suggest-goal-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  align-self: flex-start;
+}
+
+.pill-goal-lose {
+  background: rgba(255, 64, 129, 0.12);
+  color: var(--accent);
+  border-color: rgba(255, 64, 129, 0.20);
+}
+
+.pill-goal-gain {
+  background: rgba(74, 222, 128, 0.10);
+  color: var(--color-success);
+  border-color: rgba(74, 222, 128, 0.18);
+}
+
+.pill-goal-maintain {
+  background: rgba(56, 189, 248, 0.10);
+  color: var(--color-info);
+  border-color: rgba(56, 189, 248, 0.18);
+}
+
+/* ── Follow button — default ── */
+.feed-suggest-follow-btn {
+  padding: 7px 16px;
+  height: 34px;
+  min-width: 88px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  transition: opacity 0.15s, transform 0.15s;
+  font-family: inherit;
+}
+
+.feed-suggest-follow-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.feed-suggest-follow-btn:hover:not(:disabled) {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.feed-suggest-follow-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ── Follow button — pending ── */
+.feed-suggest-follow-btn--pending {
+  background: rgba(124, 77, 255, 0.45);
+  min-width: 50px;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── Follow button — followed ── */
+.feed-suggest-follow-btn--following {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+
+/* ── "Explore more" button ── */
+.feed-explore-btn {
+  margin-top: 20px;
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.feed-explore-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* When all users followed, promote Explore to more prominent CTA */
+.feed-explore-btn--primary {
+  background: var(--primary);
+  color: var(--white);
+  border-color: transparent;
+}
+
+.feed-explore-btn--primary:hover {
+  background: rgba(124, 77, 255, 0.85);
+}
+
+/* ── Error banner ── */
+.feed-suggestions-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 64, 129, 0.10);
+  border: 1px solid rgba(255, 64, 129, 0.25);
+  border-radius: 12px;
+  padding: 12px 16px;
+  width: 100%;
+  max-width: 480px;
+  font-size: 13px;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.feed-suggestions-error mat-icon {
+  flex-shrink: 0;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.feed-retry-btn {
+  margin-left: auto;
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+  min-height: 32px;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── No users discovered ── */
+.feed-suggest-no-users {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 14px;
+  text-align: center;
+}
+
+.feed-suggest-no-users mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: rgba(255, 255, 255, 0.20);
+}
+
+.feed-suggest-no-users p {
+  margin: 0;
+}
+
+/* ── Responsive: mobile ── */
+@media (max-width: 479px) {
+  .feed-suggest-card {
+    padding: 12px 14px;
+  }
+
+  .feed-suggest-follow-btn {
+    min-width: 78px;
+    padding: 7px 12px;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}

@@ -65,6 +65,40 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         }
     }
 
+    // GET /api/social/trending?pageSize=20
+    [HttpGet("trending")]
+    public async Task<IActionResult> GetTrending([FromQuery] int pageSize = 20)
+    {
+        try
+        {
+            return Ok(await socialService.GetTrendingAsync(UserId, pageSize));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error getting trending posts for user {UserId}", UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
+    // GET /api/social/discover/suggested?limit=5
+    // Used by SocialFeedGuidedEmptyComponent to populate follow suggestions.
+    // Returns up to 5 users; same-goal users are surfaced first.
+    // PRIVACY: never includes BMI, weight, calories, BMR, or TDEE.
+    [HttpGet("discover/suggested")]
+    public async Task<IActionResult> GetSuggestedUsers([FromQuery] int limit = 5)
+    {
+        try
+        {
+            var results = await socialService.GetSuggestedUsersAsync(UserId, limit);
+            return Ok(results);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error getting suggested users for {UserId}", UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
     // POST /api/social/posts
     [HttpPost("posts")]
     [RequestSizeLimit(20 * 1024 * 1024)]
@@ -247,6 +281,42 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         }
     }
 
+    // GET /api/social/profile/me/following-count
+    [HttpGet("profile/me/following-count")]
+    public async Task<ActionResult<FollowingCountDto>> GetMyFollowingCount()
+        => Ok(await socialService.GetFollowingCountAsync(UserId));
+
+
+    // GET /api/social/profile/{userId}/followers
+    [HttpGet("profile/{userId}/followers")]
+    public async Task<IActionResult> GetFollowers(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    {
+        try
+        {
+            return Ok(await socialService.GetFollowersAsync(userId, UserId, page, pageSize));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error getting followers for user {TargetUserId}", userId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
+    // GET /api/social/profile/{userId}/following
+    [HttpGet("profile/{userId}/following")]
+    public async Task<IActionResult> GetFollowing(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    {
+        try
+        {
+            return Ok(await socialService.GetFollowingAsync(userId, UserId, page, pageSize));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error getting following for user {TargetUserId}", userId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
     // GET /api/social/profile/{userId}
     [HttpGet("profile/{userId}")]
     public async Task<IActionResult> GetProfile(string userId)
@@ -306,6 +376,15 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
     {
         try { return Ok(await socialService.GetProfileWorkoutsAsync(userId, UserId, page, pageSize)); }
         catch (Exception ex) { logger.LogError(ex, "Error getting profile workouts"); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
+    }
+
+    // GET /api/social/profile/{userId}/workouts/archived
+    [HttpGet("profile/{userId}/workouts/archived")]
+    public async Task<IActionResult> GetArchivedWorkouts(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 12)
+    {
+        if (userId != UserId) return Forbid();
+        try { return Ok(await socialService.GetArchivedWorkoutsAsync(userId, page, pageSize)); }
+        catch (Exception ex) { logger.LogError(ex, "Error getting archived workouts for user {UserId}", userId); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
     }
 
     // PATCH /api/social/profile/workouts/{id}/archive
@@ -394,5 +473,69 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         try { return Ok(await socialService.GetArticleAsync(id, UserId)); }
         catch (KeyNotFoundException ex) { return Problem(statusCode: 404, detail: ex.Message); }
         catch (Exception ex) { logger.LogError(ex, "Error getting article {ArticleId}", id); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
+    }
+
+    // ── Fix 2: Share to beSocial ──────────────────────────────────────────────
+
+    /// <summary>
+    /// POST /api/social/posts/from-workout/{sessionId}
+    ///
+    /// Creates a pre-composed social post from a completed workout session.
+    /// Post content is generated server-side from session data — no health metrics included.
+    /// Body may be {} or omitted (caption defaults to null).
+    /// Returns 201 Created with SharePostResponse.
+    /// Returns 404 when the session is not found or belongs to another user.
+    /// </summary>
+    [HttpPost("posts/from-workout/{sessionId:int}")]
+    public async Task<IActionResult> ShareFromWorkout(
+        int sessionId,
+        [FromBody] PostFromWorkoutRequest? request)
+    {
+        try
+        {
+            var result = await socialService.CreatePostFromWorkoutAsync(UserId, sessionId, request);
+            return StatusCode(StatusCodes.Status201Created, result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return Problem(statusCode: 404, detail: ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex,
+                "Error sharing workout session {SessionId} for user {UserId}", sessionId, UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
+    /// <summary>
+    /// POST /api/social/posts/from-meal/{mealId}
+    ///
+    /// Creates a pre-composed social post from a logged meal entry.
+    /// Post content contains only the meal name — no calories, macros, or food-item data.
+    /// Body may be {} or omitted (caption defaults to null).
+    /// Returns 201 Created with SharePostResponse.
+    /// Returns 404 when the meal is not found or belongs to another user.
+    /// </summary>
+    [HttpPost("posts/from-meal/{mealId:int}")]
+    public async Task<IActionResult> ShareFromMeal(
+        int mealId,
+        [FromBody] PostFromMealRequest? request)
+    {
+        try
+        {
+            var result = await socialService.CreatePostFromMealAsync(UserId, mealId, request);
+            return StatusCode(StatusCodes.Status201Created, result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return Problem(statusCode: 404, detail: ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex,
+                "Error sharing meal {MealId} for user {UserId}", mealId, UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
     }
 }

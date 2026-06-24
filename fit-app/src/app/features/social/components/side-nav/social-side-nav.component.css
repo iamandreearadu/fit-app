@@ -33,33 +33,36 @@
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: rgba(124, 77, 255, 0.12);
+  border: 1px solid rgba(124, 77, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.social-sidenav-brand-icon mat-icon {
-  font-size: 18px;
+.social-sidenav-brand-img {
   width: 18px;
   height: 18px;
-  color: var(--white);
+  object-fit: contain;
 }
 
+/* NovaFit wordmark — "Nova" soft white, "Fit" primary purple */
 .social-wordmark {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.3px;
   line-height: 1;
-  color: var(--white);
+  color: var(--white-soft);
 }
 
 .social-wordmark-gradient {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary);
+}
+
+/* ── Streak badge wrapper (Fix 5 — desktop social) ── */
+.social-sidenav-streak {
+  padding: 4px 6px 12px;
 }
 
 /* ── User mini-profile ── */
@@ -117,6 +120,7 @@
   font-weight: 500;
   color: rgba(255, 255, 255, 0.6);
   text-decoration: none;
+  cursor: pointer;
   transition: background 0.18s, color 0.18s, transform 0.15s;
   position: relative;
   min-height: 48px;
@@ -199,32 +203,40 @@
   transform: translateY(-1px);
 }
 
-/* ── Back to NovaFit link ── */
-.social-back-link {
+/* ── Logout button ── */
+.social-logout-btn {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
-  font-size: 12px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.35);
-  text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 82, 82, 0.85);
+  background: rgba(255, 82, 82, 0.06);
+  border: 1px solid rgba(255, 82, 82, 0.15);
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.15s;
   margin-top: 8px;
   flex-shrink: 0;
-  min-height: 48px;
+  min-height: 44px;
+  font-family: inherit;
+  letter-spacing: 0.01em;
 }
 
-.social-back-link mat-icon {
-  font-size: 15px;
-  width: 15px;
-  height: 15px;
+.social-logout-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
-.social-back-link:hover {
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.65);
-  border-color: rgba(255, 255, 255, 0.12);
+.social-logout-btn:hover {
+  background: rgba(255, 82, 82, 0.12);
+  color: rgba(255, 82, 82, 1);
+  border-color: rgba(255, 82, 82, 0.3);
+  transform: translateX(2px);
 }
+
+/* .social-back-link removed — "Back to NovaFit" link deleted in mobile shell redesign */

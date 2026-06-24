@@ -50,3 +50,14 @@ public class DirectMessageResponse
     public bool IsDeleted { get; set; }
     public bool IsOwn { get; set; }
 }
+
+/// <summary>
+/// Cursor-based pagination response for message history.
+/// Use <see cref="NextCursor"/> as the <c>beforeMessageId</c> on the next call.
+/// <see cref="HasMore"/> is true when there are older messages beyond this page.
+/// </summary>
+public record CursorPageResponse<T>(
+    IEnumerable<T> Items,
+    bool HasMore,
+    int? NextCursor  // Id of the oldest message in this page — pass as beforeMessageId next call
+);

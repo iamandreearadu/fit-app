@@ -1,0 +1,150 @@
+<div
+  class="set-row"
+  [class.set-row--completed]="isCompleted"
+  [class.set-row--editing]="isEditing"
+  [class.set-row--deleting]="state() === 'deleting'"
+  [style.transform]="rowTransform"
+  [style.transition]="rowTransition"
+  (pointerdown)="onPointerDown($event)"
+  (touchstart)="$event.stopPropagation()"
+  aria-live="assertive"
+>
+  <!-- Complete reveal layer (green, behind row during swipe-right) -->
+  <div
+    class="set-row-complete-reveal"
+    [style.opacity]="completeRevealOpacity"
+    aria-hidden="true"
+  >
+    <mat-icon>check_circle</mat-icon>
+  </div>
+
+  <!-- Delete reveal layer (red, behind row during swipe-left) -->
+  <div
+    class="set-row-delete-reveal"
+    [style.opacity]="deleteRevealOpacity"
+    aria-hidden="true"
+  >
+    <mat-icon>delete_outline</mat-icon>
+  </div>
+
+  <!-- Main row content -->
+  <div class="set-row-inner">
+    <!-- Set number badge -->
+    <div class="set-badge" [class.set-badge--done]="isCompleted" aria-hidden="true">
+      {{ setNumber }}
+    </div>
+
+    <!-- Weight stepper -->
+    <div class="stepper">
+      <button
+        type="button"
+        class="stepper-btn"
+        [disabled]="isCompleted"
+        (click)="decrementWeight($event)"
+        aria-label="Decrease weight"
+      >
+        <mat-icon>remove</mat-icon>
+      </button>
+
+      @if (!isEditing) {
+        <span class="stepper-value" [attr.aria-label]="weightDisplay + ' kg'">
+          {{ weightDisplay }}
+          <span class="stepper-unit">kg</span>
+        </span>
+      } @else {
+        <input
+          type="number"
+          class="stepper-input"
+          inputmode="decimal"
+          [value]="editWeight()"
+          (input)="onEditWeightChange($event)"
+          (keydown)="onEditKeydown($event)"
+          (blur)="commitEdit()"
+          aria-label="Weight in kg"
+        />
+      }
+
+      <button
+        type="button"
+        class="stepper-btn"
+        [disabled]="isCompleted"
+        (click)="incrementWeight($event)"
+        aria-label="Increase weight"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
+    <span class="stepper-sep" aria-hidden="true">×</span>
+
+    <!-- Reps stepper -->
+    <div class="stepper">
+      <button
+        type="button"
+        class="stepper-btn"
+        [disabled]="isCompleted"
+        (click)="decrementReps($event)"
+        aria-label="Decrease reps"
+      >
+        <mat-icon>remove</mat-icon>
+      </button>
+
+      @if (!isEditing) {
+        <span class="stepper-value" [attr.aria-label]="reps() + ' reps'">
+          {{ reps() }}
+          <span class="stepper-unit">reps</span>
+        </span>
+      } @else {
+        <input
+          type="number"
+          class="stepper-input"
+          inputmode="numeric"
+          [value]="editReps()"
+          (input)="onEditRepsChange($event)"
+          (keydown)="onEditKeydown($event)"
+          (blur)="commitEdit()"
+          aria-label="Reps"
+        />
+      }
+
+      <button
+        type="button"
+        class="stepper-btn"
+        [disabled]="isCompleted"
+        (click)="incrementReps($event)"
+        aria-label="Increase reps"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
+    <!-- Completed check icon (replaces right side when done) -->
+    @if (isCompleted) {
+      <mat-icon class="set-check-icon">check_circle</mat-icon>
+    }
+
+    <!-- Inline edit Done button -->
+    @if (isEditing) {
+      <button type="button" class="set-row-done-btn" (click)="commitEdit()">
+        Done ✓
+      </button>
+    }
+
+    <!-- Accessibility: visually-hidden complete button (swipe fallback) -->
+    @if (!isCompleted && !isEditing) {
+      <button
+        type="button"
+        class="sr-only"
+        (click)="markComplete($event)"
+        [attr.aria-label]="'Mark set ' + setNumber + ' complete'"
+      >
+        Mark complete
+      </button>
+    }
+  </div>
+
+  <!-- Ghost "last time" text -->
+  @if (ghostText && !isCompleted) {
+    <div class="set-ghost-text">{{ ghostText }}</div>
+  }
+</div>

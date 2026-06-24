@@ -1,0 +1,101 @@
+<section class="mbc-card" role="region" aria-labelledby="mbc-title">
+
+  <!-- Card header -->
+  <div class="card-hdr">
+    <div class="card-hdr-icon mbc-icon">
+      <mat-icon>directions_run</mat-icon>
+    </div>
+    <div>
+      <h2 id="mbc-title" class="card-title">Move &amp; Burn</h2>
+      <p class="card-subtitle">{{ loading ? '' : headerSubtitle }}</p>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="card-body mbc-body">
+
+    @if (error) {
+      <div class="mbc-error-strip">
+        <mat-icon>error_outline</mat-icon>
+        <span>Couldn't load burn data</span>
+        <button class="btn-ghost mbc-retry" type="button" (click)="retry.emit()">Retry</button>
+      </div>
+
+    } @else if (loading) {
+      <div class="mbc-ring-wrap">
+        <app-progress-ring [loading]="true" size="md" colorMode="primary" label="" sublabel="" unit="kcal" />
+      </div>
+      <div class="mbc-chips mbc-chips--skel">
+        <div class="chip-skel"></div>
+        <div class="chip-skel"></div>
+        <div class="chip-skel"></div>
+      </div>
+
+    } @else if (isEmpty) {
+      <!-- Empty state -->
+      <div class="mbc-ring-wrap">
+        <app-progress-ring
+          [value]="0"
+          [goal]="1"
+          label=""
+          sublabel="No activity yet"
+          unit="kcal"
+          size="md"
+          colorMode="primary"
+        />
+      </div>
+      <p class="mbc-track-hint">Track an activity to see your burn</p>
+      <div class="mbc-chips">
+        <button class="qa-chip" type="button" (click)="openActivityPicker.emit()" aria-label="Log running activity">
+          <mat-icon>directions_run</mat-icon> Running
+        </button>
+        <button class="qa-chip" type="button" (click)="openActivityPicker.emit()" aria-label="Log strength activity">
+          <mat-icon>fitness_center</mat-icon> Strength
+        </button>
+        <button class="qa-chip" type="button" (click)="openActivityPicker.emit()" aria-label="Log cycling activity">
+          <mat-icon>directions_bike</mat-icon> Cycling
+        </button>
+      </div>
+
+    } @else {
+      <!-- Data state -->
+      <div class="mbc-ring-wrap">
+        @if (isCounterMode) {
+          <!-- Counter mode: no ring gauge fill, just display value -->
+          <div class="mbc-counter" [attr.aria-label]="'Calories burned: ' + (burned?.value ?? 0) + ' kcal'">
+            <span class="mbc-counter-value">{{ Math.round(burned?.value ?? 0) }}</span>
+            <span class="mbc-counter-unit">kcal burned</span>
+          </div>
+        } @else {
+          <app-progress-ring
+            [value]="burned?.value ?? 0"
+            [goal]="burned?.goal ?? 1"
+            [label]="String(Math.round(burned?.value ?? 0))"
+            sublabel="kcal burned"
+            unit="kcal"
+            size="md"
+            colorMode="primary"
+            [attr.aria-label]="'Calories burned: ' + (burned?.value ?? 0) + ' kcal of ' + (burned?.goal ?? 0) + ' kcal goal'"
+          />
+        }
+      </div>
+
+      @if (!isCounterMode) {
+        <p class="mbc-goal-hint">Goal: {{ Math.round(burned?.goal ?? 0) }} kcal</p>
+      }
+
+      <div class="mbc-chips">
+        <button class="qa-chip" type="button" (click)="openActivityPicker.emit()" aria-label="Log running activity">
+          <mat-icon>directions_run</mat-icon> Running
+        </button>
+        <button class="qa-chip" type="button" (click)="openActivityPicker.emit()" aria-label="Log strength activity">
+          <mat-icon>fitness_center</mat-icon> Strength
+        </button>
+        <button class="qa-chip" type="button" (click)="openActivityPicker.emit()" aria-label="Log cycling activity">
+          <mat-icon>directions_bike</mat-icon> Cycling
+        </button>
+      </div>
+    }
+
+  </div>
+</section>

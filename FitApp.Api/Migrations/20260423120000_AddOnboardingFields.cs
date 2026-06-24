@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace FitApp.Api.Migrations
 {
-    /// <inheritdoc />
+    [Microsoft.EntityFrameworkCore.Infrastructure.DbContext(typeof(FitApp.Api.Data.AppDbContext))]
+    [Microsoft.EntityFrameworkCore.Migrations.Migration("20260423120000_AddOnboardingFields")]
     public partial class AddOnboardingFields : Migration
     {
         /// <inheritdoc />

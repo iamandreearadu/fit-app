@@ -1,7 +1,25 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(npx tsc *)",
+      "Read(//Users/franzio/Documents/Andreea/FitApp/**)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet ef *)",
+      "Bash(cd *)",
+      "Read(//Users/franzio/Documents/Andreea/**)",
+      "Bash(git -C /Users/franzio/Documents/Andreea/FitApp/fit-app rev-parse --show-toplevel)",
+      "Bash(git -C /Users/franzio/Documents/Andreea/FitApp/fit-app diff HEAD~1 HEAD -- FitApp.Api/Services/FoodSearchService.cs FitApp.Api/Program.cs FitApp.Api/Models/DTOs/NutritionDtos.cs FitApp.Api/Models/Entities/MealEntry.cs FitApp.Api/Services/NutritionService.cs FitApp.Api/Migrations/20260531111555_AddFoodItemSource.cs)",
+      "Bash(git *)",
+      "Bash(head -327 /Users/franzio/Documents/Andreea/FitApp/fit-app/.claude/decisions/fix-2-share-besocial.md)",
+      "Bash(cat /tmp/fix2-adr-tail.md)",
+      "Bash(cp /tmp/fix2-adr-full.md /Users/franzio/Documents/Andreea/FitApp/fit-app/.claude/decisions/fix-2-share-besocial.md)",
+      "Bash(npx ng *)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(echo \"exit $? means grep found nothing — 0 matches confirmed\")",
+      "Bash(rm /Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/core/facade/social-chat.facade.ts)",
+      "Bash(rm /Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/core/facade/social-notifications.facade.ts)",
+      "Bash(ng build *)"
     ]
   }
 }

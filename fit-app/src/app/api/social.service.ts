@@ -19,7 +19,12 @@ import {
   UpdateBioRequest,
   CreateBlogRequest,
   UpdateBlogRequest,
-  ArticleDetail
+  ArticleDetail,
+  SuggestedUser,
+  FollowUser,
+  PostFromWorkoutRequest,
+  PostFromMealRequest,
+  SharePostResponse,
 } from '../core/models/social.model';
 
 /** Ensures imageUrl is always a renderable src (handles legacy raw-base64 posts). */
@@ -135,6 +140,11 @@ export class SocialService {
     return this.http.get<PaginatedResponse<ProfileWorkout>>(`${this.base}/profile/${userId}/workouts`, { params });
   }
 
+  getArchivedWorkouts(userId: string, page = 1, pageSize = 12): Observable<PaginatedResponse<ProfileWorkout>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginatedResponse<ProfileWorkout>>(`${this.base}/profile/${userId}/workouts/archived`, { params });
+  }
+
   archiveWorkout(id: number): Observable<ArchiveToggleResponse> {
     return this.http.patch<ArchiveToggleResponse>(`${this.base}/profile/workouts/${id}/archive`, {});
   }
@@ -170,5 +180,46 @@ export class SocialService {
 
   getArticle(id: number): Observable<ArticleDetail> {
     return this.http.get<ArticleDetail>(`${this.base}/articles/${id}`);
+  }
+
+  /** GET /api/social/discover/suggested — Fix 7 guided empty state */
+  getSuggestedUsers(limit = 5): Observable<SuggestedUser[]> {
+    const params = new HttpParams().set('limit', Math.min(limit, 5));
+    return this.http.get<SuggestedUser[]>(`${this.base}/discover/suggested`, { params });
+  }
+
+  /** GET /api/social/profile/me/following-count — lightweight count-only endpoint */
+  getMyFollowingCount(): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(`${this.base}/profile/me/following-count`);
+  }
+
+  // ── Followers / Following lists ─────────────────────────────────────────────
+
+  getFollowers(userId: string, page = 1, pageSize = 20): Observable<PaginatedResponse<FollowUser>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginatedResponse<FollowUser>>(`${this.base}/profile/${userId}/followers`, { params });
+  }
+
+  getFollowing(userId: string, page = 1, pageSize = 20): Observable<PaginatedResponse<FollowUser>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginatedResponse<FollowUser>>(`${this.base}/profile/${userId}/following`, { params });
+  }
+
+    // ── Fix 2 — Share to beSocial ──────────────────────────────────────────────
+
+  /** POST /api/social/posts/from-workout/{sessionId} — creates a post from a completed session */
+  shareWorkout(sessionId: number, req?: PostFromWorkoutRequest): Observable<SharePostResponse> {
+    return this.http.post<SharePostResponse>(
+      `${this.base}/posts/from-workout/${sessionId}`,
+      req ?? {},
+    );
+  }
+
+  /** POST /api/social/posts/from-meal/{mealId} — creates a post from a logged meal entry */
+  shareMeal(mealId: number, req?: PostFromMealRequest): Observable<SharePostResponse> {
+    return this.http.post<SharePostResponse>(
+      `${this.base}/posts/from-meal/${mealId}`,
+      req ?? {},
+    );
   }
 }

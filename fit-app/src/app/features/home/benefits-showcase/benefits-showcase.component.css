@@ -134,12 +134,13 @@
   background: rgba(255,255,255,.025);
   border: 1px solid rgba(255,255,255,.07);
   border-radius: 16px;
-  transition: transform .25s ease, background .25s ease;
+  transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
 }
 
 .bs-card:hover {
   transform: translateX(6px);
   background: rgba(255,255,255,.06);
+  box-shadow: 0 8px 24px rgba(124,77,255,0.15);
 }
 
 .bs-card-icon {

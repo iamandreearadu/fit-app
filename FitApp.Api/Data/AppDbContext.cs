@@ -10,11 +10,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<WorkoutTemplate> WorkoutTemplates => Set<WorkoutTemplate>();
     public DbSet<WorkoutExercise> WorkoutExercises => Set<WorkoutExercise>();
     public DbSet<CardioDetails> CardioDetails => Set<CardioDetails>();
+    public DbSet<WorkoutSession> WorkoutSessions => Set<WorkoutSession>();
+    public DbSet<WorkoutSessionSet> WorkoutSessionSets => Set<WorkoutSessionSet>();
     public DbSet<MealEntry> MealEntries => Set<MealEntry>();
     public DbSet<FoodItem> FoodItems => Set<FoodItem>();
     public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
     public DbSet<ChatConversation> ChatConversations => Set<ChatConversation>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+
+    // Onboarding (Fix 4)
+    public DbSet<OnboardingStep> OnboardingSteps => Set<OnboardingStep>();
 
     // Social / Messaging / Notifications
     public DbSet<Post> Posts => Set<Post>();
@@ -44,14 +49,51 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<WorkoutTemplate>(e =>
         {
             e.HasKey(w => w.Id);
-            e.HasOne(w => w.User).WithMany(u => u.WorkoutTemplates).HasForeignKey(w => w.UserId);
+            // UserId is nullable — null for system templates (IsSystemTemplate = true).
+            // Explicit Cascade so that deleting a user still removes their personal templates.
+            // System templates (UserId = null) are never touched by user-delete cascades.
+            e.HasOne(w => w.User)
+                .WithMany(u => u.WorkoutTemplates)
+                .HasForeignKey(w => w.UserId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
             e.HasMany(w => w.Exercises).WithOne(ex => ex.WorkoutTemplate).HasForeignKey(ex => ex.WorkoutTemplateId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(w => w.Cardio).WithOne(c => c.WorkoutTemplate).HasForeignKey<CardioDetails>(c => c.WorkoutTemplateId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── Session entities (Fix 6) ──────────────────────────────────────────
+        modelBuilder.Entity<WorkoutSession>(e =>
+        {
+            e.HasKey(s => s.Id);
+            e.HasOne(s => s.User)
+                .WithMany()
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            // SetNull: template hard-delete must not erase the user's training history
+            e.HasOne(s => s.WorkoutTemplate)
+                .WithMany()
+                .HasForeignKey(s => s.WorkoutTemplateId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+            e.HasMany(s => s.Sets)
+                .WithOne(ss => ss.WorkoutSession)
+                .HasForeignKey(ss => ss.WorkoutSessionId)
+                .OnDelete(DeleteBehavior.Cascade);
+            // Composite index: drives "last session per user, ordered by FinishedAt" queries
+            e.HasIndex(s => new { s.UserId, s.FinishedAt });
+        });
+
+        modelBuilder.Entity<WorkoutSessionSet>(e =>
+        {
+            e.HasKey(ss => ss.Id);
+            // Index: drives "last set for exercise name within a session" lookup
+            e.HasIndex(ss => new { ss.WorkoutSessionId, ss.ExerciseName });
         });
 
         modelBuilder.Entity<MealEntry>(e =>
         {
             e.HasKey(m => m.Id);
+            e.HasIndex(m => new { m.UserId, m.Date });
             e.HasOne(m => m.User).WithMany(u => u.MealEntries).HasForeignKey(m => m.UserId);
             e.HasMany(m => m.Items).WithOne(f => f.MealEntry).HasForeignKey(f => f.MealEntryId).OnDelete(DeleteBehavior.Cascade);
         });
@@ -100,7 +142,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany()
                 .HasForeignKey(p => p.LinkedDailyEntryId)
                 .OnDelete(DeleteBehavior.SetNull);
-            e.HasIndex(p => new { p.UserId, p.CreatedAt });
+            e.HasIndex(p => new { p.UserId, p.IsArchived, p.CreatedAt });
             e.HasOne(p => p.Article)
                 .WithMany()
                 .HasForeignKey(p => p.ArticleId)
@@ -139,6 +181,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             e.HasKey(f => f.Id);
             e.HasIndex(f => new { f.FollowerId, f.FollowingId }).IsUnique();
+            // Non-unique index on FollowingId — speeds up "all users following X" queries
+            // (e.g. follower counts, notification fan-out).
+            e.HasIndex(f => f.FollowingId).HasDatabaseName("IX_Follows_FollowingId");
             // Both FKs use Restrict to avoid cascade delete cycles
             e.HasOne(f => f.Follower)
                 .WithMany(u => u.Following)
@@ -183,6 +228,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .HasForeignKey(m => m.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(m => new { m.ConversationId, m.SentAt });
+        });
+
+        // ── Onboarding (Fix 4) ────────────────────────────────────────────────
+
+        modelBuilder.Entity<OnboardingStep>(e =>
+        {
+            e.HasKey(o => o.Id);
+            // Unique per (user, step) — idempotent insert checks against this constraint.
+            e.HasIndex(o => new { o.UserId, o.StepName }).IsUnique();
+            e.HasOne(o => o.User)
+                .WithMany(u => u.OnboardingSteps)
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ── Notifications ─────────────────────────────────────────────────────

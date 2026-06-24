@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { AuthCredentials } from '../core/models/auth-credentials.model';
 import { AuthenticationUser } from '../core/models/authentication-user.model';
-import { AlertService } from '../shared/services/alert.service';
 import { environment } from '../../environments/environment';
 
 interface AuthResponse {
@@ -18,59 +17,36 @@ interface AuthResponse {
 export class AccountService {
 
   private http = inject(HttpClient);
-  private alerts = inject(AlertService);
   private readonly baseUrl = `${environment.apiUrl}/api/auth`;
 
-  public async login(creds: AuthCredentials): Promise<AuthenticationUser | null> {
-    try {
-      const res = await firstValueFrom(
-        this.http.post<AuthResponse>(`${this.baseUrl}/login`, {
-          email: creds.email,
-          password: creds.password,
-        })
-      );
-
-      this.alerts.success('You have been logged in successfully', 'Welcome');
-      return { id: res.id, email: res.email, fullName: res.fullName, token: res.token, isAdmin: res.isAdmin };
-
-    } catch (error: any) {
-      const status = error?.status;
-      if (status === 401 || status === 400) {
-        this.alerts.warn('Incorrect email or password', 'Login failed');
-      } else if (status === 0) {
-        this.alerts.warn('Connection failed', 'Error');
-      } else {
-        this.alerts.warn("User couldn't be logged in", 'Error');
-      }
-      return null;
-    }
+  public async login(creds: AuthCredentials): Promise<AuthenticationUser> {
+    const res = await firstValueFrom(
+      this.http.post<AuthResponse>(`${this.baseUrl}/login`, {
+        email: creds.email,
+        password: creds.password,
+      })
+    );
+    return { id: res.id, email: res.email, fullName: res.fullName, token: res.token, isAdmin: res.isAdmin };
   }
 
-  public async register(creds: AuthCredentials & { fullName?: string }): Promise<AuthenticationUser | null> {
-    try {
-      const res = await firstValueFrom(
-        this.http.post<AuthResponse>(`${this.baseUrl}/register`, {
-          email: creds.email,
-          password: creds.password,
-          fullName: creds.fullName ?? '',
-        })
-      );
+  public async register(creds: AuthCredentials & { fullName?: string }): Promise<AuthenticationUser> {
+    const body: Record<string, string> = {
+      email:    creds.email,
+      password: creds.password,
+      fullName: creds.fullName ?? '',
+    };
+    // Fix 4: pass optional goal; backend defaults to "maintain" if omitted
+    if (creds.goal) body['goal'] = creds.goal;
 
-      this.alerts.success('Account created and logged in', 'Welcome');
-      return { id: res.id, email: res.email, fullName: res.fullName, token: res.token, isAdmin: res.isAdmin };
-
-    } catch (err: any) {
-      const status = err?.status;
-      if (status === 409) {
-        this.alerts.warn('Email address is already used', 'Error');
-      } else {
-        this.alerts.warn('Could not reach remote register service', 'Error');
-      }
-      return null;
-    }
+    const res = await firstValueFrom(
+      this.http.post<AuthResponse>(`${this.baseUrl}/register`, body)
+    );
+    return { id: res.id, email: res.email, fullName: res.fullName, token: res.token, isAdmin: res.isAdmin };
   }
 
+  /** Server-side logout placeholder — currently stateless JWT. */
   public async logout(): Promise<void> {
-    this.alerts.info('You have been logged out');
+    // No-op: token expiry is handled client-side.
+    // Extend here when a server-side token revocation endpoint is added.
   }
 }

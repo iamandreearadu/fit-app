@@ -3,6 +3,38 @@
   width: 100%;
 }
 
+/* ── Start Workout button (Fix 6) ──────────────────────────────────────────── */
+.start-workout-section {
+  margin-bottom: 12px;
+}
+
+.btn-start-workout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), var(--accent, #ff4081));
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.18s, transform 0.12s;
+  box-shadow: 0 4px 14px rgba(124, 77, 255, 0.28);
+}
+
+.btn-start-workout:hover {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.btn-start-workout mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
 /* ── Toolbar ── */
 .toolbar {
   display: flex;

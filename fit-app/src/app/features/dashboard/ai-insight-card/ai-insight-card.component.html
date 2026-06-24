@@ -1,0 +1,34 @@
+<div
+  class="ai-insight-card"
+  role="region"
+  aria-label="AI daily insight"
+  [attr.aria-busy]="loading"
+>
+  <div class="aic-header">
+    <div class="aic-header-left">
+      <mat-icon class="aic-sparkle-icon">auto_awesome</mat-icon>
+      <span class="aic-label">AI Insight</span>
+    </div>
+    <button
+      mat-icon-button
+      class="aic-refresh-btn"
+      (click)="refresh.emit()"
+      [disabled]="loading"
+      aria-label="Refresh AI insight"
+    >
+      <mat-icon [class.aic-refresh-spinning]="loading">refresh</mat-icon>
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="aic-skeleton">
+      <div class="aic-skeleton-line" style="width: 100%;"></div>
+      <div class="aic-skeleton-line" style="width: 70%;"></div>
+    </div>
+  } @else if (error) {
+    <p class="aic-error-text">Couldn't load insight</p>
+    <button mat-button class="aic-retry-btn" (click)="refresh.emit()">Retry</button>
+  } @else {
+    <p class="aic-body" aria-live="polite">{{ insight?.insight ?? '' }}</p>
+  }
+</div>

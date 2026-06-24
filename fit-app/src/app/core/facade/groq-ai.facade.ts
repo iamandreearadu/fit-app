@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { GroqAiApiService } from '../../api/groq-ai-api.service';
-import { GroqAiService as GroqInMemoryService } from '../../api/groq-ai.service';
+import { AiInferenceService } from '../../api/ai-inference.service';
+import { AiChatHistoryService } from '../../api/ai-chat-history.service';
 import { OpenFoodFactsService } from '../../api/open-food-facts.service';
-import { GrogAiService as GrogCoreService } from '../services/grog-ai.service';
-import { ChatMessage } from '../models/groq-ai.model';
+import { AiChatStore } from '../store/ai-chat.store';
+import { ChatMessage, ModuleContext } from '../models/groq-ai.model';
 import { BarcodeProduct } from '../models/barcode-product.model';
 import { MealMacros } from '../models/meal-macros';
 import { UserProfile } from '../models/user.model';
@@ -11,9 +11,9 @@ import { WorkoutTemplate } from '../models/workouts-tab.model';
 
 @Injectable({ providedIn: 'root' })
 export class GroqAiFacade {
-  private state = inject(GrogCoreService);
-  private groqInMemoryService = inject(GroqInMemoryService);
-  private groqService = inject(GroqAiApiService);
+  private state = inject(AiChatStore);
+  private chatHistoryService = inject(AiChatHistoryService);
+  private inferenceService = inject(AiInferenceService);
   private offService = inject(OpenFoodFactsService);
 
   messages = this.state.messages;
@@ -28,7 +28,7 @@ export class GroqAiFacade {
   // ========================================================
 
   async startConversation() {
-    const id = await this.groqInMemoryService.createConversation();
+    const id = await this.chatHistoryService.createConversation();
     this.state.setConversationId(id);
     this.state.clearMessages();
     // Prepend new (empty) conversation to list
@@ -40,19 +40,19 @@ export class GroqAiFacade {
 
   async loadConversations() {
     const conversations =
-      await this.groqInMemoryService.loadUserConversations();
+      await this.chatHistoryService.loadUserConversations();
     this.state.setConversations(conversations);
   }
 
   async openConversation(id: string) {
     this.state.setConversationId(id);
     this.state.clearMessages();
-    const msgs = await this.groqInMemoryService.loadMessages(id);
+    const msgs = await this.chatHistoryService.loadMessages(id);
     this.state.setMessages(msgs);
   }
 
   // ========================================================
-  // SAVE MESSAGE (LOCAL + IN-MEMORY)
+  // SAVE MESSAGE (LOCAL + PERSISTED)
   // ========================================================
 
   private async saveMessage(
@@ -63,7 +63,7 @@ export class GroqAiFacade {
     let conversationId = this.state.getConversationId;
 
     if (!conversationId) {
-      conversationId = await this.groqInMemoryService.createConversation();
+      conversationId = await this.chatHistoryService.createConversation();
       this.state.setConversationId(conversationId);
       this.state.setConversations([
         {
@@ -84,7 +84,7 @@ export class GroqAiFacade {
       timestamp: Date.now(),
     };
     this.state.appendMessage(message);
-    await this.groqInMemoryService.saveMessage(conversationId, message);
+    await this.chatHistoryService.saveMessage(conversationId, message);
 
     // Update preview in list with first user message
     if (role === 'user') {
@@ -111,6 +111,7 @@ export class GroqAiFacade {
     prompt: string,
     file?: File,
     imagePreview?: string,
+    moduleContext?: ModuleContext,
   ): Promise<void> {
     this.state.setLoading(true);
 
@@ -120,9 +121,10 @@ export class GroqAiFacade {
       let aiResponse = '';
 
       if (file) {
-        aiResponse = await this.groqService.analyzeImage(prompt, file);
+        // Image analysis — moduleContext does not apply
+        aiResponse = await this.inferenceService.analyzeImage(prompt, file);
       } else {
-        aiResponse = await this.groqService.askText(prompt);
+        aiResponse = await this.inferenceService.askText(prompt, moduleContext);
       }
 
       await this.saveMessage('assistant', aiResponse);
@@ -144,7 +146,7 @@ export class GroqAiFacade {
   async analyzeMeal(file: File): Promise<MealMacros> {
     this.state.setLoading(true);
     try {
-      return await this.groqService.analyzeMealImage(file);
+      return await this.inferenceService.analyzeMealImage(file);
     } finally {
       this.state.setLoading(false);
     }
@@ -158,7 +160,7 @@ export class GroqAiFacade {
     user: UserProfile,
     workout: WorkoutTemplate,
   ): Promise<{ calories: number; explanation: string }> {
-    return this.groqService.calculateWorkoutCalories(user, workout);
+    return this.inferenceService.calculateWorkoutCalories(user, workout);
   }
 
   // ========================================================
@@ -173,7 +175,7 @@ export class GroqAiFacade {
     if (!id) return;
     this.state.setLoading(true);
     try {
-      await this.groqInMemoryService.deleteConversation(id);
+      await this.chatHistoryService.deleteConversation(id);
 
       await this.loadConversations();
 

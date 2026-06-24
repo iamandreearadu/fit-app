@@ -1,14 +1,18 @@
 <div class="social-shell">
 
+  @if (isReconnecting()) {
+    <div class="reconnecting-banner">
+      <mat-icon class="reconnecting-icon">sync</mat-icon>
+      Reconnecting...
+    </div>
+  }
+
+  <!-- Desktop: side-nav -->
   @if (!isMobile()) {
     <app-social-side-nav
       [unreadNotifications]="notifFacade.unreadCount()"
       [unreadMessages]="chatFacade.unreadConversationsCount()"
     />
-  }
-
-  @if (isMobile()) {
-    <app-social-top-bar />
   }
 
   <main class="social-content">
@@ -41,13 +45,6 @@
         <span class="daily-panel-fab-label">Today</span>
       }
     </button>
-  }
-
-  @if (isMobile()) {
-    <app-social-bottom-nav
-      [unreadNotifications]="notifFacade.unreadCount()"
-      [unreadMessages]="chatFacade.unreadConversationsCount()"
-    />
   }
 
 </div>

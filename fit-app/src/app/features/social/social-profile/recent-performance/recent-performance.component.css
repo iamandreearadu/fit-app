@@ -1,0 +1,87 @@
+.recent-performance-card {
+  background: var(--nova-glass-card-bg);
+  border: var(--nova-glass-card-border);
+  border-radius: var(--nova-radius-xl);
+  padding: var(--nova-space-4) var(--nova-space-5);
+}
+
+.rpc-header {
+  font-size: var(--nova-text-subtitle);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-primary);
+  margin: 0 0 var(--nova-space-4) 0;
+}
+
+.rpc-stats-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--nova-space-4);
+}
+
+/* ── Favourite exercise custom block ── */
+.rpc-fav-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex: 1;
+}
+
+.rpc-fav-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--nova-radius-sm);
+  background: var(--nova-info-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--nova-space-1);
+}
+
+.rpc-fav-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--nova-info);
+}
+
+.rpc-fav-label {
+  font-size: var(--nova-text-xs);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-hint);
+  text-transform: uppercase;
+  letter-spacing: var(--nova-tracking-wider);
+}
+
+.rpc-fav-value {
+  font-size: var(--nova-text-body-md);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rpc-fav-empty {
+  font-size: var(--nova-text-body-md);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-disabled);
+}
+
+/* ── Skeleton ── */
+.skeleton-block {
+  background: var(--nova-white-alpha-04);
+  border-radius: var(--nova-radius-sm);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@media (max-width: 359px) {
+  .rpc-stats-row {
+    gap: var(--nova-space-2);
+  }
+}

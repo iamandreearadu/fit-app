@@ -1,0 +1,10 @@
+<div class="cal-summary">
+  @if (facade.todaySummary(); as s) {
+    @if (s.mealCount > 0) {
+      <span class="cal-meal-count">
+        <mat-icon>check_circle</mat-icon>
+        {{ s.mealCount }} meal{{ s.mealCount === 1 ? '' : 's' }} logged today
+      </span>
+    }
+  }
+</div>

@@ -1,0 +1,40 @@
+<div class="recent-performance-card" role="region" aria-label="Recent performance stats">
+  <h2 class="rpc-header">Recent Performance</h2>
+
+  <div class="rpc-stats-row">
+    <!-- Best streak -->
+    <app-fitness-data-block
+      icon="emoji_events"
+      label="BEST STREAK"
+      [value]="loading ? null : bestStreakDays"
+      unit="days"
+      iconVariant="warning"
+      size="md"
+    />
+
+    <!-- Weekly volume -->
+    <app-fitness-data-block
+      icon="fitness_center"
+      label="THIS WEEK"
+      [value]="loading ? null : weeklyVolume"
+      unit="workouts"
+      iconVariant="primary"
+      size="md"
+    />
+
+    <!-- Favourite exercise — custom inline block since FitnessDataBlock only accepts numbers -->
+    <div class="rpc-fav-block">
+      <div class="rpc-fav-icon-wrap">
+        <mat-icon class="rpc-fav-icon">star</mat-icon>
+      </div>
+      <span class="rpc-fav-label">FAVOURITE</span>
+      @if (loading) {
+        <div class="skeleton-block" style="width: 60px; height: 14px; margin-top: 4px;"></div>
+      } @else if (favouriteExercise) {
+        <span class="rpc-fav-value">{{ truncatedExercise }}</span>
+      } @else {
+        <span class="rpc-fav-empty">--</span>
+      }
+    </div>
+  </div>
+</div>

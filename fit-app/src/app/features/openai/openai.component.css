@@ -81,6 +81,11 @@
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
+  .page-shell {
+    padding-top: var(--nav-height);
+    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+  }
+
   .sidebar {
     width: 80vw;
     max-width: 300px;

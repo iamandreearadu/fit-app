@@ -1,0 +1,137 @@
+<div class="guided-empty-container" role="region" aria-label="Social feed getting started">
+
+  <!-- ── Icon area ── -->
+  <div class="guided-empty-icon">
+    <mat-icon>group</mat-icon>
+  </div>
+
+  @if (allFollowed()) {
+    <h2 class="guided-empty-headline">Great start! Refresh to see their posts</h2>
+  } @else {
+    <h2 class="guided-empty-headline">Your feed is waiting for you</h2>
+  }
+  <p class="guided-empty-sub">Follow athletes below to see workouts, meals &amp; progress</p>
+
+  <!-- ── Error banner ── -->
+  @if (facade.suggestionsError() && !facade.isLoadingSuggestions()) {
+    <div class="feed-suggestions-error" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <span>{{ facade.suggestionsError() }}</span>
+      <button type="button" class="btn-ghost feed-retry-btn" (click)="facade.loadSuggestedUsers(5)">
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- ── Section label ── -->
+  @if (!facade.isLoadingSuggestions() && !facade.suggestionsError()) {
+    <div class="feed-suggest-section-label">
+      <span class="feed-suggest-line" aria-hidden="true"></span>
+      <span class="feed-suggest-label-text">Suggested for you</span>
+      <span class="feed-suggest-line" aria-hidden="true"></span>
+    </div>
+  }
+
+  <!-- ── Loading: 5 skeleton cards ── -->
+  @if (facade.isLoadingSuggestions()) {
+    <div
+      class="feed-suggest-list"
+      aria-label="Loading suggestions"
+    >
+      @for (s of skeletons; track $index) {
+        <div
+          class="feed-suggest-skeleton"
+          aria-hidden="true"
+          [style.animation-delay]="($index * 120) + 'ms'"
+        ></div>
+      }
+    </div>
+  }
+
+  <!-- ── Empty discover ── -->
+  @if (!facade.isLoadingSuggestions() && !facade.suggestionsError() && facade.suggestedUsers().length === 0) {
+    <div class="feed-suggest-no-users">
+      <mat-icon aria-hidden="true">person_search</mat-icon>
+      <p>No suggestions yet — come back soon</p>
+    </div>
+  }
+
+  <!-- ── User suggestion cards ── -->
+  @if (!facade.isLoadingSuggestions() && facade.suggestedUsers().length > 0) {
+    <div class="feed-suggest-list">
+      @for (user of facade.suggestedUsers(); track user.userId) {
+        @let following = isFollowing(user.userId);
+        @let pending = isPending(user.userId);
+
+        <div class="feed-suggest-card" [class.feed-suggest-card--followed]="following">
+
+          <!-- Avatar -->
+          <div class="feed-suggest-avatar" aria-hidden="true">
+            @if (user.avatarUrl) {
+              <img [src]="user.avatarUrl" [alt]="user.displayName + ' avatar'" />
+            } @else {
+              {{ getInitials(user.displayName) }}
+            }
+          </div>
+
+          <!-- User info -->
+          <div class="feed-suggest-info">
+            <div class="feed-suggest-name">{{ user.displayName }}</div>
+            <span
+              class="pill feed-suggest-goal-badge"
+              [class]="getGoalBadgeClass(user.fitnessGoal)"
+            >
+              {{ getGoalLabel(user.fitnessGoal) }}
+            </span>
+          </div>
+
+          <!-- Follow button -->
+          @if (following) {
+            <button
+              type="button"
+              class="feed-suggest-follow-btn feed-suggest-follow-btn--following"
+              disabled
+              [attr.aria-label]="'Following ' + user.displayName"
+              aria-pressed="true"
+            >
+              <mat-icon aria-hidden="true">check</mat-icon>
+              Following
+            </button>
+          } @else if (pending) {
+            <button
+              type="button"
+              class="feed-suggest-follow-btn feed-suggest-follow-btn--pending"
+              disabled
+              [attr.aria-label]="'Following ' + user.displayName + ', please wait'"
+              [attr.aria-busy]="true"
+            >
+              <mat-progress-spinner diameter="14" mode="indeterminate" />
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="feed-suggest-follow-btn"
+              [attr.aria-label]="'Follow ' + user.displayName"
+              aria-pressed="false"
+              (click)="follow(user)"
+            >
+              <mat-icon aria-hidden="true">add</mat-icon>
+              Follow
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── "Explore more" ghost button ── -->
+  <a
+    routerLink="/social/discover"
+    class="btn-ghost feed-explore-btn"
+    [class.feed-explore-btn--primary]="allFollowed()"
+  >
+    <mat-icon aria-hidden="true">explore</mat-icon>
+    Explore more in Discover
+  </a>
+
+</div>

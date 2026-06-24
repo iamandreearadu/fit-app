@@ -1,0 +1,74 @@
+/* ─── FAB ───────────────────────────────────────────────────────────────────── */
+.ai-chat-fab {
+  position: fixed;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  right: 24px;
+  z-index: 1050; /* z-index stack: above nav (1000), below drawer (1100) */
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow:
+    0 4px 20px rgba(124, 77, 255, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+
+  /* Mount animation: entrance + 3× glow pulse */
+  animation:
+    fab-entrance 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    fab-glow-pulse 1.8s ease 0.4s 3;
+}
+
+.ai-chat-fab mat-icon {
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+  color: #ffffff;
+}
+
+/* ── States ─────────────────────────────────────────────────────────────────── */
+.ai-chat-fab:hover {
+  transform: scale(1.08);
+  box-shadow:
+    0 6px 28px rgba(124, 77, 255, 0.6),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.ai-chat-fab:active {
+  transform: scale(0.94);
+  transition-duration: 0.1s;
+}
+
+/* When sheet is open: FAB fades out and becomes non-interactive */
+.ai-chat-fab.fab--open {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+}
+
+/* ── Mobile: hidden — bottom nav is the primary nav surface on small screens ── */
+@media (max-width: 768px) {
+  .ai-chat-fab {
+    display: none;
+  }
+}
+
+/* ── Keyframes (component-scoped — NOT in styles.css) ───────────────────────── */
+@keyframes fab-entrance {
+  from { opacity: 0; transform: scale(0.4) translateY(16px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0);    }
+}
+
+@keyframes fab-glow-pulse {
+  0%   { box-shadow: 0 4px 20px rgba(124, 77, 255, 0.45), 0 2px 8px rgba(0, 0, 0, 0.4); }
+  50%  { box-shadow: 0 4px 32px rgba(124, 77, 255, 0.75), 0 2px 8px rgba(0, 0, 0, 0.4); }
+  100% { box-shadow: 0 4px 20px rgba(124, 77, 255, 0.45), 0 2px 8px rgba(0, 0, 0, 0.4); }
+}

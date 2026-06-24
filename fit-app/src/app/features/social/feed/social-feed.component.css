@@ -6,6 +6,12 @@
   animation: slideUp 0.35s ease-out both;
 }
 
+.pull-refresh-indicator {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -25,8 +31,8 @@
 }
 
 .feed-title {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 800;
   color: var(--white);
   margin: 0;
   letter-spacing: -0.3px;

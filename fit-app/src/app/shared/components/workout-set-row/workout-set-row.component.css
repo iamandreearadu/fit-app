@@ -1,0 +1,281 @@
+/* ─── WorkoutSetRowComponent styles ────────────────────────────────────────── */
+/* All animations are component-scoped — none go in global styles.css          */
+
+/* ── Collapse row after delete ──────────────────────────────────────────────── */
+@keyframes set-row-collapse {
+  from { max-height: 80px; opacity: 1; margin-bottom: 8px; }
+  to   { max-height: 0;    opacity: 0; margin-bottom: 0;   }
+}
+
+/* ── Checkmark pop-in on completion ─────────────────────────────────────────── */
+@keyframes set-row-check-pop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.2); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* ── Stepper button press feedback ──────────────────────────────────────────── */
+@keyframes set-btn-press {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.90); }
+  100% { transform: scale(1); }
+}
+
+/* ── Root container ─────────────────────────────────────────────────────────── */
+.set-row {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 12px 14px;
+  min-height: 72px;
+  overflow: hidden;
+  touch-action: pan-y;         /* allow vertical scroll; horizontal = us */
+  user-select: none;
+  cursor: grab;
+}
+
+.set-row:active { cursor: grabbing; }
+
+/* States */
+.set-row--editing {
+  border-left-color: var(--primary);
+  background: rgba(124, 77, 255, 0.06);
+}
+
+.set-row--completed {
+  border-left-color: var(--color-success);
+  background: rgba(74, 222, 128, 0.05);
+  opacity: 0.7;
+  cursor: default;
+}
+
+.set-row--deleting {
+  animation: set-row-collapse 0.2s ease-out 0.1s forwards;
+}
+
+/* ── Reveal layers (absolutely positioned behind inner content) ─────────────── */
+.set-row-complete-reveal,
+.set-row-delete-reveal {
+  position: absolute;
+  top: 0; bottom: 0;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.set-row-complete-reveal {
+  left: 0; right: 0;
+  background: rgba(74, 222, 128, 0.12);
+  padding-left: 16px;
+}
+
+.set-row-complete-reveal mat-icon {
+  color: var(--color-success);
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.set-row-delete-reveal {
+  left: 0; right: 0;
+  background: rgba(255, 64, 129, 0.12);
+  justify-content: flex-end;
+  padding-right: 16px;
+}
+
+.set-row-delete-reveal mat-icon {
+  color: var(--accent);
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+/* ── Inner content layer (sits above reveal layers) ────────────────────────── */
+.set-row-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Set number badge ─────────────────────────────────────────────────────── */
+.set-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(124, 77, 255, 0.14);
+  border: 1px solid rgba(124, 77, 255, 0.28);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.set-badge--done {
+  background: rgba(74, 222, 128, 0.14);
+  border-color: rgba(74, 222, 128, 0.28);
+  color: var(--color-success);
+}
+
+/* ── Stepper (shared by weight and reps) ────────────────────────────────────── */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.stepper-btn {
+  min-width: 48px;
+  min-height: 48px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--white, #ffffff);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  flex-shrink: 0;
+}
+
+.stepper-btn:active:not(:disabled) {
+  animation: set-btn-press 0.18s ease-out;
+  background: rgba(124, 77, 255, 0.14);
+}
+
+.stepper-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.stepper-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.stepper-value {
+  min-width: 64px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white, #ffffff);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepper-unit {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 2px;
+}
+
+/* Inline edit input replaces stepper-value in editing mode */
+.stepper-input {
+  width: 64px;
+  min-width: 64px;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--primary);
+  color: var(--white, #ffffff);
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  font-variant-numeric: tabular-nums;
+  padding: 0;
+}
+
+.stepper-input::-webkit-inner-spin-button,
+.stepper-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ── × separator ──────────────────────────────────────────────────────────── */
+.stepper-sep {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 16px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* ── Completed check icon ─────────────────────────────────────────────────── */
+.set-check-icon {
+  color: var(--color-success);
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  margin-left: auto;
+  flex-shrink: 0;
+  animation: set-row-check-pop 0.28s ease-out forwards;
+}
+
+/* ── Inline edit Done button ─────────────────────────────────────────────── */
+.set-row-done-btn {
+  margin-left: auto;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--white, #ffffff);
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.set-row-done-btn:hover {
+  opacity: 0.88;
+}
+
+/* ── Ghost "last time" text ────────────────────────────────────────────────── */
+.set-ghost-text {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.28);
+  font-style: italic;
+  margin-top: 6px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Accessibility: visually hidden complete button ─────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Extra-small screens (<380px) ────────────────────────────────────────── */
+@media (max-width: 380px) {
+  .set-badge {
+    display: none;
+  }
+
+  .stepper-value {
+    font-size: 16px;
+  }
+}

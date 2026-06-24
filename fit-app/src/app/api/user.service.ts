@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { AlertService } from '../shared/services/alert.service';
 import { StreakData, UserProfile } from '../core/models/user.model';
-import { DailyUserData } from '../core/models/daily-user-data.model';
+import { DailyEntrySummary, DailyUserData } from '../core/models/daily-user-data.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -20,7 +20,7 @@ export class UserService {
       );
       return this.mapDtoToProfile(dto);
     } catch (err) {
-      this.alerts.warn('Failed to load user profile', String(err));
+      this.alerts.warn('Failed to load user profile');
       return null;
     }
   }
@@ -43,7 +43,7 @@ export class UserService {
       );
       this.alerts.success('Profile saved');
     } catch (err) {
-      this.alerts.warn('Failed to save profile', String(err));
+      this.alerts.warn('Failed to save profile');
     }
   }
 
@@ -65,7 +65,18 @@ export class UserService {
       return this.mapDtoToDaily(dto);
     } catch (err: any) {
       if (err?.status === 404) return null;
-      this.alerts.warn('Failed to load daily data', String(err));
+      this.alerts.warn('Failed to load daily data');
+      return null;
+    }
+  }
+
+  public async getTodaySummary(): Promise<DailyEntrySummary | null> {
+    try {
+      return await firstValueFrom(
+        this.http.get<DailyEntrySummary>(`${this.baseUrl}/api/daily/today/summary`)
+      );
+    } catch (err: any) {
+      this.alerts.warn('Failed to load daily summary');
       return null;
     }
   }
@@ -81,25 +92,26 @@ export class UserService {
           stepTarget: data.stepTarget,
           macrosPct: data.macrosPct,
           caloriesBurned: data.caloriesBurned,
-          caloriesIntake: data.caloriesIntake,
+          // caloriesIntake REMOVED — now server-computed from MealEntries (Fix 10)
         })
       );
     } catch (err) {
-      this.alerts.warn('Failed to save daily data', String(err));
+      this.alerts.warn('Failed to save daily data');
     }
   }
 
   public async getAllPreviousData(): Promise<DailyUserData[]> {
     try {
-      const dtos = await firstValueFrom(
-        this.http.get<any[]>(`${this.baseUrl}/api/daily/history`)
+      const res = await firstValueFrom(
+        this.http.get<any>(`${this.baseUrl}/api/daily/history`)
       );
+      const dtos: any[] = Array.isArray(res) ? res : (res?.items ?? []);
       const todayIso = new Date().toISOString().slice(0, 10);
       return dtos
         .map(d => this.mapDtoToDaily(d))
         .filter(d => d.date !== todayIso);
     } catch (err) {
-      this.alerts.warn('Failed to load daily history', String(err));
+      this.alerts.warn('Failed to load daily history');
       return [];
     }
   }

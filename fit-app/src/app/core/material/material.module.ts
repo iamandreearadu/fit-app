@@ -18,6 +18,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule }    from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 @NgModule({
   imports: [
@@ -39,7 +40,8 @@ import { MatDividerModule } from '@angular/material/divider';
     MatListModule,
     MatDialogModule,
     MatMenuModule,
-    MatDividerModule
+    MatDividerModule,
+    MatBottomSheetModule,
   ],
   exports: [
     MatButtonModule,
@@ -60,8 +62,8 @@ import { MatDividerModule } from '@angular/material/divider';
     MatListModule,
     MatDialogModule,
     MatMenuModule,
-    MatDividerModule
-
+    MatDividerModule,
+    MatBottomSheetModule,
   ],
 })
 export class MaterialModule {}

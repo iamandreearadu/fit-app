@@ -9,6 +9,7 @@ public class UserSummary
     public string Id { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
+    public bool IsVerified { get; set; }   // true for NovaFit Official and any verified account
 }
 
 public class LinkedContentPreview
@@ -64,6 +65,13 @@ public class PostResponse
     public bool IsOwnPost { get; set; }
     public bool IsArchived { get; set; }
     public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// True when this post is cold-start seed content from the NovaFit Official account.
+    /// Set in-memory during feed assembly — never stored on the Post entity.
+    /// Frontend uses this for "Suggested for you" visual label only.
+    /// </summary>
+    public bool IsSeedContent { get; set; }
 
     // Article-type post fields (null for regular posts)
     public int? ArticleId { get; set; }
@@ -129,6 +137,7 @@ public class UserSocialProfileResponse
     public int FollowingCount { get; set; }
     public bool IsFollowedByMe { get; set; }
     public bool IsOwnProfile { get; set; }
+    public bool IsVerified { get; set; }   // true for NovaFit Official and verified accounts
 }
 
 public class UserSearchResult
@@ -137,6 +146,7 @@ public class UserSearchResult
     public string DisplayName { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
     public bool IsFollowedByMe { get; set; }
+    public bool IsVerified { get; set; }   // defensive consistency — verified badge in search results
 }
 
 public class ProfileWorkoutSummary
@@ -169,10 +179,96 @@ public class ArchiveToggleResponse
     public bool IsArchived { get; set; }
 }
 
+/// <summary>
+/// Response for GET /api/social/discover/suggested.
+/// Used by the social feed guided-empty-state to show up to 5 follow suggestions.
+///
+/// PRIVACY CONSTRAINT: must NEVER include BMI, weight, calories, BMR, or TDEE.
+/// FitnessGoal is the raw User.Goal string ("lose" | "gain" | "maintain") — safe to expose.
+/// WorkoutsThisMonth is a count with no health data embedded.
+/// </summary>
+public class SuggestedUserResponse
+{
+    public string UserId { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    public string? AvatarUrl { get; set; }
+
+    /// <summary>
+    /// Raw User.Goal value: "lose" | "gain" | "maintain" — or null if the user hasn't set one.
+    /// Frontend maps these to badge colours; not the same as calories or health metrics.
+    /// </summary>
+    public string? FitnessGoal { get; set; }
+
+    /// <summary>
+    /// Number of completed workout sessions in the current calendar month (UTC).
+    /// Zero when the user has no sessions this month.
+    /// </summary>
+    public int WorkoutsThisMonth { get; set; }
+}
+
+/// <summary>
+/// Response for GET /api/social/profile/me/following-count.
+/// Returns the number of users the authenticated user is currently following.
+/// </summary>
+public record FollowingCountDto(int Count);
+
+/// <summary>
+/// One user row in the followers / following list.
+/// GET /api/social/profile/{userId}/followers
+/// GET /api/social/profile/{userId}/following
+/// </summary>
+public class FollowUserDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    public string? AvatarUrl { get; set; }
+    public bool IsFollowedByMe { get; set; }
+    public bool IsVerified { get; set; }
+}
+
 public class UpdateBioRequest
 {
     [MaxLength(200)]
     public string? Bio { get; set; }
+}
+
+// ── Fix 2: Share to beSocial ──────────────────────────────────────────────────
+
+/// <summary>
+/// Request body for POST /api/social/posts/from-workout/{sessionId}.
+/// Caption is the only user-controlled field — all health metrics are stripped server-side.
+/// Body may be omitted or sent as {} — caption defaults to null.
+/// </summary>
+public class PostFromWorkoutRequest
+{
+    [MaxLength(300)]
+    public string? Caption { get; set; }
+}
+
+/// <summary>
+/// Request body for POST /api/social/posts/from-meal/{mealId}.
+/// Caption is the only user-controlled field — all calorie/macro data stripped server-side.
+/// Body may be omitted or sent as {} — caption defaults to null.
+/// </summary>
+public class PostFromMealRequest
+{
+    [MaxLength(300)]
+    public string? Caption { get; set; }
+}
+
+/// <summary>
+/// Response for POST /api/social/posts/from-workout/{sessionId} and
+/// POST /api/social/posts/from-meal/{mealId}.
+///
+/// PRIVACY INVARIANT: <see cref="PreviewText"/> MUST NEVER contain calories,
+/// macros, BMI, weight, BMR, TDEE, or any health metric.
+/// Workout: only TemplateTitle, DurationMin, exerciseCount, SetsCompleted.
+/// Meal: only meal Name.
+/// </summary>
+public class SharePostResponse
+{
+    public int PostId { get; set; }
+    public string PreviewText { get; set; } = string.Empty;
 }
 
 public class CreateUserBlogRequest

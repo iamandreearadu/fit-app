@@ -15,3 +15,10 @@ export interface SocialNotification {
 export interface UnreadCountResponse {
   count: number;
 }
+
+// Fix 5 — SignalR streak-updated event payload.
+// MUST NOT include health metrics (no BMI, weight, BMR, TDEE, goal calories).
+export interface StreakUpdatedPayload {
+  currentStreak: number;
+  isNewRecord: boolean;
+}

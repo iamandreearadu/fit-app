@@ -1,0 +1,43 @@
+<header class="dash-header-bar" role="banner">
+
+  <!-- Left: Logo mark + app name -->
+  <div class="dash-header-left">
+    <span class="dash-header-logo-mark">
+      <mat-icon>diamond</mat-icon>
+    </span>
+    <div class="dash-header-meta">
+      <span class="dash-header-date">{{ today | date: 'EEEE, MMM d' }}</span>
+      @if (statusBadge && !loading) {
+        <span class="dash-status-badge" [class]="badgeClass">{{ statusBadge }}</span>
+      }
+    </div>
+  </div>
+
+  <!-- Right: Streak chip + notification bell + avatar -->
+  <div class="dash-header-right">
+    <app-streak-chip [streak]="streak" [loading]="loading" />
+
+    <div class="dash-header-bell-wrap">
+      <button
+        mat-icon-button
+        class="bell-btn"
+        (click)="notificationsBellClick.emit()"
+        [attr.aria-label]="hasUnreadNotifications ? 'Notifications, unread' : 'Notifications'"
+      >
+        <mat-icon>{{ hasUnreadNotifications ? 'notifications_active' : 'notifications' }}</mat-icon>
+      </button>
+      @if (hasUnreadNotifications) {
+        <span class="dash-header-unread-dot" aria-hidden="true"></span>
+      }
+    </div>
+
+    @if (avatarUrl) {
+      <img [src]="avatarUrl" alt="Profile" class="dash-avatar" width="32" height="32" />
+    } @else {
+      <div class="dash-avatar dash-avatar--placeholder" aria-hidden="true">
+        <mat-icon>person</mat-icon>
+      </div>
+    }
+  </div>
+
+</header>

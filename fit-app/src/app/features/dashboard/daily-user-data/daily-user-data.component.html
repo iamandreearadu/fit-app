@@ -120,10 +120,10 @@
               <span>{{ opt.label }}</span>
             </button>
           }
-          @if (workoutsFacade.templates.length > 0) {
+          @if (facade.workoutTemplates.length > 0) {
             <div class="act-divider"></div>
             <div class="act-group-lbl">My Workouts</div>
-            @for (w of workoutsFacade.templates; track w.uid) {
+            @for (w of facade.workoutTemplates; track w.uid) {
               <button
                 class="act-opt"
                 type="button"
@@ -163,11 +163,14 @@
                 <mat-icon>undo</mat-icon>
               </button>
             }
-            <span class="card-badge b-purple"
-              >{{ facade.dailyDataStats().totalCalories }} kcal</span
-            >
+            <span class="card-badge b-purple">
+              {{ facade.dailyDataStats().totalCalories | number: '1.0-0' }} kcal
+            </span>
           </div>
         </div>
+
+        <!-- Fix 10: read-only calorie summary from nutrition log -->
+        <app-daily-entry-calorie-summary />
 
         <fieldset formGroupName="macrosPct" class="macros-list">
           <div class="macro-row">
@@ -177,7 +180,7 @@
               subscriptSizing="dynamic"
               class="mf"
             >
-              <mat-label>Protein</mat-label>
+              <mat-label>Protein (g)</mat-label>
               <input matInput type="number" formControlName="protein" min="0" />
             </mat-form-field>
           </div>
@@ -188,7 +191,7 @@
               subscriptSizing="dynamic"
               class="mf"
             >
-              <mat-label>Carbs</mat-label>
+              <mat-label>Carbs (g)</mat-label>
               <input matInput type="number" formControlName="carbs" min="0" />
             </mat-form-field>
           </div>
@@ -199,7 +202,7 @@
               subscriptSizing="dynamic"
               class="mf"
             >
-              <mat-label>Fats</mat-label>
+              <mat-label>Fats (g)</mat-label>
               <input matInput type="number" formControlName="fats" min="0" />
             </mat-form-field>
           </div>
@@ -209,6 +212,7 @@
           <mat-icon>restaurant_menu</mat-icon>
           <span>Pick from saved meals</span>
         </button>
+
       </div>
 
       <!-- CALORIES BURNED -->
@@ -276,12 +280,12 @@
         </div>
 
         <div class="net-row">
-          <span class="net-label"
-            ><mat-icon>calculate</mat-icon> Net Calories</span
-          >
-          <span class="net-value"
-            >{{ facade.dailyDataStats().netCalories }} kcal</span
-          >
+          <span class="net-label">
+            <mat-icon>calculate</mat-icon> Net Calories
+          </span>
+          <span class="net-value">
+            {{ facade.dailyDataStats().netCalories }} kcal
+          </span>
         </div>
       </div>
 
@@ -430,14 +434,14 @@
             class="mp-search"
             type="text"
             placeholder="Search by name or type…"
-            [value]="mealPickerSearch"
-            (input)="mealPickerSearch = $any($event.target).value"
+            [value]="mealPickerSearch()"
+            (input)="mealPickerSearch.set($any($event.target).value)"
           />
-          @if (mealPickerSearch) {
+          @if (mealPickerSearch()) {
             <button
               class="mp-clear"
               type="button"
-              (click)="mealPickerSearch = ''"
+              (click)="mealPickerSearch.set('')"
             >
               <mat-icon>close</mat-icon>
             </button>
@@ -452,19 +456,19 @@
             ></mat-progress-spinner>
           </div>
         } @else {
-          @if (filteredPickerMeals.length === 0) {
+          @if (filteredPickerMeals().length === 0) {
             <div class="mp-empty">
               <mat-icon>no_meals</mat-icon>
               <span>No meals found</span>
-              @if (nutritionFacade.meals.length === 0) {
+              @if (facade.meals.length === 0) {
                 <small>Add meals in the Nutrition tab first</small>
               }
             </div>
           }
 
-          @if (filteredPickerMeals.length > 0) {
+          @if (filteredPickerMeals().length > 0) {
             <div class="mp-list">
-              @for (m of filteredPickerMeals; track m.id) {
+              @for (m of filteredPickerMeals(); track m.id) {
                 <button
                   type="button"
                   class="mp-item"

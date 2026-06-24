@@ -98,9 +98,8 @@ public class UserService(AppDbContext db, MetricsService metrics)
             })
             .ToListAsync();
 
-        var workoutsThisMonth = await db.WorkoutTemplates
-            .Where(w => w.UserId == userId && !w.IsArchived && w.CreatedAt >= firstOfMonth)
-            .CountAsync();
+        // Derived in-memory from the already-fetched workoutsInWindow — no extra DB round-trip.
+        var workoutsThisMonth = workoutsInWindow.Count(w => w.CreatedAt >= firstOfMonth);
 
         var volumeThisMonth = workoutsInWindow
             .Where(w => w.CreatedAt >= firstOfMonth)

@@ -1,0 +1,43 @@
+<div class="quick-strip" role="toolbar" aria-label="Quick log actions">
+
+  <!-- +Water -->
+  <button class="qa-chip" [class.qa-chip--confirming]="isWaterConfirming()"
+          type="button" (click)="addWater()" aria-label="Add 500ml of water">
+    <mat-icon>water_drop</mat-icon>
+    @if (isWaterConfirming()) { +500ml ✓ } @else { +500 ml }
+  </button>
+
+  <!-- Log Meal -->
+  <button class="qa-chip" type="button" (click)="openMealPicker.emit()" aria-label="Log a meal">
+    <mat-icon>restaurant</mat-icon>
+    Log meal
+  </button>
+
+  <!-- AI Analyze -->
+  <button class="qa-chip" type="button"
+          [disabled]="groqFacade.loading()"
+          (click)="openAiAnalyze.emit()"
+          aria-label="Analyze meal with AI">
+    <mat-icon>auto_awesome</mat-icon>
+    AI analyze
+  </button>
+
+  <!-- Weekly Balance -->
+  <button class="qa-chip" type="button" (click)="openCalorieBalance.emit()" aria-label="View weekly calorie balance">
+    <mat-icon>show_chart</mat-icon>
+    Weekly balance
+  </button>
+
+  <!-- Activity -->
+  <button class="qa-chip qa-chip--activity" type="button" (click)="openActivityPicker.emit()" aria-label="Set activity type">
+    <mat-icon>{{ activityIcon }}</mat-icon>
+    {{ activityLabel }}
+  </button>
+
+  <!-- Reset -->
+  <button class="qa-chip qa-chip--ghost" type="button" (click)="reset.emit()" aria-label="Reset today's data">
+    <mat-icon>restart_alt</mat-icon>
+    Reset day
+  </button>
+
+</div>

@@ -1,0 +1,165 @@
+<div
+  class="meal-feedback-card"
+  [class.is-dismissing]="isDismissing()"
+  role="status"
+  [attr.aria-label]="ariaLabel"
+  aria-live="polite"
+>
+
+  <!-- Header row -->
+  <div class="meal-feedback-header">
+    <mat-icon class="feedback-check-icon">check_circle</mat-icon>
+    <span class="feedback-title">Meal saved!</span>
+
+    <button
+      type="button"
+      class="meal-feedback-dismiss"
+      (click)="dismiss()"
+      aria-label="Dismiss meal feedback"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  @if (facade.macroProgress(); as progress) {
+
+    <!-- Macro progress bars -->
+    @if (!noTargets) {
+      <div class="meal-feedback-macros">
+
+        <!-- Protein -->
+        @if (progress.targetProtein > 0) {
+          <div
+            class="meal-feedback-macro-row"
+            role="progressbar"
+            [attr.aria-valuenow]="+(progress.totalProtein / progress.targetProtein * 100).toFixed(0)"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-label]="'Protein: ' + getPercent(progress.totalProtein, progress.targetProtein) + (isOverTarget(progress.totalProtein, progress.targetProtein) ? ' — over goal' : '')"
+          >
+            <span class="macro-label">Protein</span>
+            <div class="meal-feedback-bar-track">
+              <div
+                class="meal-feedback-bar-fill meal-feedback-bar-fill--protein"
+                [class.is-over-target]="isOverTarget(progress.totalProtein, progress.targetProtein)"
+                [style.width]="proteinWidth()"
+              ></div>
+            </div>
+            <span
+              class="macro-pct"
+              [class.is-over-target]="isOverTarget(progress.totalProtein, progress.targetProtein)"
+            >{{ getPercent(progress.totalProtein, progress.targetProtein) }}</span>
+          </div>
+        }
+
+        <!-- Carbs -->
+        @if (progress.targetCarbs > 0) {
+          <div
+            class="meal-feedback-macro-row"
+            role="progressbar"
+            [attr.aria-valuenow]="+(progress.totalCarbs / progress.targetCarbs * 100).toFixed(0)"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-label]="'Carbs: ' + getPercent(progress.totalCarbs, progress.targetCarbs) + (isOverTarget(progress.totalCarbs, progress.targetCarbs) ? ' — over goal' : '')"
+          >
+            <span class="macro-label">Carbs</span>
+            <div class="meal-feedback-bar-track">
+              <div
+                class="meal-feedback-bar-fill meal-feedback-bar-fill--carbs"
+                [class.is-over-target]="isOverTarget(progress.totalCarbs, progress.targetCarbs)"
+                [style.width]="carbsWidth()"
+              ></div>
+            </div>
+            <span
+              class="macro-pct"
+              [class.is-over-target]="isOverTarget(progress.totalCarbs, progress.targetCarbs)"
+            >{{ getPercent(progress.totalCarbs, progress.targetCarbs) }}</span>
+          </div>
+        }
+
+        <!-- Fat -->
+        @if (progress.targetFat > 0) {
+          <div
+            class="meal-feedback-macro-row"
+            role="progressbar"
+            [attr.aria-valuenow]="+(progress.totalFat / progress.targetFat * 100).toFixed(0)"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-label]="'Fat: ' + getPercent(progress.totalFat, progress.targetFat) + (isOverTarget(progress.totalFat, progress.targetFat) ? ' — over goal' : '')"
+          >
+            <span class="macro-label">Fat</span>
+            <div class="meal-feedback-bar-track">
+              <div
+                class="meal-feedback-bar-fill meal-feedback-bar-fill--fat"
+                [class.is-over-target]="isOverTarget(progress.totalFat, progress.targetFat)"
+                [style.width]="fatWidth()"
+              ></div>
+            </div>
+            <span
+              class="macro-pct"
+              [class.is-over-target]="isOverTarget(progress.totalFat, progress.targetFat)"
+            >{{ getPercent(progress.totalFat, progress.targetFat) }}</span>
+          </div>
+        }
+
+      </div>
+
+      <!-- Headline copy -->
+      <p class="meal-feedback-headline">{{ headlineCopy }}</p>
+
+    } @else {
+      <!-- No macro targets set -->
+      <p class="no-targets-hint">
+        Set up your macro goals in Account to see targets
+      </p>
+    }
+
+  }
+
+  <!-- Footer: share CTA + auto-dismiss ring -->
+  <div class="meal-feedback-footer">
+
+    <button
+      type="button"
+      class="meal-feedback-share-btn"
+      (click)="onShare()"
+      aria-label="Share meal to beSocial"
+    >
+      <mat-icon>share</mat-icon>
+      <span class="share-label">Share to beSocial</span>
+    </button>
+
+    <!-- Auto-dismiss countdown ring -->
+    <button
+      type="button"
+      class="meal-feedback-dismiss-ring"
+      (click)="dismiss()"
+      aria-label="Dismiss (closes in 8 seconds)"
+    >
+      <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+        <!-- Background track -->
+        <circle
+          cx="18" cy="18" r="14"
+          fill="none"
+          stroke="rgba(255,255,255,0.08)"
+          stroke-width="2.5"
+        />
+        <!-- Depleting arc -->
+        <circle #ringArc
+          cx="18" cy="18" r="14"
+          fill="none"
+          stroke="rgba(255,255,255,0.25)"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-dasharray="87.96"
+          [attr.stroke-dashoffset]="ringOffset()"
+          transform="rotate(-90 18 18)"
+          class="dismiss-ring-arc"
+        />
+      </svg>
+      <mat-icon class="dismiss-ring-icon">close</mat-icon>
+    </button>
+
+  </div>
+
+</div>

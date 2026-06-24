@@ -1,0 +1,20 @@
+<div
+  class="streak-chip"
+  [class.streak-chip--active]="isActive"
+  [class.streak-chip--loading]="loading"
+  role="status"
+  [attr.aria-label]="ariaLabel"
+>
+  @if (loading) {
+    <div class="streak-skel"></div>
+  } @else if (isActive) {
+    <mat-icon class="streak-flame" aria-hidden="true">local_fire_department</mat-icon>
+    <span class="streak-count">{{ current }}</span>
+    <span class="streak-suffix">day streak</span>
+    <span class="streak-sep" aria-hidden="true">·</span>
+    <span class="streak-best">Best: {{ best }}d</span>
+  } @else {
+    <mat-icon class="streak-flame streak-flame--inactive" aria-hidden="true">local_fire_department</mat-icon>
+    <span class="streak-inactive-text">Start your streak</span>
+  }
+</div>

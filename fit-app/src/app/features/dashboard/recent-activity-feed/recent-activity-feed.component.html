@@ -1,0 +1,50 @@
+<div class="recent-activity-feed" role="region" aria-label="Recent activity">
+  <div class="raf-header">
+    <span class="raf-title">Recent Activity</span>
+    <a
+      class="raf-see-all"
+      routerLink="/dashboard"
+      (click)="seeAllClick.emit()"
+      aria-label="See all activity"
+    >See all &rarr;</a>
+  </div>
+
+  @if (loading) {
+    <ul class="raf-list" role="list">
+      @for (row of skeletonRows; track $index) {
+        <li class="raf-skeleton-row" role="listitem">
+          <div class="skeleton-circle"></div>
+          <div class="raf-skeleton-center">
+            <div class="skeleton-block" style="width: 120px; height: 14px;"></div>
+            <div class="skeleton-block" style="width: 80px; height: 12px; margin-top: 4px;"></div>
+          </div>
+          <div class="skeleton-block" style="width: 40px; height: 12px;"></div>
+        </li>
+      }
+    </ul>
+  } @else if (activities.length === 0) {
+    <div class="raf-empty">
+      <mat-icon>directions_run</mat-icon>
+      <p>No activity yet today</p>
+    </div>
+  } @else {
+    <ul class="raf-list" role="list">
+      @for (item of activities; track item.id) {
+        <li
+          class="raf-item"
+          role="listitem"
+          [attr.aria-label]="item.title + ', ' + item.subtitle + ', ' + (item.timestamp | relativeTime)"
+        >
+          <div class="raf-item-icon">
+            <mat-icon>{{ getIcon(item.type) }}</mat-icon>
+          </div>
+          <div class="raf-item-center">
+            <span class="raf-item-title">{{ item.title }}</span>
+            <span class="raf-item-subtitle">{{ item.subtitle }}</span>
+          </div>
+          <span class="raf-item-time">{{ item.timestamp | relativeTime }}</span>
+        </li>
+      }
+    </ul>
+  }
+</div>

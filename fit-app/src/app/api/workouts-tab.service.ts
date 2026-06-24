@@ -2,7 +2,13 @@ import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { AlertService } from '../shared/services/alert.service';
-import { WorkoutTemplate, WorkoutType } from '../core/models/workouts-tab.model';
+import {
+  WorkoutTemplate,
+  WorkoutType,
+  LastExerciseSession,
+  CompleteSessionRequest,
+  WorkoutCompletionSummary,
+} from '../core/models/workouts-tab.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -36,6 +42,7 @@ export class WorkoutsTabService {
         : undefined,
       createdAt: d.createdAt ?? null,
       updatedAt: d.updatedAt ?? null,
+      isSystemTemplate: d.isSystemTemplate === true,
     };
   }
 
@@ -61,17 +68,18 @@ export class WorkoutsTabService {
       const dto = await firstValueFrom(this.http.get<any>(`${this.baseUrl}/${docId}`));
       return this.mapTemplate(dto);
     } catch (err) {
-      this.alerts?.warn('Failed to load workout', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to load workout');
       return null;
     }
   }
 
   async listTemplates(): Promise<WorkoutTemplate[]> {
     try {
-      const dtos = await firstValueFrom(this.http.get<any[]>(this.baseUrl));
+      const res = await firstValueFrom(this.http.get<any>(this.baseUrl));
+      const dtos: any[] = Array.isArray(res) ? res : (res?.items ?? []);
       return dtos.map(d => this.mapTemplate(d));
     } catch (err) {
-      this.alerts?.warn('Failed to load workouts', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to load workouts');
       return [];
     }
   }
@@ -81,7 +89,7 @@ export class WorkoutsTabService {
       const dto = await firstValueFrom(this.http.post<any>(this.baseUrl, this.buildBody(payload)));
       return this.mapTemplate(dto);
     } catch (err) {
-      this.alerts?.warn('Failed to add workout', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to add workout');
       return null;
     }
   }
@@ -92,7 +100,7 @@ export class WorkoutsTabService {
       const dto = await firstValueFrom(this.http.put<any>(`${this.baseUrl}/${docId}`, this.buildBody(payload)));
       return this.mapTemplate(dto);
     } catch (err) {
-      this.alerts?.warn('Failed to update workout', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to update workout');
       return null;
     }
   }
@@ -104,8 +112,41 @@ export class WorkoutsTabService {
       this.alerts?.success('Workout deleted');
       return true;
     } catch (err) {
-      this.alerts?.warn('Failed to delete workout', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to delete workout');
       return false;
+    }
+  }
+
+  /**
+   * GET /api/workouts/{templateId}/last-session
+   * Returns previous session weight/reps per exercise name for ghost placeholder text.
+   * Returns [] on any error — ghost text is non-critical UI.
+   */
+  async getLastSession(templateId: number): Promise<LastExerciseSession[]> {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<LastExerciseSession[]>(`${this.baseUrl}/${templateId}/last-session`)
+      );
+      return Array.isArray(res) ? res : [];
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * POST /api/workouts/sessions
+   * Saves the completed session and returns a summary DTO.
+   * Returns null on error — caller shows alert toast.
+   */
+  async completeSession(req: CompleteSessionRequest): Promise<WorkoutCompletionSummary | null> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<WorkoutCompletionSummary>(`${this.baseUrl}/sessions`, req)
+      );
+      return res ?? null;
+    } catch (err) {
+      this.alerts?.error('Failed to save workout session. Please try again.');
+      return null;
     }
   }
 }

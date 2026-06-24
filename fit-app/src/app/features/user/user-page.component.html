@@ -7,7 +7,7 @@
       <!-- Mobile tab scroll row -->
       <div class="mob-tabs">
         <button class="mob-tab" [class.active]="activeTab === 'profile'" (click)="setActiveTab('profile')" type="button">
-          <mat-icon>person</mat-icon><span>Profile</span>
+          <mat-icon>person</mat-icon><span>Account</span>
         </button>
         <button class="mob-tab" [class.active]="activeTab === 'physical'" (click)="setActiveTab('physical')" type="button">
           <mat-icon>fitness_center</mat-icon><span>Physical</span>
@@ -26,6 +26,9 @@
         </button>
         <button class="mob-tab" [class.active]="activeTab === 'settings'" (click)="setActiveTab('settings')" type="button">
           <mat-icon>settings</mat-icon><span>Settings</span>
+        </button>
+        <button class="mob-tab" (click)="openAiHistory()" type="button">
+          <mat-icon>chat_bubble_outline</mat-icon><span>AI Chat</span>
         </button>
         <button class="mob-tab" [class.active]="activeTab === 'notifications'" (click)="setActiveTab('notifications')" type="button">
           <mat-icon>notifications</mat-icon><span>Alerts</span>
@@ -62,7 +65,7 @@
           <nav class="sb-nav">
             <button class="sb-item" [class.active]="activeTab === 'profile'" (click)="setActiveTab('profile')" type="button">
               <mat-icon>person</mat-icon>
-              <span *ngIf="!sidebarCollapsed">Profile</span>
+              <span *ngIf="!sidebarCollapsed">Account</span>
             </button>
             <button class="sb-item" [class.active]="activeTab === 'physical'" (click)="setActiveTab('physical')" type="button">
               <mat-icon>fitness_center</mat-icon>
@@ -87,6 +90,10 @@
             <button class="sb-item" [class.active]="activeTab === 'settings'" (click)="setActiveTab('settings')" type="button">
               <mat-icon>settings</mat-icon>
               <span *ngIf="!sidebarCollapsed">Settings</span>
+            </button>
+            <button class="sb-item sb-item--ai" (click)="openAiHistory()" type="button">
+              <mat-icon>chat_bubble_outline</mat-icon>
+              <span *ngIf="!sidebarCollapsed">AI Chat History</span>
             </button>
             <button class="sb-item" [class.active]="activeTab === 'notifications'" (click)="setActiveTab('notifications')" type="button">
               <mat-icon>notifications</mat-icon>

@@ -7,16 +7,32 @@ namespace FitApp.Api.Services;
 
 public class BlogService(AppDbContext db)
 {
-    public async Task<List<BlogPostDto>> ListAsync()
+    public async Task<PaginatedResponse<BlogPostDto>> ListAsync(int page = 1, int pageSize = 20)
     {
+        pageSize = Math.Min(pageSize, 50);
+        page = Math.Max(page, 1);
+
         // Only return admin-authored posts (AuthorId == null).
         // User-authored articles (AuthorId != null) are managed via SocialService
         // and displayed in the social feed, not the public blog listing.
-        var posts = await db.BlogPosts
+        var query = db.BlogPosts
             .Where(b => b.AuthorId == null)
-            .OrderByDescending(b => b.CreatedAt)
+            .OrderByDescending(b => b.CreatedAt);
+
+        var totalCount = await query.CountAsync();
+        var posts = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
-        return posts.Select(MapToDto).ToList();
+
+        return new PaginatedResponse<BlogPostDto>
+        {
+            Items = posts.Select(MapToDto).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            HasMore = page * pageSize < totalCount
+        };
     }
 
     public async Task<BlogPostDto?> GetAsync(int id)

@@ -1,0 +1,73 @@
+<section class="rings-hero"
+         [class.rings-hero--complete]="allComplete"
+         aria-label="Daily progress overview">
+
+  <div class="rings-row">
+    <!-- Protein (md, left) -->
+    <div class="ring-slot ring-slot--left">
+      <app-progress-ring size="md" variant="protein"
+                         [progress]="proteinProgress" [loading]="loading">
+        <div ringCenter class="ring-center-content">
+          <span class="ring-val">{{ proteinConsumedG | number:'1.0-0' }}</span>
+          <span class="ring-sub">protein</span>
+        </div>
+      </app-progress-ring>
+      <span class="ring-slot-label">Protein</span>
+    </div>
+
+    <!-- Calories (lg, center) -->
+    <div class="ring-slot ring-slot--center">
+      <app-progress-ring size="lg" variant="calories"
+                         [progress]="caloriesProgress" [loading]="loading">
+        <div ringCenter class="ring-center-content ring-center-content--cal">
+          <div class="ring-cal-default">
+            <span class="ring-val ring-val--lg">{{ caloriesConsumed | number:'1.0-0' }}</span>
+            <span class="ring-sub">kcal</span>
+          </div>
+          <div class="ring-cal-hover-content">
+            @if (caloriesOver > 0) {
+              <span class="ring-val ring-val--over">{{ caloriesOver | number:'1.0-0' }}</span>
+              <span class="ring-sub ring-sub--over">over goal</span>
+            } @else {
+              <span class="ring-val ring-val--remain">{{ caloriesRemaining | number:'1.0-0' }}</span>
+              <span class="ring-sub">left</span>
+            }
+          </div>
+        </div>
+      </app-progress-ring>
+      <span class="ring-slot-label">Calories</span>
+    </div>
+
+    <!-- Workouts (md, right) -->
+    <div class="ring-slot ring-slot--right">
+      <app-progress-ring size="md" variant="workouts"
+                         [progress]="workoutsProgress" [loading]="loading">
+        <div ringCenter class="ring-center-content">
+          <span class="ring-val">{{ workoutsThisWeek }}</span>
+          <span class="ring-sub">this wk</span>
+        </div>
+      </app-progress-ring>
+      <span class="ring-slot-label">Workouts</span>
+    </div>
+  </div>
+
+  @if (currentStreak > 0) {
+    <div class="rings-streak-row">
+      <div class="rings-streak-badge"
+           [class.rings-streak-badge--logged]="loggedToday"
+           [attr.aria-label]="currentStreak + ' day streak'">
+        <mat-icon class="rings-streak-icon">local_fire_department</mat-icon>
+        <span class="rings-streak-count">{{ currentStreak }}</span>
+        <span class="rings-streak-label">day streak</span>
+      </div>
+    </div>
+  }
+
+  <div class="rings-completion-label"
+       [class.rings-completion-label--complete]="allComplete"
+       [class.rings-completion-label--progressing]="goalsOnTrack > 0 && !allComplete"
+       role="status" aria-live="polite">
+    {{ completionLabel }}
+  </div>
+
+</section>

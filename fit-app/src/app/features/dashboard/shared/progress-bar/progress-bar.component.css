@@ -1,0 +1,110 @@
+.pb-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 6px 0;
+}
+
+/* ── Color dot ───────────────────────────────────────────────────── */
+.pb-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pb-dot--protein { background: #a78bfa; }
+.pb-dot--carbs   { background: #38bdf8; }
+.pb-dot--fat     { background: #ffb74d; }
+
+/* ── Name label ──────────────────────────────────────────────────── */
+.pb-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+  min-width: 52px;
+}
+
+/* ── Track + fill ────────────────────────────────────────────────── */
+.pb-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.pb-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 0;
+}
+.pb-fill--protein { background: #a78bfa; }
+.pb-fill--carbs   { background: #38bdf8; }
+.pb-fill--fat     { background: #ffb74d; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pb-fill { transition: none; }
+}
+
+/* ── Fraction label ──────────────────────────────────────────────── */
+.pb-fraction {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ── Loading skeleton ────────────────────────────────────────────── */
+.pb-dot--skel,
+.pb-name-skel,
+.pb-bar-skel {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  animation: pb-shimmer 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.pb-dot--skel  { width: 8px;  height: 8px;  border-radius: 50%; }
+.pb-name-skel  { width: 44px; height: 10px; }
+.pb-bar-skel   { flex: 1;     height: 6px;  }
+
+@keyframes pb-shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ── Error row ───────────────────────────────────────────────────── */
+.pb-row--error {
+  background: rgba(255, 64, 129, 0.08);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+.pb-error-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.pb-error-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--accent, #ff4081);
+  flex-shrink: 0;
+}
+.pb-error-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  flex: 1;
+}
+.pb-fraction--error {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Responsive: hide fraction on smallest screens ───────────────── */
+@media (max-width: 479px) {
+  .pb-fraction:not(.pb-fraction--error) { display: none; }
+}

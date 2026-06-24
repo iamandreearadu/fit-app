@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -23,6 +23,8 @@ export class LoginComponent {
 
   private validators = this.facade.authValidation.getLoginValidators();
 
+  readonly showPassword = signal(false);
+
   form = this.fb.group({
     email: ['', this.validators.email],
     password: ['', this.validators.password],
@@ -41,7 +43,7 @@ export class LoginComponent {
     if (ok) {
       await this.router.navigate(['/user-dashboard']);
     } else {
-      this.form.reset();
+      this.form.get('password')?.reset();
     }
   }
 }

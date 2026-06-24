@@ -27,11 +27,14 @@ export class SocialDailyPanelComponent implements OnInit {
   private readonly dailySrv = inject(DailyUserDataService);
   private readonly userFacade = inject(UserFacade);
 
-  readonly daily       = this.dailySrv.daily;
-  readonly stats       = this.dailySrv.stats;
-  readonly loading     = this.dailySrv.loading;
+  readonly daily        = this.dailySrv.daily;
+  readonly stats        = this.dailySrv.stats;
+  readonly loading      = this.dailySrv.loading;
   readonly waterTarget  = this.dailySrv.waterTarget;
   readonly waterProgress = this.dailySrv.waterProgress;
+
+  /** Canonical calorie source — matches Dashboard exactly (Fix 10) */
+  readonly todaySummary = this.userFacade.todaySummary;
 
   /** Macro grams */
   readonly proteinG = computed(() => this.daily()?.macrosPct?.protein ?? 0);
@@ -85,10 +88,13 @@ export class SocialDailyPanelComponent implements OnInit {
     return Math.min(100, Math.round((s.steps / s.stepTarget) * 100));
   });
 
-  /** Signed net calories: intake − burned */
+  /** Signed net calories — prefer server-computed caloriesTotal from todaySummary
+   *  so Dashboard and Social panel always show the same value (Fix 10 WARNING 1) */
   readonly netCalories = computed(() => {
-    const s = this.stats();
-    return (s.caloriesIntake ?? 0) - (s.caloriesBurned ?? 0);
+    const s = this.todaySummary();
+    if (s) return s.caloriesTotal;
+    const stats = this.stats();
+    return (stats.caloriesIntake ?? 0) - (stats.caloriesBurned ?? 0);
   });
 
   /** CSS modifier class for the net tile coloring */
@@ -110,6 +116,10 @@ export class SocialDailyPanelComponent implements OnInit {
   ngOnInit(): void {
     if (!this.daily()) {
       this.userFacade.loadDaily();
+    }
+    // Ensure calorie source is in sync with Dashboard (Fix 10 WARNING 1)
+    if (!this.todaySummary()) {
+      this.userFacade.loadTodaySummary();
     }
   }
 

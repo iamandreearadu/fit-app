@@ -1,0 +1,206 @@
+/* ── App Top Bar (mobile only, ≤ 768px) ─────────────────────────────────── */
+
+.app-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* z-index stack: see styles.css map */
+  /* Respect notch: total height includes safe area inset */
+  height: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  display: flex;
+  align-items: center;
+  padding-left: 4px;
+  padding-right: 4px;
+  background: var(--nav-bg);
+  backdrop-filter: blur(var(--nav-blur));
+  -webkit-backdrop-filter: blur(var(--nav-blur));
+  border-bottom: 1px solid var(--nav-border);
+}
+
+/* ── Left zone ───────────────────────────────────────────────────────────── */
+
+.app-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Center zone ─────────────────────────────────────────────────────────── */
+/*
+ * Removed from flex flow so the title centers over the FULL bar width,
+ * not just the asymmetric space left between the 48px hamburger and 96px
+ * right zone. This matches native iOS / Android top-bar centering behavior.
+ */
+.app-topbar-center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: env(safe-area-inset-top, 0px); /* start below the notch safe area */
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; /* clicks pass through to buttons underneath */
+}
+
+/* ── Right zone ──────────────────────────────────────────────────────────── */
+
+.app-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-left: auto; /* push to far right — center is out of flex flow */
+}
+
+/* ── Icon button (hamburger / back / search / bell) ──────────────────────── */
+
+.topbar-icon-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: transparent;
+  border: none;
+  color: var(--white-soft);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative; /* needed for badge overlay */
+}
+
+.topbar-icon-btn mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.topbar-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.topbar-icon-btn:active {
+  background: rgba(255, 255, 255, 0.10);
+  transition-duration: 0.1s;
+}
+
+.topbar-icon-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ── Notifications badge on top bar bell ─────────────────────────────────── */
+
+/* Reuse the .app-bottomnav-badge token — just reposition it for the top bar */
+.topbar-notif-badge {
+  /* Override the bottom-nav absolute positioning for use in top bar */
+  top: 8px !important;
+  right: 8px !important;
+}
+
+/* ── Notification button wrapper (position: relative already set on parent) */
+
+.topbar-notif-btn {
+  position: relative;
+}
+
+/* ── Back area: chevron + context title ──────────────────────────────────── */
+
+.app-topbar-context-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+/* ── Screen title (center, root routes) ──────────────────────────────────── */
+
+.app-topbar-screen-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--white-soft);
+  letter-spacing: -0.1px;
+}
+
+/* ── NovaFit wordmark (center, fallback) ─────────────────────────────────── */
+
+.app-topbar-wordmark {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white-soft);
+  letter-spacing: -0.4px;
+}
+
+.app-topbar-wordmark-accent {
+  color: var(--primary);
+}
+
+/* ── Brand logo (guest state) ─────────────────────────────────────────────── */
+
+.app-topbar-brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  padding: 12px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-topbar-logo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* ── Guest CTA ────────────────────────────────────────────────────────────── */
+
+.app-topbar-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  background: var(--primary);
+  text-decoration: none;
+  transition: opacity 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-topbar-cta:active {
+  opacity: 0.8;
+}
+
+/* ── Visually hidden (a11y live region) ──────────────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Scroll-to-hide handled globally in styles.css via .topbar--scrolled-down ── */
+/* See: html.topbar--scrolled-down app-top-bar .app-topbar rule in styles.css     */
+
+/* ── Narrow screens: truncate wordmark ────────────────────────────────────── */
+
+@media (max-width: 360px) {
+  .app-topbar-wordmark {
+    display: none;
+  }
+}

@@ -1,0 +1,68 @@
+.athlete-stats-bar {
+  border-top: var(--nova-glass-divider);
+  border-bottom: var(--nova-glass-divider);
+}
+
+.asb-list {
+  display: flex;
+  flex-direction: row;
+  list-style: none;
+  margin: 0;
+  padding: var(--nova-space-4) 0;
+}
+
+.asb-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--nova-space-1);
+  padding: 0 var(--nova-space-2);
+}
+
+.asb-stat + .asb-stat {
+  border-left: var(--nova-glass-divider);
+}
+
+.asb-stat-count {
+  font-size: var(--nova-text-heading-sm);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-primary);
+  transition: color var(--nova-duration-micro) var(--nova-ease-default);
+}
+
+.asb-stat-label {
+  font-size: var(--nova-text-sm);
+  font-weight: var(--nova-weight-medium);
+  color: var(--nova-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--nova-tracking-wider);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.asb-stat--tappable {
+  cursor: pointer;
+}
+
+.asb-stat--tappable:hover .asb-stat-count {
+  color: var(--nova-primary);
+}
+
+/* ── Skeleton ── */
+.skeleton-block {
+  background: var(--nova-white-alpha-04);
+  border-radius: var(--nova-radius-sm);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@media (max-width: 359px) {
+  .asb-stat-label {
+    font-size: var(--nova-text-xs);
+  }
+}

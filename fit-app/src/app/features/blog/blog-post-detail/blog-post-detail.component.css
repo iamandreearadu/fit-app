@@ -1,3 +1,12 @@
+/* Mobile: compensate for fixed top-bar + bottom-nav */
+@media (max-width: 768px) {
+  :host {
+    display: block;
+    padding-top: var(--nav-height);
+    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 .post-page {
   background: var(--surface);
   color: var(--white-soft);

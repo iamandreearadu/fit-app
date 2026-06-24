@@ -5,6 +5,8 @@ import { UserStore } from '../../../../core/store/user.store';
 import { SocialFacade } from '../../../../core/facade/social.facade';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateContentComponent } from '../create-content/create-content.component';
+import { AccountFacade } from '../../../../core/facade/account.facade';
+import { StreakBadgeComponent } from '../../../../shared/components/streak-badge/streak-badge.component';
 
 interface NavItem {
   label: string;
@@ -17,7 +19,7 @@ interface NavItem {
 @Component({
   selector: 'app-social-side-nav',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, MatIconModule],
+  imports: [RouterLink, RouterLinkActive, MatIconModule, StreakBadgeComponent],
   templateUrl: './social-side-nav.component.html',
   styleUrl: './social-side-nav.component.css',
 })
@@ -26,6 +28,7 @@ export class SocialSideNavComponent {
   @Input() unreadMessages = 0;
 
   protected readonly facade = inject(SocialFacade);
+  protected readonly accountFacade = inject(AccountFacade);
   private readonly dialog = inject(MatDialog);
 
   private readonly userStore = inject(UserStore);
@@ -63,6 +66,10 @@ export class SocialSideNavComponent {
       exact: false,
     },
   ];
+
+  logout(): void {
+    void this.accountFacade.logout();
+  }
 
   openCreatePost(): void {
     this.dialog

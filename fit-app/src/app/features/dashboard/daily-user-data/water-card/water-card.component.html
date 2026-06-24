@@ -1,0 +1,61 @@
+<!-- Water -->
+<div class="track">
+  <div class="track-header">
+    <span class="track-name">
+      <mat-icon class="t-icon t-blue">water_drop</mat-icon>
+      Water
+    </span>
+    <span class="track-frac t-blue">
+      {{ dashFacade.dailyDataStats().waterConsumedL | number: "1.2-2" }} /
+      {{ dashFacade.waterTargetFromMetrics() | number: "1.1-1" }} L
+    </span>
+  </div>
+  <mat-progress-bar
+    class="pbar pbar-blue"
+    mode="determinate"
+    [value]="dashFacade.waterProgress()"
+  ></mat-progress-bar>
+  <div class="adj-row">
+    <button mat-stroked-button class="ab ab-p" type="button" (click)="dashFacade.adjustWaterMl(500)">
+      +500 ml
+    </button>
+    <button mat-stroked-button class="ab ab-p" type="button" (click)="dashFacade.adjustWaterMl(250)">
+      +250 ml
+    </button>
+    <button mat-stroked-button class="ab ab-m" type="button" (click)="dashFacade.adjustWaterMl(-250)">
+      −250 ml
+    </button>
+  </div>
+</div>
+
+<div class="track-divider"></div>
+
+<!-- Steps -->
+<div class="track">
+  <div class="track-header">
+    <span class="track-name">
+      <mat-icon class="t-icon t-green">directions_walk</mat-icon>
+      Steps
+    </span>
+    <span class="track-frac t-green">
+      {{ dashFacade.dailyDataStats().steps | number: "1.0-0" }} /
+      {{ dashFacade.dailyDataStats().stepTarget | number: "1.0-0" }}
+    </span>
+  </div>
+  <mat-progress-bar
+    class="pbar pbar-green"
+    mode="determinate"
+    [value]="dashFacade.dailyDataStats().stepsProgress"
+  ></mat-progress-bar>
+  <div class="adj-row">
+    <button mat-stroked-button class="ab ab-p" type="button" (click)="dashFacade.adjustSteps(1000)">
+      +1 000
+    </button>
+    <button mat-stroked-button class="ab ab-p" type="button" (click)="dashFacade.adjustSteps(500)">
+      +500
+    </button>
+    <button mat-stroked-button class="ab ab-m" type="button" (click)="dashFacade.adjustSteps(-500)">
+      −500
+    </button>
+  </div>
+</div>

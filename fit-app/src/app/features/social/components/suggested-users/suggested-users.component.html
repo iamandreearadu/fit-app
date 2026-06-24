@@ -1,0 +1,78 @@
+@if (!loading() || users().length > 0) {
+  <section class="sug-container" aria-label="Suggested users">
+
+    @if (loading()) {
+      <!-- Loading: 3 staggered skeleton rows -->
+      @for (s of [1, 2, 3]; track $index) {
+        <div class="sug-skeleton-row" aria-hidden="true"></div>
+      }
+    } @else {
+      @if (users().length > 0) {
+        <!-- Section label -->
+        <div class="sug-section-label">
+          <span class="sug-section-label-line" aria-hidden="true"></span>
+          <span class="sug-section-label-text">Suggested for you</span>
+          <span class="sug-section-label-line" aria-hidden="true"></span>
+        </div>
+
+        <!-- User rows -->
+        <div class="sug-list">
+          @for (user of users(); track user.userId) {
+            <div class="sug-user-row">
+
+              <!-- Avatar -->
+              <a [routerLink]="['/social/profile', user.userId]"
+                 class="sug-avatar-link" aria-hidden="true" tabindex="-1">
+                @if (user.avatarUrl) {
+                  <img class="sug-avatar" [src]="user.avatarUrl" [alt]="user.displayName" />
+                } @else {
+                  <div class="sug-avatar sug-avatar--fallback">
+                    <mat-icon>person</mat-icon>
+                  </div>
+                }
+              </a>
+
+              <!-- Name + goal badge -->
+              <div class="sug-info">
+                <div class="sug-name-row">
+                  <a [routerLink]="['/social/profile', user.userId]" class="sug-name">
+                    {{ user.displayName }}
+                  </a>
+                  <!-- NOTE: isVerified is NOT on SuggestedUserResponse DTO — no badge here -->
+                </div>
+                @if (user.fitnessGoal) {
+                  <span class="pill pill-goal-{{ user.fitnessGoal | lowercase }}">
+                    {{ goalLabel(user.fitnessGoal) }}
+                  </span>
+                }
+              </div>
+
+              <!-- Follow button -->
+              <button
+                class="sug-follow-btn"
+                [class.sug-follow-btn--following]="isFollowing(user.userId)"
+                [class.sug-follow-btn--loading]="isPending(user.userId)"
+                [disabled]="isPending(user.userId) || isFollowing(user.userId)"
+                (click)="onFollow(user.userId)"
+                type="button"
+                [attr.aria-label]="isFollowing(user.userId) ? 'Following ' + user.displayName : 'Follow ' + user.displayName"
+                [attr.aria-pressed]="isFollowing(user.userId)"
+                [attr.aria-busy]="isPending(user.userId)">
+                @if (isPending(user.userId)) {
+                  <mat-spinner diameter="14" />
+                } @else if (isFollowing(user.userId)) {
+                  <mat-icon>check</mat-icon> Following
+                } @else {
+                  <mat-icon>add</mat-icon> Follow
+                }
+              </button>
+
+            </div>
+          }
+        </div>
+      }
+      <!-- Empty: component hides itself silently — no empty-state message needed -->
+    }
+
+  </section>
+}

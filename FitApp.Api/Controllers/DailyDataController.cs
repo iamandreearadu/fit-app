@@ -26,6 +26,16 @@ public class DailyDataController(DailyDataService dailyService) : ControllerBase
         return Ok(entry);
     }
 
+    // GET api/daily/today/summary — Fix 10
+    // Returns today's daily entry enriched with live-computed calorie/macro totals from MealEntries.
+    // Private to the authenticated user — must NEVER be exposed via social or public endpoints.
+    [HttpGet("today/summary")]
+    public async Task<ActionResult<DailyEntrySummaryDto>> GetTodaySummary()
+    {
+        var summary = await dailyService.GetTodaySummaryAsync(UserId);
+        return Ok(summary);
+    }
+
     // GET api/daily/streak
     [HttpGet("streak")]
     public async Task<IActionResult> GetStreak()
@@ -36,10 +46,10 @@ public class DailyDataController(DailyDataService dailyService) : ControllerBase
 
     // GET api/daily/history
     [HttpGet("history")]
-    public async Task<IActionResult> GetHistory()
+    public async Task<IActionResult> GetHistory([FromQuery] int page = 1, [FromQuery] int pageSize = 30)
     {
-        var entries = await dailyService.GetAllAsync(UserId);
-        return Ok(entries);
+        var (items, hasMore) = await dailyService.GetAllAsync(UserId, page, pageSize);
+        return Ok(new { items, hasMore, page, pageSize });
     }
 
     // POST api/daily

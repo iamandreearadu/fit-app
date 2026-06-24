@@ -52,7 +52,7 @@
           <div class="search-result-row">
             <a [routerLink]="['/social/profile', user.id]" class="search-result-avatar-link">
               @if (user.avatarUrl) {
-                <img class="search-result-avatar" [src]="user.avatarUrl" [alt]="user.displayName" />
+                <img class="search-result-avatar" [src]="user.avatarUrl" [alt]="user.displayName" width="40" height="40" loading="lazy" />
               } @else {
                 <div class="search-result-avatar search-result-avatar--fallback">
                   <mat-icon>person</mat-icon>
@@ -78,6 +78,9 @@
   } @else {
 
     <!-- Discover mode -->
+
+    <!-- Suggested for you section (self-hides when empty or error) -->
+    <app-suggested-users class="discover-suggested" />
 
     <!-- Loading -->
     @if (facade.isLoadingDiscover()) {
@@ -126,16 +129,21 @@
                 <div class="user-card">
                   <a [routerLink]="['/social/profile', author.id]" class="user-card-avatar-link">
                     @if (author.avatarUrl) {
-                      <img class="user-card-avatar" [src]="author.avatarUrl" [alt]="author.displayName" />
+                      <img class="user-card-avatar" [src]="author.avatarUrl" [alt]="author.displayName" width="40" height="40" loading="lazy" />
                     } @else {
                       <div class="user-card-avatar user-card-avatar--fallback">
                         <mat-icon>person</mat-icon>
                       </div>
                     }
                   </a>
-                  <a [routerLink]="['/social/profile', author.id]" class="user-card-name">
-                    {{ author.displayName }}
-                  </a>
+                  <div class="user-card-name-row">
+                    <a [routerLink]="['/social/profile', author.id]" class="user-card-name">
+                      {{ author.displayName }}
+                    </a>
+                    @if (author.isVerified) {
+                      <mat-icon class="user-card-verified" aria-label="Verified account">verified</mat-icon>
+                    }
+                  </div>
                   <button
                     class="user-card-follow-btn"
                     [class.user-card-follow-btn--following]="isFollowing(author.id)"
@@ -175,6 +183,14 @@
           </div>
         }
       </div>
+
+      <!-- Infinite scroll sentinel -->
+      <div #discoverSentinel class="discover-sentinel"></div>
+      @if (facade.isLoadingDiscover() && facade.discoverPosts().length > 0) {
+        <div class="discover-loading-more">
+          <mat-spinner diameter="24"></mat-spinner>
+        </div>
+      }
 
     }
 

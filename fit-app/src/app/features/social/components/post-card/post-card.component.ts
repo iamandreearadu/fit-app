@@ -1,14 +1,15 @@
-import { Component, input, output, signal, computed, HostListener, inject } from '@angular/core';
+import { Component, input, output, signal, computed, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Post } from '../../../../core/models/social.model';
+import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
 
 @Component({
   selector: 'app-post-card',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatIconModule, MatButtonModule, DatePipe],
+  imports: [CommonModule, RouterLink, MatIconModule, MatButtonModule, DatePipe, ClickOutsideDirective],
   templateUrl: './post-card.component.html',
   styleUrl: './post-card.component.css'
 })
@@ -27,12 +28,12 @@ export class PostCardComponent {
   imageError = signal(false);
   showMenu = signal(false);
 
-  readonly isArticle = computed(() => !!this.post().articleId);
+  readonly isArticle   = computed(() => !!this.post().articleId);
 
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.showMenu.set(false);
-  }
+  // Fix 9 — seed content computed signals
+  readonly isSeed      = computed(() => !!this.post().isSeedContent);
+  readonly isTip       = computed(() => this.isSeed() && !this.post().articleId);
+  readonly isEdArticle = computed(() => this.isSeed() && !!this.post().articleId);
 
   readonly isContentLong = computed(() => this.post().content.length > 200);
 

@@ -2,6 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { SocialService } from '../../api/social.service';
 import { StatsService } from '../../api/stats.service';
+import { AlertService } from '../../shared/services/alert.service';
 import {
   Post,
   Comment,
@@ -16,7 +17,12 @@ import {
   CreateBlogRequest,
   UpdateBlogRequest,
   ArticleDetail,
-  PaginatedResponse
+  PaginatedResponse,
+  SuggestedUser,
+  FollowUser,
+  PostFromWorkoutRequest,
+  PostFromMealRequest,
+  SharePostResponse,
 } from '../models/social.model';
 import { UserPublicStats } from '../models/stats.model';
 
@@ -24,6 +30,7 @@ import { UserPublicStats } from '../models/stats.model';
 export class SocialFacade {
   private readonly socialSvc = inject(SocialService);
   private readonly statsSvc = inject(StatsService);
+  private readonly alerts = inject(AlertService);
 
   // Public stats state (other profiles)
   publicStats = signal<UserPublicStats | null>(null);
@@ -38,9 +45,13 @@ export class SocialFacade {
   private feedPage = 1;
 
   // Discover state
-  discoverPosts = signal<Post[]>([]);
+  private readonly _discoverPosts = signal<Post[]>([]);
+  readonly discoverPosts = this._discoverPosts.asReadonly();
   isLoadingDiscover = signal(false);
   discoverError = signal<string | null>(null);
+  private readonly _discoverPage = signal(1);
+  private readonly _discoverHasMore = signal(true);
+  readonly discoverHasMore = this._discoverHasMore.asReadonly();
 
   // Profile state
   currentProfile = signal<UserSocialProfile | null>(null);
@@ -49,16 +60,39 @@ export class SocialFacade {
   profileError = signal<string | null>(null);
 
   // Search state
-  searchResults = signal<UserSearchResult[]>([]);
+  private readonly _searchResults = signal<UserSearchResult[]>([]);
+  readonly searchResults = this._searchResults.asReadonly();
   isSearching = signal(false);
   searchError = signal<string | null>(null);
+
+  // ── Fix 7: Guided empty state ─────────────────────────────────────────────────
+
+  /** Current user's own following count — used to decide if guided empty shows. */
+  myFollowingCount = signal<number>(0);
+  isLoadingFollowingCount = signal(false);
+
+  /** Suggested users for the social feed guided empty state. */
+  private readonly _suggestedUsers = signal<SuggestedUser[]>([]);
+  private readonly _isLoadingSuggestions = signal(false);
+  readonly suggestedUsers = this._suggestedUsers.asReadonly();
+  readonly isLoadingSuggestions = this._isLoadingSuggestions.asReadonly();
+  suggestionsError = signal<string | null>(null);
 
   // Profile sections state
   profileWorkouts = signal<ProfileWorkout[]>([]);
   profileBlogs = signal<ProfileBlog[]>([]);
   archivedPosts = signal<Post[]>([]);
+  archivedWorkouts = signal<ProfileWorkout[]>([]);
   private profileSectionLoadingCount = signal(0);
   isLoadingProfileSections = computed(() => this.profileSectionLoadingCount() > 0);
+  profileSectionsError = signal<string | null>(null);
+
+  // Follow list state
+  followListUsers = signal<FollowUser[]>([]);
+  followListType = signal<'followers' | 'following' | null>(null);
+  isLoadingFollowList = signal(false);
+  followListHasMore = signal(false);
+  private followListPage = 1;
 
   async loadFeed(reset = false): Promise<void> {
     if (reset) {
@@ -89,22 +123,22 @@ export class SocialFacade {
     // Capture snapshot before optimistic update so we can restore on failure
     const prevFeed = this.feed();
     const prevProfilePosts = this.profilePosts();
+    const prevDiscoverPosts = this.discoverPosts();
 
-    // Optimistic update
-    this.feed.update(posts => posts.map(p =>
-      p.id === postId
-        ? { ...p, isLikedByMe: !p.isLikedByMe, likesCount: p.isLikedByMe ? p.likesCount - 1 : p.likesCount + 1 }
-        : p
-    ));
-    this.profilePosts.update(posts => posts.map(p =>
-      p.id === postId
-        ? { ...p, isLikedByMe: !p.isLikedByMe, likesCount: p.isLikedByMe ? p.likesCount - 1 : p.likesCount + 1 }
-        : p
-    ));
+    const applyLike = (p: Post) => p.id === postId
+      ? { ...p, isLikedByMe: !p.isLikedByMe, likesCount: p.isLikedByMe ? p.likesCount - 1 : p.likesCount + 1 }
+      : p;
+
+    // Optimistic update on all three stores
+    this.feed.update(posts => posts.map(applyLike));
+    this.profilePosts.update(posts => posts.map(applyLike));
+    this._discoverPosts.update(posts => posts.map(applyLike));
+
     firstValueFrom(this.socialSvc.toggleLike(postId)).catch(() => {
       // Revert from pre-mutation snapshot — avoids double-flip on concurrent actions
       this.feed.set(prevFeed);
       this.profilePosts.set(prevProfilePosts);
+      this._discoverPosts.set(prevDiscoverPosts);
     });
   }
 
@@ -120,7 +154,7 @@ export class SocialFacade {
   async updatePost(id: number, req: UpdatePostRequest): Promise<Post> {
     const updated = await firstValueFrom(this.socialSvc.updatePost(id, req));
     this.feed.update(f => f.map(p => p.id === id ? { ...p, ...updated } : p));
-    this.discoverPosts.update(f => f.map(p => p.id === id ? { ...p, ...updated } : p));
+    this._discoverPosts.update(f => f.map(p => p.id === id ? { ...p, ...updated } : p));
     this.profilePosts.update(f => f.map(p => p.id === id ? { ...p, ...updated } : p));
     return updated;
   }
@@ -128,16 +162,27 @@ export class SocialFacade {
   async deletePost(id: number): Promise<void> {
     await firstValueFrom(this.socialSvc.deletePost(id));
     this.feed.update(f => f.filter(p => p.id !== id));
-    this.discoverPosts.update(f => f.filter(p => p.id !== id));
+    this._discoverPosts.update(f => f.filter(p => p.id !== id));
     this.profilePosts.update(f => f.filter(p => p.id !== id));
   }
 
-  async loadDiscover(): Promise<void> {
+  async loadDiscover(page = 1): Promise<void> {
+    if (page === 1) {
+      this._discoverPosts.set([]);
+      this._discoverHasMore.set(true);
+      this.discoverError.set(null);
+    }
+    if (!this._discoverHasMore()) return;
     this.isLoadingDiscover.set(true);
-    this.discoverError.set(null);
     try {
-      const res = await firstValueFrom(this.socialSvc.getDiscover());
-      this.discoverPosts.set(res.items);
+      const res = await firstValueFrom(this.socialSvc.getDiscover(page, 12));
+      if (page === 1) {
+        this._discoverPosts.set(res.items);
+      } else {
+        this._discoverPosts.update(existing => [...existing, ...res.items]);
+      }
+      this._discoverHasMore.set(res.items.length === 12);
+      this._discoverPage.set(page);
     } catch {
       this.discoverError.set('Failed to load discover. Please try again.');
     } finally {
@@ -147,14 +192,14 @@ export class SocialFacade {
 
   async searchUsers(q: string): Promise<void> {
     if (!q.trim()) {
-      this.searchResults.set([]);
+      this._searchResults.set([]);
       return;
     }
     this.isSearching.set(true);
     this.searchError.set(null);
     try {
       const results = await firstValueFrom(this.socialSvc.searchUsers(q));
-      this.searchResults.set(results);
+      this._searchResults.set(results);
     } catch {
       this.searchError.set('Search failed. Please try again.');
     } finally {
@@ -163,7 +208,7 @@ export class SocialFacade {
   }
 
   clearSearch(): void {
-    this.searchResults.set([]);
+    this._searchResults.set([]);
     this.searchError.set(null);
   }
 
@@ -172,7 +217,9 @@ export class SocialFacade {
     try {
       const res = await firstValueFrom(this.socialSvc.getProfileWorkouts(userId));
       this.profileWorkouts.set(res.items);
-    } catch { /* silently ignore */ } finally {
+    } catch {
+      this.profileSectionsError.set('Failed to load workouts.');
+    } finally {
       this.profileSectionLoadingCount.update(n => Math.max(0, n - 1));
     }
   }
@@ -182,7 +229,9 @@ export class SocialFacade {
     try {
       const res = await firstValueFrom(this.socialSvc.getProfileBlogs(userId));
       this.profileBlogs.set(res.items);
-    } catch { /* silently ignore */ } finally {
+    } catch {
+      this.profileSectionsError.set('Failed to load articles.');
+    } finally {
       this.profileSectionLoadingCount.update(n => Math.max(0, n - 1));
     }
   }
@@ -192,7 +241,9 @@ export class SocialFacade {
     try {
       const res = await firstValueFrom(this.socialSvc.getArchivedPosts(userId));
       this.archivedPosts.set(res.items);
-    } catch { /* silently ignore */ } finally {
+    } catch {
+      this.profileSectionsError.set('Failed to load archived posts.');
+    } finally {
       this.profileSectionLoadingCount.update(n => Math.max(0, n - 1));
     }
   }
@@ -208,9 +259,26 @@ export class SocialFacade {
     this.archivedPosts.update(f => f.filter(p => p.id !== id));
   }
 
+  async loadArchivedWorkouts(userId: string): Promise<void> {
+    this.profileSectionLoadingCount.update(n => n + 1);
+    try {
+      const res = await firstValueFrom(this.socialSvc.getArchivedWorkouts(userId));
+      this.archivedWorkouts.set(res.items);
+    } catch {
+      this.profileSectionsError.set('Failed to load archived workouts.');
+    } finally {
+      this.profileSectionLoadingCount.update(n => Math.max(0, n - 1));
+    }
+  }
+
   async archiveWorkout(id: number): Promise<void> {
     await firstValueFrom(this.socialSvc.archiveWorkout(id));
     this.profileWorkouts.update(f => f.filter(w => w.id !== id));
+  }
+
+  async unarchiveWorkout(id: number): Promise<void> {
+    await firstValueFrom(this.socialSvc.archiveWorkout(id));
+    this.archivedWorkouts.update(f => f.filter(w => w.id !== id));
   }
 
   async deleteWorkout(id: number): Promise<void> {
@@ -278,6 +346,114 @@ export class SocialFacade {
 
   async deleteComment(postId: number, commentId: number): Promise<void> {
     return firstValueFrom(this.socialSvc.deleteComment(postId, commentId));
+  }
+
+  // ── Followers / Following lists ─────────────────────────────────────────────
+
+  async loadFollowList(userId: string, type: 'followers' | 'following', reset = true): Promise<void> {
+    if (reset) {
+      this.followListPage = 1;
+      this.followListUsers.set([]);
+      this.followListHasMore.set(false);
+    }
+    this.followListType.set(type);
+    this.isLoadingFollowList.set(true);
+    try {
+      const res = type === 'followers'
+        ? await firstValueFrom(this.socialSvc.getFollowers(userId, this.followListPage))
+        : await firstValueFrom(this.socialSvc.getFollowing(userId, this.followListPage));
+      this.followListUsers.update(existing => reset ? res.items : [...existing, ...res.items]);
+      this.followListHasMore.set(res.hasMore);
+      this.followListPage++;
+    } catch {
+      this.alerts.error('Failed to load ' + type + '.');
+    } finally {
+      this.isLoadingFollowList.set(false);
+    }
+  }
+
+  async loadMoreFollowList(userId: string): Promise<void> {
+    const type = this.followListType();
+    if (!type || !this.followListHasMore()) return;
+    await this.loadFollowList(userId, type, false);
+  }
+
+  closeFollowList(): void {
+    this.followListType.set(null);
+    this.followListUsers.set([]);
+    this.followListHasMore.set(false);
+    this.followListPage = 1;
+  }
+
+    // ── Fix 7: Guided empty state methods ─────────────────────────────────────────
+
+  /**
+   * Loads the current user's following count from the dedicated lightweight endpoint.
+   * Used by SocialFeedComponent to decide whether to show the guided empty state.
+   * Silently fails — defaults to 0, which shows the guided state (safe fallback).
+   */
+  async loadMyFollowingCount(): Promise<void> {
+    this.isLoadingFollowingCount.set(true);
+    try {
+      const result = await firstValueFrom(this.socialSvc.getMyFollowingCount());
+      this.myFollowingCount.set(result.count);
+    } catch {
+      // silent — 0 is the safe default (shows guided state)
+    } finally {
+      this.isLoadingFollowingCount.set(false);
+    }
+  }
+
+  /** Increments myFollowingCount after a successful follow from the guided state. */
+  incrementMyFollowingCount(): void {
+    this.myFollowingCount.update(n => n + 1);
+  }
+
+  /**
+   * Loads up to `limit` (max 5) suggested users for the social-feed guided empty.
+   * Uses GET /api/social/discover/suggested.
+   */
+  async loadSuggestedUsers(limit = 5): Promise<void> {
+    this._isLoadingSuggestions.set(true);
+    this.suggestionsError.set(null);
+    try {
+      const users = await firstValueFrom(this.socialSvc.getSuggestedUsers(limit));
+      this._suggestedUsers.set(users);
+    } catch {
+      this.suggestionsError.set("Couldn't load suggestions. Please try again.");
+    } finally {
+      this._isLoadingSuggestions.set(false);
+    }
+  }
+
+  // ── Fix 2 — Share to beSocial ──────────────────────────────────────────────
+
+  /**
+   * Creates a social post from a completed workout session.
+   * PRIVACY: caption is the only user-provided field — no health metrics are sent.
+   */
+  async shareWorkout(sessionId: number, caption?: string): Promise<SharePostResponse | null> {
+    try {
+      const req: PostFromWorkoutRequest | undefined = caption ? { caption } : undefined;
+      return await firstValueFrom(this.socialSvc.shareWorkout(sessionId, req));
+    } catch {
+      this.alerts.error('Failed to share workout. Please try again.');
+      return null;
+    }
+  }
+
+  /**
+   * Creates a social post from a logged meal entry.
+   * PRIVACY: caption is the only user-provided field — no macro or calorie data is sent.
+   */
+  async shareMeal(mealId: number, caption?: string): Promise<SharePostResponse | null> {
+    try {
+      const req: PostFromMealRequest | undefined = caption ? { caption } : undefined;
+      return await firstValueFrom(this.socialSvc.shareMeal(mealId, req));
+    } catch {
+      this.alerts.error('Failed to share meal. Please try again.');
+      return null;
+    }
   }
 
   async loadPublicStats(userId: string): Promise<void> {

@@ -15,6 +15,8 @@ public class DailyEntry
     public int CaloriesBurned { get; set; }
     public int CaloriesIntake { get; set; }
     public int CaloriesTotal { get; set; }                          // intake - burned
+    public double? ManualWeight { get; set; }                       // Fix 10: daily weigh-in (kg), nullable
+    public int? EnergyLevel { get; set; }                           // Fix 10: 1-5 subjective energy scale, nullable
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public User User { get; set; } = null!;

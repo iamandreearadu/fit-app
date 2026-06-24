@@ -1,0 +1,108 @@
+/* ── Tap target — 48×48px minimum (gym-safe touch area) ──────────────────── */
+
+.streak-tap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  min-height: 48px;
+}
+
+/* ── Pill badge ───────────────────────────────────────────────────────────── */
+
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 10px 0 7px;
+  border-radius: 999px;
+  background: rgba(124, 77, 255, 0.1);
+  border: 1px solid rgba(124, 77, 255, 0.25);
+  cursor: default;
+  user-select: none;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* ── Flame icon ───────────────────────────────────────────────────────────── */
+
+.streak-badge-flame {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: var(--primary);
+  transition: color 0.25s ease;
+  /* CSS variable trick: at-risk override speeds up the flicker */
+  --flame-speed: 2.2s;
+  animation: streak-flame-flicker var(--flame-speed) ease-in-out infinite;
+}
+
+/* ── Day count ────────────────────────────────────────────────────────────── */
+
+.streak-badge-count {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--white-soft);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  display: inline-block;
+  transition: color 0.25s ease;
+}
+
+/* ── At-risk modifier: amber palette + pulse ──────────────────────────────── */
+
+.streak-badge--at-risk {
+  background: var(--color-warning-bg);
+  border-color: rgba(255, 183, 77, 0.35);
+  animation: streak-at-risk-pulse 2s ease-in-out infinite;
+}
+
+.streak-badge--at-risk .streak-badge-flame {
+  color: var(--color-warning);
+  --flame-speed: 1.4s; /* faster flicker signals urgency */
+}
+
+.streak-badge--at-risk .streak-badge-count {
+  color: var(--color-warning);
+}
+
+/* ── New-record modifier: one-shot purple glow ────────────────────────────── */
+
+.streak-badge--new-record {
+  animation: streak-new-record-glow 0.75s ease-out forwards;
+}
+
+/* ── Count bump: one-shot scale on real-time increment ───────────────────── */
+
+.streak-badge-count--bumping {
+  animation: streak-count-bump 0.35s ease-out;
+}
+
+/* ── Keyframes (component-scoped — NOT added to global styles.css) ────────── */
+
+@keyframes streak-flame-flicker {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  35%       { transform: scale(1.25) translateY(-1px) rotate(-4deg); }
+  65%       { transform: scale(1.1) rotate(2deg); }
+}
+
+@keyframes streak-at-risk-pulse {
+  0%, 100% { opacity: 1;    box-shadow: none; }
+  50%       { opacity: 0.78; box-shadow: 0 0 8px rgba(255, 183, 77, 0.3); }
+}
+
+@keyframes streak-new-record-glow {
+  0%   { box-shadow: none; transform: scale(1); }
+  28%  {
+    box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.55),
+                0 0 18px rgba(124, 77, 255, 0.45);
+    transform: scale(1.12);
+  }
+  100% { box-shadow: 0 0 0 1px rgba(124, 77, 255, 0.2); transform: scale(1); }
+}
+
+@keyframes streak-count-bump {
+  0%   { transform: scale(1)    translateY(0); }
+  38%  { transform: scale(1.45) translateY(-3px); }
+  100% { transform: scale(1)    translateY(0); }
+}

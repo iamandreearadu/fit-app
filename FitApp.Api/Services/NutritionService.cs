@@ -7,14 +7,22 @@ namespace FitApp.Api.Services;
 
 public class NutritionService(AppDbContext db)
 {
-    public async Task<List<MealEntryDto>> ListAsync(string userId)
+    private static readonly HashSet<string> ValidSources =
+        ["search", "recent", "manual", "ai_analyzer"];
+    public async Task<(List<MealEntryDto> Items, bool HasMore)> ListAsync(string userId, int page = 1, int pageSize = 20)
     {
-        var meals = await db.MealEntries
+        pageSize = Math.Min(pageSize, 50);
+        var query = db.MealEntries
+            .AsNoTracking()
             .Include(m => m.Items.OrderBy(f => f.Order))
             .Where(m => m.UserId == userId)
-            .OrderByDescending(m => m.UpdatedAt)
+            .OrderByDescending(m => m.UpdatedAt);
+        var total = await query.CountAsync();
+        var meals = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
-        return meals.Select(MapToDto).ToList();
+        return (meals.Select(MapToDto).ToList(), page * pageSize < total);
     }
 
     public async Task<MealEntryDto> CreateAsync(string userId, SaveMealRequest req)
@@ -65,6 +73,64 @@ public class NutritionService(AppDbContext db)
         return true;
     }
 
+    /// <summary>
+    /// Returns today's logged macro totals (summed from MealEntry rows for today's UTC date)
+    /// vs TDEE-derived macro targets (computed from user.GoalCalories).
+    ///
+    /// Macro targets use the standard 30 / 40 / 30 split:
+    ///   Protein  30 % of GoalCalories / 4 kcal/g
+    ///   Carbs    40 % of GoalCalories / 4 kcal/g
+    ///   Fat      30 % of GoalCalories / 9 kcal/g
+    ///
+    /// All target fields are 0 when the user has not set their physical profile (GoalCalories is null).
+    /// Date filter uses the UTC date string "yyyy-MM-dd" to match MealEntry.Date exactly.
+    /// </summary>
+    public async Task<MacroProgressDto> GetTodayMacroProgressAsync(string userId)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd");
+
+        // Aggregate today's meal totals in a single DB round-trip.
+        // GroupBy(1) collapses all rows into one aggregate row; returns null when no rows exist.
+        var totals = await db.MealEntries
+            .AsNoTracking()
+            .Where(m => m.UserId == userId && m.Date == today)
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                TotalProtein  = g.Sum(m => m.TotalProtein_g),
+                TotalCarbs    = g.Sum(m => m.TotalCarbs_g),
+                TotalFat      = g.Sum(m => m.TotalFats_g),
+                TotalCalories = g.Sum(m => m.TotalCalories)
+            })
+            .FirstOrDefaultAsync();
+
+        // Load only GoalCalories — no need to materialise the full User entity.
+        var goalCalories = await db.Users
+            .AsNoTracking()
+            .Where(u => u.Id == userId)
+            .Select(u => u.GoalCalories)
+            .FirstOrDefaultAsync();
+
+        var targetKcal = goalCalories ?? 0.0;
+
+        // Derive per-macro gram targets from GoalCalories using a 30 / 40 / 30 split.
+        // Rounded to one decimal place — consistent with frontend display precision.
+        var targetProtein = Math.Round(targetKcal * 0.30 / 4.0, 1);
+        var targetCarbs   = Math.Round(targetKcal * 0.40 / 4.0, 1);
+        var targetFat     = Math.Round(targetKcal * 0.30 / 9.0, 1);
+
+        return new MacroProgressDto(
+            TotalProtein:  Math.Round(totals?.TotalProtein  ?? 0.0, 1),
+            TargetProtein: targetProtein,
+            TotalCarbs:    Math.Round(totals?.TotalCarbs    ?? 0.0, 1),
+            TargetCarbs:   targetCarbs,
+            TotalFat:      Math.Round(totals?.TotalFat      ?? 0.0, 1),
+            TargetFat:     targetFat,
+            TotalCalories: Math.Round(totals?.TotalCalories ?? 0.0, 1),
+            TargetCalories: Math.Round(targetKcal, 1)
+        );
+    }
+
     private static void ApplyItemsAndTotals(MealEntry meal, List<FoodItemDto> items)
     {
         meal.Items = items.Select((f, i) => new FoodItem
@@ -75,6 +141,7 @@ public class NutritionService(AppDbContext db)
             Protein_g = f.Protein_g,
             Carbs_g = f.Carbs_g,
             Fats_g = f.Fats_g,
+            Source = f.Source is not null && ValidSources.Contains(f.Source) ? f.Source : null,
             Order = i
         }).ToList();
 
@@ -106,7 +173,8 @@ public class NutritionService(AppDbContext db)
             Calories = f.Calories,
             Protein_g = f.Protein_g,
             Carbs_g = f.Carbs_g,
-            Fats_g = f.Fats_g
+            Fats_g = f.Fats_g,
+            Source = f.Source   // Fix 1
         }).ToList()
     };
 }

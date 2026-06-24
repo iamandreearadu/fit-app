@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { DailyUserDataStats, DailyUserData } from "../models/daily-user-data.model";
+import { DailyEntrySummary, DailyUserDataStats, DailyUserData } from "../models/daily-user-data.model";
 import { UserMetricsService } from "./user-metrics.service";
 
 @Injectable({
@@ -7,7 +7,9 @@ import { UserMetricsService } from "./user-metrics.service";
 })
 export class DailyUserDataService {
 
-  readonly todayDate = new Date().toISOString().slice(0, 10);
+  get todayDate(): string {
+    return new Date().toISOString().slice(0, 10);
+  }
 
   private readonly userMetricsSrv = inject(UserMetricsService);
 
@@ -16,10 +18,12 @@ export class DailyUserDataService {
   private readonly _daily = signal<DailyUserData | null>(null);
   private readonly _loading = signal(false);
   private readonly _history = signal<DailyUserData[]>([]);
+  private readonly _todaySummary = signal<DailyEntrySummary | null>(null);
 
   readonly daily = this._daily.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly history = this._history.asReadonly();
+  readonly todaySummary = this._todaySummary.asReadonly();
 
   readonly stats = computed<DailyUserDataStats>(() =>
     this.computeStats(this._daily())
@@ -61,7 +65,7 @@ export class DailyUserDataService {
       macrosPct: { protein: 0, carbs: 0, fats: 0 },
       caloriesIntake: 0,
       caloriesBurned: 0,
-      caloriesTotal: 0
+      caloriesTotal: 0,
     });
   }
 
@@ -71,6 +75,10 @@ export class DailyUserDataService {
 
   public setHistory(list: DailyUserData[]): void {
     this._history.set(list);
+  }
+
+  public setTodaySummary(summary: DailyEntrySummary | null): void {
+    this._todaySummary.set(summary);
   }
 
   // ----------------- PUBLIC API (mutations) -----------------
@@ -195,7 +203,7 @@ export class DailyUserDataService {
     const caloriesIntake = d.caloriesIntake ?? this.caloriesFromMacros(protein, carbs, fats);
     const caloriesBurned = Number(d.caloriesBurned ?? 0);
     const totalCalories = Math.round(this.caloriesFromMacros(protein, carbs, fats));
-    const netCalories = Math.max(0, this.caloriesTotal(caloriesIntake, caloriesBurned));
+    const netCalories = Math.max(0, this.caloriesTotal(totalCalories, caloriesBurned));
 
     const waterConsumedL = Number(d.waterConsumedL ?? 0);
     const steps = Number(d.steps ?? 0);

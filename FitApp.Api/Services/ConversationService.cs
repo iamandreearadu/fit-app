@@ -11,43 +11,53 @@ public class ConversationService(
 {
     // ── List conversations ────────────────────────────────────────────────────
 
-    public async Task<List<ConversationSummaryResponse>> GetConversationsAsync(string userId)
+    public async Task<PaginatedResponse<ConversationSummaryResponse>> GetConversationsAsync(
+        string userId, int page, int pageSize)
     {
+        pageSize = Math.Min(pageSize, 50);
+
+        // Get all conversation IDs for this user — needed for total count
         var participantConvIds = await db.ConversationParticipants
             .Where(cp => cp.UserId == userId)
             .Select(cp => cp.ConversationId)
             .ToListAsync();
 
+        var totalCount = participantConvIds.Count;
+
         var conversations = await db.Conversations
             .Where(c => participantConvIds.Contains(c.Id))
             .Include(c => c.Participants).ThenInclude(p => p.User)
             .Include(c => c.Messages.OrderByDescending(m => m.SentAt).Take(1))
+            .OrderByDescending(c => c.Messages
+                .OrderByDescending(m => m.SentAt)
+                .Select(m => (DateTime?)m.SentAt)
+                .FirstOrDefault() ?? c.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
-        // Batch-fetch unread counts in one query — avoids 2N+1 round-trips
+        // ── Batch unread counts — replaces N+1 per-conversation CountAsync ──
         var convIds = conversations.Select(c => c.Id).ToList();
-
         var lastReadLookup = conversations
             .SelectMany(c => c.Participants)
             .Where(p => p.UserId == userId)
-            .ToDictionary(p => p.ConversationId, p => p.LastReadAt);
+            .ToDictionary(p => p.ConversationId, p => p.LastReadAt ?? DateTime.MinValue);
 
-        var unreadMessages = await db.DirectMessages
-            .Where(m => convIds.Contains(m.ConversationId) && m.SenderId != userId && !m.IsDeleted)
-            .Select(m => new { m.ConversationId, m.SentAt })
-            .ToListAsync();
-
-        var unreadLookup = unreadMessages
+        var unreadCounts = await db.DirectMessages
+            .Where(m => convIds.Contains(m.ConversationId)
+                        && !m.IsDeleted
+                        && m.SenderId != userId)
             .GroupBy(m => m.ConversationId)
-            .ToDictionary(
-                g => g.Key,
-                g =>
-                {
-                    var lastRead = lastReadLookup.GetValueOrDefault(g.Key);
-                    return lastRead.HasValue
-                        ? g.Count(m => m.SentAt > lastRead.Value)
-                        : g.Count();
-                });
+            .Select(g => new
+            {
+                ConversationId = g.Key,
+                Count = g.Count(m => m.SentAt > (
+                    db.ConversationParticipants
+                        .Where(cp => cp.ConversationId == g.Key && cp.UserId == userId)
+                        .Select(cp => cp.LastReadAt ?? DateTime.MinValue)
+                        .FirstOrDefault()))
+            })
+            .ToDictionaryAsync(x => x.ConversationId, x => x.Count);
 
         var results = new List<ConversationSummaryResponse>();
 
@@ -73,12 +83,19 @@ public class ConversationService(
                     HasImage = !lastMessage.IsDeleted && lastMessage.ImageUrl is not null,
                     SentAt = lastMessage.SentAt
                 },
-                UnreadCount = unreadLookup.GetValueOrDefault(conv.Id, 0),
+                UnreadCount = unreadCounts.GetValueOrDefault(conv.Id, 0),
                 UpdatedAt = lastMessage?.SentAt ?? conv.CreatedAt
             });
         }
 
-        return results.OrderByDescending(r => r.UpdatedAt).ToList();
+        return new PaginatedResponse<ConversationSummaryResponse>
+        {
+            Items = results,
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            HasMore = page * pageSize < totalCount
+        };
     }
 
     // ── Get or create ─────────────────────────────────────────────────────────
@@ -179,7 +196,7 @@ public class ConversationService(
 
     // ── Messages ──────────────────────────────────────────────────────────────
 
-    public async Task<PaginatedResponse<DirectMessageResponse>> GetMessagesAsync(
+    public async Task<CursorPageResponse<DirectMessageResponse>> GetMessagesAsync(
         int conversationId,
         string userId,
         int? beforeMessageId,
@@ -205,17 +222,19 @@ public class ConversationService(
         var hasMore = fetched.Count > pageSize;
         var messages = fetched.Take(pageSize).ToList();
 
-        // Return in ascending order for the client
+        // Return in ascending order for display
         messages.Reverse();
 
-        return new PaginatedResponse<DirectMessageResponse>
-        {
-            Items = messages.Select(m => MapToMessageResponse(m, userId)).ToList(),
-            Page = 1,
-            PageSize = pageSize,
-            TotalCount = messages.Count,
-            HasMore = hasMore
-        };
+        var items = messages.Select(m => MapToMessageResponse(m, userId)).ToList();
+
+        // NextCursor is the Id of the oldest message in this batch — client passes it as beforeMessageId
+        var nextCursor = items.Count > 0 ? items[0].Id : (int?)null;
+
+        return new CursorPageResponse<DirectMessageResponse>(
+            Items: items,
+            HasMore: hasMore,
+            NextCursor: nextCursor
+        );
     }
 
     public async Task<DirectMessageResponse> SendMessageAsync(

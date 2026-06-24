@@ -64,4 +64,4 @@ fit-app/src/environments/environment.prod.ts
 
 *.log
 
-wwwroot/*
+FitApp.Api/wwwroot/angular-build/

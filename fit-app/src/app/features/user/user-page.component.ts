@@ -1,6 +1,6 @@
 import { Component, inject, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MaterialModule } from '../../core/material/material.module';
 import { HeaderComponent } from '../../shared/components/header/header.component';
 import { ProfileTabComponent } from './profile-tab/profile-tab.component';
@@ -23,11 +23,23 @@ export class UserPageComponent implements OnInit {
   public accountFacade = inject(AccountFacade);
   public userStore = inject(UserStore);
   private userFacade = inject(UserFacade);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   public streak = this.userFacade.streak;
 
+  private static readonly VALID_TABS = [
+    'profile', 'physical', 'workouts', 'nutrition',
+    'progress', 'goals', 'settings', 'notifications',
+  ] as const;
+
   ngOnInit(): void {
     this.userFacade.loadStreak();
+
+    const tabParam = this.route.snapshot.queryParamMap.get('tab');
+    if (tabParam && (UserPageComponent.VALID_TABS as readonly string[]).includes(tabParam)) {
+      this.activeTab = tabParam as typeof this.activeTab;
+    }
   }
 
   activeTab: 'profile' | 'physical' | 'workouts' | 'nutrition' | 'progress' | 'goals' | 'settings' | 'notifications' = 'profile';
@@ -54,5 +66,9 @@ export class UserPageComponent implements OnInit {
 
   toggleSidebar() {
     this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
+
+  openAiHistory(): void {
+    this.router.navigate(['/ai-assistant']);
   }
 }

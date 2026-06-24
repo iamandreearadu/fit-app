@@ -1,0 +1,137 @@
+/* ── Sheet container (override MAT bottom-sheet defaults via panelClass) ─── */
+
+.create-sheet-container {
+  padding: 16px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Drag handle ─────────────────────────────────────────────────────────── */
+
+.create-sheet-handle {
+  width: 32px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 auto 16px;
+}
+
+/* ── Title ───────────────────────────────────────────────────────────────── */
+
+.create-sheet-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white-soft);
+  margin: 0 0 18px;
+  letter-spacing: -0.2px;
+}
+
+/* ── 2-column action grid ────────────────────────────────────────────────── */
+
+.create-action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ── Action cell ─────────────────────────────────────────────────────────── */
+
+.create-action-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 80px;
+  padding: 16px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.create-action-cell:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.create-action-cell:active {
+  transform: scale(0.96);
+  transition-duration: 0.1s;
+}
+
+.create-action-cell:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ── Daily check-in spans full width ─────────────────────────────────────── */
+
+.create-action-cell--wide {
+  grid-column: span 2;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 64px;
+}
+
+/* ── Icon wrapper ────────────────────────────────────────────────────────── */
+
+.create-action-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(124, 77, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.create-action-icon-wrap mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  color: var(--primary);
+}
+
+/* ── Label ───────────────────────────────────────────────────────────────── */
+
+.create-action-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white-soft);
+  line-height: 1.3;
+  text-align: center;
+}
+
+.create-action-cell--wide .create-action-label {
+  text-align: left;
+}
+
+/* ── Single-column on very small screens ─────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .create-action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .create-action-cell--wide {
+    grid-column: span 1;
+  }
+}
+
+/* ── prefers-reduced-motion ──────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .create-action-cell {
+    transition: none;
+  }
+
+  .create-action-cell:hover {
+    transform: none;
+    opacity: 0.85;
+  }
+}

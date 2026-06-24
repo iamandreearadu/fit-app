@@ -580,43 +580,12 @@
   }
 }
 
-/* Tablet / small desktop – hide nav, show hamburger */
+/* Mobile — entire header hidden, replaced by app-top-bar + app-bottom-nav */
 @media (max-width: 768px) {
-  .hdr-inner {
-    padding: 0 20px;
-    justify-content: space-between;
-  }
-  .hdr-nav {
-    display: none;
-  }
-  .hdr-btn-ghost,
-  .hdr-btn-primary {
-    display: none;
-  }
-  .hdr-username {
-    display: none;
-  }
-  .hdr-chev {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
-  }
-  .hdr-user {
-    padding: 4px 14px 4px 8px;
-    border-radius: 999px;
-    gap: 10px;
-  }
-  .hdr-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-  }
-  .hdr-toggle {
-    display: inline-flex;
-  }
+  :host { display: none !important; }
 }
 
-/* Mobile */
+/* Small mobile (only applies above 768px due to host hiding) */
 @media (max-width: 480px) {
   .hdr-inner {
     padding: 0 14px;
@@ -627,16 +596,5 @@
   }
   .hdr-logo-text {
     font-size: 16px;
-  }
-  .mob-drawer {
-    width: 100vw;
-    border-left: none;
-  }
-  .mob-drawer-links {
-    gap: 4px;
-  }
-  .mob-link {
-    padding: 13px 14px;
-    font-size: 15px;
   }
 }

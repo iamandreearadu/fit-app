@@ -22,15 +22,39 @@ Full reference for the visual language, tokens, patterns, and component styles.
 ## CSS Custom Properties (Tokens)
 
 ```css
+/* Brand */
 --primary:        #7c4dff
+--primary-rgb:    124, 77, 255
+--primary-light:  #a78bfa
 --primary-glow:   rgba(124, 77, 255, 0.35)
 --accent:         rgb(255, 64, 129)
 --accent-bg:      rgba(255, 64, 129, 0.15)
+
+/* Surface */
 --surface:        #0d0d10
+
 --white:          #ffffff
 --white-soft:     rgba(255, 255, 255, 0.85)
 --white-fade:     rgba(255, 255, 255, 0.08)
 --bg-fade:        linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.02))
+
+/* Navigation (shared between app & social bottom-nav / top-bar) */
+--nav-height:         56px
+--nav-bg:             rgba(13, 13, 16, 0.95)
+--nav-blur:           20px
+--nav-border:         rgba(255, 255, 255, 0.07)
+--nav-icon-inactive:  rgba(255, 255, 255, 0.4)
+--nav-icon-hover:     rgba(255, 255, 255, 0.7)
+
+/* Semantic */
+--color-success:      #4ade80
+--color-success-bg:   rgba(74, 222, 128, 0.12)
+--color-info:         #38bdf8
+--color-info-bg:      rgba(56, 189, 248, 0.12)
+--color-warning:      #ffb74d
+--color-warning-bg:   rgba(255, 183, 77, 0.12)
+--color-error:        #ef5350
+--color-error-bg:     rgba(239, 83, 80, 0.12)
 ```
 
 ---
@@ -161,10 +185,20 @@ other:   #ff4081  (pink)
 | Breakpoint | Px | Key change |
 |---|---|---|
 | Large tablet | `900px` | Grid reduces |
-| Tablet | `768px` | Nav → hamburger, AI chat overlay |
+| Tablet | `768px` | Desktop header/footer hidden; mobile top-bar + bottom-nav shown |
 | Sidebar | `968px` | User sidebar collapses |
 | Modal → sheet | `640px` | Modals become bottom sheets |
 | Mobile | `480px` | Single column |
+
+### Mobile Navigation Architecture (≤ 768px)
+- **Desktop header** (`<app-header>`) hidden via `display: none !important`
+- **Desktop footer** (`<app-footer>`) hidden via `display: none`
+- **App Top Bar** (`<app-top-bar>`) — fixed top, brand + avatar + streak + create button (social routes only)
+- **App Bottom Nav** (`<app-bottom-nav>`) — fixed bottom, 5 tabs: Dashboard | Plans | Social (badge) | Profile | More
+- **Social Top Tabs** (`<app-social-top-tabs>`) — inline pill tabs inside social shell, sticky below top-bar
+- **More Sheet** (`<app-more-sheet>`) — `MatBottomSheet` with AI, Blog, Home, Logout
+- **Excluded routes** — `/login`, `/register`, `/onboarding`, `/workout-session` (no top-bar or bottom-nav)
+- **Page content** gets `padding-top: var(--nav-height)` and `padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom))` via `.page-wrapper`
 
 ---
 
@@ -228,4 +262,74 @@ border-radius: 24px 24px 0 0; position: fixed; bottom: 0; left: 0; right: 0;
 /* User */ background: var(--primary); border-radius: 18px 18px 4px 18px;
 /* AI   */ background: rgba(255,255,255,0.05); border-radius: 18px 18px 18px 4px;
 max-width: 72%;
+```
+
+---
+
+## Mobile Navigation Components
+
+### App Bottom Nav (`app-bottom-nav`)
+**Purpose:** Primary mobile navigation, fixed to bottom. Shows 5 tabs (auth) or 4 tabs (guest).
+**File:** `shared/components/bottom-nav/app-bottom-nav.component.*`
+**Controlled by:** `AppComponent.showMainNav()` — hidden on login, register, onboarding, workout-session.
+
+```
+Structure:  [Dashboard] [Plans] [Social•badge] [Profile] [More]
+Position:   fixed bottom, z-index: 100
+Height:     var(--nav-height) + safe-area-inset-bottom
+Background: var(--nav-bg) with blur(var(--nav-blur))
+Border:     1px solid var(--nav-border) top
+```
+
+**Tab states:**
+| State | Icon color | Label color | Extra |
+|---|---|---|---|
+| Inactive | `var(--nav-icon-inactive)` | `var(--nav-icon-inactive)` | — |
+| Hover | `var(--nav-icon-hover)` | `var(--nav-icon-hover)` | — |
+| Active route | `var(--primary)` | `var(--primary)`, weight 700 | 4px purple dot above icon |
+| Pressed | `scale(0.92)` | — | 0.1s transition |
+
+**Badge:** Combines unread notifications + unread messages on Social tab. Accent bg, 999px radius, 9px font, 1.5px surface border.
+
+### App Top Bar (`app-top-bar`)
+**Purpose:** Mobile top bar with brand, user actions, and social create button.
+**File:** `shared/components/top-bar/app-top-bar.component.*`
+
+```
+Position:   fixed top, z-index: 100
+Height:     var(--nav-height)
+Background: var(--nav-bg) with blur(var(--nav-blur))
+Border:     1px solid var(--nav-border) bottom
+Content:    [Brand/logo] ........... [+create?] [streak] [avatar▸menu]
+```
+
+**Create button** (social routes only): 36x36px, rounded 10px, `rgba(124,77,255,0.15)` bg with primary border, lazy-imports `CreateContentComponent`.
+**Avatar menu:** uses global `mat-mdc-menu` dark overrides (no extra panelClass needed).
+
+### Social Top Tabs (`app-social-top-tabs`)
+**Purpose:** Inline sub-navigation pills within social module. Only visible on main social routes.
+**File:** `features/social/components/social-top-tabs/social-top-tabs.component.*`
+
+```
+Position:   sticky, top: var(--nav-height)
+Background: var(--surface)
+Layout:     horizontal scroll, gap: 4px, padding: 12px 16px 8px
+Tabs:       [Feed] [Discover] [Chat•badge] [Alerts•badge]
+```
+
+**Hidden on:** post/:id, article/:id, chat/:id, profile/:userId (detail sub-routes).
+**Active pill:** `rgba(124,77,255,0.15)` bg, `rgba(124,77,255,0.3)` border, white text, primary icon.
+**Inactive pill:** `rgba(255,255,255,0.04)` bg, `rgba(255,255,255,0.06)` border, 50% white text.
+
+### More Sheet (`app-more-sheet`)
+**Purpose:** Overflow navigation for secondary pages (AI, Blog, Home, Logout).
+**File:** `shared/components/more-sheet/more-sheet.component.*`
+**Opened by:** More tab in bottom-nav via `MatBottomSheet.open()` with `panelClass: 'more-sheet-panel'`.
+
+```
+Container:  dark surface override via global .more-sheet-panel selectors in styles.css
+Border:     1px solid rgba(255,255,255,0.1), radius 24px 24px 0 0
+Items:      icon (22px) + label + chevron, 14px vertical padding, 12px radius
+Logout:     accent color (danger), separated by divider
+Safe area:  padding-bottom includes env(safe-area-inset-bottom)
 ```

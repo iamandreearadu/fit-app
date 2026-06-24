@@ -1,0 +1,94 @@
+.nc-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nc-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-4px);
+  }
+}
+
+/* ── Header icon (green override) ────────────────────────── */
+.nc-icon {
+  background: rgba(74, 222, 128, 0.10) !important;
+  border-color: rgba(74, 222, 128, 0.18) !important;
+}
+.nc-icon mat-icon {
+  color: #4ade80 !important;
+}
+
+.nc-hdr-text { flex: 1; }
+
+.nc-log-btn {
+  padding: 6px 14px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  flex-shrink: 0;
+}
+
+/* ── Total kcal ───────────────────────────────────────────── */
+.nc-total-row {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 4px;
+}
+.nc-total-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Empty strip ──────────────────────────────────────────── */
+.nc-empty-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(124, 77, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 4px;
+}
+.nc-empty-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  color: rgba(124, 77, 255, 0.5);
+  flex-shrink: 0;
+}
+.nc-empty-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── Error strip ──────────────────────────────────────────── */
+.nc-error-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 64, 129, 0.08);
+  border: 1px solid rgba(255, 64, 129, 0.15);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+.nc-err-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--accent, #ff4081);
+  flex-shrink: 0;
+}
+.nc-err-text { flex: 1; font-size: 14px; color: rgba(255, 255, 255, 0.7); }
+.nc-retry    { padding: 4px 12px !important; font-size: 12px !important; flex-shrink: 0; }
+
+/* ── CTA button ───────────────────────────────────────────── */
+.nc-add-btn {
+  margin-top: 12px !important;
+}

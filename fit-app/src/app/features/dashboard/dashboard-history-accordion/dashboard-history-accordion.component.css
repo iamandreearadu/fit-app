@@ -1,0 +1,55 @@
+.history-accordion {
+  margin: 0;
+}
+
+.history-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background: var(--nova-card-tier3-bg);
+  border: var(--nova-card-tier3-border);
+  border-radius: var(--nova-card-tier3-radius);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.history-toggle:hover {
+  background: var(--nova-white-alpha-04);
+  border-color: var(--nova-white-alpha-08);
+}
+
+.history-chevron {
+  color: var(--nova-text-ghost);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.history-chevron.is-open {
+  transform: rotate(90deg);
+}
+
+.history-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--nova-text-secondary);
+  flex: 1;
+}
+
+.history-hint {
+  font-size: 12px;
+  color: var(--nova-text-ghost);
+}
+
+.history-panel {
+  margin-top: 8px;
+  animation: slideDown 0.25s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

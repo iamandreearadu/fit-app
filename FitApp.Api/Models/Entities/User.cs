@@ -15,6 +15,8 @@ public class User
     public string? ImageUrl { get; set; }
     public string? Bio { get; set; }
     public bool IsAdmin { get; set; } = false;
+    public bool IsVerified { get; set; } = false;       // renders verification badge on posts and profile
+    public bool IsSystemAccount { get; set; } = false;  // internal flag — excluded from suggestions/search; never in API responses
     public bool OnboardingCompleted { get; set; } = false;
     public string? DietaryPreference { get; set; } // no-restriction | vegetarian | vegan | high-protein
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
@@ -42,4 +44,7 @@ public class User
     public ICollection<Follow> Following { get; set; } = [];       // users this user follows (FollowerId == this.Id)
     public ICollection<ConversationParticipant> ConversationParticipants { get; set; } = [];
     public ICollection<Notification> ReceivedNotifications { get; set; } = [];
+
+    // Onboarding step tracking (Fix 4)
+    public ICollection<OnboardingStep> OnboardingSteps { get; set; } = [];
 }

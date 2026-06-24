@@ -4,3 +4,15 @@
   gap: 4px;
   padding-bottom: 64px;
 }
+
+@media (max-width: 768px) {
+  app-header,
+  app-footer {
+    display: none;
+  }
+
+  .page-wrapper {
+    padding-top: calc(56px + env(safe-area-inset-top));
+    padding-bottom: calc(56px + env(safe-area-inset-bottom));
+  }
+}

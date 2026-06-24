@@ -1,34 +1,63 @@
-<article class="post-card" [class.post-card--article]="isArticle()" role="article">
+<article class="post-card"
+         [class.post-card--article]="isArticle()"
+         [class.post-card--seed]="isSeed()"
+         role="article">
 
-  <!-- ── Name row (avatar · author · date · follow / menu) ─────────────── -->
+  <!-- ── Name row (avatar · author · verified · date · badge/follow / menu) ── -->
   <div class="post-card-name-row">
 
-    <a [routerLink]="['/social/profile', post().author.id]"
-       class="post-card-avatar-link" aria-hidden="true" tabindex="-1">
-      <div class="post-card-avatar-wrap">
-        @if (post().author.avatarUrl) {
-          <img class="post-card-avatar"
-               [src]="post().author.avatarUrl"
-               [alt]="post().author.displayName"
-               (error)="onImageError()" />
-        } @else {
-          <div class="post-card-avatar post-card-avatar--fallback">
-            <mat-icon>person</mat-icon>
-          </div>
-        }
+    @if (!isSeed()) {
+      <!-- Standard circular avatar (non-seed posts) -->
+      <a [routerLink]="['/social/profile', post().author.id]"
+         class="post-card-avatar-link" aria-hidden="true" tabindex="-1">
+        <div class="post-card-avatar-wrap">
+          @if (post().author.avatarUrl) {
+            <img class="post-card-avatar"
+                 [src]="post().author.avatarUrl"
+                 [alt]="post().author.displayName"
+                 width="40" height="40" loading="lazy"
+                 (error)="onImageError()" />
+          } @else {
+            <div class="post-card-avatar post-card-avatar--fallback">
+              <mat-icon>person</mat-icon>
+            </div>
+          }
+        </div>
+      </a>
+    } @else {
+      <!-- Seed icon box — replaces avatar for editorial posts -->
+      <div class="post-card-seed-icon-wrap" aria-hidden="true">
+        <mat-icon>{{ isEdArticle() ? 'menu_book' : 'auto_awesome' }}</mat-icon>
       </div>
-    </a>
+    }
 
     <a [routerLink]="['/social/profile', post().author.id]"
        class="post-card-author-name">{{ post().author.displayName }}</a>
+
+    <!-- Verified badge — appears on any post where author.isVerified is true -->
+    @if (post().author.isVerified) {
+      <mat-icon class="verified-badge" aria-label="Verified account">verified</mat-icon>
+    }
+
     <span class="post-card-date">· {{ post().createdAt | date:'MMM d' }}</span>
 
-    @if (!post().isOwnPost && !post().isFollowingAuthor) {
+    <!-- Seed type badge (replaces follow button for seed posts) -->
+    @if (isSeed()) {
+      <span class="post-card-seed-badge"
+            [class.post-card-seed-badge--article]="isEdArticle()">
+        <mat-icon>{{ isEdArticle() ? 'menu_book' : 'auto_awesome' }}</mat-icon>
+        {{ isEdArticle() ? 'NovaFit · Article' : 'NovaFit Tip' }}
+      </span>
+    }
+
+    <!-- Follow button (non-seed, non-own, not already following) -->
+    @if (!isSeed() && !post().isOwnPost && !post().isFollowingAuthor) {
       <button class="post-card-follow-btn" (click)="onFollow()" type="button">
         Follow
       </button>
     }
 
+    <!-- Options menu (own posts only — seed posts are never own) -->
     @if (post().isOwnPost) {
       <div class="post-card-menu-wrap">
         <button class="post-card-menu-btn"
@@ -36,7 +65,7 @@
           <mat-icon>more_horiz</mat-icon>
         </button>
         @if (showMenu()) {
-          <div class="post-card-menu">
+          <div class="post-card-menu" appClickOutside (clickOutside)="showMenu.set(false)">
             <button class="post-card-menu-item" (click)="onEdit($event)" type="button">
               <mat-icon>edit</mat-icon> Edit
             </button>
@@ -50,6 +79,11 @@
     }
 
   </div>
+
+  <!-- "Suggested for you" label (seed posts only — between name row and content) -->
+  @if (isSeed()) {
+    <div class="post-card-seed-label">Suggested for you</div>
+  }
 
   <!-- ── Regular post body ─────────────────────────────────────────────── -->
   @if (!isArticle()) {
@@ -67,11 +101,11 @@
     }
 
     @if (post().imageUrl && !imageError()) {
-      <div class="post-card-image-wrap">
+      <div class="post-card-image-wrap" style="aspect-ratio: 4/3; width: 100%; overflow: hidden">
         <img class="post-card-image"
              [src]="post().imageUrl"
              [alt]="'Post by ' + post().author.displayName"
-             (error)="onImageError()" loading="lazy" />
+             (error)="onImageError()" loading="lazy" decoding="async" />
       </div>
     }
     @if (imageError() && post().imageUrl) {

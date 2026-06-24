@@ -1,0 +1,66 @@
+.fitness-data-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--nova-space-1);
+  min-width: 56px;
+  padding: var(--nova-space-3) var(--nova-space-2);
+}
+.fitness-data-block--md { min-width: 72px; }
+
+.fdb-icon-wrap {
+  border-radius: var(--nova-radius-circle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  transition: opacity var(--nova-duration-standard) var(--nova-ease-out);
+}
+.fitness-data-block--md .fdb-icon-wrap { width: 36px; height: 36px; }
+.fdb-icon-wrap mat-icon { font-size: var(--nova-icon-default) !important; width: var(--nova-icon-default) !important; height: var(--nova-icon-default) !important; }
+.fitness-data-block--md .fdb-icon-wrap mat-icon { font-size: var(--nova-icon-lg) !important; width: var(--nova-icon-lg) !important; height: var(--nova-icon-lg) !important; }
+.fdb-icon-wrap--zero { opacity: 0.5; }
+
+.fdb-value-row { display: flex; align-items: baseline; gap: 2px; }
+
+.fdb-value {
+  font-size: var(--nova-text-body-sm);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-primary);
+  line-height: 1;
+}
+.fitness-data-block--md .fdb-value { font-size: var(--nova-text-body-md); }
+.fdb-value--zero { color: var(--nova-text-hint); }
+
+.fdb-unit { font-size: var(--nova-text-xs); color: var(--nova-text-hint); margin-left: 2px; }
+.fdb-trend { font-size: var(--nova-text-xs); margin-left: var(--nova-space-1); }
+.fdb-trend--up { color: var(--nova-success); }
+.fdb-trend--down { color: var(--nova-accent); }
+
+.fdb-label {
+  font-size: var(--nova-text-xs);
+  font-weight: var(--nova-weight-bold);
+  color: var(--nova-text-hint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+.fitness-data-block--md .fdb-label { font-size: var(--nova-text-sm); }
+
+.fdb-skeleton-value {
+  width: 40px; height: 12px;
+  border-radius: var(--nova-radius-sm);
+  animation: fdbShimmer 1.4s ease-in-out infinite;
+}
+.fitness-data-block--md .fdb-skeleton-value { width: 48px; height: 14px; }
+.fdb-skeleton-label {
+  width: 28px; height: 8px;
+  border-radius: var(--nova-radius-sm);
+  animation: fdbShimmer 1.4s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+@keyframes fdbShimmer {
+  0%   { background: var(--nova-white-alpha-04); }
+  50%  { background: var(--nova-white-alpha-08); }
+  100% { background: var(--nova-white-alpha-04); }
+}

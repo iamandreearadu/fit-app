@@ -131,6 +131,29 @@
   color: var(--primary);
 }
 
+/* Suggested users section — sits between search bar and athletes strip */
+.discover-suggested {
+  display: block;
+  /* No extra margin needed — discover-page gap: 32px handles spacing */
+}
+
+/* Name + verified badge wrapper in athlete card strip */
+.user-card-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 100%;
+}
+
+.user-card-verified {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
 .user-card-name {
   font-size: 14px;
   font-weight: 600;
@@ -140,11 +163,21 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100%;
+  /* width: 100% removed — parent flex row handles sizing */
 }
 
 .user-card-name:hover {
   color: var(--primary-light);
+}
+
+/* TODO: isVerified when search DTO supports it — add .search-result-verified badge
+   alongside .search-result-name once UserSearchResult DTO gains the isVerified field. */
+.search-result-verified {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  color: var(--primary);
+  flex-shrink: 0;
 }
 
 .user-card-follow-btn {
@@ -391,4 +424,16 @@
   background: transparent;
   border: 1px solid var(--primary);
   color: var(--primary-light);
+}
+
+/* Infinite scroll sentinel */
+.discover-sentinel {
+  height: 1px;
+  width: 100%;
+}
+
+.discover-loading-more {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
 }

@@ -15,6 +15,7 @@ export interface UserSummary {
   id: string;
   displayName: string;
   avatarUrl?: string;
+  isVerified?: boolean;     // Fix 9 — renders verification badge inline with display name
 }
 
 export interface LinkedContentPreview {
@@ -36,6 +37,7 @@ export interface Post {
   isOwnPost: boolean;
   isArchived: boolean;
   createdAt: string;
+  isSeedContent?: boolean;  // Fix 9 — drives .post-card--seed editorial rendering mode
   // Article-type post fields
   articleId?: number;
   articleTitle?: string;
@@ -76,6 +78,7 @@ export interface UserSocialProfile {
   followingCount: number;
   isFollowedByMe: boolean;
   isOwnProfile: boolean;
+  isVerified?: boolean;     // Fix 9 — renders badge on profile page header
 }
 
 export interface LikeToggleResponse {
@@ -86,6 +89,14 @@ export interface LikeToggleResponse {
 export interface FollowToggleResponse {
   isFollowing: boolean;
   followersCount: number;
+}
+
+export interface FollowUser {
+  id: string;
+  displayName: string;
+  avatarUrl?: string;
+  isFollowedByMe: boolean;
+  isVerified?: boolean;
 }
 
 export interface PaginatedResponse<T> {
@@ -164,4 +175,56 @@ export interface UpdateBlogRequest {
   description: string;
   category: string;
   image?: string;
+}
+
+// ── Fix 2 — Share to beSocial ────────────────────────────────────────────────
+
+export interface PostFromWorkoutRequest {
+  caption?: string;
+}
+
+export interface PostFromMealRequest {
+  caption?: string;
+}
+
+export interface SharePostResponse {
+  postId: number;
+  previewText: string;
+}
+
+/**
+ * Discriminated union for share bottom sheet input data.
+ * PRIVACY: estimatedCaloriesKcal intentionally absent from workout variant.
+ * PRIVACY: macro totals intentionally absent from meal variant.
+ */
+export type ShareToSocialData =
+  | {
+      type: 'workout';
+      sessionId: number;
+      templateTitle: string;
+      durationMin: number;
+      exerciseCount: number;
+      // estimatedCaloriesKcal: INTENTIONALLY OMITTED — health metric
+    }
+  | {
+      type: 'meal';
+      mealId: number;
+      mealName: string;
+      mealType: string;
+      // totalCalories / totalProtein_g / etc.: INTENTIONALLY OMITTED — health metrics
+    };
+
+export interface ShareSheetResult {
+  published: boolean;
+  postId?: number;
+}
+
+/** Returned by GET /api/social/discover/suggested — Fix 7 guided empty state */
+export interface SuggestedUser {
+  userId: string;
+  displayName: string;
+  avatarUrl: string | null;
+  /** Raw User.Goal category: 'lose' | 'gain' | 'maintain'. null if not set. */
+  fitnessGoal: 'lose' | 'gain' | 'maintain' | null;
+  workoutsThisMonth: number;
 }

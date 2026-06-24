@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FitApp.Api.Models.DTOs;
 
 public class UserProfileDto
@@ -31,12 +33,25 @@ public class UserMetricsDto
 
 public record StreakDto(int Current, int Longest, bool LoggedToday, bool AtRisk);
 
+// Navigation badge streak — minimal fields; deliberately excludes health metrics
+// (no BMI, weight, BMR, TDEE, goal calories). Consumed by GET /api/users/me/streak.
+public record UserStreakDto(
+    int CurrentStreak,
+    string? LastLogDate,  // "yyyy-MM-dd" of most recent DailyEntry; null if no entries
+    bool AtRiskToday,     // !loggedToday && currentStreak > 0 && UTC hour >= 18
+    bool LoggedToday,     // DailyEntry exists for today's UTC date
+    bool IsNewRecord      // currentStreak > 0 && currentStreak == allTimeLongest
+);
+
 public class UpdateUserProfileRequest
 {
     public string? FullName { get; set; }
     public string? Gender { get; set; }
+    [Range(1, 120)]
     public int? Age { get; set; }
+    [Range(50, 300)]
     public double? HeightCm { get; set; }
+    [Range(20, 500)]
     public double? WeightKg { get; set; }
     public string? Goal { get; set; }
     public string? Activity { get; set; }

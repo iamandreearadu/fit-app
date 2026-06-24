@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -49,6 +50,7 @@ export class SocialProfileComponent implements OnInit {
   private readonly userStore = inject(UserStore);
   private readonly authStore = inject(AuthenticationStore);
   private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('avatarInput') avatarInputRef!: ElementRef<HTMLInputElement>;
 
@@ -70,18 +72,23 @@ export class SocialProfileComponent implements OnInit {
   protected userId = '';
 
   ngOnInit(): void {
-    const paramId = this.route.snapshot.paramMap.get('userId') ?? 'me';
-    this.userId =
-      paramId === 'me'
-        ? (this.userStore.user()?.id ?? this.authStore.authUser()?.id ?? '')
-        : paramId;
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      const paramId = params.get('userId') ?? 'me';
+      this.userId =
+        paramId === 'me'
+          ? (this.userStore.user()?.id ?? this.authStore.authUser()?.id ?? '')
+          : paramId;
 
-    this.facade.loadProfile(this.userId).then(() => {
-      const profile = this.facade.currentProfile();
-      if (profile) this.isFollowing.set(profile.isFollowedByMe);
+      // Load all profile data in parallel — avoids sequential waterfall
+      Promise.all([
+        this.facade.loadProfile(this.userId).then(() => {
+          const profile = this.facade.currentProfile();
+          if (profile) this.isFollowing.set(profile.isFollowedByMe);
+        }),
+        this.facade.loadProfileWorkouts(this.userId),
+        this.facade.loadProfileBlogs(this.userId),
+      ]);
     });
-    this.facade.loadProfileWorkouts(this.userId);
-    this.facade.loadProfileBlogs(this.userId);
   }
 
   @HostListener('document:click')
@@ -123,6 +130,7 @@ export class SocialProfileComponent implements OnInit {
     this.showMoreMenu.set(false);
     this.showArchivedSection.set(true);
     this.facade.loadArchivedPosts(this.userId);
+    this.facade.loadArchivedWorkouts(this.userId);
   }
 
   closeArchived(): void {
@@ -171,6 +179,7 @@ export class SocialProfileComponent implements OnInit {
         if (created) {
           this.facade.loadProfile(this.userId);
           this.facade.loadProfileBlogs(this.userId);
+          this.facade.loadProfileWorkouts(this.userId);
         }
       });
   }
@@ -198,7 +207,39 @@ export class SocialProfileComponent implements OnInit {
     }
   }
 
-  // ── Post actions ───────────────────────────────────────────────────────────
+  // ── Follow list ─────────────────────────────────────────────────────────────
+
+  openFollowList(type: 'followers' | 'following'): void {
+    this.facade.loadFollowList(this.userId, type);
+  }
+
+  closeFollowList(): void {
+    this.facade.closeFollowList();
+  }
+
+  loadMoreFollowList(): void {
+    this.facade.loadMoreFollowList(this.userId);
+  }
+
+  async toggleFollowUser(targetUserId: string): Promise<void> {
+    const res = await this.facade.toggleFollow(targetUserId);
+    // Update the follow list item in-place
+    this.facade.followListUsers.update(users =>
+      users.map(u => u.id === targetUserId
+        ? { ...u, isFollowedByMe: res.isFollowing }
+        : u
+      )
+    );
+    // Reload profile to update counts
+    this.facade.loadProfile(this.userId);
+  }
+
+  navigateToProfile(userId: string): void {
+    this.closeFollowList();
+    this.router.navigate(['/social/profile', userId]);
+  }
+
+    // ── Post actions ───────────────────────────────────────────────────────────
 
   editPost(e: Event, post: Post): void {
     e.stopPropagation();
@@ -224,11 +265,13 @@ export class SocialProfileComponent implements OnInit {
   async archivePost(e: Event, postId: number): Promise<void> {
     e.stopPropagation();
     await this.facade.archivePost(postId);
+    this.alert.success('Post archived.');
   }
 
   async unarchivePost(e: Event, postId: number): Promise<void> {
     e.stopPropagation();
     await this.facade.unarchivePost(postId);
+    this.alert.success('Post restored.');
   }
 
   // ── Workout actions ────────────────────────────────────────────────────────
@@ -250,6 +293,12 @@ export class SocialProfileComponent implements OnInit {
   async archiveWorkout(e: Event, workoutId: number): Promise<void> {
     e.stopPropagation();
     await this.facade.archiveWorkout(workoutId);
+  }
+
+  async unarchiveWorkout(e: Event, workoutId: number): Promise<void> {
+    e.stopPropagation();
+    await this.facade.unarchiveWorkout(workoutId);
+    this.alert.success('Workout restored.');
   }
 
   // ── Blog actions ───────────────────────────────────────────────────────────
@@ -298,6 +347,13 @@ export class SocialProfileComponent implements OnInit {
   }
 
   // ── Avatar upload ──────────────────────────────────────────────────────────
+
+  onAvatarError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    const fallback = img.parentElement?.querySelector('.profile-avatar--fallback') as HTMLElement | null;
+    if (fallback) fallback.style.display = 'flex';
+  }
 
   async onAvatarFileChange(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;

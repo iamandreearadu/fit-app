@@ -1,0 +1,122 @@
+.macro-progress-card {
+  background: var(--nova-card-tier2-bg);
+  border: var(--nova-card-tier2-border);
+  border-radius: var(--nova-card-tier2-radius);
+  padding: 20px 20px 16px;
+}
+
+.mpc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--nova-space-4);
+}
+
+.mpc-title {
+  font-size: var(--nova-dash-title-size);
+  font-weight: var(--nova-weight-semibold);
+  color: var(--nova-text-primary);
+}
+
+.mpc-calorie-total {
+  font-size: var(--nova-dash-metric-secondary);
+  font-weight: var(--nova-weight-semibold);
+  color: var(--nova-text-primary);
+}
+
+.mpc-calorie-total--empty {
+  color: var(--nova-text-hint);
+}
+
+.mpc-macro-row {
+  margin-bottom: var(--nova-space-3);
+}
+
+.mpc-macro-row--last {
+  margin-bottom: 0;
+}
+
+.mpc-macro-label-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--nova-space-1);
+}
+
+.mpc-macro-name {
+  font-size: var(--nova-text-body-sm);
+  font-weight: var(--nova-weight-medium);
+  color: var(--nova-text-secondary);
+}
+
+.mpc-macro-value {
+  font-size: var(--nova-text-body-sm);
+  font-weight: var(--nova-weight-medium);
+  color: var(--nova-text-primary);
+}
+
+.macro-bar-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--nova-white-alpha-06);
+  overflow: hidden;
+}
+
+.macro-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.macro-bar-fill--protein {
+  background: var(--nova-gradient-macro-protein);
+}
+
+.macro-bar-fill--carbs {
+  background: var(--nova-gradient-macro-carbs);
+}
+
+.macro-bar-fill--fat {
+  background: var(--nova-gradient-macro-fats);
+}
+
+.macro-bar-fill--low {
+  opacity: 0.6;
+}
+
+.macro-bar-fill--near-complete {
+  animation: macroNearPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes macroNearPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+/* ── Skeleton ── */
+.mpc-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nova-space-3);
+}
+
+.mpc-skeleton-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mpc-skeleton-label-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.skeleton-block {
+  background: var(--nova-white-alpha-04);
+  border-radius: var(--nova-radius-sm);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

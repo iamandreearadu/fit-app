@@ -212,7 +212,7 @@
 }
 
 .msg-bubble--other {
-  background: rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.09);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 20px 20px 20px 6px;
   color: var(--white);
@@ -429,8 +429,9 @@
 @media (max-width: 768px) {
   .chat-detail {
     max-width: 100%;
-    height: calc(100dvh - 52px - 56px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-    /* 52px = top bar, 56px = bottom nav */
+    /* showMainNav() = false here — no top bar, no bottom nav.
+       Use full dvh so the flex column fills the screen exactly. */
+    height: 100dvh;
     position: relative;
   }
 
@@ -439,20 +440,22 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    /* Small clearance only — composer is in the flex flow, not fixed */
+    padding-bottom: 4px;
   }
 
   .msg-composer {
+    /* CRITICAL: .chat-detail has animation: slideUp ... both, which retains
+       transform: translateY(0) after the animation ends. Any non-none CSS
+       transform creates a new containing block for position:fixed descendants,
+       so a fixed composer would be positioned relative to .chat-detail rather
+       than the viewport — causing it to render off-screen.
+       Solution: keep composer in the flex flow. With .chat-detail at 100dvh
+       the composer naturally sits flush at the viewport bottom. */
+    position: relative;
     flex-shrink: 0;
-    position: fixed;
-    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
-    left: 0;
-    right: 0;
-    z-index: 800;
-  }
-
-  /* Extra padding on message area so last message is not hidden behind fixed composer */
-  .msg-area {
-    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    /* Respect home indicator / gesture bar on notch devices */
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 6px);
   }
 
   /* Back button touch target */

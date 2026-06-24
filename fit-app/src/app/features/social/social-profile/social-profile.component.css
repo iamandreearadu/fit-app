@@ -83,7 +83,23 @@
   background: rgba(124,77,255,0.15);
 }
 .profile-avatar--fallback mat-icon { font-size: 28px; width: 28px; height: 28px; color: var(--primary); }
-.profile-display-name { font-size: 20px; font-weight: 700; color: var(--white); margin: 0; }
+.profile-display-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-verified-badge {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
 .profile-bio {
   font-size: 14px; color: var(--white-soft); margin: 0;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
@@ -854,4 +870,152 @@
   .stats-tab {
     padding: 16px 0 calc(80px + env(safe-area-inset-bottom, 0px));
   }
+}
+
+/* ── Clickable stat cells ──────────────────────────────────────────────────── */
+.profile-stat-cell--clickable {
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 8px;
+}
+.profile-stat-cell--clickable:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Follow List Section ───────────────────────────────────────────────────── */
+.follow-list-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.follow-list-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.follow-list-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+.follow-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.follow-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 14px;
+  transition: background 0.15s;
+}
+.follow-list-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.follow-list-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+}
+.follow-list-avatar-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+}
+.follow-list-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.follow-list-avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.3);
+}
+.follow-list-avatar--fallback mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+.follow-list-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.follow-list-verified {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+  color: var(--primary);
+}
+.follow-list-btn {
+  padding: 6px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.follow-list-btn:hover {
+  background: #6b3de8;
+}
+.follow-list-btn--following {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+}
+.follow-list-btn--following:hover {
+  background: rgba(255, 64, 129, 0.1);
+  border-color: rgba(255, 64, 129, 0.3);
+  color: #ff4081;
+}
+.follow-list-load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  margin-top: 4px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.follow-list-load-more:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--white);
+}
+.follow-list-load-more:disabled {
+  cursor: default;
+  opacity: 0.5;
 }

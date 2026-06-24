@@ -1,0 +1,109 @@
+<div class="activity-grid-card" role="region" aria-label="Workout posts">
+  <!-- Card header -->
+  <div class="agc-header">
+    <span class="agc-title">Workouts</span>
+    <div class="agc-toggle-bar">
+      <button
+        mat-icon-button
+        class="agc-toggle-btn"
+        [class.agc-toggle-btn--active]="viewMode() === 'grid'"
+        (click)="viewMode.set('grid')"
+        aria-label="Grid view"
+      >
+        <mat-icon>grid_on</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        class="agc-toggle-btn"
+        [class.agc-toggle-btn--active]="viewMode() === 'list'"
+        (click)="viewMode.set('list')"
+        aria-label="List view"
+      >
+        <mat-icon>list</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  @if (loading && items.length === 0) {
+    @if (viewMode() === 'grid') {
+      <div class="ag-skeleton-grid" role="list" aria-label="Loading workouts">
+        @for (cell of skeletonCells; track $index) {
+          <div class="ag-skeleton-cell" role="listitem"></div>
+        }
+      </div>
+    } @else {
+      <div class="agc-list">
+        @for (row of skeletonRows; track $index) {
+          <div class="agc-list-row agc-list-row--skeleton">
+            <div class="skeleton-circle"></div>
+            <div class="skeleton-center">
+              <div class="skeleton-block" style="width: 120px; height: 14px;"></div>
+              <div class="skeleton-block" style="width: 80px; height: 12px; margin-top: 4px;"></div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  } @else if (items.length === 0) {
+    <div class="ag-empty">
+      <mat-icon>fitness_center</mat-icon>
+      <p>No public workouts yet</p>
+    </div>
+  } @else {
+    @if (viewMode() === 'grid') {
+      <div class="agc-grid" role="list">
+        @for (item of items; track item.postId) {
+          <a
+            class="agc-grid-cell"
+            role="listitem"
+            [routerLink]="['/social/post', item.postId]"
+            [attr.aria-label]="'Workout' + (item.durationMin ? ', ' + item.durationMin + ' minutes' : '') + ', ' + (item.createdAt | relativeTime)"
+            tabindex="0"
+          >
+            @if (item.thumbnailUrl) {
+              <img class="agc-cell-image" [src]="item.thumbnailUrl" alt="Workout post" />
+            } @else {
+              <div class="agc-cell-fallback">
+                <mat-icon>{{ getWorkoutIcon(item.workoutType) }}</mat-icon>
+              </div>
+            }
+            @if (item.durationMin) {
+              <span class="agc-cell-duration">{{ item.durationMin }}min</span>
+            }
+          </a>
+        }
+      </div>
+    } @else {
+      <div class="agc-list">
+        @for (item of items; track item.postId) {
+          <a
+            class="agc-list-row"
+            [routerLink]="['/social/post', item.postId]"
+            role="listitem"
+          >
+            <div class="agc-list-icon">
+              <mat-icon>{{ getWorkoutIcon(item.workoutType) }}</mat-icon>
+            </div>
+            <div class="agc-list-center">
+              <span class="agc-list-title">{{ item.workoutType ?? 'Workout' }}</span>
+              @if (item.durationMin) {
+                <span class="agc-list-subtitle">{{ item.durationMin }} min</span>
+              }
+            </div>
+            <span class="agc-list-time">{{ item.createdAt | relativeTime }}</span>
+          </a>
+        }
+      </div>
+    }
+
+    @if (hasMore) {
+      <div class="agc-load-more">
+        <button
+          mat-stroked-button
+          class="load-more-btn"
+          (click)="loadMore.emit()"
+        >Load more</button>
+      </div>
+    }
+  }
+</div>

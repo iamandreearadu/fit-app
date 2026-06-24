@@ -1,0 +1,19 @@
+@if ((userFacade.streak()?.current ?? 0) > 0) {
+  <div
+    class="streak-tap"
+    [attr.aria-label]="'Current streak: ' + (userFacade.streak()?.current ?? 0) + ' days'"
+    role="status"
+    aria-live="polite">
+    <div
+      class="streak-badge"
+      [class.streak-badge--at-risk]="userFacade.streak()?.atRisk"
+      [class.streak-badge--new-record]="isNewRecord()">
+      <mat-icon class="streak-badge-flame">local_fire_department</mat-icon>
+      <span
+        class="streak-badge-count"
+        [class.streak-badge-count--bumping]="isBumping()">
+        {{ userFacade.streak()?.current }}
+      </span>
+    </div>
+  </div>
+}

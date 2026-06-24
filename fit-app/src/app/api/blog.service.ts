@@ -31,17 +31,18 @@ export class BlogService {
       const dto = await firstValueFrom(this.http.get<any>(`${this.baseUrl}/${id}`));
       return this.mapPost(dto);
     } catch (err) {
-      this.alerts?.warn('Failed to load blog post', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to load blog post');
       return null;
     }
   }
 
   async listPosts(): Promise<BlogPost[]> {
     try {
-      const dtos = await firstValueFrom(this.http.get<any[]>(this.baseUrl));
+      const res = await firstValueFrom(this.http.get<any>(this.baseUrl));
+      const dtos: any[] = Array.isArray(res) ? res : (res?.items ?? []);
       return dtos.map(d => this.mapPost(d));
     } catch (err) {
-      this.alerts?.warn('Failed to load posts', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to load posts');
       return [];
     }
   }
@@ -59,7 +60,7 @@ export class BlogService {
       const dto = await firstValueFrom(this.http.post<any>(this.baseUrl, body));
       return this.mapPost(dto);
     } catch (err) {
-      this.alerts?.warn('Failed to add blog post', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to add blog post');
       return null;
     }
   }
@@ -78,7 +79,7 @@ export class BlogService {
       const dto = await firstValueFrom(this.http.put<any>(`${this.baseUrl}/${docId}`, body));
       return this.mapPost(dto);
     } catch (err) {
-      this.alerts?.warn('Failed to update post', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to update post');
       return null;
     }
   }
@@ -94,7 +95,7 @@ export class BlogService {
       this.alerts?.success('Blog post deleted');
       return true;
     } catch (err) {
-      this.alerts?.warn('Failed to delete blog post', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to delete blog post');
       return false;
     }
   }

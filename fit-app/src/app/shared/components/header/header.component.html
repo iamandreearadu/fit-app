@@ -42,13 +42,6 @@
       </a>
       @if (accountFacade.authUser()) {
         <a
-          class="hdr-link"
-          routerLink="/ai-assistant"
-          [class.active]="navService.isActive('/ai-assistant')"
-        >
-          <mat-icon>chat</mat-icon><span>AI Assistant</span>
-        </a>
-        <a
           class="hdr-link-social"
           routerLink="/social"
           routerLinkActive="active"
@@ -70,6 +63,7 @@
         </a>
         <a class="hdr-btn-primary" routerLink="/register"> Get Started </a>
       } @else {
+        <app-streak-badge />
         <button
           class="hdr-user"
           [matMenuTriggerFor]="userMenu"
@@ -87,10 +81,10 @@
         >
           <button
             mat-menu-item
-            routerLink="/user-profile"
+            routerLink="/account"
             (click)="closeMobileNav()"
           >
-            <mat-icon>person</mat-icon><span>Profile</span>
+            <mat-icon>person</mat-icon><span>Account</span>
           </button>
           <mat-divider></mat-divider>
           <button mat-menu-item (click)="logout()">
@@ -177,14 +171,6 @@
       </a>
       @if (accountFacade.authUser()) {
         <a
-          class="mob-link"
-          routerLink="/ai-assistant"
-          (click)="closeMobileNav()"
-          [class.active]="navService.isActive('/ai-assistant')"
-        >
-          <mat-icon>chat</mat-icon><span>AI Assistant</span>
-        </a>
-        <a
           class="mob-link mob-link-social"
           routerLink="/social"
           routerLinkActive="active"
@@ -218,7 +204,7 @@
       @if (accountFacade.authUser()) {
         <a
           class="mob-user-row"
-          routerLink="/user-profile"
+          routerLink="/account"
           (click)="closeMobileNav()"
         >
           <div class="hdr-avatar">
@@ -226,7 +212,7 @@
           </div>
           <div class="mob-user-info">
             <span class="mob-user-name">{{ displayName() }}</span>
-            <span class="mob-user-sub">View Profile</span>
+            <span class="mob-user-sub">View Account</span>
           </div>
           <mat-icon class="mob-user-arrow">chevron_right</mat-icon>
         </a>

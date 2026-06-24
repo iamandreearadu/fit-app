@@ -1,0 +1,40 @@
+@if (showTabs()) {
+<nav class="social-top-tabs" aria-label="Social sections">
+
+  <a routerLink="/social"
+     routerLinkActive="social-top-tab--active"
+     [routerLinkActiveOptions]="{ exact: true }"
+     class="social-top-tab">
+    <mat-icon>dynamic_feed</mat-icon>
+    <span>Feed</span>
+  </a>
+
+  <a routerLink="/social/discover"
+     routerLinkActive="social-top-tab--active"
+     class="social-top-tab">
+    <mat-icon>explore</mat-icon>
+    <span>Discover</span>
+  </a>
+
+  <a routerLink="/social/chat"
+     routerLinkActive="social-top-tab--active"
+     class="social-top-tab">
+    <mat-icon>chat_bubble_outline</mat-icon>
+    <span>Chat</span>
+    @if (unreadMessages > 0) {
+      <span class="tab-badge">{{ unreadMessages > 99 ? '99+' : unreadMessages }}</span>
+    }
+  </a>
+
+  <a routerLink="/social/notifications"
+     routerLinkActive="social-top-tab--active"
+     class="social-top-tab">
+    <mat-icon>notifications_none</mat-icon>
+    <span>Alerts</span>
+    @if (unreadNotifications > 0) {
+      <span class="tab-badge">{{ unreadNotifications > 99 ? '99+' : unreadNotifications }}</span>
+    }
+  </a>
+
+</nav>
+}

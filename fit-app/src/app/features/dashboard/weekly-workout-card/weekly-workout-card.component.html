@@ -1,0 +1,56 @@
+<div
+  class="weekly-workout-card"
+  role="region"
+  aria-label="This week's workouts"
+>
+  @if (loading) {
+    <div class="wwc-header">
+      <div class="skeleton-block" style="width: 80px; height: 16px;"></div>
+      <div class="skeleton-block" style="width: 60px; height: 20px;"></div>
+    </div>
+    <div class="wwc-chart" role="img" aria-label="Loading chart">
+      @for (h of skeletonHeights; track $index) {
+        <div class="wwc-day-col">
+          <div class="wwc-bar skeleton-block" [style.height.px]="h"></div>
+          <div class="wwc-day-label skeleton-block" style="width: 24px; height: 10px; margin-top: 4px;"></div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="wwc-header">
+      <span class="wwc-title">This Week</span>
+      <span class="wwc-count-pill">{{ data?.totalThisWeek ?? 0 }} workouts</span>
+    </div>
+
+    <div
+      class="wwc-chart"
+      role="img"
+      [attr.aria-label]="(data?.totalThisWeek ?? 0) + ' workouts this week. Bar chart Mon–Sun.'"
+    >
+      @for (day of (data?.days ?? []); track day.dayLabel) {
+        <div class="wwc-day-col">
+          <div
+            class="wwc-bar"
+            [class.wwc-bar--has-workout]="day.hasWorkout"
+            [class.wwc-bar--today]="day.isToday && day.durationMinutes > 0"
+            [style.height.px]="barHeight(day)"
+            aria-hidden="true"
+          ></div>
+          <span
+            class="wwc-day-label"
+            [class.wwc-day-label--today]="day.isToday"
+          >{{ day.dayLabel }}</span>
+          @if (day.isToday) {
+            <span class="wwc-today-dot" aria-hidden="true"></span>
+          }
+        </div>
+      }
+    </div>
+
+    @if (data?.lastWorkoutAt) {
+      <div class="wwc-last-workout">
+        Last workout: {{ data!.lastWorkoutAt | relativeTime }}
+      </div>
+    }
+  }
+</div>

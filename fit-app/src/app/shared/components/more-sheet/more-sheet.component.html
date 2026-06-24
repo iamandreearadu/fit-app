@@ -1,0 +1,25 @@
+<div class="more-sheet">
+  <div class="more-sheet-handle"></div>
+
+  <div class="more-sheet-items">
+    @for (item of items; track item.label) {
+      <button class="more-item" (click)="item.action()" type="button">
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span>{{ item.label }}</span>
+        <mat-icon class="more-item-chevron">chevron_right</mat-icon>
+      </button>
+    }
+  </div>
+
+  <div class="more-sheet-divider"></div>
+
+  <div class="more-sheet-footer">
+    <button
+      class="more-item more-item--danger"
+      (click)="logoutItem.action()"
+      type="button">
+      <mat-icon>{{ logoutItem.icon }}</mat-icon>
+      <span>{{ logoutItem.label }}</span>
+    </button>
+  </div>
+</div>

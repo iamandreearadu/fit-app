@@ -4,11 +4,12 @@ import { AccountFacade } from '../../../core/facade/account.facade';
 import { MaterialModule } from '../../../core/material/material.module';
 import { NavigationService } from '../../services/navigation.service';
 import { UserStore } from '../../../core/store/user.store';
+import { StreakBadgeComponent } from '../streak-badge/streak-badge.component';
 
 @Component({
   standalone: true,
   selector: 'app-header',
-  imports: [RouterLink, RouterLinkActive, MaterialModule],
+  imports: [RouterLink, RouterLinkActive, MaterialModule, StreakBadgeComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })

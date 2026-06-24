@@ -12,7 +12,6 @@ export interface DailyValidators {
     fats: ValidatorFn[];
   };
   caloriesBurned: ValidatorFn[];
-  caloriesIntake: ValidatorFn[];
   caloriesTotal: ValidatorFn[];
 }
 
@@ -34,7 +33,6 @@ export class DailyUserDataValidationService {
         fats: [Validators.min(0)],
       },
       caloriesBurned: [Validators.min(0)],
-      caloriesIntake: [Validators.min(0)],
       caloriesTotal: [Validators.min(0)],
     };
   }

@@ -1,0 +1,50 @@
+<nav class="app-bottomnav" role="navigation" aria-label="Main tabs">
+
+  <!-- Tab 1: Feed -->
+  <a routerLink="/social"
+     routerLinkActive="app-bottomnav-tab--active"
+     [routerLinkActiveOptions]="{ exact: true }"
+     class="app-bottomnav-tab"
+     aria-label="Feed"
+     [attr.aria-current]="null">
+    <mat-icon>home</mat-icon>
+  </a>
+
+  <!-- Tab 2: Dashboard -->
+  <a routerLink="/user-dashboard"
+     routerLinkActive="app-bottomnav-tab--active"
+     class="app-bottomnav-tab"
+     aria-label="Dashboard">
+    <mat-icon>grid_view</mat-icon>
+  </a>
+
+  <!-- Tab 3: Create (center FAB — action, not destination) -->
+  <button
+    type="button"
+    class="bottomnav-create"
+    (click)="openCreateSheet()"
+    aria-label="Create or log something">
+    <mat-icon>add</mat-icon>
+  </button>
+
+  <!-- Tab 4: Messages -->
+  <a routerLink="/social/chat"
+     routerLinkActive="app-bottomnav-tab--active"
+     class="app-bottomnav-tab"
+     aria-label="Messages">
+    <mat-icon>chat_bubble</mat-icon>
+    @if (totalUnreadMessages() > 0) {
+      <span class="app-bottomnav-badge">{{ totalUnreadMessages() > 99 ? '99+' : totalUnreadMessages() }}</span>
+    }
+  </a>
+
+  <!-- Tab 5: Profile (own) -->
+  <a routerLink="/social/profile/me"
+     routerLinkActive="app-bottomnav-tab--active"
+     [routerLinkActiveOptions]="{ exact: false }"
+     class="app-bottomnav-tab"
+     aria-label="My profile">
+    <mat-icon>person</mat-icon>
+  </a>
+
+</nav>

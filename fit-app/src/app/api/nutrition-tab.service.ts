@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { AlertService } from '../shared/services/alert.service';
-import { FoodItem, MealEntry, MealType } from '../core/models/nutrition-tab.model';
+import { FoodItem, FoodSearchResult, MacroProgressDto, MealEntry, MealType, RecentFoodItem } from '../core/models/nutrition-tab.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -27,6 +27,7 @@ export class NutritionTabService {
           protein_g: Number(i.protein_g ?? 0),
           carbs_g: Number(i.carbs_g ?? 0),
           fats_g: Number(i.fats_g ?? 0),
+          source: i.source ?? undefined,   // Fix 1: pass through source
         }))
       : [];
 
@@ -50,10 +51,11 @@ export class NutritionTabService {
 
   async listMeals(): Promise<MealEntry[]> {
     try {
-      const dtos = await firstValueFrom(this.http.get<any[]>(this.baseUrl));
+      const res = await firstValueFrom(this.http.get<any>(this.baseUrl));
+      const dtos: any[] = Array.isArray(res) ? res : (res?.items ?? []);
       return dtos.map(d => this.mapMeal(d));
     } catch (err) {
-      this.alerts?.warn('Failed to load meals', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to load meals');
       return [];
     }
   }
@@ -70,7 +72,7 @@ export class NutritionTabService {
       const dto = await firstValueFrom(this.http.post<any>(this.baseUrl, body));
       return this.mapMeal(dto);
     } catch (err) {
-      this.alerts?.warn('Failed to add meal', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to add meal');
       return null;
     }
   }
@@ -88,7 +90,7 @@ export class NutritionTabService {
       const dto = await firstValueFrom(this.http.put<any>(`${this.baseUrl}/${docId}`, body));
       return this.mapMeal(dto);
     } catch (err) {
-      this.alerts?.warn('Failed to update meal', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to update meal');
       return null;
     }
   }
@@ -100,8 +102,42 @@ export class NutritionTabService {
       this.alerts?.success('Meal deleted');
       return true;
     } catch (err) {
-      this.alerts?.warn('Failed to delete meal', (err as any)?.message ?? String(err));
+      this.alerts?.warn('Failed to delete meal');
       return false;
+    }
+  }
+
+  // Fix 1 — USDA food database search (proxied through backend, per 100g values)
+  async searchFoods(query: string): Promise<FoodSearchResult[]> {
+    try {
+      const params = { q: query.trim(), pageSize: 10 };
+      return await firstValueFrom(
+        this.http.get<FoodSearchResult[]>(`${this.baseUrl}/foods/search`, { params })
+      );
+    } catch {
+      return [];
+    }
+  }
+
+  // Fix 1 — last 10 distinct foods logged by the authenticated user
+  async getRecentFoods(): Promise<RecentFoodItem[]> {
+    try {
+      return await firstValueFrom(
+        this.http.get<RecentFoodItem[]>(`${this.baseUrl}/foods/recent`)
+      );
+    } catch {
+      return [];
+    }
+  }
+
+  // Fix 3 — today's macro totals vs TDEE-derived gram targets
+  async getTodayMacroProgress(): Promise<MacroProgressDto | null> {
+    try {
+      return await firstValueFrom(
+        this.http.get<MacroProgressDto>(`${this.baseUrl}/today/macro-progress`)
+      );
+    } catch {
+      return null;
     }
   }
 }

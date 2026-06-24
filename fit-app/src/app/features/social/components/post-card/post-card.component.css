@@ -345,6 +345,93 @@
   background: rgba(255, 64, 129, 0.1);
 }
 
+/* ── Verified badge ────────────────────────────────────────────────────────── */
+.verified-badge {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--primary);
+  flex-shrink: 0;
+  align-self: center;
+  margin-left: 1px;
+  margin-right: -2px; /* tighten gap before the date dot */
+}
+
+/* ── Seed content card ─────────────────────────────────────────────────────── */
+.post-card--seed {
+  border: 1px solid rgba(124, 77, 255, 0.18) !important; /* override .post-card { border: none } */
+  border-radius: 14px;
+  margin: 2px 0;
+  background: rgba(124, 77, 255, 0.018);
+}
+
+.post-card--seed + .post-card--seed {
+  margin-top: 10px;
+}
+
+.post-card--seed .post-card-footer {
+  border-top: 1px solid rgba(124, 77, 255, 0.10);
+}
+
+/* Seed icon box — replaces circular avatar for editorial posts */
+.post-card-seed-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(124, 77, 255, 0.14);
+  border: 1px solid rgba(124, 77, 255, 0.24);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.post-card-seed-icon-wrap mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--primary);
+}
+
+/* Seed type badge (NovaFit Tip / NovaFit · Article) */
+.post-card-seed-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px 3px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(124, 77, 255, 0.12);
+  color: var(--primary-light);
+  border: 1px solid rgba(124, 77, 255, 0.22);
+}
+
+.post-card-seed-badge--article {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+}
+
+.post-card-seed-badge mat-icon {
+  font-size: 11px;
+  width: 11px;
+  height: 11px;
+}
+
+/* "Suggested for you" label — sits between name row and content */
+.post-card-seed-label {
+  padding: 2px 16px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.30);
+  letter-spacing: 0.01em;
+}
+
 /* ── Article-type post ───────────────────────────────────────────────────── */
 .post-card--article { border-left: none; }
 
@@ -489,5 +576,10 @@
   .post-card-follow-btn {
     margin-left: auto;
     flex-basis: auto;
+  }
+
+  .post-card-seed-badge {
+    font-size: 9px;
+    padding: 3px 7px 3px 6px;
   }
 }
