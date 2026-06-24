@@ -17,7 +17,7 @@ public class AuthController(AuthService auth, ILogger<AuthController> logger) : 
         {
             var result = await auth.LoginAsync(req);
             if (result is null)
-                return Unauthorized(new { message = "Invalid email or password." });
+                return Problem(statusCode: 401, detail: "Invalid email or password.");
             return Ok(result);
         }
         catch (Exception ex)
@@ -34,7 +34,7 @@ public class AuthController(AuthService auth, ILogger<AuthController> logger) : 
         {
             var (response, error) = await auth.RegisterAsync(req);
             if (error is not null)
-                return Conflict(new { message = error });
+                return Problem(statusCode: 409, detail: error);
             return Ok(response);
         }
         catch (Exception ex)

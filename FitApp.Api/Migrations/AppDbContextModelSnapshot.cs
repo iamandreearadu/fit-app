@@ -329,7 +329,8 @@ namespace FitApp.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FollowingId");
+                    b.HasIndex("FollowingId")
+                        .HasDatabaseName("IX_Follows_FollowingId");
 
                     b.HasIndex("FollowerId", "FollowingId")
                         .IsUnique();
@@ -452,7 +453,7 @@ namespace FitApp.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "Date");
 
                     b.ToTable("MealEntries");
                 });
@@ -576,7 +577,7 @@ namespace FitApp.Api.Migrations
 
                     b.HasIndex("LinkedWorkoutId");
 
-                    b.HasIndex("UserId", "CreatedAt");
+                    b.HasIndex("UserId", "IsArchived", "CreatedAt");
 
                     b.ToTable("Posts");
                 });

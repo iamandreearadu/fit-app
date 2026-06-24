@@ -1,3 +1,20 @@
+@if (showMainNav()) {
+  <app-top-bar (hamburgerClick)="drawerOpen.set(true)" />
+}
+
 <router-outlet></router-outlet>
+
+@if (showMainNav()) {
+  <app-bottom-nav />
+}
+
+<!-- Side drawer — rendered only when mobile nav is active; inert when closed -->
+@if (showMainNav()) {
+  <app-side-drawer
+    [open]="drawerOpen()"
+    (closeRequested)="drawerOpen.set(false)"
+  />
+}
+
 <app-move-up></app-move-up>
-<app-ai-chat-fab></app-ai-chat-fab>
+<app-ai-chat-fab [extraBottomOffset]="aiFabExtraOffset"></app-ai-chat-fab>

@@ -118,7 +118,12 @@
         <mat-form-field appearance="outline" class="f-field">
           <mat-label>Password</mat-label>
           <mat-icon matPrefix class="field-icon">lock_outline</mat-icon>
-          <input matInput type="password" formControlName="password" autocomplete="new-password" />
+          <input matInput [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="new-password" />
+          <button mat-icon-button matSuffix type="button"
+            (click)="showPassword.set(!showPassword())"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+            <mat-icon class="field-icon">{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
           @if (form.get('password')?.touched && form.get('password')?.invalid) {
             <mat-error>{{ formErrors.getMessage(form.get('password')?.errors) }}</mat-error>
           }

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -32,11 +32,22 @@ import { SuggestedUsersComponent } from '../components/suggested-users/suggested
   templateUrl: './social-discover.component.html',
   styleUrl: './social-discover.component.css'
 })
-export class SocialDiscoverComponent implements OnInit, OnDestroy {
+export class SocialDiscoverComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly facade = inject(SocialFacade);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly _destroyRef = inject(DestroyRef);
+
+  private discoverObserver: IntersectionObserver | null = null;
+  private currentDiscoverPage = 1;
+
+  // Use a setter-based ViewChild so we re-observe whenever the sentinel
+  // enters the DOM (it lives inside a conditional @if block).
+  @ViewChild('discoverSentinel') set discoverSentinelElement(ref: ElementRef<HTMLElement> | undefined) {
+    if (ref?.nativeElement && this.discoverObserver) {
+      this.discoverObserver.observe(ref.nativeElement);
+    }
+  }
 
   readonly followingUsers = signal<Set<string>>(new Set());
   readonly skeletons = Array.from({ length: 4 });
@@ -58,7 +69,8 @@ export class SocialDiscoverComponent implements OnInit, OnDestroy {
   readonly isSearchMode = computed(() => this.searchQuery().trim().length > 0);
 
   ngOnInit(): void {
-    this.facade.loadDiscover();
+    this.currentDiscoverPage = 1;
+    this.facade.loadDiscover(1);
 
     this.searchInput$.pipe(
       debounceTime(350),
@@ -73,7 +85,27 @@ export class SocialDiscoverComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngAfterViewInit(): void {
+    this.discoverObserver = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          this.facade.discoverHasMore() &&
+          !this.facade.isLoadingDiscover()
+        ) {
+          const nextPage = this.currentDiscoverPage + 1;
+          this.currentDiscoverPage = nextPage;
+          this.facade.loadDiscover(nextPage);
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    // Sentinel attachment is handled by the @ViewChild setter above.
+    // It fires whenever the sentinel element enters the DOM (after data loads).
+  }
+
   ngOnDestroy(): void {
+    this.discoverObserver?.disconnect();
     this.facade.clearSearch();
   }
 

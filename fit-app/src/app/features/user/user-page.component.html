@@ -7,7 +7,7 @@
       <!-- Mobile tab scroll row -->
       <div class="mob-tabs">
         <button class="mob-tab" [class.active]="activeTab === 'profile'" (click)="setActiveTab('profile')" type="button">
-          <mat-icon>person</mat-icon><span>Profile</span>
+          <mat-icon>person</mat-icon><span>Account</span>
         </button>
         <button class="mob-tab" [class.active]="activeTab === 'physical'" (click)="setActiveTab('physical')" type="button">
           <mat-icon>fitness_center</mat-icon><span>Physical</span>
@@ -65,7 +65,7 @@
           <nav class="sb-nav">
             <button class="sb-item" [class.active]="activeTab === 'profile'" (click)="setActiveTab('profile')" type="button">
               <mat-icon>person</mat-icon>
-              <span *ngIf="!sidebarCollapsed">Profile</span>
+              <span *ngIf="!sidebarCollapsed">Account</span>
             </button>
             <button class="sb-item" [class.active]="activeTab === 'physical'" (click)="setActiveTab('physical')" type="button">
               <mat-icon>fitness_center</mat-icon>

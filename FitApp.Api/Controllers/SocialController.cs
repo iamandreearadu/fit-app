@@ -65,6 +65,21 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         }
     }
 
+    // GET /api/social/trending?pageSize=20
+    [HttpGet("trending")]
+    public async Task<IActionResult> GetTrending([FromQuery] int pageSize = 20)
+    {
+        try
+        {
+            return Ok(await socialService.GetTrendingAsync(UserId, pageSize));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error getting trending posts for user {UserId}", UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
     // GET /api/social/discover/suggested?limit=5
     // Used by SocialFeedGuidedEmptyComponent to populate follow suggestions.
     // Returns up to 5 users; same-goal users are surfaced first.

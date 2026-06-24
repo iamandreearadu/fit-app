@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   ConversationSummary,
@@ -16,7 +16,9 @@ export class ConversationService {
   private readonly base = `${environment.apiUrl}/api/conversations`;
 
   getConversations(): Observable<ConversationSummary[]> {
-    return this.http.get<ConversationSummary[]>(this.base);
+    return this.http.get<PaginatedResponse<ConversationSummary>>(this.base).pipe(
+      map(r => r.items)
+    );
   }
 
   createConversation(req: CreateConversationRequest): Observable<ConversationSummary> {

@@ -1,0 +1,83 @@
+<header class="app-topbar" role="banner" aria-label="NovaFit navigation">
+
+  <!-- ── LEFT: hamburger OR back + context title ─────────────────────────── -->
+  @if (contextTitle()) {
+    <!-- Detail route: back chevron + screen title -->
+    <div class="app-topbar-left">
+      <button
+        class="topbar-icon-btn"
+        type="button"
+        (click)="goBack()"
+        aria-label="Go back">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="app-topbar-context-title">{{ contextTitle() }}</span>
+    </div>
+  } @else {
+    <!-- Root route: hamburger → opens side drawer -->
+    @if (isAuthenticated()) {
+      <button
+        class="topbar-icon-btn"
+        type="button"
+        (click)="hamburgerClick.emit()"
+        aria-label="Open navigation menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+    } @else {
+      <!-- Guest: brand logo as home link -->
+      <a class="app-topbar-brand" routerLink="/">
+        <img src="/assets/fitapp-wb.png" alt="NovaFit" class="app-topbar-logo" />
+      </a>
+    }
+  }
+
+  <!-- ── CENTER: screen title or wordmark ───────────────────────────────── -->
+  <div class="app-topbar-center">
+    @if (!contextTitle()) {
+      @if (centerTitle()) {
+        <span class="app-topbar-screen-title">{{ centerTitle() }}</span>
+      } @else {
+        <span class="app-topbar-wordmark">Nova<span class="app-topbar-wordmark-accent">Fit</span></span>
+      }
+    }
+    <!-- On detail routes the center is intentionally empty — left owns title -->
+  </div>
+
+  <!-- ── RIGHT: search + notifications (contextual) ─────────────────────── -->
+  <div class="app-topbar-right">
+    @if (isAuthenticated() && !hideRightIcons()) {
+      <button
+        class="topbar-icon-btn"
+        type="button"
+        (click)="goToDiscover()"
+        aria-label="Search and discover athletes">
+        <mat-icon>search</mat-icon>
+      </button>
+
+      <!-- Notifications bell with badge -->
+      <button
+        class="topbar-icon-btn topbar-notif-btn"
+        type="button"
+        (click)="goToNotifications()"
+        [attr.aria-label]="unreadNotifications() > 0
+          ? (unreadNotifications() + ' unread notifications')
+          : 'Notifications'">
+        <mat-icon>notifications</mat-icon>
+        @if (unreadNotifications() > 0) {
+          <span class="app-bottomnav-badge topbar-notif-badge">
+            {{ unreadNotifications() > 99 ? '99+' : unreadNotifications() }}
+          </span>
+        }
+      </button>
+
+      <!-- Accessible live region for badge updates -->
+      <span aria-live="polite" aria-atomic="true" class="sr-only">
+        {{ unreadNotifications() > 0 ? unreadNotifications() + ' unread notifications' : '' }}
+      </span>
+
+    } @else if (!isAuthenticated()) {
+      <a class="app-topbar-cta" routerLink="/register">Get Started</a>
+    }
+  </div>
+
+</header>

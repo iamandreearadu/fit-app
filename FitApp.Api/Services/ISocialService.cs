@@ -84,4 +84,11 @@ public interface ISocialService
     /// </summary>
     Task<SharePostResponse> CreatePostFromMealAsync(
         string userId, int mealId, PostFromMealRequest? request);
+
+    /// <summary>
+    /// Returns trending posts from the last 7 days, ranked by engagement score
+    /// (LikesCount * 2 + CommentsCount), excluding the requesting user's own posts.
+    /// Capped at <paramref name="pageSize"/> (max 20).
+    /// </summary>
+    Task<List<PostResponse>> GetTrendingAsync(string userId, int pageSize);
 }

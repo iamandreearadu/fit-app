@@ -93,9 +93,12 @@ export class DailyUserDataComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.facade.loadDaily();
-    this.facade.loadTodaySummary();
-    this.facade.loadWorkoutTemplates();
+    // Load all data in parallel — avoids sequential waterfall
+    Promise.all([
+      this.facade.loadDaily(),
+      this.facade.loadTodaySummary(),
+      this.facade.loadWorkoutTemplates(),
+    ]);
   }
 
   openMealAnalyze(): void {

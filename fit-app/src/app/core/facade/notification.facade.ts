@@ -24,6 +24,10 @@ export class NotificationFacade {
       this.notifications.update(ns => [n, ...ns]);
       this.unreadCount.update(c => c + 1);
     });
+
+    this.notifHub.reconnected$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.loadUnreadCount();
+    });
   }
 
   async connectHub(token: string): Promise<void> {

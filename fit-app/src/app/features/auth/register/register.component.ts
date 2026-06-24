@@ -44,6 +44,8 @@ export class RegisterComponent {
   });
 
   // ── Goal selector state ───────────────────────────────────────────────────
+  readonly showPassword = signal(false);
+
   readonly goalOptions = GOAL_OPTIONS;
   readonly selectedGoal = signal<GoalOption>(GOAL_OPTIONS[0]); // pre-select "Lose weight"
   readonly goalError = signal(false);

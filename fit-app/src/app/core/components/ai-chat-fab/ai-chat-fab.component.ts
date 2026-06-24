@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  Input,
   computed,
   inject,
   signal,
@@ -33,12 +34,12 @@ export class AiChatFabComponent {
   private readonly authStore = inject(AuthenticationStore);
   private readonly destroyRef = inject(DestroyRef);
 
+  /** Additional bottom offset in pixels to avoid overlapping other FABs. */
+  @Input() extraBottomOffset = 0;
+
   readonly sheetOpen = signal(false);
 
   // ── Reactive URL signal — re-evaluates computed()s on every navigation ────
-  // router.url is a plain property (not a signal), so computed() would capture
-  // the URL at construction time and never update. toSignal on NavigationEnd
-  // events converts the stream into a signal that Angular's reactive graph tracks.
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd),
@@ -59,10 +60,8 @@ export class AiChatFabComponent {
     return isAuth && !isHiddenRoute;
   });
 
-  // ── Social routes need position shift on mobile (above daily-panel-fab) ───
-  readonly fabClass = computed(() => ({
-    'fab--social': (this.currentUrl() ?? '').startsWith('/social'),
-  }));
+  // fabClass reserved for future positional overrides
+  readonly fabClass = computed(() => ({}));
 
   // ── Determine module context from current route ───────────────────────────
   private getModuleContext(): ModuleContext | null {

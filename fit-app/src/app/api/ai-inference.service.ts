@@ -19,8 +19,9 @@ interface AiResponse {
   content: string;
 }
 
+/** API service for calling the Groq inference endpoints (POST /api/ai). */
 @Injectable({ providedIn: 'root' })
-export class GroqAiApiService {
+export class AiInferenceService {
   private http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/api/ai`;
 

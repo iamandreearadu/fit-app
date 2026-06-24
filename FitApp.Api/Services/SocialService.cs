@@ -169,6 +169,44 @@ public class SocialService(
         };
     }
 
+    // ── Trending ──────────────────────────────────────────────────────────────
+
+    public async Task<List<PostResponse>> GetTrendingAsync(string userId, int pageSize)
+    {
+        pageSize = Math.Min(pageSize, 20);
+        var since = DateTime.UtcNow.AddDays(-7);
+
+        var posts = await db.Posts
+            .AsNoTracking()
+            .Include(p => p.User)
+            .Include(p => p.LinkedWorkout)
+            .Include(p => p.LinkedMeal)
+            .Include(p => p.LinkedDailyEntry)
+            .Include(p => p.Article)
+            .AsSplitQuery()
+            .Where(p => !p.IsArchived && p.UserId != userId && p.CreatedAt >= since)
+            .OrderByDescending(p => p.LikesCount * 2 + p.CommentsCount)
+            .ThenByDescending(p => p.CreatedAt)
+            .Take(pageSize)
+            .ToListAsync();
+
+        if (posts.Count == 0) return [];
+
+        var postIds = posts.Select(p => p.Id).ToList();
+
+        var likedPostIds = await db.Likes
+            .Where(l => l.UserId == userId && postIds.Contains(l.PostId))
+            .Select(l => l.PostId)
+            .ToHashSetAsync();
+
+        var followingIds = await db.Follows
+            .Where(f => f.FollowerId == userId)
+            .Select(f => f.FollowingId)
+            .ToHashSetAsync();
+
+        return posts.Select(p => MapToPostResponse(p, userId, likedPostIds, followingIds)).ToList();
+    }
+
     // ── Create Post ───────────────────────────────────────────────────────────
 
     public async Task<PostResponse> CreatePostAsync(string userId, CreatePostRequest request)

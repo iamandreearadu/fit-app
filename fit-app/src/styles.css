@@ -19,6 +19,30 @@
   --color-warning-bg: rgba(255, 183, 77, 0.12);
   --color-error: #ef5350;
   --color-error-bg: rgba(239, 83, 80, 0.12);
+
+  /* Navigation (shared between app & social bottom-nav / top-bar) */
+  --nav-height: 56px;
+  --nav-bg: rgba(13, 13, 16, 0.95);
+  --nav-blur: 20px;
+  --nav-border: rgba(255, 255, 255, 0.07);
+  --nav-icon-inactive: rgba(255, 255, 255, 0.4);
+  --nav-icon-hover: rgba(255, 255, 255, 0.7);
+
+  /* Create FAB gradient — used by center bottom-nav FAB and any future primary CTA */
+  --nav-create-gradient: linear-gradient(135deg, var(--primary), var(--accent));
+
+  /*
+   * z-index stack reference (ascending order):
+   *   100  — legacy (do not use for new components)
+   *   920  — social daily-panel-fab (desktop only)
+   *   930  — social daily-panel backdrop
+   *  1000  — GlobalBottomNavComponent, GlobalTopBarComponent
+   *  1050  — AiChatFabComponent (above nav, below drawer)
+   *  1090  — GlobalSideDrawer backdrop
+   *  1100  — GlobalSideDrawerComponent panel
+   *  1200+ — Angular Material dialogs / bottom-sheets (CDK managed)
+   */
+
   /* --effect-glow:  color-mix(in srgb, var(--surface) 85%, var(--primary-glow) 15%); */
   --background-fade: linear-gradient(
     to bottom,
@@ -63,6 +87,15 @@ app-root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  /* Include safe-area-inset-top because the global top bar height is
+     calc(var(--nav-height) + env(safe-area-inset-top, 0px)) after redesign. */
+  .page-wrapper {
+    padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .page-content {
@@ -285,6 +318,15 @@ mat-select {
   }
 }
 
+/* ─── CREATE ACTION SHEET (mobile bottom-sheet) ─── */
+.create-action-sheet .mat-bottom-sheet-container {
+  background: var(--surface) !important;
+  border-radius: 24px 24px 0 0 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+  padding: 0 !important;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
 /* ─── CONFIRM DIALOG PANEL ─── */
 .confirm-dialog-panel .mat-mdc-dialog-container,
 .confirm-dialog-panel .mdc-dialog__container,
@@ -318,6 +360,23 @@ mat-select {
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75) !important;
   padding: 0 !important;
   overflow: hidden !important;
+}
+
+/* ── Global top bar scroll-to-hide (Feed route only) ─────────────────────── */
+/* SocialFeedComponent adds .topbar--scrolled-down to <html> on downward scroll. */
+/* Using a global rule because view encapsulation prevents cross-component CSS.  */
+
+html.topbar--scrolled-down app-top-bar .app-topbar {
+  transform: translateY(-100%);
+  transition: transform 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.topbar--scrolled-down app-top-bar .app-topbar {
+    transition: none;
+    opacity: 0.55;
+    transform: none;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -987,6 +1046,50 @@ mat-bottom-sheet-container.ai-chat-sheet-panel {
 @media (min-width: 640px) {
   .cdk-overlay-pane:has(mat-bottom-sheet-container.ai-chat-sheet-panel) {
     max-width: 520px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+/* ─── MORE BOTTOM SHEET PANEL ───
+   panelClass is applied to .cdk-overlay-pane, so we use
+   descendant selectors to reach the actual container inside it. */
+
+/* 1. Style the container element (child of the overlay pane) */
+.more-sheet-panel mat-bottom-sheet-container,
+.more-sheet-panel .mat-bottom-sheet-container {
+  background: var(--surface) !important;
+  background-color: var(--surface) !important;
+  border-radius: 24px 24px 0 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-bottom: none !important;
+  padding: 0 !important;
+  max-height: 60dvh !important;
+  box-shadow: 0 -8px 48px rgba(0, 0, 0, 0.7) !important;
+  overflow: hidden !important;
+  color: var(--white-soft) !important;
+}
+
+/* 2. Override MDC internal surface tokens */
+.more-sheet-panel .mat-bottom-sheet-container-medium,
+.more-sheet-panel .mat-bottom-sheet-container-large,
+.more-sheet-panel .mdc-surface,
+.more-sheet-panel [class*="mat-bottom-sheet"] {
+  background: var(--surface) !important;
+  background-color: var(--surface) !important;
+  color: var(--white-soft) !important;
+}
+
+/* 3. Override Angular Material 19 MDC surface color CSS variable */
+.more-sheet-panel {
+  --mdc-bottom-sheet-container-color: var(--surface) !important;
+  --mat-bottom-sheet-container-background-color: var(--surface) !important;
+  --mat-bottom-sheet-container-text-color: var(--white-soft) !important;
+}
+
+@media (min-width: 640px) {
+  .cdk-overlay-pane.more-sheet-panel {
+    max-width: 400px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
   }

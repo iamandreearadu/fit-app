@@ -117,6 +117,11 @@
   .social-links{ justify-content:center; }
 }
 
+/* ≤ 768px — hidden on mobile, replaced by bottom-nav */
+@media (max-width: 768px){
+  .app-footer{ display:none; }
+}
+
 /* ≤ 640px */
 @media (max-width: 640px){
   .footer-content{

@@ -3,7 +3,7 @@
   position: fixed;
   bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   right: 24px;
-  z-index: 950;
+  z-index: 1050; /* z-index stack: above nav (1000), below drawer (1100) */
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -54,11 +54,10 @@
   transform: scale(0.8);
 }
 
-/* ── Social route: shift above daily-panel-fab on mobile ────────────────────── */
+/* ── Mobile: hidden — bottom nav is the primary nav surface on small screens ── */
 @media (max-width: 768px) {
-  .ai-chat-fab.fab--social {
-    bottom: calc(118px + env(safe-area-inset-bottom, 0px));
-    right: 16px;
+  .ai-chat-fab {
+    display: none;
   }
 }
 

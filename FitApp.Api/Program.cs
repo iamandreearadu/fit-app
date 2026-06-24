@@ -1,5 +1,7 @@
 using System.Text;
 using System.Threading.RateLimiting;
+using System.IO.Compression;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Data.Sqlite;
 using FitApp.Api.Data;
 using FitApp.Api.Hubs;
@@ -13,7 +15,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ── Database ──────────────────────────────────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+{
+    opt.UseSqlite(builder.Configuration.GetConnectionString("Default"));
+    // Suppress PendingModelChangesWarning — startup already applies migrations via
+    // db.Database.Migrate() and manual column patching above. EF Core 10 made this
+    // warning an error by default, which blocks startup when migrations exist but
+    // haven't been applied yet (normal for auto-migrate on startup pattern).
+    opt.ConfigureWarnings(w => w.Ignore(
+        Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+});
 
 // ── JWT Authentication ────────────────────────────────────────────────────────
 var jwtSecret = builder.Configuration["Jwt:Secret"]!;
@@ -83,6 +93,16 @@ builder.Services.AddHttpClient("USDA", client =>
 // ── In-memory cache (food search results, 30-min sliding TTL) ────────────────
 builder.Services.AddMemoryCache();
 
+
+// ── Response Compression ─────────────────────────────────────────────────────
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.EnableForHttps = true;
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        ["application/json", "text/json"]);
+});
+builder.Services.Configure<GzipCompressionProviderOptions>(opts =>
+    opts.Level = CompressionLevel.Fastest);
 // ── SignalR ───────────────────────────────────────────────────────────────────
 builder.Services.AddSignalR();
 
@@ -107,6 +127,9 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<ISocialService, SocialService>();
+
+// Dashboard
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 // ── Rate Limiting ─────────────────────────────────────────────────────────────
 builder.Services.AddRateLimiter(o =>
@@ -146,7 +169,7 @@ var connStr = builder.Configuration.GetConnectionString("Default")
     ?? throw new InvalidOperationException("Connection string 'Default' is missing from appsettings.json.");
 var dbPath = connStr.Replace("Data Source=", "", StringComparison.OrdinalIgnoreCase).Trim();
 
-if (File.Exists(dbPath))
+if (File.Exists(dbPath) && new FileInfo(dbPath).Length > 0)
 {
     using var raw = new SqliteConnection($"Data Source={dbPath}");
     raw.Open();
@@ -159,17 +182,21 @@ if (File.Exists(dbPath))
         )
         """);
 
+    // Guard: skip column patches if core tables don't exist yet (fresh db)
+    var hasPosts = Scalar(raw, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Posts'") > 0;
+    var hasUsers = Scalar(raw, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Users'") > 0;
+
     // Check which new columns exist
-    var hasArticleId  = Scalar(raw, "SELECT COUNT(*) FROM pragma_table_info('Posts') WHERE name='ArticleId'")  > 0;
-    var hasOnboarding = Scalar(raw, "SELECT COUNT(*) FROM pragma_table_info('Users') WHERE name='OnboardingCompleted'") > 0;
+    var hasArticleId  = hasPosts && Scalar(raw, "SELECT COUNT(*) FROM pragma_table_info('Posts') WHERE name='ArticleId'")  > 0;
+    var hasOnboarding = hasUsers && Scalar(raw, "SELECT COUNT(*) FROM pragma_table_info('Users') WHERE name='OnboardingCompleted'") > 0;
 
     // Apply missing columns directly — idempotent, no dependency on migration history
-    if (!hasArticleId)
+    if (hasPosts && !hasArticleId)
     {
         Exec(raw, "ALTER TABLE \"Posts\" ADD COLUMN \"ArticleId\" INTEGER");
         Exec(raw, "CREATE INDEX IF NOT EXISTS \"IX_Posts_ArticleId\" ON \"Posts\"(\"ArticleId\")");
     }
-    if (!hasOnboarding)
+    if (hasUsers && !hasOnboarding)
     {
         Exec(raw, "ALTER TABLE \"Users\" ADD COLUMN \"OnboardingCompleted\" INTEGER NOT NULL DEFAULT 0");
         Exec(raw, "ALTER TABLE \"Users\" ADD COLUMN \"DietaryPreference\" TEXT");
@@ -230,6 +257,7 @@ Directory.CreateDirectory(chatUploadsDir);
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseRateLimiter();
+app.UseResponseCompression();
 
 if (app.Environment.IsDevelopment())
 {

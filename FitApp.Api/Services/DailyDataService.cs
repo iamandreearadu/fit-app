@@ -150,8 +150,11 @@ public class DailyDataService(
         var now = DateTime.UtcNow;
         var today = DateOnly.FromDateTime(now);
 
+        // Optimization: only load last 400 days — enough to compute any realistic streak.
+        // Avoids loading entire user history (could be 1000+ rows for long-time users).
+        var cutoff = today.AddDays(-400).ToString("yyyy-MM-dd");
         var rawDates = await db.DailyEntries
-            .Where(d => d.UserId == userId)
+            .Where(d => d.UserId == userId && d.Date.CompareTo(cutoff) >= 0)
             .Select(d => d.Date)
             .ToListAsync();
 

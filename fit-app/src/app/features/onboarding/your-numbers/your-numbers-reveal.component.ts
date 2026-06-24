@@ -136,7 +136,7 @@ export class YourNumbersRevealComponent implements OnInit, OnDestroy {
 
   async onLogMeal(): Promise<void> {
     void this.facade.recordStep('first_action_taken');
-    await this.router.navigate(['/user-profile'], { queryParams: { tab: 'nutrition' } });
+    await this.router.navigate(['/account'], { queryParams: { tab: 'nutrition' } });
   }
 
   async retry(): Promise<void> {

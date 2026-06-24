@@ -1,0 +1,50 @@
+<div class="create-sheet-container" role="dialog" aria-label="Create or log activity">
+  <!-- Drag handle -->
+  <div class="create-sheet-handle" aria-hidden="true"></div>
+
+  <h2 class="create-sheet-title">What would you like to do?</h2>
+
+  <div class="create-action-grid">
+
+    <!-- New Post -->
+    <button type="button" class="create-action-cell" (click)="openCreateContent()">
+      <div class="create-action-icon-wrap">
+        <mat-icon>edit_note</mat-icon>
+      </div>
+      <span class="create-action-label">New Post</span>
+    </button>
+
+    <!-- Write Article -->
+    <button type="button" class="create-action-cell" (click)="openCreateContent()">
+      <div class="create-action-icon-wrap">
+        <mat-icon>article</mat-icon>
+      </div>
+      <span class="create-action-label">Write Article</span>
+    </button>
+
+    <!-- Log Workout -->
+    <button type="button" class="create-action-cell" (click)="navigateTo('/account', { tab: 'workouts' })">
+      <div class="create-action-icon-wrap">
+        <mat-icon>fitness_center</mat-icon>
+      </div>
+      <span class="create-action-label">Log Workout</span>
+    </button>
+
+    <!-- Log Meal -->
+    <button type="button" class="create-action-cell" (click)="navigateTo('/account', { tab: 'nutrition' })">
+      <div class="create-action-icon-wrap">
+        <mat-icon>restaurant</mat-icon>
+      </div>
+      <span class="create-action-label">Log Meal</span>
+    </button>
+
+    <!-- Daily Check-in (full-width) -->
+    <button type="button" class="create-action-cell create-action-cell--wide" (click)="navigateTo('/user-dashboard', { tab: 'daily' })">
+      <div class="create-action-icon-wrap">
+        <mat-icon>today</mat-icon>
+      </div>
+      <span class="create-action-label">Daily Check-in</span>
+    </button>
+
+  </div>
+</div>

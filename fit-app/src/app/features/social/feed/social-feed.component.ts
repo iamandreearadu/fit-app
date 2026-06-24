@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, signal, computed } from '@angular/core';
+import { Component, DestroyRef, HostListener, inject, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -37,10 +37,69 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly authStore = inject(AuthenticationStore);
   private readonly destroyRef = inject(DestroyRef);
 
-  @ViewChild('sentinel') sentinelRef!: ElementRef;
+  @ViewChild('feedContainer') feedContainer!: ElementRef<HTMLElement>;
   private observer: IntersectionObserver | null = null;
 
+  // Use a setter-based ViewChild so we re-observe whenever the sentinel
+  // enters the DOM (it lives inside a conditional @if block).
+  @ViewChild('sentinel') set sentinelElement(ref: ElementRef | undefined) {
+    if (ref?.nativeElement && this.observer) {
+      this.observer.observe(ref.nativeElement);
+    }
+  }
+
+  // Pull-to-refresh state
+  private startY = 0;
+  private isPulling = false;
+  readonly isPullRefreshing = signal(false);
+
+  // ── Scroll-to-hide top bar (Feed only) ────────────────────────────────────
+  // Adds/removes `.topbar--scrolled-down` on <html> so the global top bar
+  // can slide out via CSS transform. Class is cleaned up in ngOnDestroy.
+  private lastScrollY = 0;
+  private scrollRafId: number | null = null;
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    // requestAnimationFrame throttle — prevents layout thrashing
+    if (this.scrollRafId !== null) return;
+    this.scrollRafId = requestAnimationFrame(() => {
+      this.scrollRafId = null;
+      const scrollY = window.scrollY;
+      const delta = scrollY - this.lastScrollY;
+      this.lastScrollY = scrollY;
+
+      if (scrollY > 80 && delta > 0) {
+        document.documentElement.classList.add('topbar--scrolled-down');
+      } else {
+        document.documentElement.classList.remove('topbar--scrolled-down');
+      }
+    });
+  }
+
   readonly skeletons = Array.from({ length: 3 });
+
+  onPointerDown(e: PointerEvent): void {
+    if (this.feedContainer?.nativeElement.scrollTop === 0) {
+      this.startY = e.clientY;
+      this.isPulling = true;
+    }
+  }
+
+  onPointerMove(e: PointerEvent): void {
+    if (!this.isPulling) return;
+    if (e.clientY - this.startY > 70) {
+      this.isPullRefreshing.set(true);
+    }
+  }
+
+  onPointerUp(): void {
+    if (this.isPullRefreshing()) {
+      this.facade.loadFeed(true);
+    }
+    this.isPulling = false;
+    this.isPullRefreshing.set(false);
+  }
 
   ngOnInit(): void {
     this.facade.loadFeed(true);
@@ -60,13 +119,18 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       { rootMargin: '200px' }
     );
-    if (this.sentinelRef?.nativeElement) {
-      this.observer.observe(this.sentinelRef.nativeElement);
-    }
+    // Sentinel attachment is handled by the @ViewChild setter above.
+    // It fires whenever the sentinel element enters the DOM (after data loads).
   }
 
   ngOnDestroy(): void {
     this.observer?.disconnect();
+    // Always restore the top bar when leaving the Feed route
+    document.documentElement.classList.remove('topbar--scrolled-down');
+    if (this.scrollRafId !== null) {
+      cancelAnimationFrame(this.scrollRafId);
+      this.scrollRafId = null;
+    }
   }
 
   onLikeToggled(postId: number): void {

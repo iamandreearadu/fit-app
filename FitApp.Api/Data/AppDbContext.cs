@@ -93,6 +93,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<MealEntry>(e =>
         {
             e.HasKey(m => m.Id);
+            e.HasIndex(m => new { m.UserId, m.Date });
             e.HasOne(m => m.User).WithMany(u => u.MealEntries).HasForeignKey(m => m.UserId);
             e.HasMany(m => m.Items).WithOne(f => f.MealEntry).HasForeignKey(f => f.MealEntryId).OnDelete(DeleteBehavior.Cascade);
         });
@@ -141,7 +142,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany()
                 .HasForeignKey(p => p.LinkedDailyEntryId)
                 .OnDelete(DeleteBehavior.SetNull);
-            e.HasIndex(p => new { p.UserId, p.CreatedAt });
+            e.HasIndex(p => new { p.UserId, p.IsArchived, p.CreatedAt });
             e.HasOne(p => p.Article)
                 .WithMany()
                 .HasForeignKey(p => p.ArticleId)
@@ -180,6 +181,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             e.HasKey(f => f.Id);
             e.HasIndex(f => new { f.FollowerId, f.FollowingId }).IsUnique();
+            // Non-unique index on FollowingId — speeds up "all users following X" queries
+            // (e.g. follower counts, notification fan-out).
+            e.HasIndex(f => f.FollowingId).HasDatabaseName("IX_Follows_FollowingId");
             // Both FKs use Restrict to avoid cascade delete cycles
             e.HasOne(f => f.Follower)
                 .WithMany(u => u.Following)

@@ -198,6 +198,13 @@
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .stats-tab {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
 @media (max-width: 640px) {
   .stats-cards-grid-3x1 {
     grid-template-columns: 1fr 1fr;

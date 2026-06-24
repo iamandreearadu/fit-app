@@ -16,7 +16,10 @@
       "Bash(cp /tmp/fix2-adr-full.md /Users/franzio/Documents/Andreea/FitApp/fit-app/.claude/decisions/fix-2-share-besocial.md)",
       "Bash(npx ng *)",
       "Bash(echo \"exit: $?\")",
-      "Bash(echo \"exit $? means grep found nothing — 0 matches confirmed\")"
+      "Bash(echo \"exit $? means grep found nothing — 0 matches confirmed\")",
+      "Bash(rm /Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/core/facade/social-chat.facade.ts)",
+      "Bash(rm /Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/core/facade/social-notifications.facade.ts)",
+      "Bash(ng build *)"
     ]
   }
 }

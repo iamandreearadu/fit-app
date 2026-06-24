@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,6 +35,7 @@ import { EditPostComponent } from '../components/edit-post/edit-post.component';
 export class SocialPostDetailComponent implements OnInit, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   protected readonly facade = inject(SocialFacade);
   private readonly dialog = inject(MatDialog);
 
@@ -175,6 +177,6 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
   }
 
   goBack(): void {
-    this.router.navigateByUrl(this.returnUrl);
+    this.location.back();
   }
 }

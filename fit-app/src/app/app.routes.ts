@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { GuestGuard } from './core/guards/guest.guard';
 import { OnboardingGuard } from './core/guards/onboarding.guard';
-import { SocialShellComponent } from './features/social/social-shell.component';
 
 export const routes: Routes = [
   {
@@ -41,7 +40,7 @@ export const routes: Routes = [
   // are accessible before onboarding completes per product decision.
   // Only /user-dashboard requires onboarding completion.
   // Affected routes: /workout-session/:templateId, /ai-assistant,
-  //                  /user-profile, /social
+  //                  /account, /social
   {
     path: 'workout-session/:templateId',
     loadComponent: () =>
@@ -59,7 +58,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: 'user-profile',
+    path: 'account',
     loadComponent: () =>
       import('./features/user/user-page.component').then(
         (m) => m.UserPageComponent,
@@ -72,7 +71,7 @@ export const routes: Routes = [
       import('./features/dashboard/dashboard-page.component').then(
         (m) => m.DashboardPageComponent,
       ),
-    canActivate: [AuthGuard, OnboardingGuard],
+    canActivate: [AuthGuard],
   },
   {
     path: 'login',
@@ -93,7 +92,8 @@ export const routes: Routes = [
 
   {
     path: 'social',
-    component: SocialShellComponent,
+    loadComponent: () =>
+      import('./features/social/social-shell.component').then(m => m.SocialShellComponent),
     canActivate: [AuthGuard],
     children: [
       {

@@ -49,6 +49,9 @@ export class SocialFacade {
   readonly discoverPosts = this._discoverPosts.asReadonly();
   isLoadingDiscover = signal(false);
   discoverError = signal<string | null>(null);
+  private readonly _discoverPage = signal(1);
+  private readonly _discoverHasMore = signal(true);
+  readonly discoverHasMore = this._discoverHasMore.asReadonly();
 
   // Profile state
   currentProfile = signal<UserSocialProfile | null>(null);
@@ -163,12 +166,23 @@ export class SocialFacade {
     this.profilePosts.update(f => f.filter(p => p.id !== id));
   }
 
-  async loadDiscover(): Promise<void> {
+  async loadDiscover(page = 1): Promise<void> {
+    if (page === 1) {
+      this._discoverPosts.set([]);
+      this._discoverHasMore.set(true);
+      this.discoverError.set(null);
+    }
+    if (!this._discoverHasMore()) return;
     this.isLoadingDiscover.set(true);
-    this.discoverError.set(null);
     try {
-      const res = await firstValueFrom(this.socialSvc.getDiscover());
-      this._discoverPosts.set(res.items);
+      const res = await firstValueFrom(this.socialSvc.getDiscover(page, 12));
+      if (page === 1) {
+        this._discoverPosts.set(res.items);
+      } else {
+        this._discoverPosts.update(existing => [...existing, ...res.items]);
+      }
+      this._discoverHasMore.set(res.items.length === 12);
+      this._discoverPage.set(page);
     } catch {
       this.discoverError.set('Failed to load discover. Please try again.');
     } finally {
@@ -260,6 +274,10 @@ export class SocialFacade {
   async archiveWorkout(id: number): Promise<void> {
     await firstValueFrom(this.socialSvc.archiveWorkout(id));
     this.profileWorkouts.update(f => f.filter(w => w.id !== id));
+  }
+
+  async unarchiveWorkout(id: number): Promise<void> {
+    await firstValueFrom(this.socialSvc.archiveWorkout(id));
     this.archivedWorkouts.update(f => f.filter(w => w.id !== id));
   }
 

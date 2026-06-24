@@ -1,10 +1,11 @@
-import { Injectable, signal } from "@angular/core";
+import { Injectable, signal } from '@angular/core';
 import { ChatConversation, ChatMessage } from '../models/groq-ai.model';
 
+/** Signal-based in-memory state store for the AI assistant chat. */
 @Injectable({
   providedIn: 'root'
 })
-export class GrogAiService {
+export class AiChatStore {
 
   private _conversationId = signal<string | null>(null);
   private _messages = signal<ChatMessage[]>([]);
@@ -20,34 +21,31 @@ export class GrogAiService {
     return this._conversationId();
   }
 
-
-  setConversationId(id: string | null) {
+  setConversationId(id: string | null): void {
     this._conversationId.set(id);
   }
 
-  setMessages(list: ChatMessage[]) {
+  setMessages(list: ChatMessage[]): void {
     this._messages.set(list ?? []);
   }
 
-  appendMessage(msg: ChatMessage) {
+  appendMessage(msg: ChatMessage): void {
     this._messages.update(list => [...list, msg]);
   }
 
-  updateMessages(fn: (list: ChatMessage[]) => ChatMessage[]) {
+  updateMessages(fn: (list: ChatMessage[]) => ChatMessage[]): void {
     this._messages.update(fn);
   }
 
-  setConversations(list: ChatConversation[]) {
+  setConversations(list: ChatConversation[]): void {
     this._conversations.set(list ?? []);
   }
 
-  setLoading(v: boolean) {
+  setLoading(v: boolean): void {
     this._loading.set(v);
   }
 
-  clearMessages() {
+  clearMessages(): void {
     this._messages.set([]);
   }
-
-
 }

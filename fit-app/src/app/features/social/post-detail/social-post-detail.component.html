@@ -1,112 +1,117 @@
 <div class="post-detail-page">
 
-  <!-- Back button -->
-  <button class="post-detail-back" (click)="goBack()" type="button" aria-label="Back">
-    <mat-icon>arrow_back</mat-icon>
-    <span>Back</span>
-  </button>
+  <!-- Scrollable content area -->
+  <div class="post-detail-scroll">
 
-  <!-- Post loading -->
-  @if (isLoadingPost()) {
-    <div class="post-detail-skeleton"></div>
-  }
+    <!-- Back button -->
+    <button class="post-detail-back" (click)="goBack()" type="button" aria-label="Back">
+      <mat-icon>arrow_back</mat-icon>
+      <span>Back</span>
+    </button>
 
-  <!-- Post error -->
-  @if (postError()) {
-    <div class="post-detail-error">
-      <mat-icon>error_outline</mat-icon>
-      <span>{{ postError() }}</span>
-    </div>
-  }
+    <!-- Post loading -->
+    @if (isLoadingPost()) {
+      <div class="post-detail-skeleton"></div>
+    }
 
-  <!-- Post card -->
-  @if (post()) {
-    <app-post-card
-      [post]="post()!"
-      (likeToggled)="onLikePost()"
-      (commentClicked)="scrollToComposer()"
-      (followToggled)="facade.toggleFollow($event)"
-      (deleteClicked)="onDeletePost($event)"
-      (editClicked)="onEditPost($event)"
-    />
-  }
+    <!-- Post error -->
+    @if (postError()) {
+      <div class="post-detail-error">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ postError() }}</span>
+      </div>
+    }
 
-  <!-- Comments section -->
-  <div class="post-detail-comments">
-    <div class="post-detail-comments-header">
-      <span class="post-detail-comments-title">Comments</span>
-      @if (comments().length > 0) {
-        <span class="pill post-detail-comments-count">{{ comments().length }}</span>
+    <!-- Post card -->
+    @if (post()) {
+      <app-post-card
+        [post]="post()!"
+        (likeToggled)="onLikePost()"
+        (commentClicked)="scrollToComposer()"
+        (followToggled)="facade.toggleFollow($event)"
+        (deleteClicked)="onDeletePost($event)"
+        (editClicked)="onEditPost($event)"
+      />
+    }
+
+    <!-- Comments section -->
+    <div class="post-detail-comments">
+      <div class="post-detail-comments-header">
+        <span class="post-detail-comments-title">Comments</span>
+        @if (comments().length > 0) {
+          <span class="pill post-detail-comments-count">{{ comments().length }}</span>
+        }
+      </div>
+
+      <!-- Loading -->
+      @if (isLoadingComments()) {
+        <div class="comments-list" #commentsList>
+          @for (s of commentSkeletons; track $index) {
+            <div class="comment-row-skeleton"></div>
+          }
+        </div>
+      }
+
+      <!-- Error -->
+      @if (commentsError()) {
+        <div class="comments-error">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ commentsError() }}</span>
+        </div>
+      }
+
+      <!-- Comments list -->
+      @if (!isLoadingComments()) {
+        <div class="comments-list" #commentsList>
+          @if (comments().length === 0 && !commentsError()) {
+            <div class="comments-empty">
+              <mat-icon>chat_bubble_outline</mat-icon>
+              <p>Be the first to comment</p>
+            </div>
+          }
+          @for (comment of comments(); track comment.id) {
+            <div class="comment-row">
+              <div class="comment-avatar-wrap">
+                @if (comment.author.avatarUrl) {
+                  <img class="comment-avatar" [src]="comment.author.avatarUrl" [alt]="comment.author.displayName" />
+                } @else {
+                  <div class="comment-avatar comment-avatar--fallback">
+                    <mat-icon>person</mat-icon>
+                  </div>
+                }
+              </div>
+              <div class="comment-body">
+                <div class="comment-meta">
+                  <span class="comment-name">{{ comment.author.displayName }}</span>
+                  <span class="comment-time">{{ comment.createdAt | date:'MMM d' }}</span>
+                </div>
+                <p class="comment-content">{{ comment.content }}</p>
+              </div>
+              @if (comment.isOwnComment) {
+                <button
+                  class="comment-delete-btn"
+                  (click)="deleteComment(postId, comment.id)"
+                  type="button"
+                  aria-label="Delete comment"
+                >
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              }
+            </div>
+          }
+        </div>
       }
     </div>
 
-    <!-- Loading -->
-    @if (isLoadingComments()) {
-      <div class="comments-list" #commentsList>
-        @for (s of commentSkeletons; track $index) {
-          <div class="comment-row-skeleton"></div>
-        }
-      </div>
-    }
+  </div><!-- /.post-detail-scroll -->
 
-    <!-- Error -->
-    @if (commentsError()) {
-      <div class="comments-error">
-        <mat-icon>error_outline</mat-icon>
-        <span>{{ commentsError() }}</span>
-      </div>
-    }
-
-    <!-- Comments list -->
-    @if (!isLoadingComments()) {
-      <div class="comments-list" #commentsList>
-        @if (comments().length === 0 && !commentsError()) {
-          <div class="comments-empty">
-            <mat-icon>chat_bubble_outline</mat-icon>
-            <p>Be the first to comment</p>
-          </div>
-        }
-        @for (comment of comments(); track comment.id) {
-          <div class="comment-row">
-            <div class="comment-avatar-wrap">
-              @if (comment.author.avatarUrl) {
-                <img class="comment-avatar" [src]="comment.author.avatarUrl" [alt]="comment.author.displayName" />
-              } @else {
-                <div class="comment-avatar comment-avatar--fallback">
-                  <mat-icon>person</mat-icon>
-                </div>
-              }
-            </div>
-            <div class="comment-body">
-              <div class="comment-meta">
-                <span class="comment-name">{{ comment.author.displayName }}</span>
-                <span class="comment-time">{{ comment.createdAt | date:'MMM d' }}</span>
-              </div>
-              <p class="comment-content">{{ comment.content }}</p>
-            </div>
-            @if (comment.isOwnComment) {
-              <button
-                class="comment-delete-btn"
-                (click)="deleteComment(postId, comment.id)"
-                type="button"
-                aria-label="Delete comment"
-              >
-                <mat-icon>delete_outline</mat-icon>
-              </button>
-            }
-          </div>
-        }
-      </div>
-    }
-  </div>
-
-  <!-- Sticky composer -->
+  <!-- Composer — in flex flow, NOT position:fixed (animation transform on parent breaks fixed) -->
   <div class="post-detail-composer">
-    <mat-form-field appearance="outline" class="composer-field">
-      <mat-label>Add a comment...</mat-label>
+    <mat-form-field appearance="outline" class="composer-field" subscriptSizing="dynamic">
       <textarea
         #composerTextarea
         matInput
+        placeholder="Add a comment..."
         [value]="commentInput()"
         (input)="commentInput.set($any($event.target).value)"
         (keydown)="onCommentKeydown($event)"

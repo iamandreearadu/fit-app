@@ -1,11 +1,11 @@
 <aside class="social-sidenav">
-  <!-- Brand -->
+  <!-- Brand — NovaFit (unified brand; "beSocial" wordmark removed) -->
   <div class="social-sidenav-brand">
     <div class="social-sidenav-brand-icon">
-      <mat-icon>group</mat-icon>
+      <img src="/assets/fitapp-wb.png" alt="NovaFit" class="social-sidenav-brand-img" />
     </div>
     <span class="social-wordmark"
-      >be<span class="social-wordmark-gradient">Social</span></span
+      >Nova<span class="social-wordmark-gradient">Fit</span></span
     >
   </div>
 
@@ -26,7 +26,7 @@
   </div>
 
   <!-- Nav items -->
-  <nav aria-label="beSocial navigation">
+  <nav aria-label="NovaFit navigation">
     @for (item of navItems; track item.route) {
       <a
         [routerLink]="item.route"
@@ -72,13 +72,5 @@
     Log out
   </button>
 
-  <!-- Back to NovaFit -->
-  <a
-    routerLink="/"
-    class="social-back-link"
-    aria-label="Navigate back to NovaFit"
-  >
-    <mat-icon>arrow_back</mat-icon>
-    Back to NovaFit
-  </a>
+  <!-- "Back to NovaFit" link intentionally removed — unified brand, no split navigation -->
 </aside>

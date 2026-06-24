@@ -425,3 +425,15 @@
   border: 1px solid var(--primary);
   color: var(--primary-light);
 }
+
+/* Infinite scroll sentinel */
+.discover-sentinel {
+  height: 1px;
+  width: 100%;
+}
+
+.discover-loading-more {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}

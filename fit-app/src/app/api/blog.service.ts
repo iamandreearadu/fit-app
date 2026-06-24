@@ -38,7 +38,8 @@ export class BlogService {
 
   async listPosts(): Promise<BlogPost[]> {
     try {
-      const dtos = await firstValueFrom(this.http.get<any[]>(this.baseUrl));
+      const res = await firstValueFrom(this.http.get<any>(this.baseUrl));
+      const dtos: any[] = Array.isArray(res) ? res : (res?.items ?? []);
       return dtos.map(d => this.mapPost(d));
     } catch (err) {
       this.alerts?.warn('Failed to load posts');

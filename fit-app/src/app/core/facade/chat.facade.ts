@@ -42,6 +42,15 @@ export class ChatFacade {
       ));
     });
 
+    // Message deleted by sender — update the signal for all conversation participants
+    this.chatHub.messageDeleted$.pipe(takeUntilDestroyed()).subscribe(({ messageId, conversationId }) => {
+      if (conversationId === this.activeConversationId()) {
+        this.messages.update(msgs => msgs.map(m =>
+          m.id === messageId ? { ...m, isDeleted: true, content: undefined, imageUrl: undefined } : m
+        ));
+      }
+    });
+
     // Messages received while the user is elsewhere — only update the badge
     this.chatHub.newConvMessage$.pipe(takeUntilDestroyed()).subscribe(async msg => {
       const existing = this.conversations().find(c => c.id === msg.conversationId);
@@ -60,6 +69,11 @@ export class ChatFacade {
         // New conversation not yet in the list — reload to pick it up
         await this.loadConversations();
       }
+    });
+
+    // Reload conversations after SignalR reconnects to recover any missed messages
+    this.chatHub.reconnected$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.loadConversations();
     });
   }
 

@@ -20,8 +20,9 @@ interface ChatMessageDto {
   timestamp: number;
 }
 
+/** API service for persisting AI chat conversations and messages (POST /api/chat). */
 @Injectable({ providedIn: 'root' })
-export class GroqAiService {
+export class AiChatHistoryService {
   private http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/api/chat`;
 

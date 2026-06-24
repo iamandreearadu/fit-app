@@ -42,7 +42,7 @@
 
 .daily-panel-fab {
   position: fixed;
-  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 8px);
   right: 16px;
   z-index: 920;
   display: flex;
@@ -102,6 +102,34 @@
   }
 }
 
+/* ── Reconnecting banner ─────────────────────────────────────────────────────── */
+
+.reconnecting-banner {
+  background: rgba(255, 152, 0, 0.12);
+  border-bottom: 1px solid rgba(255, 152, 0, 0.20);
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ff9800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: sticky;
+  top: var(--nav-height);
+  z-index: var(--z-sticky, 100);
+}
+
+.reconnecting-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 @media (max-width: 768px) {
   .social-shell {
     display: block;
@@ -110,13 +138,29 @@
 
   .social-content {
     padding: 0;
-    padding-top: calc(52px + env(safe-area-inset-top, 0px));
-    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    padding-top: calc(var(--nav-height) + env(safe-area-inset-top));
+    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
     min-height: 100dvh;
     overflow-y: unset;
     align-items: stretch;
     display: flex;
     flex-direction: column;
+  }
+
+  /*
+   * Chat-detail and post-detail are full-screen immersive views.
+   * showMainNav() = false on these routes — no global top-bar or bottom-nav
+   * is rendered. Remove the padding reserved for those bars so the inner
+   * height: 100dvh fills the screen exactly and the composer isn't pushed
+   * below the viewport.
+   */
+  .social-content:has(app-social-chat-detail),
+  .social-content:has(app-social-post-detail) {
+    padding-top: 0;
+    padding-bottom: 0;
+    min-height: unset;
+    height: 100dvh;
+    overflow: hidden;
   }
 
   /* Each feature manages its own horizontal padding */
@@ -126,5 +170,14 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+  }
+
+  /*
+   * Daily-panel FAB is desktop-only after the mobile shell redesign.
+   * On mobile, the Dashboard tab in the global bottom nav replaces this FAB.
+   * This removes the z-index conflict with the AI Chat FAB on mobile.
+   */
+  .daily-panel-fab {
+    display: none !important;
   }
 }

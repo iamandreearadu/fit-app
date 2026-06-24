@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -49,6 +50,7 @@ export class SocialProfileComponent implements OnInit {
   private readonly userStore = inject(UserStore);
   private readonly authStore = inject(AuthenticationStore);
   private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('avatarInput') avatarInputRef!: ElementRef<HTMLInputElement>;
 
@@ -70,18 +72,23 @@ export class SocialProfileComponent implements OnInit {
   protected userId = '';
 
   ngOnInit(): void {
-    const paramId = this.route.snapshot.paramMap.get('userId') ?? 'me';
-    this.userId =
-      paramId === 'me'
-        ? (this.userStore.user()?.id ?? this.authStore.authUser()?.id ?? '')
-        : paramId;
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      const paramId = params.get('userId') ?? 'me';
+      this.userId =
+        paramId === 'me'
+          ? (this.userStore.user()?.id ?? this.authStore.authUser()?.id ?? '')
+          : paramId;
 
-    this.facade.loadProfile(this.userId).then(() => {
-      const profile = this.facade.currentProfile();
-      if (profile) this.isFollowing.set(profile.isFollowedByMe);
+      // Load all profile data in parallel — avoids sequential waterfall
+      Promise.all([
+        this.facade.loadProfile(this.userId).then(() => {
+          const profile = this.facade.currentProfile();
+          if (profile) this.isFollowing.set(profile.isFollowedByMe);
+        }),
+        this.facade.loadProfileWorkouts(this.userId),
+        this.facade.loadProfileBlogs(this.userId),
+      ]);
     });
-    this.facade.loadProfileWorkouts(this.userId);
-    this.facade.loadProfileBlogs(this.userId);
   }
 
   @HostListener('document:click')
@@ -286,6 +293,12 @@ export class SocialProfileComponent implements OnInit {
   async archiveWorkout(e: Event, workoutId: number): Promise<void> {
     e.stopPropagation();
     await this.facade.archiveWorkout(workoutId);
+  }
+
+  async unarchiveWorkout(e: Event, workoutId: number): Promise<void> {
+    e.stopPropagation();
+    await this.facade.unarchiveWorkout(workoutId);
+    this.alert.success('Workout restored.');
   }
 
   // ── Blog actions ───────────────────────────────────────────────────────────

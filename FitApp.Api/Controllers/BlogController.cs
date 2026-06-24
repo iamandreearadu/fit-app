@@ -10,10 +10,10 @@ namespace FitApp.Api.Controllers;
 public class BlogController(BlogService blogService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> List()
+    public async Task<IActionResult> List([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
-        var posts = await blogService.ListAsync();
-        return Ok(posts);
+        var result = await blogService.ListAsync(page, pageSize);
+        return Ok(result);
     }
 
     [HttpGet("{id:int}")]

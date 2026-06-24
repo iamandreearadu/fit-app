@@ -3,6 +3,7 @@
     class="ai-chat-fab"
     [ngClass]="fabClass()"
     [class.fab--open]="sheetOpen()"
+    [style.--extra-bottom-offset]="extraBottomOffset + 'px'"
     (click)="openChat()"
     type="button"
     aria-label="Open AI assistant">

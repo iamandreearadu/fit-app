@@ -1,28 +1,35 @@
 using System.Security.Claims;
+using FitApp.Api.Hubs;
 using FitApp.Api.Models.DTOs;
 using FitApp.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace FitApp.Api.Controllers;
 
 [ApiController]
 [Route("api/conversations")]
 [Authorize]
-public class ConversationsController(IConversationService conversationService, ILogger<ConversationsController> logger) : ControllerBase
+public class ConversationsController(
+    IConversationService conversationService,
+    IHubContext<ChatHub> chatHub,
+    ILogger<ConversationsController> logger) : ControllerBase
 {
     private string UserId =>
         User.FindFirstValue(ClaimTypes.NameIdentifier)
         ?? User.FindFirstValue("sub")
         ?? throw new UnauthorizedAccessException("User identity not resolved.");
 
-    // GET /api/conversations
+    // GET /api/conversations?page=1&pageSize=20
     [HttpGet]
-    public async Task<IActionResult> GetConversations()
+    public async Task<IActionResult> GetConversations(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
     {
         try
         {
-            return Ok(await conversationService.GetConversationsAsync(UserId));
+            return Ok(await conversationService.GetConversationsAsync(UserId, page, pageSize));
         }
         catch (Exception ex)
         {
@@ -121,6 +128,8 @@ public class ConversationsController(IConversationService conversationService, I
         try
         {
             await conversationService.SoftDeleteMessageAsync(messageId, UserId);
+            await chatHub.Clients.Group($"conv-{id}")
+                .SendAsync("MessageDeleted", new { messageId, conversationId = id });
             return NoContent();
         }
         catch (UnauthorizedAccessException)

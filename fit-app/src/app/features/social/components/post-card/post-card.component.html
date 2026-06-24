@@ -15,6 +15,7 @@
             <img class="post-card-avatar"
                  [src]="post().author.avatarUrl"
                  [alt]="post().author.displayName"
+                 width="40" height="40" loading="lazy"
                  (error)="onImageError()" />
           } @else {
             <div class="post-card-avatar post-card-avatar--fallback">
@@ -64,7 +65,7 @@
           <mat-icon>more_horiz</mat-icon>
         </button>
         @if (showMenu()) {
-          <div class="post-card-menu">
+          <div class="post-card-menu" appClickOutside (clickOutside)="showMenu.set(false)">
             <button class="post-card-menu-item" (click)="onEdit($event)" type="button">
               <mat-icon>edit</mat-icon> Edit
             </button>
@@ -100,11 +101,11 @@
     }
 
     @if (post().imageUrl && !imageError()) {
-      <div class="post-card-image-wrap">
+      <div class="post-card-image-wrap" style="aspect-ratio: 4/3; width: 100%; overflow: hidden">
         <img class="post-card-image"
              [src]="post().imageUrl"
              [alt]="'Post by ' + post().author.displayName"
-             (error)="onImageError()" loading="lazy" />
+             (error)="onImageError()" loading="lazy" decoding="async" />
       </div>
     }
     @if (imageError() && post().imageUrl) {

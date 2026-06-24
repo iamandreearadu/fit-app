@@ -313,12 +313,14 @@
 
 /* ── Mobile ─────────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .chat-list-header {
-    padding: 16px 20px 16px;
-  }
-
   .chat-list-page {
     max-width: 100%;
     padding: 0 0 100px;
+  }
+
+  /* Top bar already shows "Messages" title + compose icon on this route —
+     hide the in-page header to avoid duplication */
+  .chat-list-header {
+    display: none;
   }
 }

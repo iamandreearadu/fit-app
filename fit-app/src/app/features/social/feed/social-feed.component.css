@@ -6,6 +6,12 @@
   animation: slideUp 0.35s ease-out both;
 }
 
+.pull-refresh-indicator {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;

@@ -104,9 +104,12 @@ export class DashboardFacade {
 
   async loadTodayData(): Promise<void> {
     this.isHydrated.set(false);
-    await this.userFacade.loadDaily();
-    await this.userFacade.loadTodaySummary();
-    await this.userFacade.loadWorkoutTemplates();
+    // Load all data in parallel — avoids sequential waterfall (3 round-trips → 1)
+    await Promise.all([
+      this.userFacade.loadDaily(),
+      this.userFacade.loadTodaySummary(),
+      this.userFacade.loadWorkoutTemplates(),
+    ]);
 
     const d = this.dailyUserSrv.daily();    this.waterConsumedL.set(d?.waterConsumedL ?? 0);
     this.activityType.set(d?.activityType ?? null);
