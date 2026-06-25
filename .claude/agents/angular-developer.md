@@ -280,7 +280,7 @@ submit(): void {
 
 ## Design System — Apply Consistently
 
-Full spec in `.claude/design-specs/design-system.md`. Key rules:
+Full spec in `design-system.md` (root). Key rules:
 
 - **Dark theme only** — `background: var(--surface)` (`#0d0d10`)
 - **Primary** — `#7c4dff` (purple), **Accent** — `#ff4081` (pink)

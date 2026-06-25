@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, effect, signal, computed } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { DailyUserData } from '../../../core/models/daily-user-data.model';
 import { MaterialModule } from '../../../core/material/material.module';
@@ -20,7 +19,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   standalone: true,
   selector: 'app-daily-user-data',
-  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, MaterialModule, AiMealAnalyzerComponent, CalorieBalanceCardComponent, DailyEntryCalorieSummaryComponent],
+  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, MaterialModule, AiMealAnalyzerComponent, CalorieBalanceCardComponent, DailyEntryCalorieSummaryComponent],
   host: { class: 'd-block' },
   templateUrl: './daily-user-data.component.html',
   styleUrls: ['./daily-user-data.component.css']
