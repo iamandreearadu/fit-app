@@ -48,7 +48,7 @@
         <div class="daily-cal-item">
           <span class="daily-cal-item-label">Intake</span>
           <span class="daily-cal-item-value">
-            {{ (todaySummary()?.caloriesFromNutritionLog ?? stats().caloriesIntake) | number }}
+            {{ (todaySummary()?.caloriesFromNutritionLog || stats().caloriesIntake) | number }}
           </span>
           <span class="daily-cal-item-unit">kcal</span>
         </div>
@@ -175,7 +175,7 @@
           <text x="50" y="46" text-anchor="middle"
                 font-size="12" font-weight="800" fill="white"
                 font-family="Poppins, sans-serif">
-            {{ (todaySummary()?.caloriesFromNutritionLog ?? stats().caloriesIntake) | number }}
+            {{ (todaySummary()?.caloriesFromNutritionLog || stats().caloriesIntake) | number }}
           </text>
           <text x="50" y="58" text-anchor="middle"
                 font-size="8" fill="rgba(255,255,255,0.35)"

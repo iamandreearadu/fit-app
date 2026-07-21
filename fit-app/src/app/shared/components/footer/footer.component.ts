@@ -26,7 +26,7 @@ export class FooterComponent {
   quickLinks = [
     { label: 'Home', route: '/', requiresAuth: false },
     { label: 'Blog', route: '/blog', requiresAuth: false },
-    { label: 'Dashboard', route: '/dashboard', requiresAuth: true },
+    { label: 'Dashboard', route: '/user-dashboard', requiresAuth: true },
     { label: 'Account', route: '/account', requiresAuth: true }
   ];
 

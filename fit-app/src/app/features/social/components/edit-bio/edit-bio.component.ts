@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ToastrService } from 'ngx-toastr';
-import { SocialFacade } from '../../../../core/facade/social.facade';
+import { SocialProfileFacade } from '../../../../core/facade/social-profile.facade';
 
 @Component({
   selector: 'app-edit-bio',
@@ -21,7 +21,7 @@ import { SocialFacade } from '../../../../core/facade/social.facade';
   styleUrl: './edit-bio.component.css'
 })
 export class EditBioComponent {
-  private readonly facade = inject(SocialFacade);
+  private readonly facade = inject(SocialProfileFacade);
   private readonly dialogRef = inject(MatDialogRef<EditBioComponent>);
   private readonly toastr = inject(ToastrService);
   readonly data = inject<{ bio: string | null }>(MAT_DIALOG_DATA);

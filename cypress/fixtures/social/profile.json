@@ -1,0 +1,12 @@
+{
+  "id": "cypress-user-01",
+  "displayName": "Cypress Test User",
+  "avatarUrl": null,
+  "bio": "Fitness enthusiast and runner",
+  "postsCount": 2,
+  "followersCount": 10,
+  "followingCount": 5,
+  "isFollowedByMe": false,
+  "isOwnProfile": true,
+  "isVerified": false
+}

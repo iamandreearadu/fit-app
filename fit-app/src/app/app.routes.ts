@@ -92,67 +92,9 @@ export const routes: Routes = [
 
   {
     path: 'social',
-    loadComponent: () =>
-      import('./features/social/social-shell.component').then(m => m.SocialShellComponent),
     canActivate: [AuthGuard],
-    children: [
-      {
-        path: '',
-        loadComponent: () =>
-          import('./features/social/feed/social-feed.component').then(
-            (m) => m.SocialFeedComponent,
-          ),
-      },
-      {
-        path: 'discover',
-        loadComponent: () =>
-          import('./features/social/discover/social-discover.component').then(
-            (m) => m.SocialDiscoverComponent,
-          ),
-      },
-      {
-        path: 'post/:id',
-        loadComponent: () =>
-          import('./features/social/post-detail/social-post-detail.component').then(
-            (m) => m.SocialPostDetailComponent,
-          ),
-      },
-      {
-        path: 'article/:id',
-        loadComponent: () =>
-          import('./features/social/article-detail/article-detail.component').then(
-            (m) => m.ArticleDetailComponent,
-          ),
-      },
-      {
-        path: 'profile/:userId',
-        loadComponent: () =>
-          import('./features/social/social-profile/social-profile.component').then(
-            (m) => m.SocialProfileComponent,
-          ),
-      },
-      {
-        path: 'chat',
-        loadComponent: () =>
-          import('./features/social/chat/social-chat.component').then(
-            (m) => m.SocialChatComponent,
-          ),
-      },
-      {
-        path: 'chat/:id',
-        loadComponent: () =>
-          import('./features/social/chat-detail/social-chat-detail.component').then(
-            (m) => m.SocialChatDetailComponent,
-          ),
-      },
-      {
-        path: 'notifications',
-        loadComponent: () =>
-          import('./features/social/notifications/social-notifications.component').then(
-            (m) => m.SocialNotificationsComponent,
-          ),
-      },
-    ],
+    loadChildren: () =>
+      import('./features/social/social.routes').then(m => m.SOCIAL_ROUTES),
   },
 
   // ── Onboarding flow (Fix 4) ───────────────────────────────────────────────

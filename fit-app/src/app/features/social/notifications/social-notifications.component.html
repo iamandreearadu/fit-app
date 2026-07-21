@@ -1,10 +1,10 @@
-<div class="notif-page">
+<div class="notif-page" data-cy="notif-page">
 
   <!-- Header -->
   <div class="notif-page-header">
     <h1 class="notif-page-title">Notifications</h1>
     @if (facade.notifications().length > 0 && facade.unreadCount() > 0) {
-      <button class="notif-mark-all" (click)="facade.markAllRead()" type="button">
+      <button class="notif-mark-all" data-cy="notif-mark-all" (click)="facade.markAllRead()" type="button">
         Mark all read
       </button>
     }
@@ -36,7 +36,7 @@
 
   <!-- Empty state -->
   @if (!facade.isLoading() && facade.notifications().length === 0 && !facade.error()) {
-    <div class="notif-empty">
+    <div class="notif-empty" data-cy="notif-empty">
       <div class="notif-empty-icon">
         <mat-icon>notifications_none</mat-icon>
       </div>
@@ -47,10 +47,11 @@
 
   <!-- Notification list -->
   @if (facade.notifications().length > 0) {
-    <div class="notif-list">
+    <div class="notif-list" data-cy="notif-list">
       @for (n of facade.notifications(); track n.id) {
         <div
           class="notif-item"
+          data-cy="notif-item"
           [class.notif-item--unread]="!n.isRead"
           (click)="onNotificationClick(n)"
           role="button"

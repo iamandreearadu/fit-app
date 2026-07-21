@@ -1,10 +1,10 @@
-<div class="dashboard-root">
+<div class="dashboard-root" data-cy="dashboard-root">
   @if (user(); as u) {
     @if (metrics()) {
-      <div class="greeting-strip">
+      <div class="greeting-strip" data-cy="greeting-strip">
         <div class="gs-main">
           <span class="gs-hello">{{ greeting }},</span>
-          <span class="gs-name">{{ firstName }}!</span>
+          <span class="gs-name">{{ firstName }}</span>
           @if (streak(); as s) {
             @if (s.current > 0 || s.loggedToday) {
               <span

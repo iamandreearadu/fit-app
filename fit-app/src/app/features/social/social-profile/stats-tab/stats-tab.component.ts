@@ -3,7 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
-import { SocialFacade } from '../../../../core/facade/social.facade';
+import { SocialProfileFacade } from '../../../../core/facade/social-profile.facade';
 import { RecentWorkout } from '../../../../core/models/stats.model';
 
 @Component({
@@ -17,7 +17,7 @@ export class StatsTabComponent implements OnInit {
   @Input() isOwnProfile = false;
   @Input() userId = '';
 
-  protected readonly facade = inject(SocialFacade);
+  protected readonly facade = inject(SocialProfileFacade);
 
   // Derived booleans for template (arrow functions not allowed in Angular templates)
   readonly volumeEmpty = computed(() => {

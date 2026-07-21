@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { SocialFacade } from '../../../core/facade/social.facade';
+import { SocialContentFacade } from '../../../core/facade/social-content.facade';
 import { ShareToSocialData, ShareSheetResult } from '../../../core/models/social.model';
 
 /**
@@ -44,7 +44,7 @@ function buildPreviewText(data: ShareToSocialData, caption: string): string {
 export class ShareToSocialBottomSheetComponent implements OnDestroy {
   readonly data = inject<ShareToSocialData>(MAT_BOTTOM_SHEET_DATA);
   readonly sheetRef = inject(MatBottomSheetRef<ShareToSocialBottomSheetComponent>);
-  private readonly facade = inject(SocialFacade);
+  private readonly facade = inject(SocialContentFacade);
 
   // ── State machine ──────────────────────────────────────────────────────────
   readonly state = signal<'active' | 'loading' | 'success' | 'error'>('active');

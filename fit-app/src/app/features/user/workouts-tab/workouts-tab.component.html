@@ -1,4 +1,4 @@
-<div class="tab-content">
+<div class="tab-content" data-cy="workouts-tab">
   <!-- Toolbar -->
   <div class="toolbar">
     <div class="left">
@@ -6,7 +6,7 @@
       <p class="subtitle">Create and manage your workout templates</p>
     </div>
     <div class="right">
-      <button type="button" class="btn-primary" (click)="openCreate()">
+      <button type="button" class="btn-primary" data-cy="workout-new-btn" (click)="openCreate()">
         <mat-icon>add</mat-icon>New workout
       </button>
     </div>
@@ -83,9 +83,9 @@
       }
 
       @if (filtered.length > 0 && !isGuidedEmpty()) {
-        <div class="list">
+        <div class="list" data-cy="workout-list">
           @for (w of filtered; track w.uid) {
-            <div class="row-wrap">
+            <div class="row-wrap" data-cy="workout-row">
               <div class="row clickable" (click)="togglePreview(w)">
                 <div class="row-main">
                   <div class="row-top">
@@ -94,6 +94,7 @@
                       <button
                         type="button"
                         class="icon-btn-round"
+                        data-cy="workout-edit-btn"
                         (click)="stop($event); openEdit(w)"
                         title="Edit"
                       >
@@ -102,6 +103,7 @@
                       <button
                         type="button"
                         class="icon-btn-round danger"
+                        data-cy="workout-delete-btn"
                         (click)="stop($event); delete(w.uid)"
                         title="Delete"
                       >
@@ -240,7 +242,7 @@
 
   <!-- Editor modal -->
   @if (showEditor) {
-    <div class="overlay" (click)="cancel()">
+    <div class="overlay" data-cy="workout-modal" (click)="cancel()">
       <div class="modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <div class="mh-left">
@@ -268,7 +270,7 @@
             <div class="grid-2">
               <mat-form-field appearance="outline" class="span-2">
                 <mat-label>Title</mat-label>
-                <input matInput formControlName="title" placeholder="e.g. Pull Day A" />
+                <input matInput data-cy="workout-title-input" formControlName="title" placeholder="e.g. Pull Day A" />
               </mat-form-field>
 
               <mat-form-field appearance="outline">
@@ -391,8 +393,8 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn-ghost" (click)="cancel()">Cancel</button>
-          <button type="button" class="btn-primary" (click)="save()">
+          <button type="button" class="btn-ghost" data-cy="workout-cancel-btn" (click)="cancel()">Cancel</button>
+          <button type="button" class="btn-primary" data-cy="workout-save-btn" (click)="save()">
             <mat-icon>save</mat-icon>Save workout
           </button>
         </div>

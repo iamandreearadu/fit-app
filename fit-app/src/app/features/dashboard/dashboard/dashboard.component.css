@@ -21,14 +21,14 @@
 .gs-hello {
   font-size: 28px;
   font-weight: 300;
-  color: rgba(255,255,255,.45);
+  color: var(--text-tertiary);
   letter-spacing: -.01em;
 }
 
 .gs-name {
   font-size: 32px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   letter-spacing: -.02em;
 }
 
@@ -41,13 +41,13 @@
 
 .gs-date {
   font-size: 13px;
-  color: rgba(255,255,255,.32);
+  color: var(--text-muted);
   font-weight: 500;
 }
 
 .gs-dot {
   font-size: 13px;
-  color: rgba(255,255,255,.15);
+  color: var(--text-disabled);
 }
 
 .goal-badge {
@@ -65,7 +65,7 @@
 
 .gs-bmi {
   font-size: 12px;
-  color: rgba(255,255,255,.28);
+  color: var(--text-muted);
   font-weight: 500;
 }
 
@@ -114,7 +114,7 @@
 
 .gs-longest {
   font-size: 12px;
-  color: rgba(255,255,255,.28);
+  color: var(--text-muted);
   font-weight: 500;
 }
 .gs-longest strong {
@@ -132,7 +132,7 @@
   border-radius: 12px;
   margin-top: 12px;
   font-size: 13px;
-  color: rgba(255,255,255,.65);
+  color: var(--text-secondary);
 }
 .at-risk-strip mat-icon {
   color: #ff7043;
@@ -156,7 +156,7 @@
   font-size: 14px;
 }
 
-.no-data-banner mat-icon { color: rgba(255,255,255,.3); }
+.no-data-banner mat-icon { color: var(--text-muted); }
 
 .no-data-banner a {
   color: #a78bfa;

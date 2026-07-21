@@ -1,7 +1,6 @@
 import { computed, inject, Injectable, signal, WritableSignal } from "@angular/core";
 import { BlogService } from "../../api/blog.service";
 import { BlogPost } from "../models/blog.model";
-import { toObservable } from '@angular/core/rxjs-interop';
 
 
 @Injectable({
@@ -29,12 +28,7 @@ export class BlogFacade {
     return this._loading();
   }
 
-  // observabile 
-  posts$ = toObservable(this._posts);
-  selectedPost$ = toObservable(this._selectedPost) ;
-
-
-   categories = computed(() => {
+  categories = computed(() => {
     const set = new Set<string>();
     this._posts().forEach(p => { if (p.category) set.add(p.category); });
     return Array.from(set);

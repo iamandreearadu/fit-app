@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { AccountService } from '../../api/account.service';
 import { AuthenticationStore } from '../store/auth.store';
 import { AuthCredentials } from '../models/auth-credentials.model';
@@ -19,6 +20,7 @@ export class AccountFacade {
   private authStore = inject(AuthenticationStore);
   private ls = inject(LocalStorageService);
   private alerts = inject(AlertService);
+  private router = inject(Router);
 
   private svc = inject(AccountService);
   private validationSrv = inject(AccountValidationService);
@@ -162,6 +164,7 @@ export class AccountFacade {
       this.ls.remove(this.userKey);
 
       this.alerts.info('You have been logged out');
+      void this.router.navigate(['/auth/login']);
 
     } finally {
       this.authStore.setLoading(false);

@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SocialFacade } from '../../../../core/facade/social.facade';
+import { SocialContentFacade } from '../../../../core/facade/social-content.facade';
 import { Post, UpdatePostRequest } from '../../../../core/models/social.model';
 
 @Component({
@@ -27,7 +27,7 @@ import { Post, UpdatePostRequest } from '../../../../core/models/social.model';
   styleUrl: './edit-post.component.css'
 })
 export class EditPostComponent {
-  private readonly facade = inject(SocialFacade);
+  private readonly facade = inject(SocialContentFacade);
   private readonly dialogRef = inject(MatDialogRef<EditPostComponent>);
   readonly data = inject<{ post: Post }>(MAT_DIALOG_DATA);
 

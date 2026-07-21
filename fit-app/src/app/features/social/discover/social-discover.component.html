@@ -1,14 +1,15 @@
-<div class="discover-page">
+<div class="discover-page" data-cy="discover-page">
 
   <!-- Search bar -->
   <div class="discover-search-wrap">
     <div class="discover-search-box" [class.discover-search-box--active]="searchQuery().length > 0">
       <mat-icon class="discover-search-icon">search</mat-icon>
       <input
+        #searchInput
         class="discover-search-input"
+        data-cy="discover-search-input"
         type="search"
         placeholder="Search athletes by name..."
-        [value]="searchQuery()"
         (input)="onSearchInput($any($event.target).value)"
         autocomplete="off"
         autocorrect="off"
@@ -26,29 +27,29 @@
   <!-- Search mode -->
   @if (isSearchMode()) {
 
-    @if (facade.isSearching()) {
+    @if (content.isSearching()) {
       <div class="discover-search-loading">
         <mat-spinner diameter="28" />
       </div>
     }
 
-    @if (!facade.isSearching() && facade.searchResults().length === 0 && !facade.searchError()) {
+    @if (!content.isSearching() && content.searchResults().length === 0 && !content.searchError()) {
       <div class="discover-empty discover-search-empty">
         <mat-icon>person_search</mat-icon>
         <p>No athletes found for "{{ searchQuery() }}"</p>
       </div>
     }
 
-    @if (facade.searchError()) {
+    @if (content.searchError()) {
       <div class="discover-error">
         <mat-icon>error_outline</mat-icon>
-        <span>{{ facade.searchError() }}</span>
+        <span>{{ content.searchError() }}</span>
       </div>
     }
 
-    @if (!facade.isSearching() && facade.searchResults().length > 0) {
+    @if (!content.isSearching() && content.searchResults().length > 0) {
       <div class="discover-search-results">
-        @for (user of facade.searchResults(); track user.id) {
+        @for (user of content.searchResults(); track user.id) {
           <div class="search-result-row">
             <a [routerLink]="['/social/profile', user.id]" class="search-result-avatar-link">
               @if (user.avatarUrl) {

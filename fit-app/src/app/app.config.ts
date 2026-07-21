@@ -5,7 +5,7 @@ import {
   inject,
   provideAppInitializer,
 } from '@angular/core';
-import { provideRouter, withViewTransitions } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
@@ -24,6 +24,7 @@ Chart.register(LineElement, LinearScale, CategoryScale, PointElement, Filler, To
 
 import { MaterialModule } from './core/material/material.module';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { zoneFixInterceptor } from './core/interceptors/zone-fix.interceptor';
 
 import { routes } from './app.routes';
 import { AccountFacade } from './core/facade/account.facade';
@@ -31,8 +32,8 @@ import { AccountFacade } from './core/facade/account.facade';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes, withViewTransitions()),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([zoneFixInterceptor, authInterceptor])),
     importProvidersFrom(
       BrowserAnimationsModule,
       ToastrModule.forRoot({

@@ -3,7 +3,8 @@ import { LowerCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SocialFacade } from '../../../../core/facade/social.facade';
+import { SocialFeedFacade } from '../../../../core/facade/social-feed.facade';
+import { SocialContentFacade } from '../../../../core/facade/social-content.facade';
 import { AlertService } from '../../../../shared/services/alert.service';
 import { SuggestedUser } from '../../../../core/models/social.model';
 
@@ -16,7 +17,8 @@ import { SuggestedUser } from '../../../../core/models/social.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SuggestedUsersComponent implements OnInit {
-  private readonly facade = inject(SocialFacade);
+  private readonly facade = inject(SocialFeedFacade);
+  private readonly content = inject(SocialContentFacade);
   private readonly alerts = inject(AlertService);
 
   // ── State ──────────────────────────────────────────────────────────────────
@@ -56,7 +58,7 @@ export class SuggestedUsersComponent implements OnInit {
 
     this.pending.update(s => new Set([...s, userId]));
     try {
-      const response = await this.facade.toggleFollow(userId);
+      const response = await this.content.toggleFollow(userId);
       if (response.isFollowing) {
         this.following.update(s => new Set([...s, userId]));
         this.facade.incrementMyFollowingCount();

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -72,14 +72,14 @@ export class NutritionTabComponent implements OnInit {
   /** Emitting resets all scaling/macro subscriptions when the modal reopens. */
   private readonly resetSubs$ = new Subject<void>();
 
-  ngOnInit(): void {
-    this.facade.meals$.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(m => {
-      this.meals = m ?? [];
+  constructor() {
+    effect(() => {
+      this.meals = this.facade.meals ?? [];
       this.applyFilters();
     });
+  }
 
+  ngOnInit(): void {
     this.loading = true;
     this.facade.loadMeals().finally(() => (this.loading = false));
 

@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   CompleteSessionRequest,
   LastExerciseSession,
@@ -57,9 +57,6 @@ export class WorkoutsTabFacade {
   get loading(): boolean {
     return this._loading();
   }
-
-  templates$ = toObservable(this._templates);
-  selectedTemplate$ = toObservable(this._selectedTemplate);
 
   templateTypes = computed(() => {
     const set = new Set<WorkoutType>();

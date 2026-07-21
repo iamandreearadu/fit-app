@@ -19,7 +19,27 @@
       "Bash(echo \"exit $? means grep found nothing — 0 matches confirmed\")",
       "Bash(rm /Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/core/facade/social-chat.facade.ts)",
       "Bash(rm /Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/core/facade/social-notifications.facade.ts)",
-      "Bash(ng build *)"
+      "Bash(ng build *)",
+      "Bash(grep *)",
+      "Bash(sed -n '38,60p' /Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/features/blog/blog-content/blog-content.component.ts)",
+      "Bash(sed -n '70,90p' /Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/features/user/nutrition-tab/nutrition-tab.component.ts)",
+      "Bash(sed -n '73,90p' /Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/features/user/workouts-tab/workouts-tab.component.ts)",
+      "Bash(npx cypress *)",
+      "Bash([ -s \"$f\" ])",
+      "Bash(awk '/feed-fab/,/}/' /Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/features/social/feed/social-feed.component.css)",
+      "Bash(break)",
+      "Bash(xargs cat)",
+      "Bash(curl -s http://localhost:4200/)",
+      "Bash(curl -s http://localhost:4200/main.js)",
+      "Bash(wait *)",
+      "Bash(lsof -ti:4200)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4200)",
+      "Bash(curl -s \"http://localhost:4200\")",
+      "Bash(curl -s \"http://localhost:4200/main.js\")",
+      "Bash(kill 95970)",
+      "Bash(node_modules/.bin/ng serve *)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(awk '{print $8, $11}')"
     ]
   }
 }

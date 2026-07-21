@@ -1,5 +1,6 @@
 <div
   class="feed-page"
+  data-cy="feed-page"
   #feedContainer
   (pointerdown)="onPointerDown($event)"
   (pointermove)="onPointerMove($event)"
@@ -23,7 +24,7 @@
 
   <!-- Error state -->
   @if (facade.feedError() && !facade.isLoadingFeed()) {
-    <div class="feed-error">
+    <div class="feed-error" data-cy="feed-error">
       <mat-icon>error_outline</mat-icon>
       <span>{{ facade.feedError() }}</span>
       <button class="btn-ghost" (click)="facade.loadFeed(true)" type="button">
@@ -59,7 +60,7 @@
     !facade.feedError() &&
     facade.myFollowingCount() > 0
   ) {
-    <div class="feed-empty">
+    <div class="feed-empty" data-cy="feed-empty">
       <mat-icon class="feed-empty-icon">article</mat-icon>
       <p class="feed-empty-text">No posts yet from people you follow</p>
       <a routerLink="/social/discover" class="btn-ghost feed-empty-btn">
@@ -70,7 +71,7 @@
 
   <!-- Feed list -->
   @if (facade.feed().length > 0) {
-    <div class="feed-list">
+    <div class="feed-list" data-cy="feed-list">
       @for (post of facade.feed(); track post.id) {
         <app-post-card
           [post]="post"
@@ -99,6 +100,7 @@
   <!-- Mobile FAB -->
   <button
     class="feed-fab"
+    data-cy="feed-fab"
     (click)="openCreatePost()"
     type="button"
     aria-label="New post"

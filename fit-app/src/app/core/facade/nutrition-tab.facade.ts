@@ -1,5 +1,4 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
 import { NutritionTabService } from "../../api/nutrition-tab.service";
 import { FoodSearchResult, MacroProgressDto, MealEntry, RecentFoodItem } from "../models/nutrition-tab.model";
 
@@ -18,8 +17,6 @@ export class NutritionTabFacade {
   // Fix 1 — food search signals
   private readonly _recentFoods = signal<RecentFoodItem[]>([]);
   private readonly _recentLoading = signal(false);
-
-  readonly meals$ = toObservable(this._meals);
 
   get meals(): MealEntry[] { return this._meals(); }
   get loading(): boolean { return this._loading(); }

@@ -1,0 +1,46 @@
+{
+  "items": [
+    {
+      "id": 201,
+      "type": "like",
+      "actor": {
+        "id": "user-alpha",
+        "displayName": "Alex Runner",
+        "avatarUrl": null
+      },
+      "message": "liked your post",
+      "createdAt": "2026-07-15T10:00:00Z",
+      "isRead": false,
+      "referenceId": 1
+    },
+    {
+      "id": 202,
+      "type": "follow",
+      "actor": {
+        "id": "user-beta",
+        "displayName": "Beta User",
+        "avatarUrl": null
+      },
+      "message": "started following you",
+      "createdAt": "2026-07-14T15:00:00Z",
+      "isRead": true,
+      "referenceId": null
+    },
+    {
+      "id": 203,
+      "type": "comment",
+      "actor": {
+        "id": "user-gamma",
+        "displayName": "Gamma Lifter",
+        "avatarUrl": null
+      },
+      "message": "commented on your post",
+      "createdAt": "2026-07-13T12:00:00Z",
+      "isRead": false,
+      "referenceId": 2
+    }
+  ],
+  "page": 1,
+  "pageSize": 20,
+  "hasMore": false
+}
