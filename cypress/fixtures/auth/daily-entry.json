@@ -1,0 +1,11 @@
+{
+  "date": "2026-07-15",
+  "activityType": "Rest Day",
+  "waterConsumedL": 1.5,
+  "steps": 4200,
+  "stepTarget": 10000,
+  "caloriesBurned": 320,
+  "caloriesIntake": 0,
+  "caloriesTotal": 0,
+  "macrosPct": { "protein": 30, "carbs": 40, "fats": 30 }
+}

@@ -1,5 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, effect, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../core/material/material.module';
@@ -19,7 +18,6 @@ export class BlogContentComponent implements OnInit {
 
   private authStore = inject(AuthenticationStore);
   readonly facade = inject(BlogFacade);
-  private destroyRef = inject(DestroyRef);
 
   loading = false;
 
@@ -40,15 +38,15 @@ export class BlogContentComponent implements OnInit {
     return this.authStore.isAdmin();
   }
 
-  async ngOnInit(): Promise<void> {
-    this.facade.posts$.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(posts => {
-      this.posts = posts;
+  constructor() {
+    effect(() => {
+      this.posts = this.facade.posts;
       this.categories = this.facade.categories();
       this.applyFilters();
     });
+  }
 
+  async ngOnInit(): Promise<void> {
     this.loading = true;
     try {
       await this.facade.loadPosts();

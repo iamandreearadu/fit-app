@@ -1,0 +1,13 @@
+{
+  "id": "cypress-user-01",
+  "email": "cypress@example.com",
+  "fullName": "Cypress Test User",
+  "heightCm": 175,
+  "weightKg": 72,
+  "age": 28,
+  "gender": "male",
+  "activity": "moderate",
+  "goal": "maintain",
+  "onboardingCompleted": true,
+  "imageUrl": null
+}

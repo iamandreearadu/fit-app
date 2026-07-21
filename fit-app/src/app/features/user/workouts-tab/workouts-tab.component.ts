@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -75,14 +75,14 @@ export class WorkoutsTabComponent implements OnInit {
     this.facade.templatesSignal().every(t => t.isSystemTemplate)
   );
 
-  ngOnInit(): void {
-    this.facade.templates$.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(t => {
-      this.templates = t ?? [];
+  constructor() {
+    effect(() => {
+      this.templates = this.facade.templates ?? [];
       this.applyFilters();
     });
+  }
 
+  ngOnInit(): void {
     this.loading.set(true);
     this.facade.loadTemplates().finally(() => this.loading.set(false));
 

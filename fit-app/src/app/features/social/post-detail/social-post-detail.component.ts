@@ -9,7 +9,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { SocialFacade } from '../../../core/facade/social.facade';
+import { SocialFeedFacade } from '../../../core/facade/social-feed.facade';
+import { SocialProfileFacade } from '../../../core/facade/social-profile.facade';
+import { SocialContentFacade } from '../../../core/facade/social-content.facade';
 import { Comment, Post, CreateCommentRequest } from '../../../core/models/social.model';
 import { PostCardComponent } from '../components/post-card/post-card.component';
 import { EditPostComponent } from '../components/edit-post/edit-post.component';
@@ -36,7 +38,9 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
-  protected readonly facade = inject(SocialFacade);
+  private readonly feedFacade = inject(SocialFeedFacade);
+  private readonly profileFacade = inject(SocialProfileFacade);
+  private readonly facade = inject(SocialContentFacade);
   private readonly dialog = inject(MatDialog);
 
   post = signal<Post | null>(null);
@@ -70,9 +74,9 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {}
 
   private loadPost(): void {
-    const fromFeed = this.facade.feed().find(p => p.id === this.postId)
-      ?? this.facade.discoverPosts().find(p => p.id === this.postId)
-      ?? this.facade.profilePosts().find(p => p.id === this.postId);
+    const fromFeed = this.feedFacade.feed().find(p => p.id === this.postId)
+      ?? this.feedFacade.discoverPosts().find(p => p.id === this.postId)
+      ?? this.profileFacade.profilePosts().find(p => p.id === this.postId);
     if (fromFeed) {
       this.post.set(fromFeed);
     } else {
@@ -162,8 +166,8 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
     }).afterClosed().subscribe(saved => {
       if (saved) {
         // Reflect changes locally from facade
-        const updated = this.facade.feed().find(p => p.id === post.id)
-          ?? this.facade.profilePosts().find(p => p.id === post.id);
+        const updated = this.feedFacade.feed().find(p => p.id === post.id)
+          ?? this.profileFacade.profilePosts().find(p => p.id === post.id);
         if (updated) this.post.set(updated);
       }
     });

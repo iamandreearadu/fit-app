@@ -1,0 +1,47 @@
+{
+  "items": [
+    {
+      "id": 3,
+      "author": {
+        "id": "user-beta",
+        "displayName": "Beta Lifter",
+        "avatarUrl": null,
+        "isVerified": false
+      },
+      "content": "Hit a new PR on deadlifts today — 180kg!",
+      "imageUrl": null,
+      "linkedContent": null,
+      "likesCount": 12,
+      "commentsCount": 3,
+      "isLikedByMe": false,
+      "isFollowingAuthor": false,
+      "isOwnPost": false,
+      "isArchived": false,
+      "createdAt": "2026-07-15T07:00:00Z",
+      "isSeedContent": false
+    },
+    {
+      "id": 4,
+      "author": {
+        "id": "user-gamma",
+        "displayName": "Gamma Lifter",
+        "avatarUrl": null,
+        "isVerified": false
+      },
+      "content": "Rest day recovery tips: foam roll, stretch, hydrate!",
+      "imageUrl": null,
+      "linkedContent": null,
+      "likesCount": 7,
+      "commentsCount": 1,
+      "isLikedByMe": false,
+      "isFollowingAuthor": false,
+      "isOwnPost": false,
+      "isArchived": false,
+      "createdAt": "2026-07-14T16:00:00Z",
+      "isSeedContent": false
+    }
+  ],
+  "page": 1,
+  "pageSize": 12,
+  "hasMore": false
+}

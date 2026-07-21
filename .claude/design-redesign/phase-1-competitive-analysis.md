@@ -306,7 +306,7 @@ Estimated scope: 1 sprint (bottom-sheet component + card template + share-to-beS
 ## Appendix: NovaFit Files Referenced
 
 - `/Users/franzio/Documents/Andreea/FitApp/fit-app/.claude/ux-audits/full-platform-audit.md` -- UX audit findings this analysis builds on
-- `/Users/franzio/Documents/Andreea/FitApp/fit-app/.claude/design-specs/design-system.md` -- design tokens and patterns for implementation
+- `design-system.md` (root) -- design tokens and patterns for implementation
 - `/Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/features/dashboard/dashboard/dashboard.component.html` -- current Dashboard greeting strip
 - `/Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/features/dashboard/daily-user-data/daily-user-data.component.html` -- current daily tracking form (Nutrition, Calories, Hydration cards)
 - `/Users/franzio/Documents/Andreea/FitApp/fit-app/fit-app/src/app/features/dashboard/previous-daily-user-data/previous-daily-user-data.component.html` -- history view

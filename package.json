@@ -1,5 +1,13 @@
 {
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:auth": "cypress run --spec 'cypress/e2e/auth/**/*.cy.js'"
+  },
   "dependencies": {
     "@anthropic-ai/claude-code": "^2.1.148"
+  },
+  "devDependencies": {
+    "cypress": "^15.18.1"
   }
 }

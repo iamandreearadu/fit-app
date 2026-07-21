@@ -287,7 +287,7 @@ AI chat history stored in `ChatConversation` / `ChatMessage` entities.
 
 ## Design System (Summary)
 
-Full spec: `.claude/design-specs/design-system.md`
+Full spec: `design-system.md` (root)
 
 - **Theme**: Dark only — `#0d0d10` surface
 - **Primary**: `#7c4dff` (purple) — `var(--primary)`

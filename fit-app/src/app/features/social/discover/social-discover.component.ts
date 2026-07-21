@@ -9,7 +9,8 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { SocialFacade } from '../../../core/facade/social.facade';
+import { SocialFeedFacade } from '../../../core/facade/social-feed.facade';
+import { SocialContentFacade } from '../../../core/facade/social-content.facade';
 import { Post, UserSummary } from '../../../core/models/social.model';
 import { PostCardComponent } from '../components/post-card/post-card.component';
 import { EditPostComponent } from '../components/edit-post/edit-post.component';
@@ -33,13 +34,16 @@ import { SuggestedUsersComponent } from '../components/suggested-users/suggested
   styleUrl: './social-discover.component.css'
 })
 export class SocialDiscoverComponent implements OnInit, AfterViewInit, OnDestroy {
-  protected readonly facade = inject(SocialFacade);
+  protected readonly facade = inject(SocialFeedFacade);
+  protected readonly content = inject(SocialContentFacade);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly _destroyRef = inject(DestroyRef);
 
   private discoverObserver: IntersectionObserver | null = null;
   private currentDiscoverPage = 1;
+
+  @ViewChild('searchInput') private searchInputRef?: ElementRef<HTMLInputElement>;
 
   // Use a setter-based ViewChild so we re-observe whenever the sentinel
   // enters the DOM (it lives inside a conditional @if block).
@@ -78,9 +82,9 @@ export class SocialDiscoverComponent implements OnInit, AfterViewInit, OnDestroy
       takeUntilDestroyed(this._destroyRef)
     ).subscribe(q => {
       if (q.trim()) {
-        this.facade.searchUsers(q);
+        this.content.searchUsers(q);
       } else {
-        this.facade.clearSearch();
+        this.content.clearSearch();
       }
     });
   }
@@ -106,7 +110,7 @@ export class SocialDiscoverComponent implements OnInit, AfterViewInit, OnDestroy
 
   ngOnDestroy(): void {
     this.discoverObserver?.disconnect();
-    this.facade.clearSearch();
+    this.content.clearSearch();
   }
 
   onSearchInput(value: string): void {
@@ -116,12 +120,15 @@ export class SocialDiscoverComponent implements OnInit, AfterViewInit, OnDestroy
 
   clearSearchInput(): void {
     this.searchQuery.set('');
-    this.facade.clearSearch();
+    this.content.clearSearch();
+    if (this.searchInputRef) {
+      this.searchInputRef.nativeElement.value = '';
+    }
   }
 
   async onFollow(userId: string): Promise<void> {
     try {
-      const res = await this.facade.toggleFollow(userId);
+      const res = await this.content.toggleFollow(userId);
       this.followingUsers.update(set => {
         const next = new Set(set);
         if (res.isFollowing) next.add(userId); else next.delete(userId);
@@ -139,7 +146,7 @@ export class SocialDiscoverComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   onLike(postId: number): void {
-    this.facade.toggleLike(postId);
+    this.content.toggleLike(postId);
   }
 
   onFollowFromPost(userId: string): void {
@@ -147,7 +154,7 @@ export class SocialDiscoverComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   onDeleteFromPost(postId: number): void {
-    this.facade.deletePost(postId);
+    this.content.deletePost(postId);
   }
 
   onEditFromPost(post: Post): void {

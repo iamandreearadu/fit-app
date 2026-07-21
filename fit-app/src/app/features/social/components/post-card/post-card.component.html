@@ -1,4 +1,5 @@
 <article class="post-card"
+         data-cy="post-card"
          [class.post-card--article]="isArticle()"
          [class.post-card--seed]="isSeed()"
          role="article">
@@ -52,7 +53,7 @@
 
     <!-- Follow button (non-seed, non-own, not already following) -->
     @if (!isSeed() && !post().isOwnPost && !post().isFollowingAuthor) {
-      <button class="post-card-follow-btn" (click)="onFollow()" type="button">
+      <button class="post-card-follow-btn" data-cy="post-follow-btn" (click)="onFollow()" type="button">
         Follow
       </button>
     }
@@ -101,7 +102,7 @@
     }
 
     @if (post().imageUrl && !imageError()) {
-      <div class="post-card-image-wrap" style="aspect-ratio: 4/3; width: 100%; overflow: hidden">
+      <div class="post-card-image-wrap">
         <img class="post-card-image"
              [src]="post().imageUrl"
              [alt]="'Post by ' + post().author.displayName"
@@ -173,6 +174,7 @@
   <!-- ── Footer ──────────────────────────────────────────────────────────── -->
   <div class="post-card-footer">
     <button class="post-card-action-btn"
+            data-cy="post-like-btn"
             [class.post-card-action-btn--liked]="post().isLikedByMe"
             (click)="onLike()" type="button"
             [attr.aria-label]="'Like post'"
@@ -182,6 +184,7 @@
     </button>
 
     <button class="post-card-action-btn"
+            data-cy="post-comment-btn"
             (click)="onComment()" type="button" aria-label="Comment on post">
       <mat-icon>chat_bubble_outline</mat-icon>
       <span class="post-card-action-count">{{ post().commentsCount }}</span>

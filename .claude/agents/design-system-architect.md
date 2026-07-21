@@ -14,7 +14,7 @@ You work BEFORE @uiux-designer on any feature that touches shared UI. @uiux-desi
 
 ## NovaFit Design System — Current State
 
-Full spec at `.claude/design-specs/design-system.md`. You are responsible for keeping this file accurate and complete.
+Full spec at `design-system.md` (root). You are responsible for keeping this file accurate and complete.
 
 ### Current Token Set (fit-app/src/styles.css)
 ```css
@@ -74,7 +74,7 @@ Every component must define behavior for:
 
 ## Workflow When Invoked
 
-1. Read `.claude/design-specs/design-system.md` — current token state
+1. Read `design-system.md` (root) — current token state
 2. Read `.claude/design-redesign/` — any active redesign context
 3. Audit existing token usage with Grep across `fit-app/src/`
 4. Identify gaps, inconsistencies, or missing tokens

@@ -1,4 +1,4 @@
-<div class="profile-page">
+<div class="profile-page" data-cy="profile-page">
   <!-- Loading skeleton -->
   @if (facade.isLoadingProfile()) {
     <div class="profile-skeleton">
@@ -56,7 +56,7 @@
       <input #avatarInput type="file" accept="image/*"
              class="profile-avatar-file-input"
              (change)="onAvatarFileChange($event)" />
-      <h1 class="profile-display-name">
+      <h1 class="profile-display-name" data-cy="profile-display-name">
         {{ facade.currentProfile()!.displayName }}
         @if (facade.currentProfile()!.isVerified) {
           <mat-icon class="profile-verified-badge" aria-label="Verified account">verified</mat-icon>
@@ -94,7 +94,14 @@
     <div class="profile-bio-section">
       @if (!isEditingBio()) {
         @if (facade.currentProfile()!.bio) {
-          <p class="profile-bio">{{ facade.currentProfile()!.bio }}</p>
+          <p class="profile-bio" [class.profile-bio--expanded]="bioExpanded()">
+            {{ facade.currentProfile()!.bio }}
+          </p>
+          @if ((facade.currentProfile()!.bio || '').length > 100) {
+            <button class="profile-bio-toggle" (click)="bioExpanded.set(!bioExpanded())" type="button">
+              {{ bioExpanded() ? 'Show less' : 'Show more' }}
+            </button>
+          }
         } @else if (facade.currentProfile()!.isOwnProfile) {
           <button
             class="profile-bio-add-btn"
@@ -285,14 +292,14 @@
 
         <!-- ── Archived Workouts ──────────────────────────────────────────── -->
         @if (facade.archivedWorkouts().length > 0) {
-          <div class="archived-section-header" style="margin-top: 16px;">
+          <div class="archived-section-header archived-section-header--spaced">
             <span class="archived-title">Archived Workouts</span>
           </div>
           <div class="profile-posts-grid">
             @for (workout of facade.archivedWorkouts(); track workout.id) {
               <div class="profile-post-cell profile-post-text-cell">
                 <p>{{ workout.title }}</p>
-                <span style="font-size: 11px; opacity: 0.5;">{{ workout.type }} · {{ workout.durationMin }} min</span>
+                <span class="workout-meta">{{ workout.type }} · {{ workout.durationMin }} min</span>
                 <div class="profile-item-overlay">
                   <button
                     class="profile-overlay-btn"
@@ -408,6 +415,7 @@
       <div class="profile-tabs">
         <button
           class="profile-tab-btn"
+          data-cy="profile-tab-posts"
           [class.active]="activeTab() === 'posts'"
           (click)="setTab('posts')"
           type="button"
@@ -417,6 +425,7 @@
         </button>
         <button
           class="profile-tab-btn"
+          data-cy="profile-tab-workouts"
           [class.active]="activeTab() === 'workouts'"
           (click)="setTab('workouts')"
           type="button"
@@ -426,6 +435,7 @@
         </button>
         <button
           class="profile-tab-btn"
+          data-cy="profile-tab-blogs"
           [class.active]="activeTab() === 'blogs'"
           (click)="setTab('blogs')"
           type="button"
@@ -435,6 +445,7 @@
         </button>
         <button
           class="profile-tab-btn"
+          data-cy="profile-tab-stats"
           [class.active]="activeTab() === 'stats'"
           (click)="setTab('stats')"
           type="button"

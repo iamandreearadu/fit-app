@@ -1,0 +1,14 @@
+[
+  {
+    "id": "user-alpha",
+    "displayName": "Alex Runner",
+    "avatarUrl": null,
+    "isFollowedByMe": false
+  },
+  {
+    "id": "user-beta",
+    "displayName": "Beta Lifter",
+    "avatarUrl": null,
+    "isFollowedByMe": false
+  }
+]

@@ -1,0 +1,41 @@
+[
+  {
+    "uid": "wt-001",
+    "title": "Push Day A",
+    "type": "Strength",
+    "durationMin": 60,
+    "caloriesEstimateKcal": 350,
+    "notes": "Focus on progressive overload",
+    "exercises": [
+      {
+        "name": "Bench Press",
+        "sets": 4,
+        "reps": 8,
+        "weightKg": 80,
+        "notes": ""
+      },
+      {
+        "name": "Overhead Press",
+        "sets": 3,
+        "reps": 10,
+        "weightKg": 50,
+        "notes": ""
+      }
+    ],
+    "cardio": null
+  },
+  {
+    "uid": "wt-002",
+    "title": "Morning Cardio",
+    "type": "Cardio",
+    "durationMin": 30,
+    "caloriesEstimateKcal": 280,
+    "notes": "",
+    "exercises": [],
+    "cardio": {
+      "km": 5,
+      "incline": 2,
+      "notes": "Steady pace"
+    }
+  }
+]

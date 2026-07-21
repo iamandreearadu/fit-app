@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "id": 2,
+      "author": {
+        "id": "cypress-user-01",
+        "displayName": "Cypress Test User",
+        "avatarUrl": null,
+        "isVerified": false
+      },
+      "content": "My morning workout session was great today!",
+      "imageUrl": null,
+      "linkedContent": null,
+      "likesCount": 3,
+      "commentsCount": 0,
+      "isLikedByMe": false,
+      "isFollowingAuthor": false,
+      "isOwnPost": true,
+      "isArchived": false,
+      "createdAt": "2026-07-14T09:00:00Z",
+      "isSeedContent": false
+    }
+  ],
+  "page": 1,
+  "pageSize": 12,
+  "hasMore": false
+}

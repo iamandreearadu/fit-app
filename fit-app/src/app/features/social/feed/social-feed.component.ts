@@ -6,7 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { SocialFacade } from '../../../core/facade/social.facade';
+import { SocialFeedFacade } from '../../../core/facade/social-feed.facade';
+import { SocialContentFacade } from '../../../core/facade/social-content.facade';
 import { Post } from '../../../core/models/social.model';
 import { PostCardComponent } from '../components/post-card/post-card.component';
 import { CreateContentComponent } from '../components/create-content/create-content.component';
@@ -31,7 +32,8 @@ import { AuthenticationStore } from '../../../core/store/auth.store';
   styleUrl: './social-feed.component.css'
 })
 export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
-  protected readonly facade = inject(SocialFacade);
+  protected readonly facade = inject(SocialFeedFacade);
+  private readonly content = inject(SocialContentFacade);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly authStore = inject(AuthenticationStore);
@@ -134,7 +136,7 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onLikeToggled(postId: number): void {
-    this.facade.toggleLike(postId);
+    this.content.toggleLike(postId);
   }
 
   onCommentClicked(postId: number): void {
@@ -142,11 +144,11 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onFollowToggled(userId: string): void {
-    this.facade.toggleFollow(userId);
+    this.content.toggleFollow(userId);
   }
 
   onDeleteClicked(postId: number): void {
-    this.facade.deletePost(postId);
+    this.content.deletePost(postId);
   }
 
   onEditClicked(post: Post): void {

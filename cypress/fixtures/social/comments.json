@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "id": 101,
+      "author": {
+        "id": "user-alpha",
+        "displayName": "Alex Runner",
+        "avatarUrl": null
+      },
+      "content": "Amazing work! Keep it up!",
+      "createdAt": "2026-07-15T09:00:00Z",
+      "isOwnComment": false
+    },
+    {
+      "id": 102,
+      "author": {
+        "id": "cypress-user-01",
+        "displayName": "Cypress Test User",
+        "avatarUrl": null
+      },
+      "content": "Thanks so much!",
+      "createdAt": "2026-07-15T09:05:00Z",
+      "isOwnComment": true
+    }
+  ],
+  "page": 1,
+  "pageSize": 20,
+  "hasMore": false
+}

@@ -1,10 +1,10 @@
-<div class="post-detail-page">
+<div class="post-detail-page" data-cy="post-detail-page">
 
   <!-- Scrollable content area -->
   <div class="post-detail-scroll">
 
     <!-- Back button -->
-    <button class="post-detail-back" (click)="goBack()" type="button" aria-label="Back">
+    <button class="post-detail-back" data-cy="post-detail-back" (click)="goBack()" type="button" aria-label="Back">
       <mat-icon>arrow_back</mat-icon>
       <span>Back</span>
     </button>
@@ -64,13 +64,13 @@
       @if (!isLoadingComments()) {
         <div class="comments-list" #commentsList>
           @if (comments().length === 0 && !commentsError()) {
-            <div class="comments-empty">
+            <div class="comments-empty" data-cy="comments-empty">
               <mat-icon>chat_bubble_outline</mat-icon>
               <p>Be the first to comment</p>
             </div>
           }
           @for (comment of comments(); track comment.id) {
-            <div class="comment-row">
+            <div class="comment-row" data-cy="comment-row">
               <div class="comment-avatar-wrap">
                 @if (comment.author.avatarUrl) {
                   <img class="comment-avatar" [src]="comment.author.avatarUrl" [alt]="comment.author.displayName" />
@@ -110,6 +110,7 @@
     <mat-form-field appearance="outline" class="composer-field" subscriptSizing="dynamic">
       <textarea
         #composerTextarea
+        data-cy="composer-input"
         matInput
         placeholder="Add a comment..."
         [value]="commentInput()"
@@ -121,6 +122,7 @@
     </mat-form-field>
     <button
       class="composer-send-btn"
+      data-cy="composer-send"
       [disabled]="!commentInput().trim() || isSubmittingComment()"
       (click)="submitComment()"
       type="button"

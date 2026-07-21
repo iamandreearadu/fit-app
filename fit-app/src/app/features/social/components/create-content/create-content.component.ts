@@ -9,7 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TextFieldModule } from '@angular/cdk/text-field';
-import { SocialFacade } from '../../../../core/facade/social.facade';
+import { SocialContentFacade } from '../../../../core/facade/social-content.facade';
+import { SocialProfileFacade } from '../../../../core/facade/social-profile.facade';
 import { AlertService } from '../../../../shared/services/alert.service';
 import { CreatePostRequest, ARTICLE_CATEGORIES } from '../../../../core/models/social.model';
 
@@ -34,7 +35,8 @@ export { ARTICLE_CATEGORIES };
   styleUrl: './create-content.component.css',
 })
 export class CreateContentComponent {
-  private readonly facade = inject(SocialFacade);
+  private readonly facade = inject(SocialContentFacade);
+  private readonly profileFacade = inject(SocialProfileFacade);
   private readonly alert = inject(AlertService);
   private readonly dialogRef = inject(MatDialogRef<CreateContentComponent>);
 
@@ -220,7 +222,7 @@ export class CreateContentComponent {
         category: this.category(),
         image: this.articleImagePreview() ?? undefined,
       };
-      await this.facade.createBlog(req);
+      await this.profileFacade.createBlog(req);
       this.dialogRef.close(true);
     } catch {
       this.alert.error('Could not publish article. Please try again.');

@@ -8,7 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { SocialFacade } from '../../../core/facade/social.facade';
+import { SocialProfileFacade } from '../../../core/facade/social-profile.facade';
+import { SocialContentFacade } from '../../../core/facade/social-content.facade';
 import { ChatFacade } from '../../../core/facade/chat.facade';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { UserStore } from '../../../core/store/user.store';
@@ -41,7 +42,8 @@ type ProfileTab = 'posts' | 'workouts' | 'blogs' | 'stats';
   styleUrl: './social-profile.component.css',
 })
 export class SocialProfileComponent implements OnInit {
-  protected readonly facade = inject(SocialFacade);
+  protected readonly facade = inject(SocialProfileFacade);
+  private readonly content = inject(SocialContentFacade);
   private readonly chatFacade = inject(ChatFacade);
   private readonly userFacade = inject(UserFacade);
   private readonly alert = inject(AlertService);
@@ -68,6 +70,7 @@ export class SocialProfileComponent implements OnInit {
   // Inline bio edit
   readonly isEditingBio = signal(false);
   readonly bioInput = signal('');
+  readonly bioExpanded = signal(false);
 
   protected userId = '';
 
@@ -158,7 +161,7 @@ export class SocialProfileComponent implements OnInit {
     if (this.isTogglingFollow()) return;
     this.isTogglingFollow.set(true);
     try {
-      const res = await this.facade.toggleFollow(this.userId);
+      const res = await this.content.toggleFollow(this.userId);
       this.isFollowing.set(res.isFollowing);
     } finally {
       this.isTogglingFollow.set(false);
@@ -222,7 +225,7 @@ export class SocialProfileComponent implements OnInit {
   }
 
   async toggleFollowUser(targetUserId: string): Promise<void> {
-    const res = await this.facade.toggleFollow(targetUserId);
+    const res = await this.content.toggleFollow(targetUserId);
     // Update the follow list item in-place
     this.facade.followListUsers.update(users =>
       users.map(u => u.id === targetUserId
@@ -259,7 +262,7 @@ export class SocialProfileComponent implements OnInit {
       'Are you sure you want to delete this post?',
     );
     if (!confirmed) return;
-    await this.facade.deletePost(postId);
+    await this.content.deletePost(postId);
   }
 
   async archivePost(e: Event, postId: number): Promise<void> {

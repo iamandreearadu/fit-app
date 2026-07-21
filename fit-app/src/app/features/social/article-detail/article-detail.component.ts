@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SocialFacade } from '../../../core/facade/social.facade';
+import { SocialContentFacade } from '../../../core/facade/social-content.facade';
 import { ArticleDetail } from '../../../core/models/social.model';
 
 @Component({
@@ -17,7 +17,7 @@ import { ArticleDetail } from '../../../core/models/social.model';
 export class ArticleDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly facade = inject(SocialFacade);
+  private readonly facade = inject(SocialContentFacade);
 
   article = signal<ArticleDetail | null>(null);
   isLoading = signal(true);

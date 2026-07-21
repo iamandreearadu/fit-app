@@ -1,0 +1,7 @@
+{
+  "id": "cypress-reg-user-01",
+  "email": "newuser@example.com",
+  "fullName": "New Cypress User",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjeXByZXNzLXJlZy11c2VyLTAxIiwiZW1haWwiOiJuZXd1c2VyQGV4YW1wbGUuY29tIn0.fake-register-sig-cypress",
+  "isAdmin": false
+}

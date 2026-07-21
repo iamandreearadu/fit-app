@@ -13,7 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TextFieldModule } from '@angular/cdk/text-field';
-import { SocialFacade } from '../../../../core/facade/social.facade';
+import { SocialProfileFacade } from '../../../../core/facade/social-profile.facade';
 import { AlertService } from '../../../../shared/services/alert.service';
 import { ProfileBlog, ARTICLE_CATEGORIES } from '../../../../core/models/social.model';
 
@@ -38,7 +38,7 @@ export { ARTICLE_CATEGORIES };
   styleUrl: './write-article.component.css',
 })
 export class WriteArticleComponent {
-  private readonly facade = inject(SocialFacade);
+  private readonly facade = inject(SocialProfileFacade);
   private readonly alert = inject(AlertService);
   private readonly dialogRef = inject(MatDialogRef<WriteArticleComponent>);
   readonly data = inject<{ blog?: ProfileBlog } | null>(MAT_DIALOG_DATA);

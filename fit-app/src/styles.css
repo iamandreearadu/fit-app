@@ -17,7 +17,7 @@
   --color-info-bg: rgba(56, 189, 248, 0.12);
   --color-warning: #ffb74d;
   --color-warning-bg: rgba(255, 183, 77, 0.12);
-  --color-error: #ef5350;
+  --color-error: var(--color-destructive);
   --color-error-bg: rgba(239, 83, 80, 0.12);
 
   /* Navigation (shared between app & social bottom-nav / top-bar) */
@@ -30,6 +30,41 @@
 
   /* Create FAB gradient — used by center bottom-nav FAB and any future primary CTA */
   --nav-create-gradient: linear-gradient(135deg, var(--primary), var(--accent));
+
+  /* ── Text hierarchy tokens ── */
+  --text-primary:    rgba(255, 255, 255, 1.00);
+  --text-secondary:  rgba(255, 255, 255, 0.70);
+  --text-tertiary:   rgba(255, 255, 255, 0.50);
+  --text-muted:      rgba(255, 255, 255, 0.35);
+  --text-disabled:   rgba(255, 255, 255, 0.22);
+
+  /* ── Surface elevation ── */
+  --surface-raised:   #111116;
+  --surface-elevated: #1a1a22;
+  --surface-overlay:  #20202a;
+
+  /* ── Border scale ── */
+  --border-subtle:  rgba(255, 255, 255, 0.04);
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-strong:  rgba(255, 255, 255, 0.14);
+  --border-focus:   var(--primary);
+
+  /* ── Destructive (separat de --accent) ── */
+  --color-destructive:    #ef5350;
+  --color-destructive-bg: rgba(239, 83, 80, 0.10);
+
+  /* ── Border radius scale ── */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 9999px;
+
+  /* ── Avatar sizes ── */
+  --avatar-sm: 32px;
+  --avatar-md: 40px;
+  --avatar-lg: 88px;
+  --avatar-xl: 108px;
 
   /*
    * z-index stack reference (ascending order):
@@ -102,10 +137,6 @@ app-root {
   flex: 1;
 }
 
-.navbar {
-  height: 12vh;
-}
-
 .loading-container {
   display: flex;
   justify-content: center;
@@ -153,8 +184,8 @@ button {
 
 /* CUSTOM SCROLLBAR */
 ::-webkit-scrollbar {
-  width: 14px;
-  height: 12px;
+  width: 6px;
+  height: 6px;
 }
 
 /* Track (fundal) */

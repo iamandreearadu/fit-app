@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } 
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SocialFacade } from '../../../../core/facade/social.facade';
+import { SocialFeedFacade } from '../../../../core/facade/social-feed.facade';
+import { SocialContentFacade } from '../../../../core/facade/social-content.facade';
 import { SuggestedUser } from '../../../../core/models/social.model';
 import { AlertService } from '../../../../shared/services/alert.service';
 
@@ -15,7 +16,8 @@ import { AlertService } from '../../../../shared/services/alert.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SocialFeedGuidedEmptyComponent implements OnInit {
-  protected readonly facade = inject(SocialFacade);
+  protected readonly facade = inject(SocialFeedFacade);
+  private readonly content = inject(SocialContentFacade);
   private readonly alerts = inject(AlertService);
 
   /** Set of userId strings that have been successfully followed in this session. */
@@ -49,7 +51,7 @@ export class SocialFeedGuidedEmptyComponent implements OnInit {
 
     this.pendingFollowSet.update(s => new Set([...s, userId]));
     try {
-      const response = await this.facade.toggleFollow(userId);
+      const response = await this.content.toggleFollow(userId);
       if (response.isFollowing) {
         this.followingSet.update(s => new Set([...s, userId]));
         this.facade.incrementMyFollowingCount();

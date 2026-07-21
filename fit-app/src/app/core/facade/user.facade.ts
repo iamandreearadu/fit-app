@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { computed, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserStore } from '../store/user.store';
 import { UserMetricsService } from '../services/user-metrics.service';
@@ -13,7 +13,6 @@ import { NotificationHubService } from '../services/notification-hub.service';
 import { NutritionTabFacade } from './nutrition-tab.facade';
 import { WorkoutsTabFacade } from './workouts-tab.facade';
 import { MealEntry } from '../models/nutrition-tab.model';
-import { WorkoutTemplate } from '../models/workouts-tab.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserFacade {
@@ -209,8 +208,8 @@ export class UserFacade {
 
   // ========== Nutrition delegations ==========
 
-  /** Loaded meal list — same signal as NutritionTabFacade.meals */
-  get meals(): MealEntry[] { return this.nutritionTabFacade.meals; }
+  /** Reactive computed signal — tracks NutritionTabFacade._meals so templates update automatically. */
+  readonly meals = computed(() => this.nutritionTabFacade.meals);
 
   async loadMeals(): Promise<void> {
     await this.nutritionTabFacade.loadMeals();
@@ -222,8 +221,8 @@ export class UserFacade {
 
   // ========== Workout template delegations ==========
 
-  /** Loaded workout template list — same signal as WorkoutsTabFacade.templates */
-  get workoutTemplates(): WorkoutTemplate[] { return this.workoutsTabFacade.templates; }
+  /** Reactive computed signal — tracks WorkoutsTabFacade._templates so templates update automatically. */
+  readonly workoutTemplates = computed(() => this.workoutsTabFacade.templatesSignal());
 
   async loadWorkoutTemplates(): Promise<void> {
     await this.workoutsTabFacade.loadTemplates();

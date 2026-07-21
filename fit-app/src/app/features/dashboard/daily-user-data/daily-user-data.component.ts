@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, effect, signal, computed } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { DailyUserData } from '../../../core/models/daily-user-data.model';
 import { MaterialModule } from '../../../core/material/material.module';
@@ -20,7 +19,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   standalone: true,
   selector: 'app-daily-user-data',
-  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, MaterialModule, AiMealAnalyzerComponent, CalorieBalanceCardComponent, DailyEntryCalorieSummaryComponent],
+  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, MaterialModule, AiMealAnalyzerComponent, CalorieBalanceCardComponent, DailyEntryCalorieSummaryComponent],
   host: { class: 'd-block' },
   templateUrl: './daily-user-data.component.html',
   styleUrls: ['./daily-user-data.component.css']
@@ -48,8 +47,8 @@ export class DailyUserDataComponent implements OnInit {
 
   public readonly filteredPickerMeals = computed<MealEntry[]>(() => {
     const term = this.mealPickerSearch().trim().toLowerCase();
-    if (!term) return this.facade.meals;
-    return this.facade.meals.filter(m =>
+    if (!term) return this.facade.meals();
+    return this.facade.meals().filter(m =>
       m.name.toLowerCase().includes(term) || m.type.toLowerCase().includes(term)
     );
   });
@@ -69,7 +68,7 @@ export class DailyUserDataComponent implements OnInit {
     if (found) return found;
     if (val.startsWith('workout:')) {
       const uid = val.replace('workout:', '');
-      const t = this.facade.workoutTemplates.find(t => t.uid === uid);
+      const t = this.facade.workoutTemplates().find(t => t.uid === uid);
       if (t) return { label: t.title, icon: 'sports' };
     }
     return { label: 'Select activity', icon: 'bolt' };
@@ -249,7 +248,7 @@ export class DailyUserDataComponent implements OnInit {
       filter((v): v is string => typeof v === 'string' && v.startsWith('workout:'))
     ).subscribe(value => {
       const uid = value.replace('workout:', '');
-      const template = this.facade.workoutTemplates.find(t => t.uid === uid);
+      const template = this.facade.workoutTemplates().find(t => t.uid === uid);
       if (template && template.caloriesEstimateKcal > 0) {
         this.form.get('caloriesBurned')?.setValue(template.caloriesEstimateKcal);
         this.form.markAsDirty();

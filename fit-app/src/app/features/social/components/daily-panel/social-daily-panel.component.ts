@@ -88,13 +88,11 @@ export class SocialDailyPanelComponent implements OnInit {
     return Math.min(100, Math.round((s.steps / s.stepTarget) * 100));
   });
 
-  /** Signed net calories — prefer server-computed caloriesTotal from todaySummary
-   *  so Dashboard and Social panel always show the same value (Fix 10 WARNING 1) */
   readonly netCalories = computed(() => {
     const s = this.todaySummary();
-    if (s) return s.caloriesTotal;
-    const stats = this.stats();
-    return (stats.caloriesIntake ?? 0) - (stats.caloriesBurned ?? 0);
+    const intake = (s?.caloriesFromNutritionLog || this.stats().caloriesIntake) ?? 0;
+    const burned = (s?.caloriesBurned ?? this.stats().caloriesBurned) ?? 0;
+    return intake - burned;
   });
 
   /** CSS modifier class for the net tile coloring */
@@ -114,13 +112,8 @@ export class SocialDailyPanelComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    if (!this.daily()) {
-      this.userFacade.loadDaily();
-    }
-    // Ensure calorie source is in sync with Dashboard (Fix 10 WARNING 1)
-    if (!this.todaySummary()) {
-      this.userFacade.loadTodaySummary();
-    }
+    void this.userFacade.loadDaily();
+    void this.userFacade.loadTodaySummary();
   }
 
   private getActivityConfig(type?: string): ActivityConfig {
