@@ -545,15 +545,15 @@
 }
 
 .ci-purple {
-  background: rgba(124, 77, 255, 0.14);
+  background: transparent;
   color: #a78bfa;
 }
 .ci-orange {
-  background: rgba(255, 64, 129, 0.15);
+  background: transparent;
   color: var(--accent);
 }
 .ci-blue {
-  background: rgba(56, 189, 248, 0.15);
+  background: transparent;
   color: #38bdf8;
 }
 

@@ -105,12 +105,6 @@
   color: var(--primary);
   flex-shrink: 0;
 }
-.profile-bio {
-  font-size: 14px; color: var(--white-soft); margin: 0;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  overflow: hidden; max-width: 400px;
-}
-
 /* Stats */
 .profile-stats-row {
   display: grid; grid-template-columns: 1fr 1fr 1fr;
@@ -392,20 +386,7 @@
 .profile-card-action-btn--danger:hover { background: rgba(255,64,129,0.15); color: var(--accent); }
 
 /* Write Blog CTA */
-.wb-cta-btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: 8px; padding: 10px 20px;
-  border-radius: 10px; border: 1px solid rgba(124,77,255,0.35);
-  background: transparent; color: var(--primary-light, #b39dff);
-  cursor: pointer; font-size: 13px; font-weight: 600;
-  transition: background 0.15s, border-color 0.15s;
-  margin-bottom: 8px;
-}
-.wb-cta-btn:hover { background: rgba(124,77,255,0.1); border-color: var(--primary); }
-.wb-cta-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
-
 /* Article list — flat editorial style */
-.article-list { display: flex; flex-direction: column; }
 
 .article-card {
   padding: 20px 0;
@@ -433,7 +414,6 @@
   font-size: 10px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.1em; color: var(--primary-light, #b39dff);
 }
-.article-card-date { font-size: 11px; color: var(--text-muted); }
 
 .article-card-title {
   font-size: 17px; font-weight: 700; color: var(--white);
@@ -459,7 +439,6 @@
 .article-card:hover .article-card-read { color: var(--primary-light, #b39dff); }
 .article-card-read mat-icon { font-size: 14px; width: 14px; height: 14px; }
 
-.article-card-actions { display: flex; gap: 2px; }
 .article-action-btn {
   display: flex; align-items: center; justify-content: center;
   width: 30px; height: 30px; border-radius: 8px;
@@ -836,8 +815,8 @@
   /* Full-width, compact header area */
   .profile-page {
     max-width: 100%;
-    padding: 12px 0 80px;
-    gap: 12px;
+    padding: 8px 0 80px;
+    gap: 6px;
   }
 
   /* Restore gutters on sections that need them */
@@ -847,8 +826,77 @@
   .profile-error,
   .profile-skeleton,
   .profile-section {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .profile-header {
+    gap: 3px;
+  }
+
+  .profile-avatar-ring {
+    width: 60px;
+    height: 60px;
+    border-width: 2px;
+    box-shadow: 0 0 14px var(--primary-glow);
+  }
+
+  .profile-avatar-edit-overlay mat-icon {
+    width: 21px;
+    height: 21px;
+    font-size: 21px;
+  }
+
+  .profile-display-name {
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  .profile-stats-row {
+    margin-top: 1px;
+  }
+
+  .profile-stat-cell {
+    padding: 6px 8px;
+    gap: 0;
+  }
+
+  .profile-stat-number {
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  .profile-stat-label {
+    font-size: 9px;
+    line-height: 1.35;
+  }
+
+  .profile-bio-section {
+    min-height: 0;
+  }
+
+  .profile-bio {
+    max-width: 100%;
+    font-size: 12px;
+    line-height: 1.4;
+    -webkit-line-clamp: 2;
+  }
+
+  .profile-action-row {
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .profile-action-btn {
+    min-height: 44px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .profile-more-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
   }
 
   /* Posts grid, stats row and tabs stay full-bleed — no side padding */
@@ -865,26 +913,27 @@
   /* Keep tab labels but reduce size and stack icon above text */
   .profile-tab-btn {
     font-size: 10px;
-    padding: 10px 4px;
-    gap: 3px;
+    min-height: 44px;
+    padding: 6px 4px 5px;
+    gap: 1px;
     flex-direction: column;
   }
 
   .profile-tab-btn mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
   }
 }
 
 @media (max-width: 480px) {
   .profile-action-row {
-    gap: 8px;
+    gap: 6px;
   }
 
   .profile-action-btn {
-    font-size: 13px;
-    padding: 10px 14px;
+    font-size: 12px;
+    padding: 6px 10px;
   }
 }
 

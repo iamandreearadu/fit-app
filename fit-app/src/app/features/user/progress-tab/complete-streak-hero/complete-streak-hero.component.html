@@ -1,0 +1,19 @@
+<article class="streak-card" [class.unlocked]="status.completeDayStreak >= 7">
+  <div class="ring" [style.--streak]="ringProgress" aria-live="polite" aria-atomic="true">
+    <span>{{ status.completeDayStreak >= 7 ? '7+' : status.completeDayStreak }}</span>
+    <small>/ 7</small>
+  </div>
+  <div class="streak-content">
+    <span class="eyebrow">Complete-day streak</span>
+    <h2>{{ status.completeDayStreak >= 7 ? 'Weekly report unlocked' : status.daysUntilUnlock + ' days to your report' }}</h2>
+    <p>Log every daily category to build a useful nutrition pattern.</p>
+    <div class="checklist" role="list">
+      @for (item of items; track item.key) {
+        <div role="listitem" [attr.aria-label]="item.label + ': ' + (completed(item.key) ? 'completed' : 'not logged yet')" [class.done]="completed(item.key)">
+          <mat-icon>{{ completed(item.key) ? 'check_circle' : item.icon }}</mat-icon>
+          <span>{{ item.label }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</article>

@@ -52,6 +52,18 @@ export class UserService {
     }
   }
 
+  public async deleteAccount(): Promise<boolean> {
+    try {
+      await firstValueFrom(
+        this.http.delete<void>(`${this.baseUrl}/api/users/me`)
+      );
+      return true;
+    } catch {
+      this.alerts.warn('Your account could not be deleted. Please try again.');
+      return false;
+    }
+  }
+
   public async getStreak(): Promise<StreakData | null> {
     try {
       return await firstValueFrom(

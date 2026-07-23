@@ -32,6 +32,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<DirectMessage> DirectMessages => Set<DirectMessage>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -263,6 +264,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .HasForeignKey(n => n.ActorId)
                 .OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(n => new { n.RecipientId, n.IsRead, n.CreatedAt });
+        });
+
+        modelBuilder.Entity<PasswordResetToken>(e =>
+        {
+            e.HasKey(token => token.Id);
+            e.Property(token => token.TokenHash).HasMaxLength(64);
+            e.HasIndex(token => token.TokenHash).IsUnique();
+            e.HasIndex(token => token.UserId);
+            e.HasIndex(token => token.ExpiresAt);
+            e.HasOne(token => token.User)
+                .WithMany(user => user.PasswordResetTokens)
+                .HasForeignKey(token => token.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<SavedPost>(e =>

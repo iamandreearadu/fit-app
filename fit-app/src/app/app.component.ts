@@ -55,7 +55,7 @@ export class AppComponent {
   });
 
   readonly showTopBar = computed(() => {
-    return this.showMainNav();
+    return this.showMainNav() && !this.currentRoute().startsWith('/forgot-password');
   });
 
   readonly showBottomNav = computed(() => {

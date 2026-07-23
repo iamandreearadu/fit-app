@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { AbstractControl, ReactiveFormsModule, FormBuilder, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AccountFacade } from '../../../core/facade/account.facade';
 import { FormErrorService } from '../../../shared/services/form-error.service';
@@ -24,7 +24,7 @@ const GOAL_OPTIONS: GoalOption[] = [
   selector: 'app-register',
   imports: [CommonModule, ReactiveFormsModule, RouterLink, MaterialModule],
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css'],
+  styleUrls: ['../auth-shell.css', './register.component.css'],
 })
 export class RegisterComponent {
   private readonly fb     = inject(FormBuilder);
@@ -34,14 +34,19 @@ export class RegisterComponent {
 
   private readonly validators = this.facade.authValidation.getRegisterValidators();
 
-  form = this.fb.group({
-    fullName: ['', this.validators.fullName],
-    email:    ['', this.validators.email],
-    password: ['', this.validators.password],
-  });
+  form = this.fb.group(
+    {
+      fullName: ['', this.validators.fullName],
+      email: ['', this.validators.email],
+      password: ['', this.validators.password],
+      confirmPassword: ['', this.validators.password],
+    },
+    { validators: [this.passwordsMatchValidator] },
+  );
 
   // ── Goal selector state ───────────────────────────────────────────────────
   readonly showPassword = signal(false);
+  readonly showConfirmPassword = signal(false);
 
   readonly goalOptions = GOAL_OPTIONS;
   readonly selectedGoal = signal<GoalOption>(GOAL_OPTIONS[0]); // pre-select "Lose weight"
@@ -78,5 +83,13 @@ export class RegisterComponent {
       });
       this.form.controls.email.markAsTouched();
     }
+  }
+
+  private passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
+    const password = control.get('password')?.value;
+    const confirmation = control.get('confirmPassword')?.value;
+    return password && confirmation && password !== confirmation
+      ? { passwordMismatch: true }
+      : null;
   }
 }

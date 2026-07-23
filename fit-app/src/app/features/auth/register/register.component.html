@@ -129,6 +129,32 @@
           }
         </mat-form-field>
 
+        <mat-form-field appearance="outline" class="f-field">
+          <mat-label>Confirm password</mat-label>
+          <mat-icon matPrefix class="field-icon">lock_reset</mat-icon>
+          <input
+            matInput
+            [type]="showConfirmPassword() ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            autocomplete="new-password"
+            data-cy="register-confirm-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="showConfirmPassword.set(!showConfirmPassword())"
+            [attr.aria-label]="showConfirmPassword() ? 'Hide confirmation password' : 'Show confirmation password'"
+          >
+            <mat-icon class="field-icon">{{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.get('confirmPassword')?.touched && form.get('confirmPassword')?.invalid) {
+            <mat-error>{{ formErrors.getMessage(form.get('confirmPassword')?.errors) }}</mat-error>
+          } @else if (form.get('confirmPassword')?.touched && form.hasError('passwordMismatch')) {
+            <mat-error>Passwords do not match</mat-error>
+          }
+        </mat-form-field>
+
         <!-- Goal selector (Fix 4) -->
         <p class="reg-goal-label">What's your goal?</p>
         <div
@@ -165,9 +191,9 @@
           <mat-icon>shield</mat-icon>
           <span>
             By signing up you agree to our
-            <a href="#" class="link-inline">Terms of Service</a>
+            <a routerLink="/terms" class="link-inline">Terms of Service</a>
             and
-            <a href="#" class="link-inline">Privacy Policy</a>
+            <a routerLink="/privacy" class="link-inline">Privacy Policy</a>
           </span>
         </div>
 

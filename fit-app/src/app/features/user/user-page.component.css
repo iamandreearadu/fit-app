@@ -231,7 +231,11 @@
 .sb-item.active mat-icon { color: #7C4DFF; }
 
 /* ── Content area ── */
-.up-content { min-height: 400px; }
+.up-content {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 400px;
+}
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {

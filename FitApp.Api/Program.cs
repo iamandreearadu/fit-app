@@ -165,6 +165,7 @@ builder.Services.AddScoped<ISocialService, SocialService>();
 
 // Dashboard
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IProgressService, ProgressService>();
 
 // ── Rate Limiting ─────────────────────────────────────────────────────────────
 builder.Services.AddRateLimiter(o =>
@@ -284,6 +285,7 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
     await FitApp.Api.Data.Seeds.BlogPostSeeder.SeedAsync(db);
     await FitApp.Api.Data.Seeds.UserSeeder.SeedAsync(db);
+    await FitApp.Api.Data.Seeds.ProgressDemoSeeder.SeedAsync(db);
     await FitApp.Api.Data.Seeds.WorkoutTemplateSeeder.SeedAsync(db);
     await FitApp.Api.Data.Seeds.NovaFitOfficialSeeder.SeedAsync(db);
 }

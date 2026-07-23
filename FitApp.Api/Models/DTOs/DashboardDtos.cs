@@ -82,7 +82,8 @@ public class RingMetricDto
 
 /// <summary>
 /// Current and best streak for the dashboard streak chip.
-/// Sourced exclusively from DailyDataService.GetStreakAsync() — never recomputed here.
+/// Sourced exclusively from DailyDataService.GetStreakAsync() using the shared
+/// complete-day definition: meals + activity + steps + water.
 /// </summary>
 public class DashboardStreakDto
 {

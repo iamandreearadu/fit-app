@@ -86,6 +86,82 @@ public class AiProxyService(
         return await CallGroqAsync(config["Groq:TextModel"]!, messages);
     }
 
+    /// <summary>
+    /// Generates the weekly nutritionist narrative from aggregate statistics only.
+    /// No meal names, food items, free-form notes, or other raw history leave the API.
+    /// </summary>
+    public async Task<string> GenerateWeeklyNutritionistNarrativeAsync(
+        string userId,
+        NutritionistWeeklyReportDto statsOnly)
+    {
+        var aggregatePayload = JsonSerializer.Serialize(new
+        {
+            statsOnly.WindowStart,
+            statsOnly.WindowEnd,
+            statsOnly.UserGoal,
+            statsOnly.GoalCalories,
+            statsOnly.AvgCaloriesIn,
+            statsOnly.Tdee,
+            statsOnly.NetCaloriesTotal,
+            statsOnly.EstimatedWeightChangeKg,
+            statsOnly.ActualWeightChangeKg,
+            statsOnly.AvgWaterL,
+            statsOnly.WaterTargetL,
+            statsOnly.WaterAdherencePct,
+            statsOnly.AvgSteps,
+            statsOnly.StepTarget,
+            statsOnly.MealsLogged,
+            statsOnly.AvgProteinPct,
+            statsOnly.AvgCarbsPct,
+            statsOnly.AvgFatPct,
+            statsOnly.TargetProteinPct,
+            statsOnly.TargetCarbsPct,
+            statsOnly.TargetFatPct
+        }, JsonOpts);
+
+        var messages = new List<object>
+        {
+            new
+            {
+                role = "system",
+                content = """
+                    You are Nova, NovaFit's evidence-aware nutrition coach. Write one
+                    neutral, direct paragraph of 3 to 4 short sentences in Romanian.
+
+                    Interpret the data relative to UserGoal from Account / Physical:
+                    "lose" means fat-loss intent, "gain" means weight-gain intent, and
+                    "maintain" means weight-maintenance intent. Compare AvgCaloriesIn
+                    with GoalCalories when discussing adherence to that goal.
+
+                    EstimatedWeightChangeKg is a mathematical estimate derived from the
+                    seven-day energy balance. ActualWeightChangeKg is only the difference
+                    between the first and last scale readings. Never present these values
+                    as equivalent or as proof of fat gained or lost. If both exist, state
+                    both clearly and explain briefly that short-term scale changes can
+                    reflect water, glycogen, digestion, sodium, or weighing time. Seven
+                    days are not enough to establish a body-weight trend.
+
+                    Use restrained wording. Do not use superlatives or celebratory claims
+                    such as "remarcabil", "impresionant", "excelent", "extraordinar",
+                    "fantastic" or equivalents. Do not describe a diet as healthy based
+                    only on calories and macros. Do not invent causes, certainty, foods,
+                    diagnoses, prescriptions or facts beyond the aggregate JSON. Mention
+                    at most one concrete next action and keep it proportional to the data.
+                    """
+            },
+            new { role = "user", content = aggregatePayload }
+        };
+
+        logger.LogDebug(
+            "Generating aggregate weekly nutrition narrative for user {UserId}, window {WindowStart}-{WindowEnd}",
+            userId,
+            statsOnly.WindowStart,
+            statsOnly.WindowEnd);
+
+        var response = await CallGroqAsync(config["Groq:TextModel"]!, messages);
+        return response.Content.Trim();
+    }
+
     // ── Context builders ──────────────────────────────────────────────────────────
 
     /// <summary>

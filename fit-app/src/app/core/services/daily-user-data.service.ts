@@ -66,6 +66,8 @@ export class DailyUserDataService {
       caloriesIntake: 0,
       caloriesBurned: 0,
       caloriesTotal: 0,
+      manualWeight: undefined,
+      energyLevel: undefined,
     });
   }
 
@@ -181,6 +183,8 @@ export class DailyUserDataService {
       caloriesIntake: caloriesIntake,
       caloriesBurned: caloriesBurned,
       caloriesTotal: this.caloriesTotal(caloriesIntake, caloriesBurned),
+      manualWeight: patch.manualWeight ?? existing?.manualWeight,
+      energyLevel: patch.energyLevel ?? existing?.energyLevel,
     };
 
     if (result.caloriesIntake == null) {

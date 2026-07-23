@@ -253,6 +253,25 @@
 
 /* ── Logout (accent color) ───────────────────────────────────────────────── */
 
+.global-drawer-bottom {
+  margin-top: auto;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  flex-shrink: 0;
+}
+
+.global-drawer-guide,
+.global-drawer-guide mat-icon {
+  color: var(--white-soft);
+}
+
+.global-drawer-guide mat-icon {
+  color: var(--nav-icon-inactive);
+}
+
+.global-drawer-guide:hover {
+  background: rgba(124, 77, 255, 0.06);
+}
+
 .global-drawer-logout {
   margin-top: 4px;
 }

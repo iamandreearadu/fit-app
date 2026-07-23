@@ -68,9 +68,9 @@ export class DailyUserDataComponent implements OnInit {
   public readonly manualMacrosForm = this.fb.group({
     name: this.fb.control('Manual entry', [Validators.required, Validators.maxLength(80)]),
     type: this.fb.control<MealType>('Breakfast', { nonNullable: true }),
-    protein: this.fb.control(0, [Validators.required, Validators.min(0)]),
-    carbs: this.fb.control(0, [Validators.required, Validators.min(0)]),
-    fats: this.fb.control(0, [Validators.required, Validators.min(0)]),
+    protein: this.fb.control<number | null>(null, [Validators.min(0)]),
+    carbs: this.fb.control<number | null>(null, [Validators.min(0)]),
+    fats: this.fb.control<number | null>(null, [Validators.min(0)]),
   });
 
   public readonly todayMeals = computed(() =>
@@ -176,9 +176,9 @@ export class DailyUserDataComponent implements OnInit {
     this.manualMacrosForm.reset({
       name: 'Manual entry',
       type: 'Breakfast',
-      protein: 0,
-      carbs: 0,
-      fats: 0,
+      protein: null,
+      carbs: null,
+      fats: null,
     });
     this.showManualMacrosOverlay = true;
   }

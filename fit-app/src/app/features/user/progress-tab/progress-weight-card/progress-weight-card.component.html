@@ -1,0 +1,75 @@
+<article class="weight-card">
+  <header>
+    <div class="icon"><mat-icon>monitor_weight</mat-icon></div>
+    <div>
+      <h2>Weight trend</h2>
+      <p>Daily values and 7-day average</p>
+    </div>
+  </header>
+
+  <div class="quick-log">
+    <label>
+      <span>Today’s weight</span>
+      <div class="input-line">
+        <input
+          type="number"
+          min="30"
+          max="300"
+          step="0.1"
+          inputmode="decimal"
+          [(ngModel)]="weight"
+          (ngModelChange)="markCheckInEdited()"
+          aria-describedby="weight-help"
+        >
+        <small>kg</small>
+      </div>
+    </label>
+
+    <fieldset>
+      <legend>Energy level <span>(optional)</span></legend>
+      <div class="energy" role="radiogroup" aria-label="Energy level">
+        @for (level of energyOptions; track level) {
+          <button
+            type="button"
+            role="radio"
+            [attr.aria-checked]="energyLevel === level"
+            [class.active]="energyLevel === level"
+            (click)="selectEnergyLevel(level)"
+          >{{ level }}</button>
+        }
+      </div>
+    </fieldset>
+
+    <button
+      class="save"
+      type="button"
+      aria-label="Save today's check-in"
+      [disabled]="saving || !valid"
+      (click)="submit()"
+    >
+      <mat-icon>{{ saving ? 'hourglass_top' : 'check' }}</mat-icon>
+    </button>
+  </div>
+
+  @if (submitted && !valid) {
+    <p id="weight-help" class="error">Enter a weight between 30 and 300 kg.</p>
+  }
+  <p class="check-in-status sr-only" aria-live="polite">
+    {{ saved ? 'Today’s check-in was saved.' : '' }}
+  </p>
+
+  @if (hasData) {
+    <div class="chart" role="img" aria-label="Weight values and seven-day rolling average">
+      <canvas baseChart [data]="chart.data" [options]="chart.options" type="line"></canvas>
+    </div>
+    <div class="legend">
+      <span><i class="raw"></i>Weight</span>
+      <span><i class="avg"></i>7-day average</span>
+    </div>
+  } @else {
+    <div class="empty">
+      <mat-icon>show_chart</mat-icon>
+      <span>Your weight trend starts with your first check-in.</span>
+    </div>
+  }
+</article>

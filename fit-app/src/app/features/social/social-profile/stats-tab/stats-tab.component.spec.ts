@@ -112,15 +112,16 @@ describe('StatsTabComponent', () => {
     expect(fixture.nativeElement.textContent).not.toContain('Weight Change');
   });
 
-  it('exposes a textual summary for the volume chart', async () => {
+  it('shows the seven-day dashboard activity summary', async () => {
     facade.loadPublicStats.and.callFake(async () => facade.publicStats.set(stats(5)));
     fixture.componentRef.setInput('userId', 'user-a');
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.stats-chart-summary').textContent)
-      .toContain('Weekly volume increased');
+    expect(fixture.nativeElement.textContent).toContain('Last 7 days');
+    expect(fixture.nativeElement.textContent).toContain('active days');
+    expect(fixture.nativeElement.textContent).not.toContain('Training volume');
   });
 
   function deferred(): Deferred {

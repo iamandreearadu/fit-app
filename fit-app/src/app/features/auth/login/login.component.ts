@@ -12,7 +12,7 @@ import { MaterialModule } from '../../../core/material/material.module';
   selector: 'app-login',
   imports: [CommonModule, ReactiveFormsModule, RouterLink, MaterialModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['../auth-shell.css', './login.component.css']
 })
 export class LoginComponent {
 

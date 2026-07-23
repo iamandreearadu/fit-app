@@ -216,6 +216,14 @@
           </div>
           <mat-icon class="mob-user-arrow">chevron_right</mat-icon>
         </a>
+        <a
+          class="mob-guide-link"
+          routerLink="/onboarding/carousel"
+          [queryParams]="{ mode: 'guide' }"
+          (click)="closeMobileNav()"
+        >
+          <mat-icon>explore</mat-icon><span>Getting Started</span>
+        </a>
         <button class="mob-logout" (click)="logout(); closeMobileNav()">
           <mat-icon>logout</mat-icon><span>Logout</span>
         </button>

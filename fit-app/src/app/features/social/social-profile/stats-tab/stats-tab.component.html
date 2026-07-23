@@ -8,84 +8,65 @@
   }
 
   @if (loading()) {
-    <div class="stats-cards-grid" aria-label="Loading profile statistics">
-      @for (item of [1, 2, 3]; track item) {
-        <div class="stats-card-skeleton"></div>
-      }
-    </div>
-    <div class="stats-chart-skeleton"></div>
+    <div class="stats-summary-skeleton"></div>
+    <div class="stats-week-skeleton"></div>
   } @else if (stats()) {
-    <div class="stats-cards-grid">
-      <div class="stats-stat-card">
-        <div class="stats-stat-icon stats-stat-icon--streak">
-          <mat-icon aria-hidden="true">local_fire_department</mat-icon>
-        </div>
-        <span class="stats-stat-value">{{ stats()!.activeStreak }}</span>
-        <span class="stats-stat-label">Streak</span>
-        <span class="stats-stat-sub">consecutive days</span>
+    <header class="stats-heading">
+      <div>
+        <span class="stats-eyebrow">Public activity</span>
+        <h2>Last 7 days</h2>
       </div>
+      <span class="stats-privacy"><mat-icon aria-hidden="true">lock</mat-icon> Health data stays private</span>
+    </header>
 
-      <div class="stats-stat-card">
-        <div class="stats-stat-icon stats-stat-icon--workouts">
-          <mat-icon aria-hidden="true">fitness_center</mat-icon>
-        </div>
-        <span class="stats-stat-value">{{ stats()!.workoutsThisMonth }}</span>
-        <span class="stats-stat-label">Workouts</span>
-        <span class="stats-stat-sub">this month</span>
+    <section class="stats-summary" aria-label="Activity summary">
+      <div class="summary-item">
+        <span class="summary-icon summary-icon--streak"><mat-icon aria-hidden="true">local_fire_department</mat-icon></span>
+        <div><strong>{{ stats()!.activeStreak }}</strong><span>day streak</span></div>
       </div>
-
-      <div class="stats-stat-card">
-        <div class="stats-stat-icon stats-stat-icon--volume">
-          <mat-icon aria-hidden="true">bar_chart</mat-icon>
-        </div>
-        <span class="stats-stat-value">{{ formatVolume(stats()!.volumeThisMonth) }}</span>
-        <span class="stats-stat-label">Volume</span>
-        <span class="stats-stat-sub">this month</span>
+      <div class="summary-divider"></div>
+      <div class="summary-item">
+        <span class="summary-icon"><mat-icon aria-hidden="true">calendar_month</mat-icon></span>
+        <div><strong>{{ activeDays() }}<small>/7</small></strong><span>active days</span></div>
       </div>
-    </div>
-
-    <section class="stats-chart-section" aria-labelledby="weekly-volume-title">
-      <h3 class="stats-chart-title" id="weekly-volume-title">Weekly Volume</h3>
-      @if (volumeEmpty()) {
-        <div class="stats-chart-empty">
-          <mat-icon aria-hidden="true">show_chart</mat-icon>
-          <p>{{ isOwnProfile ? 'Not enough data yet — keep logging!' : 'No workout data yet' }}</p>
-        </div>
-      } @else {
-        @let chart = volumeChart();
-        <div class="stats-chart-container">
-          <div class="stats-chart-canvas-wrap" aria-hidden="true">
-            <canvas baseChart [type]="chart.type" [data]="chart.data" [options]="chart.options"></canvas>
-          </div>
-          <p class="stats-chart-summary">{{ volumeSummary() }}</p>
-        </div>
-      }
-      @if (!isOwnProfile) {
-        <div class="stats-privacy-note">
-          <mat-icon aria-hidden="true">lock</mat-icon>
-          <span>Weight and calorie data is private</span>
-        </div>
-      }
+      <div class="summary-divider"></div>
+      <div class="summary-item">
+        <span class="summary-icon"><mat-icon aria-hidden="true">monitoring</mat-icon></span>
+        <div><strong>{{ consistency() }}<small>%</small></strong><span>weekly activity</span></div>
+      </div>
     </section>
 
-    <section class="stats-recent-section" aria-labelledby="recent-workouts-title">
-      <h3 class="stats-chart-title" id="recent-workouts-title">Recent Workouts</h3>
-      @if (publicRecentWorkouts().length === 0) {
-        <div class="profile-empty">
+    <section class="stats-week" aria-labelledby="week-title">
+      <div class="section-title">
+        <div><span class="stats-eyebrow">Dashboard activity</span><h3 id="week-title">This week at a glance</h3></div>
+        <span>{{ activeDays() }} active</span>
+      </div>
+      <div class="week-strip">
+        @for (day of days(); track day.weekStart) {
+          <div class="week-day" [class.is-active]="day.volumeKg > 0">
+            <span>{{ dayLetter(day.weekStart) }}</span>
+            <i><mat-icon aria-hidden="true">{{ day.volumeKg > 0 ? 'check' : 'remove' }}</mat-icon></i>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="recent-section" aria-labelledby="recent-title">
+      <div class="section-title">
+        <div><span class="stats-eyebrow">Recorded in Dashboard</span><h3 id="recent-title">Activities from the last 7 days</h3></div>
+      </div>
+      @if (recentActivities().length === 0) {
+        <div class="stats-empty">
           <mat-icon aria-hidden="true">fitness_center</mat-icon>
-          <p>{{ isOwnProfile ? 'No workouts yet' : 'No public workouts yet' }}</p>
+          <p>{{ isOwnProfile ? 'No activity recorded in the last 7 days.' : 'No public activity in the last 7 days.' }}</p>
         </div>
       } @else {
-        <ul class="stats-workout-list">
-          @for (workout of publicRecentWorkouts(); track workout.id) {
-            <li class="profile-content-card">
-              <div class="profile-card-icon workout-icon">
-                <mat-icon aria-hidden="true">fitness_center</mat-icon>
-              </div>
-              <div class="profile-card-info">
-                <span class="profile-card-title">{{ workout.name }}</span>
-                <span class="profile-card-sub">{{ workout.date | date:'MMM d, y' }}</span>
-              </div>
+        <ul class="activity-list">
+          @for (activity of recentActivities(); track activity.id) {
+            <li>
+              <span class="activity-icon"><mat-icon aria-hidden="true">{{ activityIcon(activity.name) }}</mat-icon></span>
+              <div><strong>{{ activityLabel(activity.name) }}</strong><span>{{ activity.date | date:'EEEE, MMM d' }}</span></div>
+              <mat-icon class="activity-check" aria-label="Recorded activity">check_circle</mat-icon>
             </li>
           }
         </ul>

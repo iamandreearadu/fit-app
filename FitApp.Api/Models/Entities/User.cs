@@ -49,4 +49,5 @@ public class User
 
     // Onboarding step tracking (Fix 4)
     public ICollection<OnboardingStep> OnboardingSteps { get; set; } = [];
+    public ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = [];
 }

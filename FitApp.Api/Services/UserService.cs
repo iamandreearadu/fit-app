@@ -4,8 +4,37 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitApp.Api.Services;
 
-public class UserService(AppDbContext db, MetricsService metrics, IFileStorageService fileStorage)
+public class UserService(AppDbContext db, MetricsService metrics, IFileStorageService fileStorage, DailyDataService dailyDataService)
 {
+    public async Task<bool> DeleteAccountAsync(string userId)
+    {
+        var user = await db.Users.FindAsync(userId);
+        if (user is null) return false;
+
+        await using var transaction = await db.Database.BeginTransactionAsync();
+
+        // Relationships configured with Restrict must be removed explicitly before
+        // the user row. Conversations are removed as a whole so no orphaned private
+        // chat data remains after either participant deletes their account.
+        await db.Follows
+            .Where(follow => follow.FollowerId == userId || follow.FollowingId == userId)
+            .ExecuteDeleteAsync();
+        await db.Notifications
+            .Where(notification => notification.ActorId == userId)
+            .ExecuteDeleteAsync();
+        await db.DirectMessages
+            .Where(message => message.SenderId == userId)
+            .ExecuteDeleteAsync();
+        await db.Conversations
+            .Where(conversation => conversation.Participants.Any(participant => participant.UserId == userId))
+            .ExecuteDeleteAsync();
+
+        db.Users.Remove(user);
+        await db.SaveChangesAsync();
+        await transaction.CommitAsync();
+        return true;
+    }
+
     public async Task<UserProfileDto?> GetProfileAsync(string userId)
     {
         var user = await db.Users.FindAsync(userId);
@@ -30,8 +59,6 @@ public class UserService(AppDbContext db, MetricsService metrics, IFileStorageSe
         if (req.OnboardingCompleted.HasValue) user.OnboardingCompleted = req.OnboardingCompleted.Value;
 
         user.UpdatedAt = DateTime.UtcNow;
-
-        // Recalculate metrics if we have enough data
         if (user.WeightKg > 0 && user.HeightCm > 0 && user.Age > 0 && !string.IsNullOrEmpty(user.Gender))
             metrics.CalculateAndApply(user);
 
@@ -41,99 +68,37 @@ public class UserService(AppDbContext db, MetricsService metrics, IFileStorageSe
 
     public async Task<UserPublicStatsResponse?> GetPublicStatsAsync(string userId)
     {
-        var userExists = await db.Users.AnyAsync(u => u.Id == userId);
-        if (!userExists) return null;
+        if (!await db.Users.AnyAsync(u => u.Id == userId)) return null;
 
-        var now = DateTime.UtcNow;
-        var today = DateOnly.FromDateTime(now);
-
-        // ── Active streak ─────────────────────────────────────────────────────────
-        var streakCutoff = today.AddDays(-365).ToString("yyyy-MM-dd");
-        var dailyDates = await db.DailyEntries
-            .Where(d => d.UserId == userId && string.Compare(d.Date, streakCutoff) >= 0)
-            .Select(d => d.Date)
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var windowStart = today.AddDays(-6);
+        var streak = await dailyDataService.GetStreakAsync(userId);
+        var activities = await db.DailyEntries
+            .Where(d => d.UserId == userId
+                && d.Date.CompareTo(windowStart.ToString("yyyy-MM-dd")) >= 0
+                && d.Date.CompareTo(today.ToString("yyyy-MM-dd")) <= 0
+                && d.ActivityType != null
+                && d.ActivityType != ""
+                && !d.ActivityType.Contains("Rest"))
+            .OrderByDescending(d => d.Date)
+            .Select(d => new { d.Id, d.Date, d.ActivityType })
             .ToListAsync();
 
-        var streakCutoffDt = today.AddDays(-365).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        var workoutDates = await db.WorkoutTemplates
-            .Where(w => w.UserId == userId && !w.IsArchived && w.CreatedAt >= streakCutoffDt)
-            .Select(w => w.CreatedAt)
-            .ToListAsync();
-
-        var activeDays = new HashSet<DateOnly>();
-        foreach (var d in dailyDates)
-        {
-            if (DateOnly.TryParseExact(d, "yyyy-MM-dd", null,
-                    System.Globalization.DateTimeStyles.None, out var parsed))
-                activeDays.Add(parsed);
-        }
-        foreach (var dt in workoutDates)
-            activeDays.Add(DateOnly.FromDateTime(dt));
-
-        var streak = 0;
-        var cursor = today;
-        while (activeDays.Contains(cursor))
-        {
-            streak++;
-            cursor = cursor.AddDays(-1);
-        }
-
-        // ── Weekly window: last 8 Monday–Sunday weeks ─────────────────────────────
-        var dow = (int)today.DayOfWeek;
-        var daysFromMonday = dow == 0 ? 6 : dow - 1;
-        var currentMonday = today.AddDays(-daysFromMonday);
-        var windowStart = currentMonday.AddDays(-7 * 7);
-        var windowStartDt = windowStart.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-
-        var firstOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-
-        // Project only what's needed — no client-side exercise loading
-        var workoutsInWindow = await db.WorkoutTemplates
-            .Where(w => w.UserId == userId && !w.IsArchived && w.CreatedAt >= windowStartDt)
-            .Select(w => new
+        var activeDates = activities.Select(d => d.Date).ToHashSet(StringComparer.Ordinal);
+        var sevenDayActivity = Enumerable.Range(0, 7)
+            .Select(offset =>
             {
-                w.Id,
-                w.Title,
-                w.CreatedAt,
-                Volume = w.Exercises.Sum(e => (double)(e.Sets * e.Reps) * e.WeightKg)
+                var date = windowStart.AddDays(offset);
+                return new WeeklyVolumeDto(date, activeDates.Contains(date.ToString("yyyy-MM-dd")) ? 1 : 0);
             })
-            .ToListAsync();
-
-        // Derived in-memory from the already-fetched workoutsInWindow — no extra DB round-trip.
-        var workoutsThisMonth = workoutsInWindow.Count(w => w.CreatedAt >= firstOfMonth);
-
-        var volumeThisMonth = workoutsInWindow
-            .Where(w => w.CreatedAt >= firstOfMonth)
-            .Sum(w => w.Volume);
-
-        var weeklyVolumes = new List<WeeklyVolumeDto>(8);
-        for (var i = 7; i >= 0; i--)
-        {
-            var weekStart = currentMonday.AddDays(-7 * i);
-            var weekEnd = weekStart.AddDays(7);
-            var weekStartDt = weekStart.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-            var weekEndDt = weekEnd.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-
-            var weekVolume = workoutsInWindow
-                .Where(w => w.CreatedAt >= weekStartDt && w.CreatedAt < weekEndDt)
-                .Sum(w => w.Volume);
-
-            weeklyVolumes.Add(new WeeklyVolumeDto(weekStart, weekVolume));
-        }
-
-        var recentDtos = workoutsInWindow
-            .OrderByDescending(w => w.CreatedAt)
-            .Take(5)
-            .Select(w => new RecentWorkoutDto(w.Id, w.Title, DateOnly.FromDateTime(w.CreatedAt), w.Volume))
+            .ToList();
+        var recent = activities
+            .Select(d => new RecentWorkoutDto(d.Id, d.ActivityType!, DateOnly.Parse(d.Date), 0))
             .ToList();
 
-        return new UserPublicStatsResponse(
-            streak,
-            workoutsThisMonth,
-            volumeThisMonth,
-            weeklyVolumes,
-            recentDtos
-        );
+        // Legacy field names remain in the wire contract for compatibility:
+        // WorkoutsThisMonth = active days in the last 7 days; WeeklyVolumes = daily activity flags.
+        return new UserPublicStatsResponse(streak.Current, activities.Count, 0, sevenDayActivity, recent);
     }
 
     private static UserProfileDto MapToDto(Models.Entities.User user) => new()
