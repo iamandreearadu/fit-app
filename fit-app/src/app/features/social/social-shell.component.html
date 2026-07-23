@@ -15,7 +15,7 @@
     />
   }
 
-  <main class="social-content">
+  <main class="social-content" data-route-scroll-container>
     <div class="content-inner">
       <router-outlet />
     </div>
@@ -28,12 +28,12 @@
   />
 
   <!-- Drawer backdrop on narrow screens -->
-  @if (isNarrow() && dailyPanelOpen()) {
+  @if (isNarrow() && !isMobile() && dailyPanelOpen()) {
     <div class="daily-panel-backdrop" (click)="closeDailyPanel()" aria-hidden="true"></div>
   }
 
   <!-- Floating toggle button — visible when panel is a drawer (< 1200px) -->
-  @if (isNarrow()) {
+  @if (isNarrow() && !isMobile()) {
     <button
       class="daily-panel-fab"
       [class.daily-panel-fab--active]="dailyPanelOpen()"

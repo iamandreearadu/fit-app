@@ -3,12 +3,14 @@ using FitApp.Api.Models.DTOs;
 using FitApp.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace FitApp.Api.Controllers;
 
 [ApiController]
 [Route("api/ai")]
 [Authorize]
+[EnableRateLimiting("ai")]
 public class AiController(AiProxyService aiProxy, ILogger<AiController> logger) : ControllerBase
 {
     private string UserId =>

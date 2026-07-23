@@ -93,6 +93,7 @@ describe('WorkoutSetRowComponent', () => {
   });
 
   it('long-press should trigger editMode after 400ms', fakeAsync(() => {
+    spyOn(fixture.nativeElement, 'setPointerCapture');
     const pointerDown = new PointerEvent('pointerdown', { clientX: 100, clientY: 100 });
     component.onPointerDown(pointerDown);
     tick(400);
@@ -100,6 +101,7 @@ describe('WorkoutSetRowComponent', () => {
   }));
 
   it('moving > 8px should cancel long-press', fakeAsync(() => {
+    spyOn(fixture.nativeElement, 'setPointerCapture');
     const pointerDown = new PointerEvent('pointerdown', { clientX: 100, clientY: 100 });
     component.onPointerDown(pointerDown);
     tick(200); // before 400ms

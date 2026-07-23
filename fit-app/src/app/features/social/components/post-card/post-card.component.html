@@ -70,6 +70,11 @@
             <button class="post-card-menu-item" (click)="onEdit($event)" type="button">
               <mat-icon>edit</mat-icon> Edit
             </button>
+            @if (showArchiveAction()) {
+              <button class="post-card-menu-item" (click)="onArchive($event)" type="button">
+                <mat-icon>archive</mat-icon> Archive
+              </button>
+            }
             <button class="post-card-menu-item post-card-menu-item--danger"
                     (click)="onDelete($event)" type="button">
               <mat-icon>delete</mat-icon> Delete
@@ -102,7 +107,7 @@
     }
 
     @if (post().imageUrl && !imageError()) {
-      <div class="post-card-image-wrap">
+      <div class="post-card-image-wrap" (pointerup)="onImageTap()">
         <img class="post-card-image"
              [src]="post().imageUrl"
              [alt]="'Post by ' + post().author.displayName"
@@ -141,7 +146,7 @@
       }
 
       @if (post().articleImage) {
-        <div class="article-post-image-wrap">
+        <div class="article-post-image-wrap" (pointerup)="onImageTap()">
           <img class="article-post-image"
                [src]="post().articleImage"
                [alt]="post().articleTitle || 'Article cover'"
@@ -189,6 +194,18 @@
       <mat-icon>chat_bubble_outline</mat-icon>
       <span class="post-card-action-count">{{ post().commentsCount }}</span>
     </button>
+
+    <div class="post-card-secondary-actions">
+      <button class="post-card-action-btn post-card-action-btn--share"
+              (click)="onShare()" type="button" aria-label="Share post">
+        <mat-icon>send</mat-icon>
+      </button>
+      <button class="post-card-action-btn post-card-action-btn--save" (click)="onSave()" type="button"
+              [disabled]="savePending()" [attr.aria-pressed]="isSaved()"
+              [attr.aria-label]="isSaved() ? 'Remove post from saved' : 'Save post'">
+        <mat-icon>{{isSaved() ? 'bookmark' : 'bookmark_border'}}</mat-icon>
+      </button>
+    </div>
   </div>
 
 </article>

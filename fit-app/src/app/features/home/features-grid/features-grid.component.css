@@ -3,7 +3,7 @@
 /* ── Section ── */
 .fg-section {
   padding: 100px 24px;
-  background: linear-gradient(180deg, #0d0d14 0%,var(--surface) 100%);
+  background: transparent;
 }
 
 /* ── Header ── */
@@ -17,7 +17,8 @@
   display: inline-block;
   padding: 5px 14px;
   background: rgba(124,77,255,.14);
-  border: 1px solid rgba(124,77,255,.28);
+  border: 0;
+  box-shadow: var(--nova-glass-highlight);
   border-radius: 999px;
   font-size: 11px;
   font-weight: 700;
@@ -54,16 +55,18 @@
 /* ── Card ── */
 .fg-card {
   padding: 28px 24px;
-  background:  rgba(255,255,255,.025);
-  border: 1px solid rgba(255,255,255,.07);
+  background: var(--nova-glass-card);
+  border: 0;
   border-radius: 20px;
-  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  backdrop-filter: var(--nova-glass-blur);
+  -webkit-backdrop-filter: var(--nova-glass-blur);
+  box-shadow: var(--nova-glass-highlight);
+  transition: transform .2s ease, background .2s ease;
 }
 
 .fg-card:hover {
   transform: translateY(-6px);
-  border-color: rgba(255,255,255,.13);
-  box-shadow: 0 16px 40px rgba(0,0,0,.35);
+  background: linear-gradient(145deg, rgba(38,31,50,.31), rgba(16,15,21,.22));
 }
 
 /* ── Icon wrap ── */

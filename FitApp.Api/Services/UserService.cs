@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitApp.Api.Services;
 
-public class UserService(AppDbContext db, MetricsService metrics)
+public class UserService(AppDbContext db, MetricsService metrics, IFileStorageService fileStorage)
 {
     public async Task<UserProfileDto?> GetProfileAsync(string userId)
     {
@@ -24,7 +24,8 @@ public class UserService(AppDbContext db, MetricsService metrics)
         if (req.WeightKg.HasValue) user.WeightKg = req.WeightKg.Value;
         if (req.Goal is not null) user.Goal = req.Goal;
         if (req.Activity is not null) user.Activity = req.Activity;
-        if (req.ImageUrl is not null) user.ImageUrl = req.ImageUrl;
+        if (req.ImageUrl is not null)
+            user.ImageUrl = await fileStorage.NormalizeImageAsync(req.ImageUrl, "avatars");
         if (req.DietaryPreference is not null) user.DietaryPreference = req.DietaryPreference;
         if (req.OnboardingCompleted.HasValue) user.OnboardingCompleted = req.OnboardingCompleted.Value;
 

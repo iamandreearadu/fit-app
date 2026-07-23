@@ -10,6 +10,20 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+
+static string RequiredConfig(IConfiguration configuration, string key)
+{
+    var value = configuration[key];
+    return !string.IsNullOrWhiteSpace(value)
+        ? value
+        : throw new InvalidOperationException($"Required configuration key '{key}' is missing or empty.");
+}
+
+static bool IsConfiguredSecret(string? value) =>
+    !string.IsNullOrWhiteSpace(value)
+    && !value.Contains("REPLACE", StringComparison.OrdinalIgnoreCase)
+    && !value.Contains("placeholder", StringComparison.OrdinalIgnoreCase);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,18 +40,23 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 });
 
 // ── JWT Authentication ────────────────────────────────────────────────────────
-var jwtSecret = builder.Configuration["Jwt:Secret"]!;
+var jwtSecret = RequiredConfig(builder.Configuration, "Jwt:Secret");
+if (Encoding.UTF8.GetByteCount(jwtSecret) < 32)
+    throw new InvalidOperationException("Configuration key 'Jwt:Secret' must be at least 32 bytes for HS256.");
+var jwtIssuer = RequiredConfig(builder.Configuration, "Jwt:Issuer");
+var jwtAudience = RequiredConfig(builder.Configuration, "Jwt:Audience");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
     {
+        opt.MapInboundClaims = false;
         opt.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
             NameClaimType = "sub"
         };
@@ -63,9 +82,10 @@ builder.Services.AddAuthorization();
 // ── CORS ──────────────────────────────────────────────────────────────────────
 builder.Services.AddCors(opt =>
 {
-    var origins = builder.Environment.IsDevelopment()
-        ? new[] { "http://localhost:4200", "https://localhost:4200" }
-        : new[] { "https://nove-fit.net", "https://www.nove-fit.net" };
+    var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+        ?? (builder.Environment.IsDevelopment()
+            ? ["http://localhost:4200", "https://localhost:4200"]
+            : ["https://nove-fit.net", "https://www.nove-fit.net"]);
 
     opt.AddPolicy("Angular", policy => policy
         .WithOrigins(origins)
@@ -77,16 +97,16 @@ builder.Services.AddCors(opt =>
 // ── HTTP Client for Groq AI ───────────────────────────────────────────────────
 builder.Services.AddHttpClient("Groq", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["Groq:BaseUrl"]!);
+    client.BaseAddress = new Uri(RequiredConfig(builder.Configuration, "Groq:BaseUrl"), UriKind.Absolute);
     client.DefaultRequestHeaders.Authorization =
-        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", builder.Configuration["Groq:ApiKey"]);
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", RequiredConfig(builder.Configuration, "Groq:ApiKey"));
     client.Timeout = TimeSpan.FromSeconds(60);
 });
 
 // ── HTTP Client for USDA FoodData Central ────────────────────────────────────
 builder.Services.AddHttpClient("USDA", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["Usda:BaseUrl"]!);
+    client.BaseAddress = new Uri(RequiredConfig(builder.Configuration, "Usda:BaseUrl"), UriKind.Absolute);
     client.Timeout = TimeSpan.FromSeconds(15);
 });
 
@@ -120,12 +140,27 @@ builder.Services.AddScoped<OnboardingService>();
 builder.Services.AddScoped<BlogService>();
 builder.Services.AddScoped<AiProxyService>();
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddHostedService<StreakReminderWorker>();
 builder.Services.AddScoped<ChatService>();
 
 // Social / Messaging / Notifications
 builder.Services.AddScoped<INotificationService, NotificationService>();
+var vapidOptions = builder.Services.AddOptions<WebPushOptions>()
+    .Bind(builder.Configuration.GetSection(WebPushOptions.SectionName));
+if (builder.Environment.IsProduction())
+{
+    vapidOptions
+        .Validate(options => Uri.TryCreate(options.Subject, UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == "mailto"),
+            "Vapid:Subject must be a mailto: or HTTPS URI.")
+        .Validate(options => IsConfiguredSecret(options.PublicKey), "Vapid:PublicKey is missing or is a placeholder.")
+        .Validate(options => IsConfiguredSecret(options.PrivateKey), "Vapid:PrivateKey is missing or is a placeholder.")
+        .ValidateOnStart();
+}
+builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
+builder.Services.AddScoped<ConversationRealtimeService>();
 builder.Services.AddScoped<ISocialService, SocialService>();
 
 // Dashboard
@@ -141,6 +176,21 @@ builder.Services.AddRateLimiter(o =>
         cfg.QueueLimit = 0;
         cfg.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
+    o.AddPolicy("ai", context =>
+        RateLimitPartition.GetTokenBucketLimiter(
+            context.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? context.User.FindFirstValue("sub")
+                ?? context.Connection.RemoteIpAddress?.ToString()
+                ?? "anonymous",
+            _ => new TokenBucketRateLimiterOptions
+            {
+                TokenLimit = 10,
+                TokensPerPeriod = 10,
+                ReplenishmentPeriod = TimeSpan.FromMinutes(1),
+                AutoReplenishment = true,
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            }));
     o.RejectionStatusCode = 429;
 });
 
@@ -151,6 +201,8 @@ builder.WebHost.ConfigureKestrel(opts =>
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>("database");
 
 var app = builder.Build();
 
@@ -204,7 +256,7 @@ if (File.Exists(dbPath) && new FileInfo(dbPath).Length > 0)
         // are marked as onboarding complete — they used the old wizard.
         // Users with no biometrics will be routed through the new carousel
         // on next login. Intentional — they benefit from the new flow.
-        Exec(raw, "UPDATE \"Users\" SET \"OnboardingCompleted\" = 1 WHERE \"Age\" > 0 OR \"HeightCm\" > 0");
+        Exec(raw, "UPDATE \"Users\" SET \"OnboardingCompleted\" = 1 WHERE \"Age\" > 0 OR \"HeightCm\" > 0 OR LENGTH(\"Goal\") > 0");
     }
 
     // Stamp these migrations so EF Core's Migrate() treats them as applied
@@ -286,6 +338,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 // ── SignalR Hubs ──────────────────────────────────────────────────────────────
 app.MapHub<ChatHub>("/hubs/chat");
@@ -298,3 +351,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.Run();
+
+/// <summary>Exposes the generated entry-point class to WebApplicationFactory&lt;Program&gt; in tests.</summary>
+public partial class Program { }

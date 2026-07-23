@@ -2,7 +2,7 @@
 **Feature:** Unified Navigation Shell — NovaFit + beSocial  
 **Author:** @uiux-designer  
 **Date:** 2026-06-24  
-**Status:** READY FOR IMPLEMENTATION  
+**Status:** IMPLEMENTED — current override documented 2026-07-22
 **Implements:** [ADR: besocial-shell.md] + owner-requested unification
 
 ---
@@ -125,7 +125,7 @@ Blog is editorial long-form content authored by admins (`/blog`, public). It is 
 **② "Log / Create" — the highest-frequency action — is missing entirely.**
 
 In a fitness tracker, the user's #1 job-to-be-done per session is "log something" — a workout, a meal, a daily entry, a social post. This is the most important action in the app, and it is missing from the owner's proposed nav.  
-→ **Decision: Center FAB slot (tab 3 of 5) in the bottom nav is the create/log entry point.** This follows the universal pattern (Instagram +, Strava Record, Threads +). It opens a `CreateActionSheetComponent` (bottom sheet on mobile) with options: New Post, Write Article, Log Workout, Log Meal, Daily Check-in.
+→ **Decision: Center FAB slot (tab 3 of 5) in the bottom nav is the create/log entry point.** This follows the universal pattern (Instagram +, Strava Record, Threads +). It opens a `CreateActionSheetComponent` (bottom sheet on mobile) with options: New Post, Log Workout, Log Meal, Daily Check-in. User-created social articles are no longer offered.
 
 **③ "Plans" = workout plans, currently the monetization surface (future premium).**
 
@@ -524,7 +524,7 @@ padding: 16px 20px calc(24px + env(safe-area-inset-bottom, 0px));
 
 **Action items (2-column grid on mobile):**
 ```
-[ 🖊 New Post     ] [ 📝 Write Article ]
+[          🖊 New Post             ]
 [ 💪 Log Workout  ] [ 🥗 Log Meal      ]
 [ 📅 Daily Check-in                    ]
 ```
@@ -535,8 +535,7 @@ Each cell:
 - Hover: `border-color: rgba(255,255,255,0.14); transform: translateY(-2px)`, 0.15s ease
 
 **Actions:**
-- New Post → opens `CreateContentComponent(post mode)` — same as existing `openCreatePost()` in top bar
-- Write Article → opens `CreateContentComponent(article mode)` — same as existing
+- New Post → navigates to `/social/new-post`, a focused page with the standard contextual top bar, a dominant 3:4 image preview, caption field, inline validation, and a single Publish action. The bottom dock and AI FAB are hidden during composition.
 - Log Workout → navigates to `/plans`, closes sheet
 - Log Meal → navigates to `/user-dashboard` with query param `?tab=nutrition`, closes sheet
 - Daily Check-in → navigates to `/user-dashboard` with query param `?tab=daily`, closes sheet
@@ -813,3 +812,16 @@ All `prefers-reduced-motion: reduce` → replace transform/translate with opacit
 7. **`SocialSideNavComponent` generalisation**: The "Back to NovaFit" link and "beSocial" branding in `SocialSideNavComponent` must be removed as part of this work; this component should be renamed `AppDesktopSideNavComponent`, moved to `core/components/`, and have its nav items expanded to cover all app destinations — a direct code change, no architectural risk.
 
 8. **Desktop shell gap**: `/user-dashboard`, `/plans`, `/ai-assistant`, `/account`, `/blog` on desktop currently have no unified shell (they render with the old `app-header`/`app-footer`); this spec only addresses mobile — the desktop shell generalization (a unified desktop side-nav covering all routes) should be treated as a follow-up ADR rather than bundled here to limit scope creep.
+# Current implementation override — 2026-07-22
+
+This section supersedes older fixed-edge bottom-navigation measurements in this document.
+
+- Mobile navigation is a floating pill: `12px` side inset, `18px + safe-area` bottom inset, `60px` height, `30px` radius, and `4px 6px` inner padding.
+- Surface: `rgba(17, 17, 22, 0.94)`, existing navigation blur, `var(--border-default)`, restrained shadow.
+- Layout remains Feed, Dashboard, Create, Messages, Profile; each destination keeps its full 48–52px touch area.
+- Active state is a centered `44px` circle behind the icon; the rest of the tab stays transparent. Active icons are white.
+- Home has a `translateY(1px)` optical correction for the visually top-heavy Material glyph.
+- Content reserves `26px` beyond the legacy navigation offset. FABs and sheets must clear the complete floating dock.
+- `/social/saved` and `/social/archived` use the standard contextual mobile top bar for the Back action and page title; their local page headers remain desktop-only, and the bottom dock stays visible.
+
+---

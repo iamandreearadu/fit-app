@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
-import { ConversationService } from '../../api/conversation.service';
+import { ConversationService, normalizeDirectMessage } from '../../api/conversation.service';
 import { ChatHubService } from '../services/chat-hub.service';
 import { ConversationSummary, DirectMessage, CreateConversationRequest } from '../models/chat.model';
 
@@ -26,9 +26,10 @@ export class ChatFacade {
 
   constructor() {
     // Messages received while the user has the conversation open
-    this.chatHub.message$.pipe(takeUntilDestroyed()).subscribe(msg => {
+    this.chatHub.message$.pipe(takeUntilDestroyed()).subscribe(rawMessage => {
+      const msg = normalizeDirectMessage(rawMessage);
       if (msg.conversationId === this.activeConversationId()) {
-        this.messages.update(msgs => [...msgs, msg]);
+        this.messages.update(msgs => msgs.some(existing => existing.id === msg.id) ? msgs : [...msgs, msg]);
       }
       this.conversations.update(convs => convs.map(c =>
         c.id === msg.conversationId
@@ -52,7 +53,8 @@ export class ChatFacade {
     });
 
     // Messages received while the user is elsewhere — only update the badge
-    this.chatHub.newConvMessage$.pipe(takeUntilDestroyed()).subscribe(async msg => {
+    this.chatHub.newConvMessage$.pipe(takeUntilDestroyed()).subscribe(async rawMessage => {
+      const msg = normalizeDirectMessage(rawMessage);
       const existing = this.conversations().find(c => c.id === msg.conversationId);
       if (existing) {
         this.conversations.update(convs => convs.map(c =>
@@ -123,7 +125,23 @@ export class ChatFacade {
   }
 
   async sendMessage(conversationId: number, content?: string, imageBase64?: string, mimeType?: string): Promise<void> {
-    await this.chatHub.sendMessage(conversationId, content, imageBase64, mimeType);
+    if (imageBase64) {
+      // SignalR's default inbound message limit is far below a normal photo.
+      // The REST endpoint accepts the validated 5 MB payload and still broadcasts
+      // the persisted message in real time through ConversationRealtimeService.
+      const sent = await firstValueFrom(this.convSvc.sendMessage(conversationId, {
+        content,
+        imageBase64,
+        imageMimeType: mimeType,
+      }));
+      if (conversationId === this.activeConversationId()) {
+        this.messages.update(messages =>
+          messages.some(message => message.id === sent.id) ? messages : [...messages, sent]
+        );
+      }
+      return;
+    }
+    await this.chatHub.sendMessage(conversationId, content);
   }
 
   async markAsRead(id: number): Promise<void> {

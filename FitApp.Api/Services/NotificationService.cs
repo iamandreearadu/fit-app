@@ -10,6 +10,7 @@ namespace FitApp.Api.Services;
 public class NotificationService(
     AppDbContext db,
     IHubContext<NotificationHub> hubContext,
+    IPushNotificationService webPushService,
     ILogger<NotificationService> logger) : INotificationService
 {
     public async Task CreateAndPushAsync(
@@ -89,12 +90,22 @@ public class NotificationService(
         {
             logger.LogWarning(ex, "Failed to push notification to user {RecipientId}", recipientId);
         }
+
+        try
+        {
+            await webPushService.SendNotificationAsync(recipientId, type, referenceId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Web push channel failed for user {RecipientId}", recipientId);
+        }
     }
 
     public async Task<PaginatedResponse<NotificationResponse>> GetNotificationsAsync(string userId, int page, int pageSize)
     {
         pageSize = Math.Min(pageSize, 50);
         var query = db.Notifications
+            .AsNoTracking()
             .Include(n => n.Actor)
             .Where(n => n.RecipientId == userId)
             .OrderByDescending(n => n.CreatedAt);
@@ -159,6 +170,8 @@ public class NotificationService(
         NotificationType.Comment => "comment",
         NotificationType.Follow => "follow",
         NotificationType.NewMessage => "message",
+        NotificationType.StreakReminder => "streak_reminder",
+        NotificationType.FitnessMilestone => "fitness_milestone",
         _ => "unknown"
     };
 }

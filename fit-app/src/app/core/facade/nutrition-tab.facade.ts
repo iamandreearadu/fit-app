@@ -36,7 +36,7 @@ export class NutritionTabFacade {
     this._loading.set(true);
     this._error.set(null);
     try {
-      const meals = await this.svc.listMeals();
+      const meals = await this.svc.listMeals(50);
       this._meals.set(meals);
     } catch {
       this._error.set('Failed to load meals. Please try again.');
@@ -67,12 +67,56 @@ export class NutritionTabFacade {
     this._macroProgress.set(progress);
   }
 
-  async deleteMeal(uid?: string): Promise<void> {
-    if (!uid) return;
+  async deleteMeal(uid?: string): Promise<boolean> {
+    if (!uid) return false;
     this._loading.set(true);
     try {
       const ok = await this.svc.deleteMeal(uid);
       if (ok) await this.loadMeals();
+      return ok;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async loadSavedMeals(): Promise<void> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      const savedMeals = await this.svc.listSavedMeals();
+      const regularMeals = this._meals().filter(meal => !meal.isSavedMeal);
+      this._meals.set([...savedMeals, ...regularMeals]);
+    } catch {
+      this._error.set('Failed to load saved meals. Please try again.');
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async deleteMealsForDate(date: string): Promise<boolean> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      const meals = await this.svc.listMeals(50);
+      const targets = meals.filter(meal =>
+        !meal.isSavedMeal && String(meal.date).slice(0, 10) === date
+      );
+
+      for (const meal of targets) {
+        const deleted = await this.svc.deleteMeal(meal.uid ?? String(meal.id), false);
+        if (!deleted) {
+          this._error.set('Failed to reset today\'s meals. Please try again.');
+          return false;
+        }
+      }
+
+      this._meals.set(meals.filter(meal =>
+        meal.isSavedMeal || String(meal.date).slice(0, 10) !== date
+      ));
+      return true;
+    } catch {
+      this._error.set('Failed to reset today\'s meals. Please try again.');
+      return false;
     } finally {
       this._loading.set(false);
     }

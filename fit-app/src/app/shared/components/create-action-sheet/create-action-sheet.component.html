@@ -7,23 +7,15 @@
   <div class="create-action-grid">
 
     <!-- New Post -->
-    <button type="button" class="create-action-cell" (click)="openCreateContent()">
+    <button type="button" class="create-action-cell create-action-cell--wide" (click)="openCreateContent()">
       <div class="create-action-icon-wrap">
         <mat-icon>edit_note</mat-icon>
       </div>
       <span class="create-action-label">New Post</span>
     </button>
 
-    <!-- Write Article -->
-    <button type="button" class="create-action-cell" (click)="openCreateContent()">
-      <div class="create-action-icon-wrap">
-        <mat-icon>article</mat-icon>
-      </div>
-      <span class="create-action-label">Write Article</span>
-    </button>
-
     <!-- Log Workout -->
-    <button type="button" class="create-action-cell" (click)="navigateTo('/account', { tab: 'workouts' })">
+    <button type="button" class="create-action-cell" (click)="navigateTo('/account/workouts')">
       <div class="create-action-icon-wrap">
         <mat-icon>fitness_center</mat-icon>
       </div>
@@ -31,7 +23,7 @@
     </button>
 
     <!-- Log Meal -->
-    <button type="button" class="create-action-cell" (click)="navigateTo('/account', { tab: 'nutrition' })">
+    <button type="button" class="create-action-cell" (click)="navigateTo('/account/nutrition')">
       <div class="create-action-icon-wrap">
         <mat-icon>restaurant</mat-icon>
       </div>

@@ -1,0 +1,10 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--nova-page-canvas);
+}
+
+.page-wrapper,
+.page-content {
+  background: transparent;
+}

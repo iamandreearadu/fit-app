@@ -55,6 +55,8 @@ export interface MealEntry {
   totalCarbs_g: number;
   totalFats_g: number;
   notes?: string;
+  isSavedMeal?: boolean;
+  isHiddenFromProfile?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

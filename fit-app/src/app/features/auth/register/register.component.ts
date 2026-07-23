@@ -7,11 +7,9 @@ import { FormErrorService } from '../../../shared/services/form-error.service';
 import { MaterialModule } from '../../../core/material/material.module';
 
 interface GoalOption {
-  value: string;
+  value: 'lose' | 'gain' | 'maintain';
   label: string;
   emoji: string;
-  /** "improve_fitness" is a display-only label; maps to "maintain" until the API
-   *  extends beyond lose|gain|maintain (see Fix 4 design spec note). */
   apiValue: 'lose' | 'gain' | 'maintain';
 }
 
@@ -19,7 +17,6 @@ const GOAL_OPTIONS: GoalOption[] = [
   { value: 'lose',             label: 'Lose weight',    emoji: '🔥', apiValue: 'lose'     },
   { value: 'gain',             label: 'Build muscle',   emoji: '💪', apiValue: 'gain'     },
   { value: 'maintain',         label: 'Stay steady',    emoji: '⚖️', apiValue: 'maintain' },
-  { value: 'improve_fitness',  label: 'Improve fitness', emoji: '🏃', apiValue: 'maintain' },
 ];
 
 @Component({
@@ -74,8 +71,12 @@ export class RegisterComponent {
     if (ok) {
       // Fix 4: redirect to onboarding carousel (not user-dashboard)
       await this.router.navigate(['/onboarding/carousel']);
-    } else {
-      this.form.get('password')?.reset();
+    } else if (this.facade.authError() === 'emailTaken') {
+      this.form.controls.email.setErrors({
+        ...this.form.controls.email.errors,
+        emailTaken: true,
+      });
+      this.form.controls.email.markAsTouched();
     }
   }
 }

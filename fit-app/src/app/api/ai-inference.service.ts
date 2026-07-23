@@ -67,6 +67,7 @@ export class AiInferenceService {
           base64Image: base64,
           mimeType: file.type || 'image/jpeg',
           systemPrompt: `${OUTPUT_FORMAT_PROMPT_FOR_MACROS}\n\n${IMAGE_MACROS_PROMPT}`,
+          jsonMode: true,
         }),
       );
     } catch (err: unknown) {
@@ -157,7 +158,11 @@ export class AiInferenceService {
   }
 
   private safeExtractJson(raw: string): Record<string, unknown> {
-    const text = (raw || '').trim();
+    const text = (raw || '')
+      .replace(/<think>[\s\S]*?<\/think>/gi, '')
+      .replace(/```(?:json)?\s*/gi, '')
+      .replace(/```/g, '')
+      .trim();
     try {
       return JSON.parse(text);
     } catch {

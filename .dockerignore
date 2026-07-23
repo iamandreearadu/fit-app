@@ -1,0 +1,13 @@
+prim.git
+.github
+.claude
+.agents
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/.angular
+**/*.db*
+.env
+FitApp.Api/appsettings.json
+FitApp.Api/appsettings.Development.json

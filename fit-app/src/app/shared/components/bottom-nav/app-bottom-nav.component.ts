@@ -24,6 +24,7 @@ export class AppBottomNavComponent {
   openCreateSheet(): void {
     this.bottomSheet.open(CreateActionSheetComponent, {
       panelClass: 'create-action-sheet',
+      backdropClass: 'create-action-backdrop',
     });
   }
 }

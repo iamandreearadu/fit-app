@@ -3,7 +3,7 @@
 /* ── Section ── */
 .bs-section {
   padding: 100px 24px;
-  background: var(--surface);
+  background: transparent;
 }
 
 .bs-inner {
@@ -20,7 +20,8 @@
   display: inline-block;
   padding: 5px 14px;
   background: rgba(255,64,129,.12);
-  border: 1px solid rgba(255,64,129,.25);
+  border: 0;
+  box-shadow: var(--nova-glass-highlight);
   border-radius: 999px;
   font-size: 11px;
   font-weight: 700;
@@ -96,21 +97,30 @@
   align-items: center;
   gap: 8px;
   padding: 13px 30px;
-  background: linear-gradient(135deg, #ff4081, #7C4DFF);
-  color: #fff;
+  min-height: var(--action-min-height);
+  background: rgba(var(--primary-rgb), .035);
+  color: var(--action-text);
+  border: 1px solid var(--action-border);
   border-radius: 12px;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 500;
   text-decoration: none;
   letter-spacing: .03em;
   transition: opacity .2s, transform .2s, box-shadow .2s;
-  box-shadow: 0 4px 20px rgba(255,64,129,.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .bs-cta:hover {
-  opacity: .88;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(255,64,129,.4);
+  color: var(--action-text-hover);
+  border-color: var(--action-border-hover);
+  background: var(--action-hover-bg);
+  transform: translateY(-1px);
+}
+
+.bs-cta:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
 }
 
 .bs-cta mat-icon {
@@ -131,16 +141,18 @@
   align-items: flex-start;
   gap: 16px;
   padding: 20px 22px;
-  background: rgba(255,255,255,.025);
-  border: 1px solid rgba(255,255,255,.07);
+  background: var(--nova-glass-card);
+  border: 0;
   border-radius: 16px;
-  transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
+  backdrop-filter: var(--nova-glass-blur);
+  -webkit-backdrop-filter: var(--nova-glass-blur);
+  box-shadow: var(--nova-glass-highlight);
+  transition: transform .2s ease, background .2s ease;
 }
 
 .bs-card:hover {
   transform: translateX(6px);
-  background: rgba(255,255,255,.06);
-  box-shadow: 0 8px 24px rgba(124,77,255,0.15);
+  background: linear-gradient(145deg, rgba(38,31,50,.31), rgba(16,15,21,.22));
 }
 
 .bs-card-icon {

@@ -1,3 +1,11 @@
+.page-wrapper {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(92, 60, 145, 0.028), transparent 34%),
+    radial-gradient(circle at 82% 72%, rgba(67, 45, 105, 0.022), transparent 38%),
+    linear-gradient(180deg, rgba(37, 27, 51, 0.01), rgba(45, 31, 63, 0.022));
+}
+
 .page-content {
   display: flex;
   flex-direction: column;
@@ -11,8 +19,4 @@
     display: none;
   }
 
-  .page-wrapper {
-    padding-top: calc(56px + env(safe-area-inset-top));
-    padding-bottom: calc(56px + env(safe-area-inset-bottom));
-  }
 }

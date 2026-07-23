@@ -71,7 +71,7 @@ public class AiProxyService(
             }
         };
 
-        return await CallGroqAsync(config["Groq:VisionModel"]!, messages);
+        return await CallGroqAsync(config["Groq:VisionModel"]!, messages, req.JsonMode);
     }
 
     public async Task<AiResponse> EstimateWorkoutCaloriesAsync(WorkoutCaloriesRequest req)
@@ -125,16 +125,23 @@ public class AiProxyService(
     private async Task<string?> BuildNutritionContextAsync(string userId)
     {
         var macros = await nutritionService.GetTodayMacroProgressAsync(userId);
+        var dietaryPreference = await db.Users
+            .Where(u => u.Id == userId)
+            .Select(u => u.DietaryPreference)
+            .FirstOrDefaultAsync();
 
         // No meals logged today — skip context (avoids confusing "0g protein" responses)
         if (macros.TotalCalories == 0 && macros.TargetCalories == 0)
             return null;
 
+        var preference = string.IsNullOrWhiteSpace(dietaryPreference)
+            ? string.Empty
+            : $" Dietary preference: {dietaryPreference}.";
         return $"User's nutrition today: " +
                $"{macros.TotalProtein}g protein of {macros.TargetProtein}g target, " +
                $"{macros.TotalCarbs}g carbs of {macros.TargetCarbs}g target, " +
                $"{macros.TotalFat}g fat of {macros.TargetFat}g target. " +
-               $"Total calories: {macros.TotalCalories} of {macros.TargetCalories} target.";
+               $"Total calories: {macros.TotalCalories} of {macros.TargetCalories} target.{preference}";
     }
 
     private async Task<string?> BuildWorkoutsContextAsync(string userId)
@@ -198,10 +205,29 @@ public class AiProxyService(
 
     // ── Groq HTTP layer ───────────────────────────────────────────────────────────
 
-    private async Task<AiResponse> CallGroqAsync(string model, List<object> messages)
+    private async Task<AiResponse> CallGroqAsync(
+        string model,
+        List<object> messages,
+        bool jsonMode = false)
     {
         var client = httpFactory.CreateClient("Groq");
-        var body = JsonSerializer.Serialize(new { model, messages, temperature = 0.7 }, JsonOpts);
+        var requestBody = new Dictionary<string, object>
+        {
+            ["model"] = model,
+            ["messages"] = messages,
+            ["temperature"] = 0.7
+        };
+
+        // Qwen enables raw thinking output by default. Besides wasting tokens for this
+        // use case, the <think> block can contain braces that break the meal JSON parser.
+        // Non-thinking mode returns only the final image analysis.
+        if (model.Equals("qwen/qwen3.6-27b", StringComparison.OrdinalIgnoreCase))
+            requestBody["reasoning_effort"] = "none";
+
+        if (jsonMode)
+            requestBody["response_format"] = new { type = "json_object" };
+
+        var body = JsonSerializer.Serialize(requestBody, JsonOpts);
         var content = new StringContent(body, Encoding.UTF8, "application/json");
 
         logger.LogInformation("Groq request → model={Model}, messages={Count}", model, messages.Count);

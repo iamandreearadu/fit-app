@@ -19,7 +19,7 @@ public class AuthService(AppDbContext db, JwtService jwt, EmailService email)
             Email = user.Email,
             FullName = user.FullName,
             IsAdmin = user.IsAdmin,
-            Token = jwt.GenerateToken(user.Id, user.Email, user.FullName, user.IsAdmin)
+            Token = jwt.GenerateToken(user.Id, user.IsAdmin)
         };
     }
 
@@ -52,7 +52,7 @@ public class AuthService(AppDbContext db, JwtService jwt, EmailService email)
             Email = user.Email,
             FullName = user.FullName,
             IsAdmin = user.IsAdmin,
-            Token = jwt.GenerateToken(user.Id, user.Email, user.FullName, user.IsAdmin)
+            Token = jwt.GenerateToken(user.Id, user.IsAdmin)
         }, null);
     }
 }

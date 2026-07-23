@@ -1,0 +1,21 @@
+<main class="archive-page">
+  <header><a routerLink="/social/profile/me" aria-label="Back to profile"><mat-icon>arrow_back</mat-icon></a><div><h1>Archived posts</h1><p>Posts hidden from your profile</p></div></header>
+  @if (facade.isLoadingArchivedPosts()) {
+    <section class="posts-grid" aria-label="Loading archived posts">@for (cell of [1,2,3,4,5,6]; track cell) { <div class="post-cell skeleton"></div> }</section>
+  } @else if (facade.archivedPostsError()) {
+    <section class="state"><mat-icon>error_outline</mat-icon><h2>Something went wrong</h2><p>{{ facade.archivedPostsError() }}</p><button type="button" (click)="facade.loadArchivedPosts(userId)">Retry</button></section>
+  } @else if (!facade.archivedPosts().length) {
+    <section class="state"><mat-icon>inventory_2</mat-icon><h2>No archived posts</h2><p>Posts you archive will appear here.</p><a routerLink="/social/profile/me">Back to profile</a></section>
+  } @else {
+    <section class="posts-grid" aria-label="Archived posts">
+      @for (post of facade.archivedPosts(); track post.id) {
+        <article class="post-cell">
+          @if (post.imageUrl && !brokenImages.has(post.id)) { <img [src]="post.imageUrl" [alt]="'Archived post by ' + post.author.displayName" (error)="brokenImages.add(post.id)" /> }
+          @else { <span class="text-post">{{ post.content }}</span> }
+          <button class="restore" type="button" (click)="restore($event, post.id)" aria-label="Restore post"><mat-icon>unarchive</mat-icon></button>
+        </article>
+      }
+    </section>
+    @if (facade.archivedPostsHasMore()) { <button class="load-more" type="button" [disabled]="facade.isLoadingArchivedPosts()" (click)="facade.loadMoreArchivedPosts(userId)">{{ facade.isLoadingArchivedPosts() ? 'Loading…' : 'Load more' }}</button> }
+  }
+</main>

@@ -7,6 +7,7 @@ import { MaterialModule } from '../../../core/material/material.module';
 import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
 import { AlertService } from '../../../shared/services/alert.service';
 import { signal, computed } from '@angular/core';
+import { LastExerciseSession, WorkoutCompletionSummary } from '../../../core/models/workouts-tab.model';
 
 const mockTemplate = {
   uid: '1', id: 1, title: 'Pull Day A', type: 'Strength' as const,
@@ -23,8 +24,8 @@ describe('ActiveWorkoutSessionComponent', () => {
   let facadeSpy: jasmine.SpyObj<WorkoutsTabFacade>;
 
   beforeEach(async () => {
-    const lastSessionSig = signal<any[]>([]);
-    const completionSummarySig = signal<any>(null);
+    const lastSessionSig = signal<LastExerciseSession[]>([]);
+    const completionSummarySig = signal<WorkoutCompletionSummary | null>(null);
     const lastSessionMapComputed = computed(() => new Map());
 
     facadeSpy = jasmine.createSpyObj('WorkoutsTabFacade', [
@@ -51,7 +52,9 @@ describe('ActiveWorkoutSessionComponent', () => {
 
     fixture = TestBed.createComponent(ActiveWorkoutSessionComponent);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
+    await Promise.resolve();
+    await Promise.resolve();
     fixture.detectChanges();
   });
 

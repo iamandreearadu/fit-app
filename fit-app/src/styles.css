@@ -6,6 +6,7 @@
   --primary-light: #a78bfa;
   --primary-glow: rgba(124, 77, 255, 0.35);
   --surface: #0d0d10;
+  --modal-surface: var(--surface);
   --white: #ffffff;
   --white-soft: rgba(255, 255, 255, 0.85);
   --white-fade: rgba(255, 255, 255, 0.08);
@@ -43,11 +44,32 @@
   --surface-elevated: #1a1a22;
   --surface-overlay:  #20202a;
 
+  /* NovaFit glass surfaces — shared by public/content pages. */
+  --nova-page-canvas:
+    radial-gradient(circle at 18% 12%, rgba(92, 60, 145, 0.028), transparent 34%),
+    radial-gradient(circle at 82% 72%, rgba(67, 45, 105, 0.022), transparent 38%),
+    linear-gradient(180deg, rgba(37, 27, 51, 0.01), rgba(45, 31, 63, 0.022)),
+    var(--surface);
+  --nova-glass-soft: linear-gradient(145deg, rgba(32, 27, 42, 0.22), rgba(13, 13, 17, 0.16));
+  --nova-glass-card: linear-gradient(145deg, rgba(32, 27, 42, 0.28), rgba(13, 13, 17, 0.20));
+  --nova-glass-floating: linear-gradient(145deg, rgba(38, 31, 51, 0.72), rgba(13, 13, 17, 0.62));
+  --nova-glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  --nova-glass-blur: blur(14px) saturate(112%);
+
   /* ── Border scale ── */
   --border-subtle:  rgba(255, 255, 255, 0.04);
   --border-default: rgba(255, 255, 255, 0.08);
   --border-strong:  rgba(255, 255, 255, 0.14);
   --border-focus:   var(--primary);
+
+  /* Primary text-action button: quiet outline, shared application-wide. */
+  --action-border: rgba(167, 139, 250, 0.34);
+  --action-border-hover: rgba(167, 139, 250, 0.56);
+  --action-text: #c4b5fd;
+  --action-text-hover: #ddd6fe;
+  --action-hover-bg: rgba(124, 77, 255, 0.055);
+  --action-radius: 12px;
+  --action-min-height: 44px;
 
   /* ── Destructive (separat de --accent) ── */
   --color-destructive:    #ef5350;
@@ -105,6 +127,16 @@ body {
   color: var(--white-soft);
 }
 
+.pwa-update-snackbar .mdc-snackbar__surface {
+  background: var(--surface-elevated) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-default);
+}
+
+.pwa-update-snackbar .mat-mdc-snack-bar-action {
+  color: var(--primary-light) !important;
+}
+
 body {
   display: flex;
   flex-direction: column;
@@ -129,7 +161,7 @@ app-root {
      calc(var(--nav-height) + env(safe-area-inset-top, 0px)) after redesign. */
   .page-wrapper {
     padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
-    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 26px);
   }
 }
 
@@ -243,6 +275,63 @@ mat-select {
   display: none;
 }
 
+/* Compact Account filter opens as a readable menu aligned to the icon's right edge. */
+.cdk-overlay-pane:has(.account-filter-select-panel) {
+  width: min(200px, calc(100vw - 24px)) !important;
+  min-width: min(200px, calc(100vw - 24px)) !important;
+  transform: translateX(calc(48px - 100%)) !important;
+}
+
+.account-filter-select-panel.mat-mdc-select-panel {
+  min-width: 0 !important;
+  max-height: min(320px, calc(100dvh - 120px)) !important;
+  padding: 6px !important;
+  overflow-x: hidden !important;
+  background: rgba(15, 14, 20, 0.97) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px !important;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.58) !important;
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+}
+
+.account-filter-select-panel .mat-mdc-option {
+  min-height: 42px !important;
+  padding: 0 12px !important;
+  border-radius: 9px;
+  color: rgba(255, 255, 255, 0.74) !important;
+  font-size: 13px !important;
+}
+
+.account-filter-select-panel .mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  background: rgba(124, 77, 255, 0.08) !important;
+  color: #fff !important;
+}
+
+.account-filter-select-panel .mat-mdc-option.mdc-list-item--selected {
+  background: rgba(124, 77, 255, 0.13) !important;
+  color: #ae96ff !important;
+}
+
+.account-filter-select-panel .mat-pseudo-checkbox {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .cdk-overlay-pane:has(.account-filter-select-panel) {
+    right: 24px !important;
+    left: auto !important;
+    width: min(188px, calc(100vw - 48px)) !important;
+    min-width: min(188px, calc(100vw - 48px)) !important;
+    transform: none !important;
+  }
+
+  .account-filter-select-panel.mat-mdc-select-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
 .cdk-overlay-pane .mat-mdc-option {
   color: var(--white-soft);
 }
@@ -319,6 +408,363 @@ mat-select {
 }
 
 /* ─── MODAL DIALOG PANEL — remove white bg from mat-dialog surface ─── */
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-color: var(--modal-surface);
+  --mat-dialog-container-color: var(--modal-surface);
+}
+
+/* Manual macros select is rendered outside its dashboard modal. Lift the
+   overlay container only while this panel exists so it cannot open behind it. */
+.cdk-overlay-container:has(.manual-macros-select-panel) {
+  z-index: 1100 !important;
+}
+
+.manual-macros-select-panel.mat-mdc-select-panel {
+  background: linear-gradient(
+    145deg,
+    rgba(25, 22, 34, 0.96),
+    rgba(10, 10, 14, 0.94)
+  ) !important;
+  border: 0 !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.48) !important;
+  backdrop-filter: blur(18px) saturate(125%);
+  -webkit-backdrop-filter: blur(18px) saturate(125%);
+}
+
+.manual-macros-save {
+  width: calc(100% - 16px);
+  min-height: 46px;
+  margin-top: 6px;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.32);
+  border-radius: 12px;
+  background: transparent;
+  color: #c4b5fd;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 150ms ease;
+}
+
+.manual-macros-save:hover:not(:disabled) {
+  background: transparent;
+  border-color: rgba(167, 139, 250, 0.5);
+  color: #ddd6fe;
+}
+
+.manual-macros-save:active:not(:disabled) { transform: scale(0.985); }
+.manual-macros-save:disabled { opacity: 0.42; cursor: default; }
+
+.manual-macros-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.manual-macros-actions .manual-macros-save {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  margin-top: 0;
+  padding-inline: 10px;
+  white-space: nowrap;
+}
+
+.manual-macros-save--secondary {
+  color: rgba(255, 255, 255, 0.68);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/*
+ * Global primary action language.
+ * Filled purple/gradient text CTAs are intentionally converted to the same
+ * restrained outline treatment as "Add to today's meals". Semantic danger
+ * actions, icon-only controls, navigation states, badges and progress fills
+ * are excluded because their color communicates a different state/function.
+ */
+:is(
+  .btn-primary,
+  .btn-submit,
+  .bs-cta,
+  .btn-buy,
+  .yn-cta-primary,
+  .btn-new-post,
+  .btn-save,
+  .ob-btn--primary,
+  .hdr-btn-primary,
+  .btn-start-workout,
+  .ob-cta-btn,
+  .bio-submit-btn,
+  .push-enable,
+  .sug-follow-btn,
+  .follow-list-btn,
+  .btn-add,
+  .btn-ai,
+  .picker-add,
+  .publish-action,
+  .sbs-publish-btn,
+  .feed-suggest-follow-btn,
+  .feed-explore-btn--primary,
+  .user-card-follow-btn,
+  .search-result-follow-btn,
+  .app-topbar-cta,
+  .set-row-done-btn,
+  .session-finish-fab,
+  .mat-mdc-unelevated-button:not(.mat-mdc-icon-button),
+  .mat-mdc-raised-button:not(.mat-mdc-icon-button)
+) {
+  min-height: var(--action-min-height);
+  border: 1px solid var(--action-border) !important;
+  border-radius: var(--action-radius) !important;
+  color: var(--action-text) !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  font-weight: 500 !important;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    transform 120ms ease !important;
+}
+
+:is(
+  .btn-primary,
+  .btn-submit,
+  .bs-cta,
+  .btn-buy,
+  .yn-cta-primary,
+  .btn-new-post,
+  .btn-save,
+  .ob-btn--primary,
+  .hdr-btn-primary,
+  .btn-start-workout,
+  .ob-cta-btn,
+  .bio-submit-btn,
+  .push-enable,
+  .sug-follow-btn,
+  .follow-list-btn,
+  .btn-add,
+  .btn-ai,
+  .picker-add,
+  .publish-action,
+  .sbs-publish-btn,
+  .feed-suggest-follow-btn,
+  .feed-explore-btn--primary,
+  .user-card-follow-btn,
+  .search-result-follow-btn,
+  .app-topbar-cta,
+  .set-row-done-btn,
+  .session-finish-fab,
+  .mat-mdc-unelevated-button:not(.mat-mdc-icon-button),
+  .mat-mdc-raised-button:not(.mat-mdc-icon-button)
+):hover:not(:disabled) {
+  color: var(--action-text-hover) !important;
+  border-color: var(--action-border-hover) !important;
+  background: var(--action-hover-bg) !important;
+}
+
+:is(
+  .btn-primary,
+  .btn-submit,
+  .bs-cta,
+  .btn-buy,
+  .yn-cta-primary,
+  .btn-new-post,
+  .btn-save,
+  .ob-btn--primary,
+  .hdr-btn-primary,
+  .btn-start-workout,
+  .ob-cta-btn,
+  .bio-submit-btn,
+  .push-enable,
+  .sug-follow-btn,
+  .follow-list-btn,
+  .btn-add,
+  .btn-ai,
+  .picker-add,
+  .publish-action,
+  .sbs-publish-btn,
+  .feed-suggest-follow-btn,
+  .feed-explore-btn--primary,
+  .user-card-follow-btn,
+  .search-result-follow-btn,
+  .app-topbar-cta,
+  .set-row-done-btn,
+  .session-finish-fab,
+  .mat-mdc-unelevated-button:not(.mat-mdc-icon-button),
+  .mat-mdc-raised-button:not(.mat-mdc-icon-button)
+):active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+:is(
+  .btn-primary,
+  .btn-submit,
+  .bs-cta,
+  .btn-buy,
+  .yn-cta-primary,
+  .btn-new-post,
+  .btn-save,
+  .ob-btn--primary,
+  .hdr-btn-primary,
+  .btn-start-workout,
+  .ob-cta-btn,
+  .bio-submit-btn,
+  .push-enable,
+  .sug-follow-btn,
+  .follow-list-btn,
+  .btn-add,
+  .btn-ai,
+  .picker-add,
+  .publish-action,
+  .sbs-publish-btn,
+  .feed-suggest-follow-btn,
+  .feed-explore-btn--primary,
+  .user-card-follow-btn,
+  .search-result-follow-btn,
+  .app-topbar-cta,
+  .set-row-done-btn,
+  .session-finish-fab,
+  .mat-mdc-unelevated-button:not(.mat-mdc-icon-button),
+  .mat-mdc-raised-button:not(.mat-mdc-icon-button)
+):focus-visible {
+  outline: 2px solid rgba(var(--primary-rgb), 0.72) !important;
+  outline-offset: 2px;
+}
+
+.manual-macros-form .mat-mdc-select-arrow-wrapper { display: none; }
+
+.manual-macros-select-chevron {
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 18px;
+  pointer-events: none;
+}
+
+/* Dashboard card fields: transparent surface with a minimal underline. */
+app-daily-user-data .content-grid .mat-mdc-text-field-wrapper {
+  border-radius: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent !important;
+  transition: border-color 180ms ease;
+}
+
+app-daily-user-data .content-grid .mat-mdc-form-field:hover .mat-mdc-text-field-wrapper {
+  border-bottom-color: rgba(255, 255, 255, 0.24);
+}
+
+app-daily-user-data .content-grid .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+  border-bottom-color: rgba(167, 139, 250, 0.85);
+}
+
+app-daily-user-data .content-grid .mdc-notched-outline > * {
+  border-color: transparent !important;
+}
+
+app-daily-user-data .content-grid .mat-mdc-form-field-focus-overlay {
+  background: transparent !important;
+}
+
+/* Account fields inherit the Dashboard Nutrition card's minimal input language. */
+app-user-page .mat-mdc-form-field {
+  --mdc-outlined-text-field-container-shape: 0;
+  --mdc-outlined-text-field-outline-color: transparent;
+  --mdc-outlined-text-field-hover-outline-color: transparent;
+  --mdc-outlined-text-field-focus-outline-color: transparent;
+  --mdc-outlined-text-field-input-text-color: var(--text-primary);
+  --mdc-outlined-text-field-label-text-color: var(--text-tertiary);
+  --mdc-outlined-text-field-hover-label-text-color: var(--text-secondary);
+  --mdc-outlined-text-field-focus-label-text-color: var(--primary-light);
+}
+
+app-user-page .mat-mdc-text-field-wrapper {
+  border-radius: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent !important;
+  box-shadow: none !important;
+  transition: border-color 180ms ease, opacity 180ms ease;
+}
+
+app-user-page .mat-mdc-form-field:hover .mat-mdc-text-field-wrapper {
+  border-bottom-color: rgba(255, 255, 255, 0.24);
+}
+
+app-user-page .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+  border-bottom-color: rgba(167, 139, 250, 0.85);
+}
+
+app-user-page .mat-mdc-form-field.mat-form-field-invalid .mat-mdc-text-field-wrapper {
+  border-bottom-color: rgba(239, 83, 80, 0.78);
+}
+
+app-user-page .mat-mdc-form-field.mat-form-field-disabled .mat-mdc-text-field-wrapper {
+  border-bottom-color: rgba(255, 255, 255, 0.055);
+  opacity: 0.58;
+}
+
+app-user-page .mdc-notched-outline,
+app-user-page .mdc-notched-outline > * {
+  border-color: transparent !important;
+}
+
+app-user-page .mat-mdc-form-field-focus-overlay {
+  background: transparent !important;
+}
+
+app-user-page .mat-mdc-input-element,
+app-user-page .mat-mdc-select-value,
+app-user-page textarea.mat-mdc-input-element {
+  color: var(--text-primary) !important;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+app-user-page .mat-mdc-input-element::placeholder,
+app-user-page textarea.mat-mdc-input-element::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1;
+}
+
+app-user-page .mat-mdc-select-arrow,
+app-user-page .mat-mdc-form-field-icon-prefix,
+app-user-page .mat-mdc-form-field-icon-suffix {
+  color: var(--text-tertiary);
+}
+
+/* Account mobile tabs use the page canvas directly, without an outer card edge. */
+@media (max-width: 768px) {
+  app-user-page app-profile-tab .account-panel,
+  app-user-page app-physical-tab .physical-panel,
+  app-user-page app-workouts-tab > .tab-content,
+  app-user-page app-nutrition-tab > .tab-content,
+  app-user-page .up-content > .cs-card {
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  background: var(--modal-surface);
+}
+
+.mat-bottom-sheet-container {
+  --mat-bottom-sheet-container-background-color: var(--modal-surface);
+  background-color: var(--modal-surface);
+}
+
 .create-post-panel .mat-mdc-dialog-container,
 .create-post-panel .mdc-dialog__container,
 .create-post-panel .mdc-dialog__surface,
@@ -350,19 +796,45 @@ mat-select {
 }
 
 /* ─── CREATE ACTION SHEET (mobile bottom-sheet) ─── */
+.create-action-backdrop {
+  background: rgba(4, 4, 7, 0.28) !important;
+  backdrop-filter: blur(14px) saturate(112%);
+  -webkit-backdrop-filter: blur(14px) saturate(112%);
+}
+
+.cdk-overlay-pane.create-action-sheet {
+  inset: 0 !important;
+  display: flex !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: none;
+  transform: none !important;
+}
+
 .create-action-sheet .mat-bottom-sheet-container {
-  background: var(--surface) !important;
-  border-radius: 24px 24px 0 0 !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+  width: min(420px, calc(100vw - 32px)) !important;
+  min-width: 0 !important;
+  max-width: 420px !important;
+  height: auto !important;
+  max-height: calc(100dvh - 48px) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   padding: 0 !important;
-  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  pointer-events: auto;
 }
 
 /* ─── CONFIRM DIALOG PANEL ─── */
 .confirm-dialog-panel .mat-mdc-dialog-container,
 .confirm-dialog-panel .mdc-dialog__container,
 .confirm-dialog-panel .mdc-dialog__surface {
-  background: var(--surface) !important;
+  background: var(--modal-surface) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 20px !important;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7) !important;
@@ -385,12 +857,35 @@ mat-select {
 .ai-analyzer-panel .mat-mdc-dialog-container,
 .ai-analyzer-panel .mdc-dialog__container,
 .ai-analyzer-panel .mdc-dialog__surface {
-  background: var(--surface) !important;
+  background: var(--modal-surface) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 20px !important;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75) !important;
   padding: 0 !important;
   overflow: hidden !important;
+}
+
+/* Social post sharing dialog */
+.post-share-dialog-panel .mat-mdc-dialog-container,
+.post-share-dialog-panel .mdc-dialog__container,
+.post-share-dialog-panel .mdc-dialog__surface {
+  background: transparent !important;
+  border-radius: 20px !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+@media (max-width: 640px) {
+  .post-share-dialog-panel {
+    margin: 0 !important;
+  }
+
+  .post-share-dialog-panel .mat-mdc-dialog-container,
+  .post-share-dialog-panel .mdc-dialog__container,
+  .post-share-dialog-panel .mdc-dialog__surface {
+    border-radius: 20px !important;
+  }
 }
 
 /* ── Global top bar scroll-to-hide (Feed route only) ─────────────────────── */
@@ -778,7 +1273,7 @@ html.topbar--scrolled-down app-top-bar .app-topbar {
 }
 
 .modal-box {
-  background: #0d0d10;
+  background: var(--modal-surface);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   padding: 24px;
@@ -848,7 +1343,7 @@ html.topbar--scrolled-down app-top-bar .app-topbar {
   max-height: 92vh;
   display: flex;
   flex-direction: column;
-  background: #0d0d10;
+  background: var(--modal-surface);
   border-radius: 20px;
   box-shadow: 0 32px 80px rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -917,7 +1412,7 @@ html.topbar--scrolled-down app-top-bar .app-topbar {
   justify-content: flex-end;
   align-items: center;
   flex-shrink: 0;
-  background: #0d0d10;
+  background: var(--modal-surface);
 }
 
 .section {
@@ -1035,7 +1530,7 @@ html.topbar--scrolled-down app-top-bar .app-topbar {
 
 /* ─── SHARE TO BESOCIAL BOTTOM SHEET ─── */
 mat-bottom-sheet-container.share-sheet-panel {
-  background: var(--surface) !important;
+  background: var(--modal-surface) !important;
   border-radius: 24px 24px 0 0 !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-bottom: none !important;
@@ -1059,7 +1554,7 @@ mat-bottom-sheet-container.share-sheet-panel {
 
 /* ─── AI CHAT BOTTOM SHEET PANEL ─── */
 mat-bottom-sheet-container.ai-chat-sheet-panel {
-  background: rgba(13, 13, 16, 0.97) !important;
+  background: var(--modal-surface) !important;
   border-radius: 24px 24px 0 0 !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-bottom: none !important;
@@ -1089,8 +1584,8 @@ mat-bottom-sheet-container.ai-chat-sheet-panel {
 /* 1. Style the container element (child of the overlay pane) */
 .more-sheet-panel mat-bottom-sheet-container,
 .more-sheet-panel .mat-bottom-sheet-container {
-  background: var(--surface) !important;
-  background-color: var(--surface) !important;
+  background: var(--modal-surface) !important;
+  background-color: var(--modal-surface) !important;
   border-radius: 24px 24px 0 0 !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-bottom: none !important;
@@ -1106,15 +1601,15 @@ mat-bottom-sheet-container.ai-chat-sheet-panel {
 .more-sheet-panel .mat-bottom-sheet-container-large,
 .more-sheet-panel .mdc-surface,
 .more-sheet-panel [class*="mat-bottom-sheet"] {
-  background: var(--surface) !important;
-  background-color: var(--surface) !important;
+  background: var(--modal-surface) !important;
+  background-color: var(--modal-surface) !important;
   color: var(--white-soft) !important;
 }
 
 /* 3. Override Angular Material 19 MDC surface color CSS variable */
 .more-sheet-panel {
-  --mdc-bottom-sheet-container-color: var(--surface) !important;
-  --mat-bottom-sheet-container-background-color: var(--surface) !important;
+  --mdc-bottom-sheet-container-color: var(--modal-surface) !important;
+  --mat-bottom-sheet-container-background-color: var(--modal-surface) !important;
   --mat-bottom-sheet-container-text-color: var(--white-soft) !important;
 }
 
@@ -1123,5 +1618,389 @@ mat-bottom-sheet-container.ai-chat-sheet-panel {
     max-width: 400px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
+  }
+}
+
+/* Mobile feedback is rendered inline in the relevant flow; suppress global
+   ngx-toastr overlays so they do not cover the compact app chrome/content. */
+@media (max-width: 768px) {
+  #toast-container,
+  .toast-container {
+    display: none !important;
+  }
+}
+
+/* Dashboard metric controls: compact, borderless glass steppers. */
+app-daily-user-data .metric-stepper {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+app-daily-user-data .metric-stepper-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.68);
+  background: linear-gradient(145deg, rgba(41, 34, 56, 0.46), rgba(16, 15, 21, 0.28));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045), 0 6px 18px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(9px) saturate(112%);
+  -webkit-backdrop-filter: blur(9px) saturate(112%);
+  cursor: pointer;
+  transition: color 160ms ease, background 160ms ease, transform 120ms ease;
+}
+
+app-daily-user-data .metric-stepper-btn mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  line-height: 18px;
+}
+
+app-daily-user-data .metric-stepper-btn:hover {
+  color: #c4b5fd;
+  background: linear-gradient(145deg, rgba(124, 77, 255, 0.18), rgba(34, 27, 48, 0.34));
+}
+
+app-daily-user-data .metric-stepper-btn:active { transform: scale(0.94); }
+
+app-daily-user-data .metric-stepper-btn:focus-visible {
+  outline: 2px solid rgba(139, 92, 246, 0.72);
+  outline-offset: 2px;
+}
+
+app-daily-user-data .metric-stepper-value {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+app-daily-user-data .metric-stepper-value strong {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+app-daily-user-data .metric-stepper-value span {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+/* Account Workouts/Nutrition: compact icon-only type filter beside search. */
+app-user-page app-workouts-tab .compact-filter,
+app-user-page app-nutrition-tab .compact-filter {
+  height: 48px;
+}
+
+app-user-page app-workouts-tab .compact-filter .mat-mdc-text-field-wrapper,
+app-user-page app-nutrition-tab .compact-filter .mat-mdc-text-field-wrapper {
+  height: 48px !important;
+  min-height: 48px !important;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.11) !important;
+  border-radius: 13px !important;
+  background: rgba(255, 255, 255, 0.025) !important;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+app-user-page app-workouts-tab .compact-filter .mat-mdc-form-field-flex,
+app-user-page app-nutrition-tab .compact-filter .mat-mdc-form-field-flex {
+  position: relative;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+}
+
+app-user-page app-workouts-tab .compact-filter .mat-mdc-form-field-icon-prefix,
+app-user-page app-nutrition-tab .compact-filter .mat-mdc-form-field-icon-prefix {
+  z-index: 1;
+  display: grid;
+  padding: 0 !important;
+  place-items: center;
+  pointer-events: none;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+app-user-page app-workouts-tab .compact-filter .mat-mdc-form-field-infix,
+app-user-page app-nutrition-tab .compact-filter .mat-mdc-form-field-infix {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+}
+
+app-user-page app-workouts-tab .compact-filter .mat-mdc-select-trigger,
+app-user-page app-nutrition-tab .compact-filter .mat-mdc-select-trigger {
+  width: 100%;
+  height: 100%;
+}
+
+app-user-page app-workouts-tab .compact-filter .mat-mdc-select-value,
+app-user-page app-workouts-tab .compact-filter .mat-mdc-select-arrow-wrapper,
+app-user-page app-nutrition-tab .compact-filter .mat-mdc-select-value,
+app-user-page app-nutrition-tab .compact-filter .mat-mdc-select-arrow-wrapper,
+app-user-page app-workouts-tab .compact-filter .mat-mdc-form-field-subscript-wrapper,
+app-user-page app-nutrition-tab .compact-filter .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+app-user-page app-workouts-tab .compact-filter:hover .mat-mdc-text-field-wrapper,
+app-user-page app-nutrition-tab .compact-filter:hover .mat-mdc-text-field-wrapper {
+  border-color: rgba(143, 108, 255, 0.42) !important;
+  background: rgba(124, 77, 255, 0.07) !important;
+}
+
+app-user-page app-workouts-tab .compact-filter.filter-active .mat-mdc-text-field-wrapper,
+app-user-page app-nutrition-tab .compact-filter.filter-active .mat-mdc-text-field-wrapper {
+  border-color: rgba(143, 108, 255, 0.55) !important;
+  background: rgba(124, 77, 255, 0.11) !important;
+}
+
+app-user-page app-workouts-tab .compact-filter.filter-active .mat-mdc-form-field-icon-prefix,
+app-user-page app-nutrition-tab .compact-filter.filter-active .mat-mdc-form-field-icon-prefix {
+  color: #a98cff;
+}
+
+/* Account workout/meal editors — one calm surface, grouped by rhythm. */
+app-user-page app-workouts-tab .overlay,
+app-user-page app-nutrition-tab .overlay {
+  background: rgba(4, 4, 7, 0.72);
+  backdrop-filter: blur(18px) saturate(115%);
+  -webkit-backdrop-filter: blur(18px) saturate(115%);
+}
+
+app-user-page app-workouts-tab .modal,
+app-user-page app-nutrition-tab .modal {
+  background: rgba(15, 14, 20, 0.94);
+  border-color: rgba(255, 255, 255, 0.065);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(24px) saturate(118%);
+  -webkit-backdrop-filter: blur(24px) saturate(118%);
+}
+
+app-user-page app-workouts-tab .modal-header,
+app-user-page app-nutrition-tab .modal-header {
+  padding: 18px 22px;
+  border-bottom-color: rgba(255, 255, 255, 0.055);
+}
+
+app-user-page app-workouts-tab .mh-icon-wrap,
+app-user-page app-nutrition-tab .mh-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+app-user-page app-workouts-tab .mh-icon-wrap mat-icon,
+app-user-page app-nutrition-tab .mh-icon-wrap mat-icon {
+  font-size: 21px;
+  width: 21px;
+  height: 21px;
+  color: #9b7cff;
+}
+
+app-user-page app-workouts-tab .mh-title,
+app-user-page app-nutrition-tab .mh-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+app-user-page app-workouts-tab .mh-subtitle,
+app-user-page app-nutrition-tab .mh-subtitle {
+  color: rgba(255, 255, 255, 0.46);
+  line-height: 1.45;
+}
+
+app-user-page app-workouts-tab .modal-header > .icon-btn-round,
+app-user-page app-nutrition-tab .modal-header > .icon-btn-round {
+  border: 0;
+  background: transparent;
+}
+
+app-user-page app-workouts-tab .modal-body,
+app-user-page app-nutrition-tab .modal-body {
+  padding: 18px 22px 6px;
+}
+
+app-user-page app-workouts-tab .modal-body .section,
+app-user-page app-nutrition-tab .modal-body .section {
+  margin: 0;
+  padding: 2px 0 18px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 0;
+  background: transparent;
+}
+
+app-user-page app-workouts-tab .modal-body .section + .section,
+app-user-page app-nutrition-tab .modal-body .section + .section {
+  padding-top: 18px;
+}
+
+app-user-page app-workouts-tab .modal-body .section:last-child,
+app-user-page app-nutrition-tab .modal-body .section:last-child {
+  border-bottom: 0;
+}
+
+app-user-page app-workouts-tab .modal-body .sec-head,
+app-user-page app-nutrition-tab .modal-body .sec-head {
+  gap: 7px;
+  margin-bottom: 13px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+app-user-page app-workouts-tab .modal-body .sec-head mat-icon,
+app-user-page app-nutrition-tab .modal-body .sec-head mat-icon {
+  color: #9271f6;
+}
+
+app-user-page app-workouts-tab .modal-body mat-form-field,
+app-user-page app-nutrition-tab .modal-body mat-form-field {
+  margin-bottom: -3px;
+}
+
+app-user-page app-workouts-tab .modal-body .ex-list,
+app-user-page app-nutrition-tab .modal-body .ex-list {
+  gap: 8px;
+}
+
+app-user-page app-workouts-tab .modal-body .ex-item,
+app-user-page app-nutrition-tab .modal-body .ex-item {
+  padding: 13px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+app-user-page app-workouts-tab .modal-body .ex-top,
+app-user-page app-nutrition-tab .modal-body .ex-top {
+  margin-bottom: 10px;
+}
+
+app-user-page app-workouts-tab .modal-body .ex-badge,
+app-user-page app-nutrition-tab .modal-body .ex-badge {
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 7px;
+  background: rgba(124, 77, 255, 0.12);
+  color: #a98cff;
+  font-weight: 650;
+}
+
+app-user-page app-workouts-tab .modal-body .btn-add-ex,
+app-user-page app-nutrition-tab .modal-body .btn-add-ex {
+  min-height: 42px;
+  margin-top: 10px;
+  border: 1px solid rgba(143, 108, 255, 0.26);
+  border-radius: 12px;
+  color: #a98cff;
+  font-weight: 500;
+}
+
+app-user-page app-workouts-tab .modal-footer,
+app-user-page app-nutrition-tab .modal-footer {
+  position: relative;
+  z-index: 3;
+  padding: 14px 22px 16px;
+  border-top-color: rgba(255, 255, 255, 0.055);
+  background: rgba(15, 14, 20, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+app-user-page app-workouts-tab .modal-footer .btn-primary,
+app-user-page app-nutrition-tab .modal-footer .btn-primary {
+  min-width: 144px;
+}
+
+/* Editors are immersive on mobile; the global nav must not cover their footer. */
+@media (max-width: 768px) {
+  body:has(app-user-page app-workouts-tab .overlay) app-bottom-nav,
+  body:has(app-user-page app-nutrition-tab .overlay) app-bottom-nav {
+    display: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  app-user-page app-workouts-tab .overlay,
+  app-user-page app-nutrition-tab .overlay {
+    padding: 12px;
+    align-items: center;
+  }
+
+  app-user-page app-workouts-tab .modal,
+  app-user-page app-nutrition-tab .modal {
+    display: grid !important;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    height: calc(100dvh - var(--nav-height, 64px) - env(safe-area-inset-bottom, 0px) - 24px);
+    max-height: calc(100dvh - var(--nav-height, 64px) - env(safe-area-inset-bottom, 0px) - 20px);
+    border-radius: 18px;
+  }
+
+  app-user-page app-workouts-tab .modal-header,
+  app-user-page app-nutrition-tab .modal-header {
+    padding: 15px 16px;
+  }
+
+  app-user-page app-workouts-tab .modal-body,
+  app-user-page app-nutrition-tab .modal-body {
+    padding: 15px 16px 4px;
+  }
+
+  app-user-page app-workouts-tab .modal-footer,
+  app-user-page app-nutrition-tab .modal-footer {
+    display: flex !important;
+    min-height: 70px;
+    padding: 12px 16px 14px;
+  }
+
+  app-user-page app-workouts-tab .modal-footer .btn-primary,
+  app-user-page app-nutrition-tab .modal-footer .btn-primary {
+    display: inline-flex !important;
+    min-width: 0;
+    min-height: 44px;
+    border-color: rgba(143, 108, 255, 0.58) !important;
+    color: #b9a4ff !important;
+  }
+
+  app-user-page app-workouts-tab .modal-footer .btn-primary:disabled,
+  app-user-page app-nutrition-tab .modal-footer .btn-primary:disabled {
+    opacity: 0.58;
+  }
+
+  app-user-page app-workouts-tab .modal-body .grid-3,
+  app-user-page app-nutrition-tab .modal-body .grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  app-user-page app-workouts-tab .modal-footer > button,
+  app-user-page app-nutrition-tab .modal-footer > button {
+    flex: 1 1 0;
+    justify-content: center;
   }
 }

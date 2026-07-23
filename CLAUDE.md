@@ -97,11 +97,15 @@ Components → Facades (business logic) → API Services → HTTP → Backend
 ```
 api/
   account.service.ts          Login, register
+  ai-chat-history.service.ts  AI chat history
+  ai-inference.service.ts     Backend-proxied AI inference
   blog.service.ts             Public blog CRUD
   conversation.service.ts     Direct messaging (REST + SignalR)
-  groq-ai-api.service.ts      AI proxy calls (text, image, calories)
+  dashboard.service.ts        Dashboard summary and daily insights
   notification.service.ts     Notification REST calls
   nutrition-tab.service.ts    Meals CRUD
+  onboarding.service.ts       Onboarding progress and computed numbers
+  open-food-facts.service.ts  External food search
   social.service.ts           Posts, likes, comments, follows, profiles
   stats.service.ts            Public profile stats
   user.service.ts             User profile CRUD
@@ -111,13 +115,15 @@ core/
   facade/
     account.facade.ts
     blog.facade.ts
-    chat.facade.ts            AI chat history (legacy)
+    chat.facade.ts            Direct messaging + SignalR orchestration
+    dashboard.facade.ts
     groq-ai.facade.ts         AI assistant orchestration
     notification.facade.ts    Notification state + real-time
     nutrition-tab.facade.ts
-    social.facade.ts          Feed, posts, profiles, follows
-    social-chat.facade.ts     Direct messaging (SignalR)
-    social-notifications.facade.ts  Real-time notification push
+    onboarding.facade.ts
+    social-content.facade.ts  Post CRUD, comments, follows and sharing
+    social-feed.facade.ts     Feed, discover and suggestions
+    social-profile.facade.ts  Social profile state
     user.facade.ts
     workouts-tab.facade.ts
   guards/                     AuthGuard, GuestGuard
@@ -134,7 +140,18 @@ features/
   home/                       Landing page (hero, benefits, features)
   openai/                     AI Assistant (Groq chat with history)
   social/                     Social platform (see Social Module below)
-  user/                       Profile, physical stats, fitness metrics
+  user/                       Account shell + lazy child-route tabs
+    account.routes.ts         /account/* child routes
+    account-tab.model.ts      Shared desktop/mobile tab metadata
+    user-page.component.*     Account shell + nested router-outlet
+    profile-tab/              /account/my-account
+    physical-tab/             /account/physical
+    workouts-tab/             /account/workouts
+    nutrition-tab/            /account/nutrition
+    progress-tab/             /account/progress
+    goals-tab/                /account/goals
+    settings-tab/             /account/settings
+    notifications-tab/        /account/notifications
   workouts/                   Workout plans CRUD
 
 shared/
@@ -143,6 +160,14 @@ shared/
 
 app.routes.ts                 All routes — lazy-loaded
 ```
+
+### Account Module (`features/user/`)
+
+`UserPageComponent` is the Account layout shell. It owns the shared sidebar,
+mobile tab rail and user summary; a nested `router-outlet` renders standalone
+tabs from `account.routes.ts`. `/account` redirects to `/account/my-account`.
+Legacy `/account?tab=<tab>` links are normalized to `/account/<tab>` with
+`replaceUrl`, while all current internal links use canonical child URLs.
 
 ### Social Module (`features/social/`)
 
@@ -161,7 +186,7 @@ social/
   notifications/                    All notifications (like/comment/follow/message)
   components/
     post-card/                      Post UI: like, comment, follow, archive, delete; article inline expand + cover image
-    create-content/                 Dialog: create post OR write article (portrait image, autosize textarea)
+    create-post/                    Dialog: create social post (portrait image, autosize textarea)
     create-post/                    Quick post dialog (legacy)
     edit-post/                      Edit post dialog
     write-article/                  Full article editor dialog (16:9 cover, autosize textarea)
@@ -179,8 +204,11 @@ social/
 Controllers/
   AuthController              POST /api/auth/register, /api/auth/login
   UsersController             GET/PUT /api/users/me, GET /api/users/{id}/stats
-  DailyController             GET/POST /api/daily, GET /api/daily/history
+  DailyDataController         GET/POST /api/daily, GET /api/daily/history
+  DashboardController         Dashboard summary and insights
+  OnboardingController        Onboarding progress and completion
   WorkoutsController          CRUD /api/workouts
+  WorkoutSessionsController   Active workout session lifecycle
   NutritionController         CRUD /api/nutrition
   BlogController              GET /api/blog (public), CRUD (Admin)
   AiController                POST /api/ai/text|image|workout-calories
@@ -209,11 +237,26 @@ Models/
 
 Services/
   AiProxyService              Groq API proxy (text + vision)
+  AuthService                 Registration and login
+  BlogService                 Public/admin blog operations
+  ChatService                 AI chat history
+  DailyDataService            Daily health tracking
+  DashboardService            Dashboard aggregation
   EmailService                MailKit / Gmail SMTP
+  FileStorageService          Validated image persistence
+  FoodSearchService           Food provider orchestration
+  JwtService                  Short-lived JWT generation
   MetricsService              BMI, BMR, TDEE, water target calculations
+  NutritionService            Meal CRUD
+  OnboardingService           Onboarding workflow
   SocialService               Posts, feed, discover, profiles, likes, follows
   ConversationService         Direct messaging, cursor-based pagination
+  ConversationRealtimeService SignalR delivery for REST and hub paths
   NotificationService         Create + push via SignalR
+  StreakReminderWorker        Scheduled at-risk streak reminders
+  UserService                 User profile CRUD
+  WorkoutService              Workout templates
+  WorkoutSessionService       Active workout sessions
 
 Hubs/
   NotificationHub             /hubs/notifications — push to specific user
@@ -256,7 +299,7 @@ Program.cs                    DI registration, middleware, SignalR, CORS
 - Frontend: `AuthInterceptor` injects `Authorization: Bearer <token>` on all requests
 - SignalR: JWT passed via query string (`access_token`) on hub connections
 - CORS: restricted to `http://localhost:4200` / `https://localhost:4200`
-- Admin seeded on first run: `andreea@gmail.com`
+- Demo and official accounts are seeded by the seeders under `Data/Seeds/`; no hard-coded admin account is assumed.
 - `UserId` always extracted from JWT claims — never from request body
 
 ---
@@ -277,7 +320,7 @@ Frontend connects on login, disconnects on logout. JWT authenticated via query s
 | Feature              | Model                                       | Endpoint                      |
 | -------------------- | ------------------------------------------- | ----------------------------- |
 | AI Chat              | `llama-3.1-8b-instant`                      | POST /api/ai/text             |
-| Meal Analyzer        | `meta-llama/llama-4-scout-17b-16e-instruct` | POST /api/ai/image            |
+| Meal Analyzer        | `qwen/qwen3.6-27b`                           | POST /api/ai/image            |
 | Workout Calorie Est. | `llama-3.1-8b-instant`                      | POST /api/ai/workout-calories |
 
 Backend `AiProxyService` handles all Groq API calls. Image analyzer: base64 input.  
@@ -293,7 +336,10 @@ Full spec: `design-system.md` (root)
 - **Primary**: `#7c4dff` (purple) — `var(--primary)`
 - **Accent**: `#ff4081` (pink) — `var(--accent)`
 - **Font**: Poppins (400/700/800)
-- **Style**: Glassmorphism — `backdrop-filter: blur()`, semi-transparent borders
+- **Style**: Dark glassmorphism — shared `--nova-glass-*` surfaces use translucent
+  obsidian/purple layers, controlled blur and subtle inset highlights. Home,
+  Plans and Blog use `--nova-page-canvas`; content cards are borderless glass,
+  while long-form text keeps a quieter glass surface for readability.
 - **Motion**: 0.15s–0.3s ease — all interactive states animated
 
 ---

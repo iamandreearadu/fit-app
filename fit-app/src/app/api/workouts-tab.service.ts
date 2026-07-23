@@ -11,6 +11,9 @@ import {
 } from '../core/models/workouts-tab.model';
 import { environment } from '../../environments/environment';
 
+interface WorkoutTemplateDto extends Omit<Partial<WorkoutTemplate>, 'id'> { id: number | string; }
+interface WorkoutTemplateListDto { items?: WorkoutTemplateDto[]; }
+
 @Injectable({ providedIn: 'root' })
 export class WorkoutsTabService {
 
@@ -20,13 +23,13 @@ export class WorkoutsTabService {
   private alerts = inject(AlertService);
   private readonly baseUrl = `${environment.apiUrl}/api/workouts`;
 
-  private normalizeType(raw: any): WorkoutType {
+  private normalizeType(raw: unknown): WorkoutType {
     const t = String(raw ?? '').trim();
     const allowed: WorkoutType[] = ['Strength', 'Circuit', 'HIIT', 'Crossfit', 'Cardio', 'Other'];
     return allowed.includes(t as WorkoutType) ? (t as WorkoutType) : 'Strength';
   }
 
-  private mapTemplate(d: any): WorkoutTemplate {
+  private mapTemplate(d: WorkoutTemplateDto): WorkoutTemplate {
     const type = this.normalizeType(d.type);
     return {
       uid: String(d.id),
@@ -40,8 +43,8 @@ export class WorkoutsTabService {
       cardio: type === 'Cardio'
         ? { km: Number(d.cardio?.km ?? 0), incline: Number(d.cardio?.incline ?? 0), notes: d.cardio?.notes ?? '' }
         : undefined,
-      createdAt: d.createdAt ?? null,
-      updatedAt: d.updatedAt ?? null,
+      createdAt: d.createdAt ?? undefined,
+      updatedAt: d.updatedAt ?? undefined,
       isSystemTemplate: d.isSystemTemplate === true,
     };
   }
@@ -57,7 +60,7 @@ export class WorkoutsTabService {
       notes: (payload.notes ?? '').toString(),
       exercises: isCardio ? [] : (Array.isArray(payload.exercises) ? payload.exercises : []),
       cardio: isCardio
-        ? { km: Number((payload as any)?.cardio?.km ?? 0), incline: Number((payload as any)?.cardio?.incline ?? 0), notes: ((payload as any)?.cardio?.notes ?? '').toString() }
+        ? { km: Number(payload.cardio?.km ?? 0), incline: Number(payload.cardio?.incline ?? 0), notes: (payload.cardio?.notes ?? '').toString() }
         : null,
     };
   }
@@ -65,7 +68,7 @@ export class WorkoutsTabService {
   async getTemplate(docId: string): Promise<WorkoutTemplate | null> {
     if (!docId) return null;
     try {
-      const dto = await firstValueFrom(this.http.get<any>(`${this.baseUrl}/${docId}`));
+      const dto = await firstValueFrom(this.http.get<WorkoutTemplateDto>(`${this.baseUrl}/${docId}`));
       return this.mapTemplate(dto);
     } catch (err) {
       this.alerts?.warn('Failed to load workout');
@@ -75,18 +78,32 @@ export class WorkoutsTabService {
 
   async listTemplates(): Promise<WorkoutTemplate[]> {
     try {
-      const res = await firstValueFrom(this.http.get<any>(this.baseUrl));
-      const dtos: any[] = Array.isArray(res) ? res : (res?.items ?? []);
+      const res = await firstValueFrom(this.http.get<WorkoutTemplateDto[] | WorkoutTemplateListDto>(this.baseUrl));
+      const dtos = Array.isArray(res) ? res : (res.items ?? []);
       return dtos.map(d => this.mapTemplate(d));
     } catch (err) {
       this.alerts?.warn('Failed to load workouts');
-      return [];
+      throw err;
     }
+  }
+
+  /**
+   * Personal templates eligible for linking to social posts.
+   * System templates are suggestions, not workouts saved by the current user.
+   */
+  async listSavedTemplates(): Promise<WorkoutTemplate[]> {
+    const res = await firstValueFrom(
+      this.http.get<WorkoutTemplateDto[] | WorkoutTemplateListDto>(
+        `${this.baseUrl}?page=1&pageSize=50`
+      )
+    );
+    const dtos = Array.isArray(res) ? res : (res.items ?? []);
+    return dtos.map(d => this.mapTemplate(d)).filter(template => !template.isSystemTemplate);
   }
 
   async addTemplate(payload: Partial<WorkoutTemplate>): Promise<WorkoutTemplate | null> {
     try {
-      const dto = await firstValueFrom(this.http.post<any>(this.baseUrl, this.buildBody(payload)));
+      const dto = await firstValueFrom(this.http.post<WorkoutTemplateDto>(this.baseUrl, this.buildBody(payload)));
       return this.mapTemplate(dto);
     } catch (err) {
       this.alerts?.warn('Failed to add workout');
@@ -97,7 +114,7 @@ export class WorkoutsTabService {
   async updateTemplateByUid(docId: string, payload: Partial<WorkoutTemplate>): Promise<WorkoutTemplate | null> {
     if (!docId) return null;
     try {
-      const dto = await firstValueFrom(this.http.put<any>(`${this.baseUrl}/${docId}`, this.buildBody(payload)));
+      const dto = await firstValueFrom(this.http.put<WorkoutTemplateDto>(`${this.baseUrl}/${docId}`, this.buildBody(payload)));
       return this.mapTemplate(dto);
     } catch (err) {
       this.alerts?.warn('Failed to update workout');

@@ -4,6 +4,8 @@ import { DailyUserData } from '../../../core/models/daily-user-data.model';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { MaterialModule } from '../../../core/material/material.module';
 import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
+import { NutritionTabService } from '../../../api/nutrition-tab.service';
+import { MealEntry, MealType } from '../../../core/models/nutrition-tab.model';
 
 interface WeekGroup {
   start: Date;
@@ -22,11 +24,24 @@ export class PreviousDailyUserDataComponent implements OnInit {
 
   public facade = inject(UserFacade);
   public workoutsTabFacade = inject(WorkoutsTabFacade);
+  private nutritionService = inject(NutritionTabService);
 
   history = this.facade.history;
 
   selectedDay: DailyUserData | null = null;
   showModal = false;
+  dayMeals = signal<MealEntry[]>([]);
+  dayMealsLoading = signal(false);
+  dayMealsError = signal(false);
+  private mealLoadRequest = 0;
+
+  readonly mealTypes: MealType[] = [
+    'Breakfast', 'Lunch', 'Dinner', 'Snack', 'Pre-workout', 'Post-workout', 'Other'
+  ];
+
+  dayMealGroups = computed(() => this.mealTypes
+    .map(type => ({ type, meals: this.dayMeals().filter(meal => meal.type === type) }))
+    .filter(group => group.meals.length > 0));
 
   currentWeekIndex = signal(0);
 
@@ -57,8 +72,8 @@ export class PreviousDailyUserDataComponent implements OnInit {
   });
 
   const weeks = Array.from(map.values());
-  // sort days within each week Mon → Sun
-  weeks.forEach(w => w.days.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+  // Show the most recent recorded day first within every week.
+  weeks.forEach(w => w.days.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
   return weeks;
 });
 
@@ -86,14 +101,34 @@ export class PreviousDailyUserDataComponent implements OnInit {
   }
 
 
-  openDay(day: DailyUserData) {
+  async openDay(day: DailyUserData) {
     this.selectedDay = day;
     this.showModal = true;
+    this.dayMeals.set([]);
+    this.dayMealsError.set(false);
+    this.dayMealsLoading.set(true);
+
+    const request = ++this.mealLoadRequest;
+    try {
+      const meals = await this.nutritionService.listMealsForDate(day.date);
+      if (request === this.mealLoadRequest && this.showModal)
+        this.dayMeals.set(meals);
+    } catch {
+      if (request === this.mealLoadRequest && this.showModal)
+        this.dayMealsError.set(true);
+    } finally {
+      if (request === this.mealLoadRequest)
+        this.dayMealsLoading.set(false);
+    }
   }
 
   closeModal() {
+    this.mealLoadRequest++;
     this.selectedDay = null;
     this.showModal = false;
+    this.dayMeals.set([]);
+    this.dayMealsLoading.set(false);
+    this.dayMealsError.set(false);
   }
 
   resolveActivityLabel(activityType: string | undefined): string {

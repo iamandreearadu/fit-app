@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AiMealAnalyzerComponent } from './ai-meal-analyzer.component';
+import { TEST_PROVIDERS } from '../../../../testing/test-providers';
 
 describe('AiMealAnalyzerComponent', () => {
   let component: AiMealAnalyzerComponent;
@@ -8,7 +9,7 @@ describe('AiMealAnalyzerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AiMealAnalyzerComponent]
+      imports: [AiMealAnalyzerComponent], providers: TEST_PROVIDERS
     })
     .compileComponents();
 

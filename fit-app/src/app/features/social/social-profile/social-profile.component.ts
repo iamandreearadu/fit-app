@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component, DestroyRef, effect, inject, OnInit, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -14,16 +14,13 @@ import { ChatFacade } from '../../../core/facade/chat.facade';
 import { UserFacade } from '../../../core/facade/user.facade';
 import { UserStore } from '../../../core/store/user.store';
 import { AuthenticationStore } from '../../../core/store/auth.store';
-import { CreatePostComponent } from '../components/create-post/create-post.component';
-import { CreateContentComponent } from '../components/create-content/create-content.component';
 import { EditPostComponent } from '../components/edit-post/edit-post.component';
-import { WriteArticleComponent } from '../components/write-article/write-article.component';
-import { Post, ProfileBlog } from '../../../core/models/social.model';
+import { Post } from '../../../core/models/social.model';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AlertService } from '../../../shared/services/alert.service';
 import { StatsTabComponent } from './stats-tab/stats-tab.component';
 
-type ProfileTab = 'posts' | 'workouts' | 'blogs' | 'stats';
+type ProfileTab = 'posts' | 'workouts' | 'meals' | 'stats';
 
 @Component({
   selector: 'app-social-profile',
@@ -55,17 +52,25 @@ export class SocialProfileComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('avatarInput') avatarInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('followListHeading') followListHeadingRef?: ElementRef<HTMLElement>;
 
   readonly skeletonCells = Array.from({ length: 9 });
   readonly isFollowing = signal(false);
   readonly isTogglingFollow = signal(false);
   readonly brokenImages = new Set<number>();
+  readonly isSavingBio = signal(false);
+  readonly isUploadingAvatar = signal(false);
+  readonly avatarError = signal<string | null>(null);
+  readonly pendingActions = signal<Set<string>>(new Set());
+  private followListTrigger: HTMLElement | null = null;
+
+  readonly tabs: readonly ProfileTab[] = ['posts', 'workouts', 'meals', 'stats'];
+  readonly mealView = signal<'visible' | 'hidden'>('visible');
+  readonly workoutView = signal<'visible' | 'hidden'>('visible');
 
   readonly activeTab = signal<ProfileTab>('posts');
   readonly showMoreMenu = signal(false);
   readonly showArchivedSection = signal(false);
-  readonly openBlogMenuId = signal<number | null>(null);
-  readonly expandedArticles = signal<Set<number>>(new Set());
 
   // Inline bio edit
   readonly isEditingBio = signal(false);
@@ -73,31 +78,44 @@ export class SocialProfileComponent implements OnInit {
   readonly bioExpanded = signal(false);
 
   protected userId = '';
+  private readonly routeUserId = signal<string | null>(null);
+  private loadedUserId: string | null = null;
+  private readonly loadResolvedProfile = effect(() => {
+    const routeUserId = this.routeUserId();
+    if (!routeUserId) return;
+
+    const resolvedUserId = routeUserId === 'me'
+      ? (this.userStore.user()?.id ?? this.authStore.authUser()?.id ?? '')
+      : routeUserId;
+    if (!resolvedUserId || resolvedUserId === this.loadedUserId) return;
+
+    this.loadedUserId = resolvedUserId;
+    this.userId = resolvedUserId;
+    void Promise.all([
+      this.facade.loadProfile(resolvedUserId).then(() => {
+        const profile = this.facade.currentProfile();
+        if (profile) {
+          this.isFollowing.set(profile.isFollowedByMe);
+          if (profile.isOwnProfile) void this.facade.loadArchivedWorkouts(resolvedUserId);
+        }
+      }),
+      this.facade.loadProfileWorkouts(resolvedUserId),
+      this.facade.loadProfileMeals(resolvedUserId),
+    ]);
+  });
 
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
-      const paramId = params.get('userId') ?? 'me';
-      this.userId =
-        paramId === 'me'
-          ? (this.userStore.user()?.id ?? this.authStore.authUser()?.id ?? '')
-          : paramId;
+      this.loadedUserId = null;
+      this.routeUserId.set(params.get('userId') ?? 'me');
 
       // Load all profile data in parallel — avoids sequential waterfall
-      Promise.all([
-        this.facade.loadProfile(this.userId).then(() => {
-          const profile = this.facade.currentProfile();
-          if (profile) this.isFollowing.set(profile.isFollowedByMe);
-        }),
-        this.facade.loadProfileWorkouts(this.userId),
-        this.facade.loadProfileBlogs(this.userId),
-      ]);
     });
   }
 
   @HostListener('document:click')
   onDocumentClick(): void {
     this.showMoreMenu.set(false);
-    this.openBlogMenuId.set(null);
   }
 
   setTab(tab: ProfileTab): void {
@@ -105,27 +123,30 @@ export class SocialProfileComponent implements OnInit {
     this.showArchivedSection.set(false);
   }
 
+  onTabKeydown(event: KeyboardEvent, currentTab: ProfileTab): void {
+    let index = this.tabs.indexOf(currentTab);
+    if (event.key === 'Home') index = 0;
+    else if (event.key === 'End') index = this.tabs.length - 1;
+    else if (event.key === 'ArrowRight') index = (index + 1) % this.tabs.length;
+    else if (event.key === 'ArrowLeft') index = (index - 1 + this.tabs.length) % this.tabs.length;
+    else return;
+    event.preventDefault();
+    this.setTab(this.tabs[index]);
+    document.getElementById(`profile-tab-${this.tabs[index]}`)?.focus();
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.facade.followListType()) this.closeFollowList();
+    else if (this.showArchivedSection()) this.closeArchived();
+    else {
+      this.showMoreMenu.set(false);
+    }
+  }
+
   toggleMoreMenu(e: Event): void {
     e.stopPropagation();
     this.showMoreMenu.update((v) => !v);
-  }
-
-  toggleArticleExpand(e: Event, id: number): void {
-    e.stopPropagation();
-    this.expandedArticles.update(set => {
-      const next = new Set(set);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  }
-
-  isArticleExpanded(id: number): boolean {
-    return this.expandedArticles().has(id);
-  }
-
-  toggleBlogMenu(e: Event, blogId: number): void {
-    e.stopPropagation();
-    this.openBlogMenuId.update((id) => (id === blogId ? null : blogId));
   }
 
   openArchived(e: Event): void {
@@ -152,49 +173,39 @@ export class SocialProfileComponent implements OnInit {
   }
 
   async saveBio(): Promise<void> {
+    if (this.isSavingBio()) return;
     const bio = this.bioInput().trim() || null;
-    await this.facade.updateBio(bio);
-    this.isEditingBio.set(false);
+    this.isSavingBio.set(true);
+    try {
+      await this.facade.updateBio(bio);
+      this.isEditingBio.set(false);
+      this.alert.success('Bio updated.');
+    } catch {
+      this.alert.error('Could not update your bio. Please try again.');
+    } finally {
+      this.isSavingBio.set(false);
+    }
   }
 
   async toggleFollow(): Promise<void> {
     if (this.isTogglingFollow()) return;
     this.isTogglingFollow.set(true);
     try {
-      const res = await this.content.toggleFollow(this.userId);
-      this.isFollowing.set(res.isFollowing);
+      await this.facade.toggleFollow(this.userId);
+      this.isFollowing.set(this.facade.currentProfile()?.isFollowedByMe ?? false);
+    } catch {
+      this.alert.error('Could not update follow status. Please try again.');
     } finally {
       this.isTogglingFollow.set(false);
     }
   }
 
   openCreatePost(): void {
-    const isMobile = window.innerWidth <= 640;
-    this.dialog
-      .open(CreateContentComponent, {
-        panelClass: 'create-post-panel',
-        maxWidth: isMobile ? '100vw' : '600px',
-        width: '100%',
-        position: isMobile ? { bottom: '0' } : undefined,
-      })
-      .afterClosed()
-      .subscribe((created) => {
-        if (created) {
-          this.facade.loadProfile(this.userId);
-          this.facade.loadProfileBlogs(this.userId);
-          this.facade.loadProfileWorkouts(this.userId);
-        }
-      });
+    this.router.navigate(['/social/new-post'], { state: { returnUrl: this.router.url } });
   }
 
   openPostDetail(postId: number): void {
     this.router.navigate(['/social/post', postId], {
-      state: { returnUrl: `/social/profile/${this.userId}` },
-    });
-  }
-
-  openArticleDetail(articleId: number): void {
-    this.router.navigate(['/social/article', articleId], {
       state: { returnUrl: `/social/profile/${this.userId}` },
     });
   }
@@ -212,12 +223,16 @@ export class SocialProfileComponent implements OnInit {
 
   // ── Follow list ─────────────────────────────────────────────────────────────
 
-  openFollowList(type: 'followers' | 'following'): void {
+  openFollowList(type: 'followers' | 'following', trigger?: Event): void {
+    this.followListTrigger = trigger?.currentTarget as HTMLElement | null;
     this.facade.loadFollowList(this.userId, type);
+    setTimeout(() => this.followListHeadingRef?.nativeElement.focus());
   }
+
 
   closeFollowList(): void {
     this.facade.closeFollowList();
+    setTimeout(() => this.followListTrigger?.focus());
   }
 
   loadMoreFollowList(): void {
@@ -225,7 +240,11 @@ export class SocialProfileComponent implements OnInit {
   }
 
   async toggleFollowUser(targetUserId: string): Promise<void> {
-    const res = await this.content.toggleFollow(targetUserId);
+    const key = `follow:${targetUserId}`;
+    if (this.isPending(key)) return;
+    this.setPending(key, true);
+    try {
+      const res = await this.content.toggleFollow(targetUserId);
     // Update the follow list item in-place
     this.facade.followListUsers.update(users =>
       users.map(u => u.id === targetUserId
@@ -234,7 +253,10 @@ export class SocialProfileComponent implements OnInit {
       )
     );
     // Reload profile to update counts
-    this.facade.loadProfile(this.userId);
+      this.facade.loadProfile(this.userId);
+    } finally {
+      this.setPending(key, false);
+    }
   }
 
   navigateToProfile(userId: string): void {
@@ -246,6 +268,10 @@ export class SocialProfileComponent implements OnInit {
 
   editPost(e: Event, post: Post): void {
     e.stopPropagation();
+    this.openEditPost(post);
+  }
+
+  private openEditPost(post: Post): void {
     const isMobile = window.innerWidth <= 640;
     this.dialog.open(EditPostComponent, {
       data: { post },
@@ -258,23 +284,25 @@ export class SocialProfileComponent implements OnInit {
 
   async deletePost(e: Event, postId: number): Promise<void> {
     e.stopPropagation();
+    await this.confirmAndDeletePost(postId);
+  }
+
+  private async confirmAndDeletePost(postId: number): Promise<void> {
     const confirmed = await this.confirmDelete(
       'Are you sure you want to delete this post?',
     );
     if (!confirmed) return;
-    await this.content.deletePost(postId);
+    await this.runMutation(`post:${postId}`, () => this.content.deletePost(postId));
   }
 
   async archivePost(e: Event, postId: number): Promise<void> {
     e.stopPropagation();
-    await this.facade.archivePost(postId);
-    this.alert.success('Post archived.');
+    await this.runMutation(`post:${postId}`, () => this.facade.archivePost(postId), 'Post archived.');
   }
 
   async unarchivePost(e: Event, postId: number): Promise<void> {
     e.stopPropagation();
-    await this.facade.unarchivePost(postId);
-    this.alert.success('Post restored.');
+    await this.runMutation(`post:${postId}`, () => this.facade.unarchivePost(postId), 'Post restored.');
   }
 
   // ── Workout actions ────────────────────────────────────────────────────────
@@ -290,64 +318,20 @@ export class SocialProfileComponent implements OnInit {
       'Are you sure you want to delete this workout?',
     );
     if (!confirmed) return;
-    await this.facade.deleteWorkout(workoutId);
+    await this.runMutation(`workout:${workoutId}`, () => this.facade.deleteWorkout(workoutId));
   }
 
   async archiveWorkout(e: Event, workoutId: number): Promise<void> {
     e.stopPropagation();
-    await this.facade.archiveWorkout(workoutId);
+    await this.runMutation(`workout:${workoutId}`, () => this.facade.archiveWorkout(workoutId));
   }
 
   async unarchiveWorkout(e: Event, workoutId: number): Promise<void> {
     e.stopPropagation();
-    await this.facade.unarchiveWorkout(workoutId);
-    this.alert.success('Workout restored.');
+    await this.runMutation(`workout:${workoutId}`, () => this.facade.unarchiveWorkout(workoutId), 'Workout restored.');
   }
 
   // ── Blog actions ───────────────────────────────────────────────────────────
-
-  openWriteArticle(): void {
-    this.dialog
-      .open(WriteArticleComponent, {
-        data: null,
-        panelClass: 'create-post-panel',
-        maxWidth: '600px',
-        width: '100%',
-      })
-      .afterClosed()
-      .subscribe((published) => {
-        if (published) this.facade.loadProfileBlogs(this.userId);
-      });
-  }
-
-  editBlog(e: Event, blog: ProfileBlog): void {
-    e.stopPropagation();
-    this.dialog
-      .open(WriteArticleComponent, {
-        data: { blog },
-        panelClass: 'create-post-panel',
-        maxWidth: '600px',
-        width: '100%',
-      })
-      .afterClosed()
-      .subscribe((saved) => {
-        if (saved) this.facade.loadProfileBlogs(this.userId);
-      });
-  }
-
-  async deleteBlog(e: Event, blogId: number): Promise<void> {
-    e.stopPropagation();
-    const confirmed = await this.confirmDelete(
-      'Are you sure you want to delete this article?',
-    );
-    if (!confirmed) return;
-    await this.facade.deleteBlog(blogId);
-  }
-
-  async archiveBlog(e: Event, blogId: number): Promise<void> {
-    e.stopPropagation();
-    await this.facade.archiveBlog(blogId);
-  }
 
   // ── Avatar upload ──────────────────────────────────────────────────────────
 
@@ -364,8 +348,13 @@ export class SocialProfileComponent implements OnInit {
     if (!file) return;
     input.value = '';
 
+    this.avatarError.set(null);
+    if (!file.type.startsWith('image/')) {
+      this.avatarError.set('Choose a valid image file.');
+      return;
+    }
     if (file.size > 2 * 1024 * 1024) {
-      this.alert.error('Image must be smaller than 2 MB.');
+      this.avatarError.set('Image must be smaller than 2 MB.');
       return;
     }
 
@@ -373,10 +362,57 @@ export class SocialProfileComponent implements OnInit {
     reader.onload = async () => {
       const dataUrl = String(reader.result || '');
       if (!dataUrl.startsWith('data:image/')) return;
-      await this.userFacade.saveUserProfile({ imageUrl: dataUrl });
-      await this.facade.loadProfile(this.userId);
+      this.isUploadingAvatar.set(true);
+      try {
+        await this.userFacade.saveUserProfile({ imageUrl: dataUrl });
+        await this.facade.loadProfile(this.userId);
+      } catch {
+        this.avatarError.set('Could not update your photo. Please try again.');
+      } finally {
+        this.isUploadingAvatar.set(false);
+      }
     };
     reader.readAsDataURL(file);
+  }
+
+  async toggleMealVisibility(e: Event, mealId: number): Promise<void> {
+    e.stopPropagation();
+    await this.runMutation(`meal:${mealId}`, () => this.facade.toggleMealVisibility(mealId));
+  }
+
+  retrySection(section: 'workouts' | 'archive'): void {
+    const request = section === 'workouts'
+      ? this.facade.loadProfileWorkouts(this.userId)
+      : Promise.all([this.facade.loadArchivedPosts(this.userId), this.facade.loadArchivedWorkouts(this.userId)]).then(() => undefined);
+    void request;
+  }
+
+  hasSectionError(section: 'workouts' | 'archive'): boolean {
+    if (section === 'archive') return !!(this.facade.archivedPostsError() || this.facade.archivedWorkoutsError());
+    return !!this.facade.profileWorkoutsError();
+  }
+
+  isPending(key: string): boolean { return this.pendingActions().has(key); }
+
+  private setPending(key: string, pending: boolean): void {
+    this.pendingActions.update(current => {
+      const next = new Set(current);
+      pending ? next.add(key) : next.delete(key);
+      return next;
+    });
+  }
+
+  private async runMutation(key: string, action: () => Promise<void>, success?: string): Promise<void> {
+    if (this.isPending(key)) return;
+    this.setPending(key, true);
+    try {
+      await action();
+      if (success) this.alert.success(success);
+    } catch {
+      this.alert.error('The action could not be completed. Please try again.');
+    } finally {
+      this.setPending(key, false);
+    }
   }
 
   // ── Shared confirm helper ──────────────────────────────────────────────────

@@ -1,14 +1,12 @@
 <div class="notif-page" data-cy="notif-page">
 
-  <!-- Header -->
-  <div class="notif-page-header">
-    <h1 class="notif-page-title">Notifications</h1>
-    @if (facade.notifications().length > 0 && facade.unreadCount() > 0) {
+  @if (facade.notifications().length > 0 && facade.unreadCount() > 0) {
+    <div class="notif-page-actions">
       <button class="notif-mark-all" data-cy="notif-mark-all" (click)="facade.markAllRead()" type="button">
         Mark all read
       </button>
-    }
-  </div>
+    </div>
+  }
 
   <!-- Loading skeleton -->
   @if (facade.isLoading() && facade.notifications().length === 0) {

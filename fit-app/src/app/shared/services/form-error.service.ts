@@ -11,6 +11,14 @@ export class FormErrorService {
       return 'This field is required';
     }
 
+    if (errors['invalidCredentials']) {
+      return 'Email or password is incorrect';
+    }
+
+    if (errors['emailTaken']) {
+      return 'An account with this email already exists';
+    }
+
     if (errors['min']) {
       return `Value must be ≥ ${errors['min'].min}`;
     }

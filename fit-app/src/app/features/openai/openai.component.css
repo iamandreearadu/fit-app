@@ -31,12 +31,12 @@
 /* ─── SIDEBAR ─── */
 .sidebar {
   width: 280px;
-  background: color-mix(in srgb, var(--surface) 94%, #fff 6%);
+  background: var(--surface);
   border-right: 1px solid var(--white-fade);
 }
 
 ::ng-deep .mat-sidenav {
-  background: color-mix(in srgb, var(--surface) 94%, #fff 6%) !important;
+  background: var(--surface) !important;
 }
 
 ::ng-deep .mat-drawer-content,
@@ -58,32 +58,37 @@
 .topbar {
   display: none;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--white-fade);
-  background: color-mix(in srgb, var(--surface) 94%, #fff 6%);
+  border-bottom: 1px solid var(--nav-border);
+  background: var(--nav-bg);
+  backdrop-filter: blur(var(--nav-blur));
+  -webkit-backdrop-filter: blur(var(--nav-blur));
   flex-shrink: 0;
   min-height: 50px;
 }
 
-.menu-btn {
+.topbar-action {
   color: var(--white-soft) !important;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
 }
+
+.topbar-action:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
 .topbar-title {
   font-size: 15px;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--primary), #9e7bff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--white);
 }
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
   .page-shell {
-    padding-top: var(--nav-height);
-    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .sidebar {

@@ -5,6 +5,18 @@ import { AlertService } from '../shared/services/alert.service';
 import { BlogPost } from '../core/models/blog.model';
 import { environment } from '../../environments/environment';
 
+interface BlogPostDto {
+  id: number | string;
+  title?: string;
+  caption?: string;
+  description?: string;
+  image?: string;
+  category?: string;
+  date?: string;
+}
+
+interface BlogPostListDto { items?: BlogPostDto[]; }
+
 @Injectable({ providedIn: 'root' })
 export class BlogService {
 
@@ -12,7 +24,7 @@ export class BlogService {
   private alerts = inject(AlertService);
   private readonly baseUrl = `${environment.apiUrl}/api/blog`;
 
-  private mapPost(d: any): BlogPost {
+  private mapPost(d: BlogPostDto): BlogPost {
     return {
       uid: String(d.id),
       id: Number(d.id),
@@ -28,7 +40,7 @@ export class BlogService {
   async getPost(id: string): Promise<BlogPost | null> {
     if (!id) return null;
     try {
-      const dto = await firstValueFrom(this.http.get<any>(`${this.baseUrl}/${id}`));
+      const dto = await firstValueFrom(this.http.get<BlogPostDto>(`${this.baseUrl}/${id}`));
       return this.mapPost(dto);
     } catch (err) {
       this.alerts?.warn('Failed to load blog post');
@@ -38,8 +50,8 @@ export class BlogService {
 
   async listPosts(): Promise<BlogPost[]> {
     try {
-      const res = await firstValueFrom(this.http.get<any>(this.baseUrl));
-      const dtos: any[] = Array.isArray(res) ? res : (res?.items ?? []);
+      const res = await firstValueFrom(this.http.get<BlogPostDto[] | BlogPostListDto>(this.baseUrl));
+      const dtos = Array.isArray(res) ? res : (res.items ?? []);
       return dtos.map(d => this.mapPost(d));
     } catch (err) {
       this.alerts?.warn('Failed to load posts');
@@ -57,7 +69,7 @@ export class BlogService {
         category: payload.category ?? '',
         date: payload.date ?? new Date().toISOString().slice(0, 10),
       };
-      const dto = await firstValueFrom(this.http.post<any>(this.baseUrl, body));
+      const dto = await firstValueFrom(this.http.post<BlogPostDto>(this.baseUrl, body));
       return this.mapPost(dto);
     } catch (err) {
       this.alerts?.warn('Failed to add blog post');
@@ -76,7 +88,7 @@ export class BlogService {
         category: payload.category ?? '',
         date: payload.date ?? '',
       };
-      const dto = await firstValueFrom(this.http.put<any>(`${this.baseUrl}/${docId}`, body));
+      const dto = await firstValueFrom(this.http.put<BlogPostDto>(`${this.baseUrl}/${docId}`, body));
       return this.mapPost(dto);
     } catch (err) {
       this.alerts?.warn('Failed to update post');

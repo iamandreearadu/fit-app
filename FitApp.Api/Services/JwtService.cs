@@ -7,7 +7,7 @@ namespace FitApp.Api.Services;
 
 public class JwtService(IConfiguration config)
 {
-    public string GenerateToken(string userId, string email, string fullName, bool isAdmin = false)
+    public string GenerateToken(string userId, bool isAdmin = false)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Secret"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -15,8 +15,6 @@ public class JwtService(IConfiguration config)
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, userId),
-            new(JwtRegisteredClaimNames.Email, email),
-            new(JwtRegisteredClaimNames.Name, fullName),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -27,7 +25,7 @@ public class JwtService(IConfiguration config)
             issuer: config["Jwt:Issuer"],
             audience: config["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddDays(7),
+            expires: DateTime.UtcNow.AddMinutes(config.GetValue("Jwt:AccessTokenMinutes", 60)),
             signingCredentials: creds
         );
 

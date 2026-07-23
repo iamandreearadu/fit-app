@@ -7,7 +7,7 @@ import { MaterialModule } from '../../../core/material/material.module';
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { WorkoutsTabFacade } from '../../../core/facade/workouts-tab.facade';
-import { WorkoutTemplate, WorkoutType } from '../../../core/models/workouts-tab.model';
+import { WorkoutExercise, WorkoutTemplate, WorkoutType } from '../../../core/models/workouts-tab.model';
 import { UserStore } from '../../../core/store/user.store';
 import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
 import { AlertService } from '../../../shared/services/alert.service';
@@ -118,13 +118,13 @@ export class WorkoutsTabComponent implements OnInit {
   }
 
 
-togglePreview(w: any): void {
+togglePreview(w: WorkoutTemplate): void {
   const uid = w?.uid ?? null;
   if (!uid) return;
   this.expandedUid = this.expandedUid === uid ? null : uid;
 }
 
-isExpanded(w: any): boolean {
+isExpanded(w: WorkoutTemplate): boolean {
   const uid = w?.uid ?? null;
   return !!uid && this.expandedUid === uid;
 }
@@ -170,7 +170,7 @@ async estimateCalories(w: WorkoutTemplate, event: Event): Promise<void> {
       caloriesEstimateKcal: 350,
       notes: '',
       cardio: { km: 5, incline: 0, notes: '' }
-    } as any);
+    });
 
     this.exercises.clear();
     this.addExercise();
@@ -188,7 +188,7 @@ async estimateCalories(w: WorkoutTemplate, event: Event): Promise<void> {
       type: (item.type ?? 'Strength') as WorkoutType,
       durationMin: Number(item.durationMin ?? 0),
       caloriesEstimateKcal: Number(item.caloriesEstimateKcal ?? 0),
-      notes: (item as any).notes ?? ''
+      notes: item.notes ?? ''
     });
 
     // cardio
@@ -241,7 +241,7 @@ async estimateCalories(w: WorkoutTemplate, event: Event): Promise<void> {
       };
       payload.exercises = [];
     } else {
-      payload.exercises = (raw.exercises ?? []).map((e: any) => ({
+      payload.exercises = ((raw.exercises ?? []) as Partial<WorkoutExercise>[]).map(e => ({
         name: (e.name ?? '').trim(),
         sets: Number(e.sets ?? 0),
         reps: Number(e.reps ?? 0),
@@ -285,7 +285,7 @@ async estimateCalories(w: WorkoutTemplate, event: Event): Promise<void> {
     }
   }
 
-  private createExerciseGroup(value?: any): FormGroup {
+  private createExerciseGroup(value?: Partial<WorkoutExercise>): FormGroup {
     return this.fb.group({
       name: this.fb.control<string>(value?.name ?? '', [Validators.required, Validators.minLength(2)]),
       sets: this.fb.control<number>(Number(value?.sets ?? 4), [Validators.required, Validators.min(1)]),

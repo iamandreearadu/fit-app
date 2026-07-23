@@ -42,16 +42,15 @@ export class GroqComponent implements OnDestroy {
   }
 
   async ngOnInit() {
-    this.loading = true;
     try {
       await this.facade.loadConversations();
-    } finally {
-      this.loading = false;
+    } catch {
+      // History is secondary: keep the new-conversation UI usable if it is unavailable.
     }
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
+  onFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     this.imageFile = file;
     const reader = new FileReader();

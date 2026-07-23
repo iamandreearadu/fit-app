@@ -73,6 +73,14 @@ Defined in `styles.css` on `:root` — these are the tokens actually in producti
 --white-fade:       rgba(255, 255, 255, 0.08)
 --background-fade:  linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.02))
 
+/* ── NovaFit glass material ── */
+--nova-page-canvas: ambient obsidian canvas with low-opacity purple/pink radial light
+--nova-glass-soft: quiet translucent surface for controls and long-form content
+--nova-glass-card: standard borderless glass card
+--nova-glass-floating: higher-opacity glass for dropdowns and floating surfaces
+--nova-glass-highlight: subtle inset top highlight; replaces visible card borders
+--nova-glass-blur: blur(14px) saturate(112%)
+
 /* ── Semantic ── */
 --color-success:    #4ade80
 --color-success-bg: rgba(74, 222, 128, 0.12)

@@ -1,15 +1,15 @@
-@if (showMainNav()) {
+@if (showTopBar()) {
   <app-top-bar (hamburgerClick)="drawerOpen.set(true)" />
 }
 
 <router-outlet></router-outlet>
 
-@if (showMainNav()) {
+@if (showBottomNav()) {
   <app-bottom-nav />
 }
 
 <!-- Side drawer — rendered only when mobile nav is active; inert when closed -->
-@if (showMainNav()) {
+@if (showBottomNav()) {
   <app-side-drawer
     [open]="drawerOpen()"
     (closeRequested)="drawerOpen.set(false)"

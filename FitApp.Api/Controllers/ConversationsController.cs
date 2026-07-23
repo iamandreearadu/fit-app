@@ -1,10 +1,8 @@
 using System.Security.Claims;
-using FitApp.Api.Hubs;
 using FitApp.Api.Models.DTOs;
 using FitApp.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 
 namespace FitApp.Api.Controllers;
 
@@ -13,7 +11,7 @@ namespace FitApp.Api.Controllers;
 [Authorize]
 public class ConversationsController(
     IConversationService conversationService,
-    IHubContext<ChatHub> chatHub,
+    ConversationRealtimeService realtime,
     ILogger<ConversationsController> logger) : ControllerBase
 {
     private string UserId =>
@@ -87,7 +85,7 @@ public class ConversationsController(
     {
         try
         {
-            var result = await conversationService.SendMessageAsync(id, UserId, request);
+            var result = await realtime.SendAsync(id, UserId, request);
             return StatusCode(StatusCodes.Status201Created, result);
         }
         catch (UnauthorizedAccessException)
@@ -101,6 +99,31 @@ public class ConversationsController(
         catch (Exception ex)
         {
             logger.LogError(ex, "Error sending message in conversation {ConversationId} for user {UserId}", id, UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
+    // POST /api/conversations/share-post
+    [HttpPost("share-post")]
+    public async Task<IActionResult> SharePost([FromBody] SharePostRequest request)
+    {
+        try
+        {
+            var result = await realtime.SharePostAsync(UserId, request);
+            return StatusCode(StatusCodes.Status201Created, result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return Problem(statusCode: 404, detail: ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(statusCode: 400, detail: ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error sharing post {PostId} from user {UserId} to {TargetUserId}",
+                request.PostId, UserId, request.TargetUserId);
             return Problem(statusCode: 500, detail: "An unexpected error occurred.");
         }
     }
@@ -127,9 +150,7 @@ public class ConversationsController(
     {
         try
         {
-            await conversationService.SoftDeleteMessageAsync(messageId, UserId);
-            await chatHub.Clients.Group($"conv-{id}")
-                .SendAsync("MessageDeleted", new { messageId, conversationId = id });
+            await realtime.DeleteAsync(id, messageId, UserId);
             return NoContent();
         }
         catch (UnauthorizedAccessException)

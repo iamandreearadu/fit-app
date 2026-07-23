@@ -5,6 +5,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Post } from '../../../../core/models/social.model';
 import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
+import { AlertService } from '../../../../shared/services/alert.service';
+import { MatDialog } from '@angular/material/dialog';
+import { SocialService } from '../../../../api/social.service';
+import { PostShareDialogComponent } from '../post-share-dialog/post-share-dialog.component';
 
 @Component({
   selector: 'app-post-card',
@@ -15,18 +19,28 @@ import { ClickOutsideDirective } from '../../../../shared/directives/click-outsi
 })
 export class PostCardComponent {
   private readonly router = inject(Router);
+  private readonly alerts = inject(AlertService);
+  private readonly dialog = inject(MatDialog);
+  private readonly social = inject(SocialService);
+  private lastImageTapAt = 0;
 
   post = input.required<Post>();
+  showArchiveAction = input(false);
   likeToggled = output<number>();
   commentClicked = output<number>();
   followToggled = output<string>();
   deleteClicked = output<number>();
   editClicked = output<Post>();
+  archiveClicked = output<number>();
+  savedToggled = output<{ postId: number; isSaved: boolean }>();
 
   showFullContent = signal(false);
   showFullArticle = signal(false);
   imageError = signal(false);
   showMenu = signal(false);
+  savePending = signal(false);
+  savedOverride = signal<boolean | null>(null);
+  readonly isSaved = computed(() => this.savedOverride() ?? this.post().isSavedByMe ?? false);
 
   readonly isArticle   = computed(() => !!this.post().articleId);
 
@@ -59,6 +73,46 @@ export class PostCardComponent {
     this.commentClicked.emit(this.post().id);
   }
 
+  onImageTap(): void {
+    const now = Date.now();
+    if (now - this.lastImageTapAt <= 320 && !this.post().isLikedByMe) {
+      this.onLike();
+      this.lastImageTapAt = 0;
+      return;
+    }
+    this.lastImageTapAt = now;
+  }
+
+  onShare(): void {
+    const p = this.post();
+    const isMobile = window.matchMedia('(max-width: 640px)').matches;
+    this.dialog.open(PostShareDialogComponent, {
+      data: { postId: p.id, authorName: p.author.displayName, content: p.content },
+      autoFocus: '.search-input',
+      restoreFocus: true,
+      panelClass: 'post-share-dialog-panel',
+      width: isMobile ? 'calc(100vw - 16px)' : '460px',
+      maxWidth: isMobile ? 'calc(100vw - 16px)' : '460px',
+      maxHeight: isMobile
+        ? 'calc(100dvh - var(--nav-height) - env(safe-area-inset-bottom, 0px) - 42px)'
+        : 'calc(100dvh - 64px)',
+      position: isMobile
+        ? { bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 26px)' }
+        : undefined,
+    });
+  }
+
+  onSave(): void {
+    if (this.savePending()) return;
+    const previous = this.isSaved();
+    this.savedOverride.set(!previous);
+    this.savePending.set(true);
+    this.social.toggleSave(this.post().id).subscribe({
+      next: result => { this.savedOverride.set(result.isSaved); this.savePending.set(false); this.savedToggled.emit({ postId: this.post().id, isSaved: result.isSaved }); },
+      error: () => { this.savedOverride.set(previous); this.savePending.set(false); this.alerts.error('Could not update saved posts. Please try again.'); }
+    });
+  }
+
   onFollow(): void {
     this.followToggled.emit(this.post().author.id);
   }
@@ -78,6 +132,12 @@ export class PostCardComponent {
     e.stopPropagation();
     this.showMenu.set(false);
     this.deleteClicked.emit(this.post().id);
+  }
+
+  onArchive(e: Event): void {
+    e.stopPropagation();
+    this.showMenu.set(false);
+    this.archiveClicked.emit(this.post().id);
   }
 
   toggleShowMore(): void {

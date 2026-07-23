@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ChatConversation, ChatMessage } from '../core/models/groq-ai.model';
 
@@ -46,7 +46,7 @@ export class AiChatHistoryService {
 
   async loadUserConversations(): Promise<ChatConversation[]> {
     const dtos = await firstValueFrom(
-      this.http.get<ConversationDto[]>(this.baseUrl)
+      this.http.get<ConversationDto[]>(this.baseUrl).pipe(timeout(8000))
     );
     return dtos.map(d => ({
       id: d.id,
@@ -59,7 +59,7 @@ export class AiChatHistoryService {
 
   async loadMessages(conversationId: string): Promise<ChatMessage[]> {
     const dtos = await firstValueFrom(
-      this.http.get<ChatMessageDto[]>(`${this.baseUrl}/${conversationId}/messages`)
+      this.http.get<ChatMessageDto[]>(`${this.baseUrl}/${conversationId}/messages`).pipe(timeout(8000))
     );
     return dtos.map(d => ({
       id: d.id,

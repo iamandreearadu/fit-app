@@ -5,7 +5,9 @@ public enum NotificationType
     Like = 0,
     Comment = 1,
     Follow = 2,
-    NewMessage = 3
+    NewMessage = 3,
+    StreakReminder = 4,
+    FitnessMilestone = 5
 }
 
 public class Notification

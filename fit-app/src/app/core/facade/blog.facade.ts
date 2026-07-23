@@ -12,8 +12,10 @@ export class BlogFacade {
 
   // state signals
     private readonly _posts = signal<BlogPost[]>([]);
-    private readonly _selectedPost = signal<BlogPost | null>(null);
-    private readonly _loading = signal(false);
+  private readonly _selectedPost = signal<BlogPost | null>(null);
+  private readonly _loading = signal(false);
+  private postsLoaded = false;
+  private postsRequest: Promise<void> | null = null;
 
 
   // getters 
@@ -34,15 +36,25 @@ export class BlogFacade {
     return Array.from(set);
   });
 
-    public async loadPosts(): Promise<void> {
-    this._loading.set(true);
-    try {
-      const posts = await this.blogSvc.listPosts();
-      this._posts.set(posts);
+  public async loadPosts(force = false): Promise<void> {
+    if (!force && this.postsLoaded) return;
+    if (!force && this.postsRequest) return this.postsRequest;
 
-    } finally {
-      this._loading.set(false);
-    }
+    this._loading.set(true);
+    this.postsRequest = (async () => {
+      try {
+        const posts = await this.blogSvc.listPosts();
+        this._posts.set(posts);
+        // Do not cache an empty response: the service also returns [] after a
+        // network failure, so the next visit must be allowed to retry.
+        this.postsLoaded = posts.length > 0;
+      } finally {
+        this._loading.set(false);
+        this.postsRequest = null;
+      }
+    })();
+
+    return this.postsRequest;
   }
 
  public async getPost(docId?: string | null): Promise<void> {
@@ -50,6 +62,12 @@ export class BlogFacade {
       this._selectedPost.set(null);
       return;
     }
+    const cachedPost = this._posts().find(post => post.uid === docId);
+    if (cachedPost) {
+      this._selectedPost.set(cachedPost);
+      return;
+    }
+
     this._loading.set(true);
     try {
       const p = await this.blogSvc.getPost(docId);
@@ -69,13 +87,13 @@ export class BlogFacade {
           editModel
         );
         if (updated) {
-          await this.loadPosts();
+          await this.loadPosts(true);
           this._selectedPost.set(updated);
         }
       } else {
         const created = await this.blogSvc.addPost(editModel as Partial<BlogPost>);
         if (created) {
-          await this.loadPosts();
+          await this.loadPosts(true);
           this._selectedPost.set(created);
         }
       }
@@ -91,7 +109,7 @@ export class BlogFacade {
       const success = await this.blogSvc.deletePostByUid(uid);
       if (success) {
         this._selectedPost.set(null);
-         await this.loadPosts();
+         await this.loadPosts(true);
       }
     } finally {
       this._loading.set(false);

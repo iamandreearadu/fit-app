@@ -8,6 +8,7 @@ namespace FitApp.Api.Services;
 public class SocialService(
     AppDbContext db,
     INotificationService notifications,
+    IFileStorageService fileStorage,
     ILogger<SocialService> logger) : ISocialService
 {
     private readonly ILogger<SocialService> _logger = logger;
@@ -28,12 +29,14 @@ public class SocialService(
             ?? throw new KeyNotFoundException("Post not found.");
 
         var isLiked = await db.Likes.AnyAsync(l => l.UserId == requestingUserId && l.PostId == id);
+        var isSaved = await db.SavedPosts.AnyAsync(s => s.UserId == requestingUserId && s.PostId == id);
         var isFollowing = post.UserId != requestingUserId && await db.Follows
             .AnyAsync(f => f.FollowerId == requestingUserId && f.FollowingId == post.UserId);
 
         return MapToPostResponse(post, requestingUserId,
             isLiked ? [id] : [],
-            isFollowing ? [post.UserId] : []);
+            isFollowing ? [post.UserId] : [],
+            isSaved ? [id] : []);
     }
 
     // ── Feed ──────────────────────────────────────────────────────────────────
@@ -57,7 +60,7 @@ public class SocialService(
             .Include(p => p.LinkedDailyEntry)
             .Include(p => p.Article)
             .AsSplitQuery()
-            .Where(p => allowedUserIds.Contains(p.UserId) && !p.IsArchived)
+            .Where(p => allowedUserIds.Contains(p.UserId) && !p.IsArchived && p.ArticleId == null)
             .OrderByDescending(p => p.CreatedAt);
 
         var total = await query.CountAsync();
@@ -70,9 +73,10 @@ public class SocialService(
             .Where(l => l.UserId == userId && posts.Select(p => p.Id).Contains(l.PostId))
             .Select(l => l.PostId)
             .ToHashSetAsync();
+        var savedPostIds = await GetSavedPostIdsAsync(userId, posts.Select(p => p.Id));
 
         var followingSet = followingIds.ToHashSet();
-        var items = posts.Select(p => MapToPostResponse(p, userId, likedPostIds, followingSet)).ToList();
+        var items = posts.Select(p => MapToPostResponse(p, userId, likedPostIds, followingSet, savedPostIds)).ToList();
 
         // ── Cold-start seed injection (page 1 only) ──────────────────────────
         // Appended only on page 1 when the user follows < 3 people and has spare slots.
@@ -92,6 +96,7 @@ public class SocialService(
                 .Include(p => p.User)
                 .Include(p => p.Article)
                 .Where(p => p.User!.IsSystemAccount
+                            && p.ArticleId == null
                             && !p.IsArchived
                             && !realPostIds.Contains(p.Id))
                 .OrderByDescending(p => p.CreatedAt)
@@ -105,10 +110,11 @@ public class SocialService(
                     .Where(l => l.UserId == userId && seedPostIds.Contains(l.PostId))
                     .Select(l => l.PostId)
                     .ToHashSetAsync();
+                var seedSavedIds = await GetSavedPostIdsAsync(userId, seedPostIds);
 
                 foreach (var sp in seedPosts)
                 {
-                    var mapped = MapToPostResponse(sp, userId, seedLikedIds, followingSet);
+                    var mapped = MapToPostResponse(sp, userId, seedLikedIds, followingSet, seedSavedIds);
                     mapped.IsSeedContent = true;
                     items.Add(mapped);
                 }
@@ -143,7 +149,7 @@ public class SocialService(
             .Include(p => p.LinkedDailyEntry)
             .Include(p => p.Article)
             .AsSplitQuery()
-            .Where(p => p.UserId != userId && !followingIds.Contains(p.UserId) && !p.IsArchived)
+            .Where(p => p.UserId != userId && !followingIds.Contains(p.UserId) && !p.IsArchived && p.ArticleId == null)
             .OrderByDescending(p => p.CreatedAt);
 
         var total = await query.CountAsync();
@@ -156,8 +162,9 @@ public class SocialService(
             .Where(l => l.UserId == userId && posts.Select(p => p.Id).Contains(l.PostId))
             .Select(l => l.PostId)
             .ToHashSetAsync();
+        var savedPostIds = await GetSavedPostIdsAsync(userId, posts.Select(p => p.Id));
 
-        var items = posts.Select(p => MapToPostResponse(p, userId, likedPostIds, followingIds)).ToList();
+        var items = posts.Select(p => MapToPostResponse(p, userId, likedPostIds, followingIds, savedPostIds)).ToList();
 
         return new PaginatedResponse<PostResponse>
         {
@@ -184,7 +191,7 @@ public class SocialService(
             .Include(p => p.LinkedDailyEntry)
             .Include(p => p.Article)
             .AsSplitQuery()
-            .Where(p => !p.IsArchived && p.UserId != userId && p.CreatedAt >= since)
+            .Where(p => !p.IsArchived && p.ArticleId == null && p.UserId != userId && p.CreatedAt >= since)
             .OrderByDescending(p => p.LikesCount * 2 + p.CommentsCount)
             .ThenByDescending(p => p.CreatedAt)
             .Take(pageSize)
@@ -203,14 +210,28 @@ public class SocialService(
             .Where(f => f.FollowerId == userId)
             .Select(f => f.FollowingId)
             .ToHashSetAsync();
+        var savedPostIds = await GetSavedPostIdsAsync(userId, postIds);
 
-        return posts.Select(p => MapToPostResponse(p, userId, likedPostIds, followingIds)).ToList();
+        return posts.Select(p => MapToPostResponse(p, userId, likedPostIds, followingIds, savedPostIds)).ToList();
     }
 
     // ── Create Post ───────────────────────────────────────────────────────────
 
     public async Task<PostResponse> CreatePostAsync(string userId, CreatePostRequest request)
     {
+        string? linkedType = null;
+        string? linkedTitle = null;
+        string? linkedSubtitle = null;
+        var hasLinkedContent = request.LinkedWorkoutId.HasValue
+                            || request.LinkedMealId.HasValue
+                            || request.LinkedDailyEntryId.HasValue;
+        if (string.IsNullOrWhiteSpace(request.Content)
+            && string.IsNullOrWhiteSpace(request.ImageUrl)
+            && !hasLinkedContent)
+        {
+            throw new InvalidOperationException("A post must include a photo, caption, or linked activity.");
+        }
+
         // Validate at most one linked content item
         var linkCount = (request.LinkedWorkoutId.HasValue ? 1 : 0)
                       + (request.LinkedMealId.HasValue ? 1 : 0)
@@ -220,14 +241,32 @@ public class SocialService(
 
         if (request.LinkedWorkoutId.HasValue)
         {
-            var exists = await db.WorkoutTemplates.AnyAsync(w => w.Id == request.LinkedWorkoutId && w.UserId == userId);
-            if (!exists) throw new UnauthorizedAccessException("Linked workout does not belong to you.");
+            var workout = await db.WorkoutTemplates
+                .Where(w => w.Id == request.LinkedWorkoutId.Value)
+                .Select(w => new { w.UserId, w.Title, w.DurationMin, w.Type })
+                .FirstOrDefaultAsync();
+            if (workout is null)
+            {
+                throw new KeyNotFoundException("Linked workout was not found.");
+            }
+            if (workout.UserId != userId)
+                throw new UnauthorizedAccessException("Linked workout does not belong to you.");
+            linkedType = "workout";
+            linkedTitle = workout.Title;
+            linkedSubtitle = $"{workout.DurationMin} min · {workout.Type}";
         }
 
         if (request.LinkedMealId.HasValue)
         {
-            var exists = await db.MealEntries.AnyAsync(m => m.Id == request.LinkedMealId && m.UserId == userId);
-            if (!exists) throw new UnauthorizedAccessException("Linked meal does not belong to you.");
+            var meal = await db.MealEntries
+                .Where(m => m.Id == request.LinkedMealId.Value)
+                .Select(m => new { m.UserId, m.Name, m.Type })
+                .FirstOrDefaultAsync();
+            if (meal is null) throw new KeyNotFoundException("Linked meal was not found.");
+            if (meal.UserId != userId) throw new UnauthorizedAccessException("Linked meal does not belong to you.");
+            linkedType = "meal";
+            linkedTitle = meal.Name;
+            linkedSubtitle = meal.Type;
         }
 
         if (request.LinkedDailyEntryId.HasValue)
@@ -239,11 +278,14 @@ public class SocialService(
         var post = new Post
         {
             UserId = userId,
-            Content = request.Content,
-            ImageUrl = request.ImageUrl,
+            Content = request.Content?.Trim() ?? string.Empty,
+            ImageUrl = await fileStorage.NormalizeImageAsync(request.ImageUrl, "posts"),
             LinkedWorkoutId = request.LinkedWorkoutId,
             LinkedMealId = request.LinkedMealId,
-            LinkedDailyEntryId = request.LinkedDailyEntryId
+            LinkedDailyEntryId = request.LinkedDailyEntryId,
+            LinkedContentType = linkedType,
+            LinkedContentTitle = linkedTitle,
+            LinkedContentSubtitle = linkedSubtitle
         };
 
         db.Posts.Add(post);
@@ -275,7 +317,7 @@ public class SocialService(
             throw new UnauthorizedAccessException("You can only edit your own posts.");
 
         post.Content = request.Content;
-        post.ImageUrl = request.ImageUrl;
+        post.ImageUrl = await fileStorage.NormalizeImageAsync(request.ImageUrl, "posts");
         await db.SaveChangesAsync();
 
         return MapToPostResponse(post, userId, [], []);
@@ -350,6 +392,81 @@ public class SocialService(
         }
 
         return new LikeToggleResponse { IsLiked = isLiked, LikesCount = updatedCount };
+    }
+
+    // Saved posts are private: this operation intentionally creates no notification.
+    public async Task<SaveToggleResponse> ToggleSavePostAsync(int postId, string userId)
+    {
+        var isAvailable = await db.Posts
+            .AsNoTracking()
+            .AnyAsync(post => post.Id == postId && !post.IsArchived && post.ArticleId == null);
+        if (!isAvailable)
+            throw new KeyNotFoundException("Post not found.");
+
+        await using var transaction = await db.Database.BeginTransactionAsync();
+        var existing = await db.SavedPosts
+            .FirstOrDefaultAsync(saved => saved.UserId == userId && saved.PostId == postId);
+
+        if (existing is null)
+        {
+            db.SavedPosts.Add(new SavedPost { UserId = userId, PostId = postId });
+            await db.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return new SaveToggleResponse { IsSaved = true };
+        }
+
+        db.SavedPosts.Remove(existing);
+        await db.SaveChangesAsync();
+        await transaction.CommitAsync();
+        return new SaveToggleResponse { IsSaved = false };
+    }
+
+    public async Task<PaginatedResponse<PostResponse>> GetSavedPostsAsync(
+        string userId, int page, int pageSize)
+    {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 50);
+
+        var query = db.SavedPosts
+            .AsNoTracking()
+            .Where(saved => saved.UserId == userId
+                && !saved.Post.IsArchived
+                && saved.Post.ArticleId == null)
+            .OrderByDescending(saved => saved.CreatedAt)
+            .ThenByDescending(saved => saved.Id);
+
+        var total = await query.CountAsync();
+        var savedPosts = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Include(saved => saved.Post.User)
+            .Include(saved => saved.Post.LinkedWorkout)
+            .Include(saved => saved.Post.LinkedMeal)
+            .Include(saved => saved.Post.LinkedDailyEntry)
+            .AsSplitQuery()
+            .ToListAsync();
+
+        var posts = savedPosts.Select(saved => saved.Post).ToList();
+        var postIds = posts.Select(post => post.Id).ToList();
+        var likedPostIds = await db.Likes
+            .Where(like => like.UserId == userId && postIds.Contains(like.PostId))
+            .Select(like => like.PostId)
+            .ToHashSetAsync();
+        var followingIds = await db.Follows
+            .Where(follow => follow.FollowerId == userId)
+            .Select(follow => follow.FollowingId)
+            .ToHashSetAsync();
+        var savedPostIds = postIds.ToHashSet();
+
+        return new PaginatedResponse<PostResponse>
+        {
+            Items = posts.Select(post => MapToPostResponse(
+                post, userId, likedPostIds, followingIds, savedPostIds)).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = total,
+            HasMore = page * pageSize < total
+        };
     }
 
     // ── Comments ──────────────────────────────────────────────────────────────
@@ -591,7 +708,7 @@ public class SocialService(
                 u.ImageUrl,
                 u.Bio,
                 u.IsVerified,
-                PostsCount     = u.Posts.Count(p => !p.IsArchived),
+                PostsCount     = u.Posts.Count(p => !p.IsArchived && p.ArticleId == null),
                 FollowersCount = u.Followers.Count(),
                 FollowingCount = u.Following.Count(),
                 IsFollowedByMe = u.Followers.Any(f => f.FollowerId == requestingUserId)
@@ -643,10 +760,11 @@ public class SocialService(
             .Where(l => l.UserId == requestingUserId && posts.Select(p => p.Id).Contains(l.PostId))
             .Select(l => l.PostId)
             .ToHashSetAsync();
+        var savedPostIds = await GetSavedPostIdsAsync(requestingUserId, posts.Select(p => p.Id));
 
         return new PaginatedResponse<PostResponse>
         {
-            Items = posts.Select(p => MapToPostResponse(p, requestingUserId, likedPostIds, followingIds)).ToList(),
+            Items = posts.Select(p => MapToPostResponse(p, requestingUserId, likedPostIds, followingIds, savedPostIds)).ToList(),
             Page = page,
             PageSize = pageSize,
             TotalCount = total,
@@ -773,11 +891,25 @@ public class SocialService(
 
     // ── Private helpers ───────────────────────────────────────────────────────
 
+    private async Task<HashSet<int>> GetSavedPostIdsAsync(
+        string userId, IEnumerable<int> postIds)
+    {
+        var ids = postIds.Distinct().ToList();
+        if (ids.Count == 0) return [];
+
+        return await db.SavedPosts
+            .AsNoTracking()
+            .Where(saved => saved.UserId == userId && ids.Contains(saved.PostId))
+            .Select(saved => saved.PostId)
+            .ToHashSetAsync();
+    }
+
     private static PostResponse MapToPostResponse(
         Post post,
         string requestingUserId,
         HashSet<int> likedPostIds,
-        HashSet<string> followingIds)
+        HashSet<string> followingIds,
+        HashSet<int>? savedPostIds = null)
     {
         return new PostResponse
         {
@@ -789,6 +921,7 @@ public class SocialService(
             LikesCount = post.LikesCount,
             CommentsCount = post.CommentsCount,
             IsLikedByMe = likedPostIds.Contains(post.Id),
+            IsSavedByMe = savedPostIds?.Contains(post.Id) == true,
             IsFollowingAuthor = post.UserId != requestingUserId && followingIds.Contains(post.UserId),
             IsOwnPost = post.UserId == requestingUserId,
             IsArchived = post.IsArchived,
@@ -858,7 +991,7 @@ public class SocialService(
             .Include(p => p.LinkedDailyEntry)
             .Include(p => p.Article)
             .AsSplitQuery()
-            .Where(p => p.UserId == userId && p.IsArchived)
+            .Where(p => p.UserId == userId && p.IsArchived && p.ArticleId == null)
             .OrderByDescending(p => p.CreatedAt);
 
         var total = await query.CountAsync();
@@ -868,10 +1001,11 @@ public class SocialService(
             .Where(l => l.UserId == userId && posts.Select(p => p.Id).Contains(l.PostId))
             .Select(l => l.PostId)
             .ToHashSetAsync();
+        var savedPostIds = await GetSavedPostIdsAsync(userId, posts.Select(p => p.Id));
 
         return new PaginatedResponse<PostResponse>
         {
-            Items = posts.Select(p => MapToPostResponse(p, userId, likedIds, [])).ToList(),
+            Items = posts.Select(p => MapToPostResponse(p, userId, likedIds, [], savedPostIds)).ToList(),
             Page = page,
             PageSize = pageSize,
             TotalCount = total,
@@ -992,6 +1126,96 @@ public class SocialService(
         };
     }
 
+    public async Task<PaginatedResponse<ProfileMealSummary>> GetProfileMealsAsync(string userId, string requestingUserId, int page, int pageSize)
+    {
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 50);
+        var query = db.MealEntries.AsNoTracking()
+            .Where(m => m.UserId == userId && !m.IsSavedMeal && !m.IsHiddenFromProfile)
+            .OrderByDescending(m => m.CreatedAt);
+        return await MapProfileMealsAsync(query, requestingUserId, page, pageSize);
+    }
+
+    public async Task<PaginatedResponse<ProfileMealSummary>> GetHiddenProfileMealsAsync(string userId, int page, int pageSize)
+    {
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 50);
+        var query = db.MealEntries.AsNoTracking()
+            .Where(m => m.UserId == userId && !m.IsSavedMeal && m.IsHiddenFromProfile)
+            .OrderByDescending(m => m.CreatedAt);
+        return await MapProfileMealsAsync(query, userId, page, pageSize);
+    }
+
+    public async Task<MealVisibilityResponse> ToggleMealProfileVisibilityAsync(int id, string userId)
+    {
+        var meal = await db.MealEntries.FirstOrDefaultAsync(m => m.Id == id)
+            ?? throw new KeyNotFoundException("Meal entry not found.");
+        if (meal.UserId != userId) throw new UnauthorizedAccessException();
+        meal.IsHiddenFromProfile = !meal.IsHiddenFromProfile;
+        await db.SaveChangesAsync();
+        return new MealVisibilityResponse { IsHiddenFromProfile = meal.IsHiddenFromProfile };
+    }
+
+    private static async Task<PaginatedResponse<ProfileMealSummary>> MapProfileMealsAsync(
+        IQueryable<MealEntry> query, string requestingUserId, int page, int pageSize)
+    {
+        var total = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(m => new ProfileMealSummary
+            {
+                Id = m.Id,
+                Name = m.Name,
+                Type = m.Type,
+                Date = m.Date,
+                CreatedAt = m.CreatedAt,
+                IsHiddenFromProfile = m.IsHiddenFromProfile,
+                IsOwnMeal = m.UserId == requestingUserId,
+                TotalCalories = m.UserId == requestingUserId ? m.TotalCalories : null,
+                TotalProtein_g = m.UserId == requestingUserId ? m.TotalProtein_g : null,
+                TotalCarbs_g = m.UserId == requestingUserId ? m.TotalCarbs_g : null,
+                TotalFats_g = m.UserId == requestingUserId ? m.TotalFats_g : null
+            }).ToListAsync();
+        return new PaginatedResponse<ProfileMealSummary>
+        {
+            Items = items, Page = page, PageSize = pageSize, TotalCount = total,
+            HasMore = page * pageSize < total
+        };
+    }
+
+    public async Task<PaginatedResponse<ProfileBlogSummary>> GetArchivedProfileBlogsAsync(string userId, int page, int pageSize)
+    {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 50);
+
+        var query = db.BlogPosts
+            .AsNoTracking()
+            .Where(b => b.AuthorId == userId && b.IsArchived)
+            .OrderByDescending(b => b.CreatedAt);
+
+        var total = await query.CountAsync();
+        var blogs = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return new PaginatedResponse<ProfileBlogSummary>
+        {
+            Items = blogs.Select(b => new ProfileBlogSummary
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Caption = b.Caption,
+                Description = b.Description,
+                Image = string.IsNullOrEmpty(b.Image) ? null : b.Image,
+                Category = b.Category,
+                CreatedAt = b.CreatedAt,
+                IsArchived = true,
+                IsOwnBlog = true
+            }).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = total,
+            HasMore = page * pageSize < total
+        };
+    }
+
     public async Task<ArchiveToggleResponse> ToggleArchiveBlogAsync(int id, string userId)
     {
         var b = await db.BlogPosts.FirstOrDefaultAsync(b => b.Id == id)
@@ -1039,7 +1263,7 @@ public class SocialService(
             Caption = request.Caption,
             Description = request.Description,
             Category = request.Category,
-            Image = request.Image ?? string.Empty,
+            Image = await fileStorage.NormalizeImageAsync(request.Image, "articles") ?? string.Empty,
             Date = DateTime.UtcNow.ToString("MMMM d, yyyy"),
             AuthorId = userId
         };
@@ -1090,7 +1314,7 @@ public class SocialService(
         blog.Caption = request.Caption;
         blog.Description = request.Description;
         blog.Category = request.Category;
-        blog.Image = request.Image ?? string.Empty;
+        blog.Image = await fileStorage.NormalizeImageAsync(request.Image, "articles") ?? string.Empty;
         blog.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
 
@@ -1156,7 +1380,10 @@ public class SocialService(
         {
             UserId = userId,
             Content = content,
-            LinkedWorkoutId = session.WorkoutTemplateId   // may be null — that is fine
+            LinkedWorkoutId = session.WorkoutTemplateId,
+            LinkedContentType = "workout",
+            LinkedContentTitle = session.TemplateTitle,
+            LinkedContentSubtitle = $"{session.DurationMin} min · workout"
         };
 
         db.Posts.Add(post);
@@ -1194,7 +1421,7 @@ public class SocialService(
         var meal = await db.MealEntries
             .AsNoTracking()
             .Where(m => m.Id == mealId && m.UserId == userId)
-            .Select(m => new { m.Id, m.Name })
+            .Select(m => new { m.Id, m.Name, m.Type })
             .FirstOrDefaultAsync()
             ?? throw new KeyNotFoundException("Meal entry not found.");
 
@@ -1209,7 +1436,10 @@ public class SocialService(
         {
             UserId = userId,
             Content = content,
-            LinkedMealId = mealId
+            LinkedMealId = mealId,
+            LinkedContentType = "meal",
+            LinkedContentTitle = meal.Name,
+            LinkedContentSubtitle = meal.Type
         };
 
         db.Posts.Add(post);
@@ -1242,6 +1472,15 @@ public class SocialService(
                 Type = "daily",
                 Title = $"Daily Log — {post.LinkedDailyEntry.Date}",
                 Subtitle = $"{post.LinkedDailyEntry.Steps} steps"
+            };
+
+        if (!string.IsNullOrWhiteSpace(post.LinkedContentType)
+            && !string.IsNullOrWhiteSpace(post.LinkedContentTitle))
+            return new LinkedContentPreview
+            {
+                Type = post.LinkedContentType,
+                Title = post.LinkedContentTitle,
+                Subtitle = post.LinkedContentSubtitle ?? string.Empty
             };
 
         return null;

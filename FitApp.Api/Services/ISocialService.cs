@@ -11,6 +11,8 @@ public interface ISocialService
     Task DeletePostAsync(int id, string userId);
     Task<PostResponse> UpdatePostAsync(int id, string userId, UpdatePostRequest request);
     Task<LikeToggleResponse> ToggleLikeAsync(int postId, string userId);
+    Task<SaveToggleResponse> ToggleSavePostAsync(int postId, string userId);
+    Task<PaginatedResponse<PostResponse>> GetSavedPostsAsync(string userId, int page, int pageSize);
     Task<PaginatedResponse<CommentResponse>> GetCommentsAsync(int postId, int page, int pageSize, string requestingUserId);
     Task<CommentResponse> AddCommentAsync(int postId, string userId, CreateCommentRequest request);
     Task DeleteCommentAsync(int postId, int commentId, string userId);
@@ -24,7 +26,11 @@ public interface ISocialService
     Task<PaginatedResponse<ProfileWorkoutSummary>> GetArchivedWorkoutsAsync(string userId, int page, int pageSize);
     Task<ArchiveToggleResponse> ToggleArchiveWorkoutAsync(int id, string userId);
     Task DeleteWorkoutFromProfileAsync(int id, string userId);
+    Task<PaginatedResponse<ProfileMealSummary>> GetProfileMealsAsync(string userId, string requestingUserId, int page, int pageSize);
+    Task<PaginatedResponse<ProfileMealSummary>> GetHiddenProfileMealsAsync(string userId, int page, int pageSize);
+    Task<MealVisibilityResponse> ToggleMealProfileVisibilityAsync(int id, string userId);
     Task<PaginatedResponse<ProfileBlogSummary>> GetProfileBlogsAsync(string userId, string requestingUserId, int page, int pageSize);
+    Task<PaginatedResponse<ProfileBlogSummary>> GetArchivedProfileBlogsAsync(string userId, int page, int pageSize);
     Task<ArchiveToggleResponse> ToggleArchiveBlogAsync(int id, string userId);
     Task DeleteBlogFromProfileAsync(int id, string userId);
     Task UpdateBioAsync(string userId, string? bio);

@@ -195,7 +195,7 @@
   font-weight: 400;
   color: var(--white-soft);
   line-height: 1.6;
-  padding: 8px 16px 0;
+  padding: 12px 16px 6px;
 }
 
 .post-card-content p {
@@ -232,7 +232,7 @@
   gap: 16px;
   padding: 8px 16px 12px;
   margin-top: 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 0;
 }
 
 .post-card-action-btn {
@@ -268,6 +268,16 @@
 .post-card-action-btn--liked:hover {
   color: var(--accent);
 }
+
+.post-card-action-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.post-card-secondary-actions { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+.post-card-action-btn--share,
+.post-card-action-btn--save { min-width: 44px; justify-content: center; padding-inline: 8px; }
+.post-card-action-btn--save[aria-pressed="true"] { color: var(--primary-light); }
 
 .post-card-action-count {
   font-size: 13px;
@@ -370,7 +380,7 @@
 }
 
 .post-card--seed .post-card-footer {
-  border-top: 1px solid rgba(124, 77, 255, 0.10);
+  border-top: 0;
 }
 
 /* Seed icon box — replaces circular avatar for editorial posts */
@@ -541,7 +551,7 @@
   }
 
   .post-card-content {
-    padding: 6px 12px 0;
+    padding: 10px 12px 6px;
   }
 
   .article-post-body {
