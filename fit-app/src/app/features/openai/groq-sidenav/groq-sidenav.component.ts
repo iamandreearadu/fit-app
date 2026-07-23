@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
 import { MaterialModule } from '../../../core/material/material.module';
 import { CommonModule } from '@angular/common';
@@ -9,19 +9,17 @@ import { CommonModule } from '@angular/common';
   templateUrl: './groq-sidenav.component.html',
   styleUrl: './groq-sidenav.component.css'
 })
-export class GroqSidenavComponent implements OnInit {
+export class GroqSidenavComponent {
   facade = inject(GroqAiFacade);
-
-  ngOnInit() {
-    this.facade.loadConversations();
-  }
+  @Output() conversationSelected = new EventEmitter<void>();
 
   newChat() {
     this.facade.startConversation();
   }
 
   openConversation(id: string) {
-    this.facade.openConversation(id);
+    this.conversationSelected.emit();
+    void this.facade.openConversation(id);
   }
 
   delete(id: string) {

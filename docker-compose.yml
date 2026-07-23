@@ -1,0 +1,49 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: FitApp.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Jwt__Secret: ${JWT_SECRET:?JWT_SECRET is required}
+      Jwt__Issuer: ${JWT_ISSUER:-fitapp-api}
+      Jwt__Audience: ${JWT_AUDIENCE:-fitapp-angular}
+      Jwt__AccessTokenMinutes: ${JWT_ACCESS_TOKEN_MINUTES:-60}
+      Groq__ApiKey: ${GROQ_API_KEY:?GROQ_API_KEY is required}
+      Groq__BaseUrl: ${GROQ_BASE_URL:-https://api.groq.com/openai/v1}
+      Groq__TextModel: ${GROQ_TEXT_MODEL:-llama-3.1-8b-instant}
+      Groq__VisionModel: ${GROQ_VISION_MODEL:-qwen/qwen3.6-27b}
+      Usda__BaseUrl: ${USDA_BASE_URL:-https://api.nal.usda.gov/fdc/v1}
+      Usda__ApiKey: ${USDA_API_KEY:-DEMO_KEY}
+      Email__SmtpHost: ${SMTP_HOST:-smtp.gmail.com}
+      Email__SmtpPort: ${SMTP_PORT:-587}
+      Email__SenderEmail: ${SMTP_USER:?SMTP_USER is required}
+      Email__SenderName: ${SMTP_SENDER_NAME:-FitApp}
+      Email__Password: ${SMTP_PASSWORD:?SMTP_PASSWORD is required}
+      Cors__AllowedOrigins__0: ${PUBLIC_ORIGIN:-http://localhost}
+      Reminders__TimeZone: ${REMINDER_TIME_ZONE:-Europe/Bucharest}
+      Reminders__Streak__Enabled: ${STREAK_REMINDERS_ENABLED:-true}
+      Reminders__Streak__Hour: ${STREAK_REMINDER_HOUR:-18}
+      Vapid__Subject: ${VAPID_SUBJECT:?VAPID_SUBJECT is required}
+      Vapid__PublicKey: ${VAPID_PUBLIC_KEY:?VAPID_PUBLIC_KEY is required}
+      Vapid__PrivateKey: ${VAPID_PRIVATE_KEY:?VAPID_PRIVATE_KEY is required}
+    volumes:
+      - fitapp-data:/app/data
+      - fitapp-uploads:/app/wwwroot/uploads
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./fit-app
+      args:
+        VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:?VAPID_PUBLIC_KEY is required}
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  fitapp-data:
+  fitapp-uploads:

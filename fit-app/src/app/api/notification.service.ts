@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SocialNotification, UnreadCountResponse } from '../core/models/notification.model';
 import { PaginatedResponse } from '../core/models/social.model';
+import { DeletePushSubscriptionRequest, PushSubscriptionRequest } from '../core/models/push-notification.model';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
@@ -25,5 +26,13 @@ export class NotificationService {
 
   markOneRead(id: number): Observable<void> {
     return this.http.put<void>(`${this.base}/${id}/read`, {});
+  }
+
+  subscribeToPush(request: PushSubscriptionRequest): Observable<void> {
+    return this.http.post<void>(`${this.base}/push-subscribe`, request);
+  }
+
+  unsubscribeFromPush(request: DeletePushSubscriptionRequest): Observable<void> {
+    return this.http.delete<void>(`${this.base}/push-subscribe`, { body: request });
   }
 }

@@ -210,13 +210,27 @@ export class UserFacade {
 
   /** Reactive computed signal — tracks NutritionTabFacade._meals so templates update automatically. */
   readonly meals = computed(() => this.nutritionTabFacade.meals);
+  readonly mealsLoading = computed(() => this.nutritionTabFacade.loading);
+  readonly mealsError = this.nutritionTabFacade.error;
 
   async loadMeals(): Promise<void> {
     await this.nutritionTabFacade.loadMeals();
   }
 
-  async saveMeal(data: Partial<MealEntry>): Promise<void> {
-    await this.nutritionTabFacade.saveMeal(data);
+  async loadSavedMeals(): Promise<void> {
+    await this.nutritionTabFacade.loadSavedMeals();
+  }
+
+  async saveMeal(data: Partial<MealEntry>): Promise<MealEntry | null> {
+    return this.nutritionTabFacade.saveMeal(data);
+  }
+
+  async deleteMeal(uid?: string): Promise<boolean> {
+    return this.nutritionTabFacade.deleteMeal(uid);
+  }
+
+  async deleteMealsForDate(date: string): Promise<boolean> {
+    return this.nutritionTabFacade.deleteMealsForDate(date);
   }
 
   // ========== Workout template delegations ==========
@@ -240,6 +254,10 @@ export class UserFacade {
 
   public adjustCaloriesBurned(delta: number): void {
     this.dailyUserSrv.adjustCaloriesBurned(delta);
+  }
+
+  public setCaloriesBurned(value: number): void {
+    this.dailyUserSrv.setCaloriesBurned(value);
   }
 
 }

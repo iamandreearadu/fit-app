@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -8,6 +8,7 @@ import { AiChatFabComponent } from './core/components/ai-chat-fab/ai-chat-fab.co
 import { AppBottomNavComponent } from './shared/components/bottom-nav/app-bottom-nav.component';
 import { AppTopBarComponent } from './shared/components/top-bar/app-top-bar.component';
 import { AppSideDrawerComponent } from './shared/components/side-drawer/app-side-drawer.component';
+import { PwaUpdateService } from './core/services/pwa-update.service';
 
 @Component({
   standalone: true,
@@ -22,9 +23,11 @@ import { AppSideDrawerComponent } from './shared/components/side-drawer/app-side
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
   private readonly router = inject(Router);
+  private readonly pwaUpdates = inject(PwaUpdateService);
 
   readonly isMobile = signal(false);
   readonly drawerOpen = signal(false);
@@ -45,11 +48,19 @@ export class AppComponent {
       '/workout-session',   // full-screen session mode
       '/social/chat/',      // individual chat thread (keyboard + input area)
       '/social/post/',      // immersive post + comments
-      '/social/article/',   // immersive article reading
     ];
-    const isExcluded = excluded.some(p => route.startsWith(p));
+    const isExcluded = excluded.some(p => route.startsWith(p)) || route.startsWith('/ai-assistant');
     const isDetail = detailPrefixes.some(p => route.startsWith(p));
     return this.isMobile() && !isExcluded && !isDetail;
+  });
+
+  readonly showTopBar = computed(() => {
+    return this.showMainNav();
+  });
+
+  readonly showBottomNav = computed(() => {
+    const route = this.currentRoute();
+    return this.showMainNav() && route !== '/social/new-post' && !route.startsWith('/social/new-post?');
   });
 
   /**
@@ -71,6 +82,20 @@ export class AppComponent {
       this.currentRoute.set(e.urlAfterRedirects);
       // Close side drawer on any navigation
       this.drawerOpen.set(false);
+      this.scrollRouteToTop();
+    });
+  }
+
+  /**
+   * Some application shells own their scrolling instead of the browser window.
+   * Reset those containers after the routed view has rendered so every link
+   * opens at the beginning of its destination page as well.
+   */
+  private scrollRouteToTop(): void {
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      document.querySelectorAll<HTMLElement>('[data-route-scroll-container]')
+        .forEach(container => container.scrollTo({ top: 0, left: 0, behavior: 'auto' }));
     });
   }
 }

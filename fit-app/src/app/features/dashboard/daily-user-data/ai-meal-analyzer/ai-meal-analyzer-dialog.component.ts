@@ -52,12 +52,16 @@ export class AiMealAnalyzerDialogComponent {
           ];
 
     try {
-      await this.nutritionFacade.saveMeal({
+      const saved = await this.nutritionFacade.saveMeal({
         name: `AI Meal ${timeStr}`,
         type: mealType,
         date: new Date().toISOString().slice(0, 10),
         items,
       });
+      if (!saved) {
+        this.alerts.error('Failed to save meal. Please try again.');
+        return;
+      }
       this.alerts.success('Meal saved to your nutrition log.');
       this.dialogRef.close(true);
     } catch {
@@ -65,12 +69,9 @@ export class AiMealAnalyzerDialogComponent {
     }
   }
 
-  /**
-   * Handles the "Add to Today" action — no nutrition log entry is created in
-   * this context, so we close the dialog without triggering a list reload.
-   */
-  onAdded(): void {
-    this.dialogRef.close(false);
+  /** "Add to Today" persists the entry so every daily-meal view stays in sync. */
+  async onAdded(event: { macros: MealMacros; mealType: MealType }): Promise<void> {
+    await this.onSaveMeal(event);
   }
 
   /** Surfaces analyzer errors as toasts; dialog stays open so the user can retry. */

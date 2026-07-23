@@ -41,6 +41,35 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger)
         }
     }
 
+    public async Task SendStreakReminderAsync(string toEmail, string fullName)
+    {
+        try
+        {
+            var senderEmail = config["Email:SenderEmail"]
+                ?? throw new InvalidOperationException("Email:SenderEmail is missing.");
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(config["Email:SenderName"] ?? "FitApp", senderEmail));
+            message.To.Add(new MailboxAddress(fullName, toEmail));
+            message.Subject = "Your FitApp streak is waiting";
+            message.Body = new TextPart("html")
+            {
+                Text = $"<p>Hi {System.Net.WebUtility.HtmlEncode(fullName)},</p><p>Your streak is at risk. Log today's progress to keep it going.</p>"
+            };
+            using var client = new SmtpClient();
+            await client.ConnectAsync(
+                config["Email:SmtpHost"] ?? throw new InvalidOperationException("Email:SmtpHost is missing."),
+                config.GetValue<int>("Email:SmtpPort"), SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync(senderEmail,
+                config["Email:Password"] ?? throw new InvalidOperationException("Email:Password is missing."));
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to send streak reminder email to {Email}", toEmail);
+        }
+    }
+
     private static string BuildWelcomeHtml(string fullName) => $"""
         <!DOCTYPE html>
         <html lang="en">

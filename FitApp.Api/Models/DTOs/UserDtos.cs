@@ -13,6 +13,7 @@ public class UserProfileDto
     public double WeightKg { get; set; }
     public string Goal { get; set; } = string.Empty;
     public string Activity { get; set; } = string.Empty;
+    [MaxLength(7_000_000)]
     public string? ImageUrl { get; set; }
     public bool OnboardingCompleted { get; set; }
     public string? DietaryPreference { get; set; }

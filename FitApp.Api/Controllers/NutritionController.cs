@@ -19,11 +19,21 @@ public class NutritionController(
     // ── Meal CRUD ─────────────────────────────────────────────────────────────
 
     [HttpGet]
-    public async Task<IActionResult> List([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    public async Task<IActionResult> List(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? date = null)
     {
-        var (items, hasMore) = await nutritionService.ListAsync(UserId, page, pageSize);
+        if (date is not null && !DateOnly.TryParseExact(date, "yyyy-MM-dd", out _))
+            return BadRequest(new { message = "Date must use yyyy-MM-dd format." });
+
+        var (items, hasMore) = await nutritionService.ListAsync(UserId, page, pageSize, date);
         return Ok(new { items, hasMore, page, pageSize });
     }
+
+    [HttpGet("saved")]
+    public async Task<ActionResult<IEnumerable<MealEntryDto>>> ListSavedMeals()
+        => Ok(await nutritionService.ListSavedMealsAsync(UserId));
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] SaveMealRequest req)

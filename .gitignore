@@ -43,6 +43,9 @@ Thumbs.db
 
 # Environment files
 /src/environments/*
+.env
+.env.*
+!.env.example
 
 # ── FitApp.Api ────────────────────────────────────────────────
 FitApp.Api/bin/
@@ -53,6 +56,13 @@ FitApp.Api/*.db-shm
 FitApp.Api/*.db-wal
 FitApp.Api/appsettings.json
 FitApp.Api/appsettings.Development.json
+
+# ── FitApp.Api.Tests ─────────────────────────────────────────
+FitApp.Api.Tests/bin/
+FitApp.Api.Tests/obj/
+
+# ── Build scratch output ────────────────────────────────────
+.codex-build/
 
 # ── fit-app ───────────────────────────────────────────────────
 fit-app/node_modules/

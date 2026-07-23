@@ -56,7 +56,8 @@ export class AiChatFabComponent {
     const isHiddenRoute =
       url.startsWith('/login') ||
       url.startsWith('/register') ||
-      url.startsWith('/onboarding');
+      url.startsWith('/onboarding') ||
+      url.startsWith('/social/new-post');
     return isAuth && !isHiddenRoute;
   });
 

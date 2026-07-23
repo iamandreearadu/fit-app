@@ -27,7 +27,7 @@ export class FooterComponent {
     { label: 'Home', route: '/', requiresAuth: false },
     { label: 'Blog', route: '/blog', requiresAuth: false },
     { label: 'Dashboard', route: '/user-dashboard', requiresAuth: true },
-    { label: 'Account', route: '/account', requiresAuth: true }
+    { label: 'Account', route: '/account/my-account', requiresAuth: true }
   ];
 
   legalLinks = [

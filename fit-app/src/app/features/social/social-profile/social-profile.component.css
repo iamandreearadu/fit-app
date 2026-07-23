@@ -54,7 +54,12 @@
   width: 72px; height: 72px; border-radius: 50%; overflow: hidden;
   border: 3px solid var(--primary); box-shadow: 0 0 20px var(--primary-glow); flex-shrink: 0;
   position: relative;
+  padding: 0; background: transparent;
 }
+.profile-avatar-ring:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
+.profile-avatar-ring:disabled { cursor: default; }
+.avatar-spinner { position: absolute; inset: 0; margin: auto; z-index: 2; }
+.profile-inline-error { margin: 2px 0 0; color: var(--accent); font-size: 12px; }
 
 .profile-avatar-ring--editable { cursor: pointer; }
 
@@ -151,7 +156,8 @@
   transition: border-color 0.15s ease;
 }
 .bio-textarea::placeholder { color: var(--text-muted); }
-.bio-textarea:focus { outline: none; }
+.bio-textarea:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 8px; }
+.bio-character-count { align-self: flex-end; color: var(--text-muted); font-size: 11px; }
 
 /* Actions */
 .profile-action-row { display: flex; gap: 10px; align-items: center; }
@@ -165,6 +171,8 @@
   border: 1px solid rgba(255,255,255,0.2); background: transparent; color: var(--white-soft);
 }
 .profile-action-btn.btn-ghost:hover { border-color: var(--primary); color: var(--primary-light); }
+.profile-action-btn--plain { background: transparent; color: var(--white-soft); }
+.profile-action-btn--plain:hover { color: var(--primary-light); background: rgba(var(--primary-rgb), 0.06); }
 .profile-action-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
 .profile-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -180,8 +188,8 @@
 .profile-more-btn:hover { border-color: var(--primary); color: var(--primary-light); }
 .profile-more-menu {
   position: absolute; top: calc(100% + 6px); right: 0;
-  min-width: 160px; background: #1a1a24;
-  border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  min-width: 160px; background: var(--surface-elevated);
+  border: 1px solid var(--border-default); border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.5); overflow: hidden; z-index: 100;
 }
 .profile-more-item {
@@ -190,6 +198,7 @@
   border: none; background: transparent;
   color: var(--text-primary); font-size: 13px; font-weight: 500;
   cursor: pointer; transition: background 0.15s ease;
+  text-decoration: none; box-sizing: border-box;
 }
 .profile-more-item mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--text-tertiary); }
 .profile-more-item:hover { background: rgba(255,255,255,0.06); }
@@ -242,7 +251,7 @@
 
 /* Tabs */
 .profile-tabs {
-  display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .profile-tab-btn {
@@ -256,6 +265,17 @@
 .profile-tab-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
 .profile-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
 .profile-tab-btn:hover:not(.active) { color: var(--text-secondary); }
+.meal-visibility-tabs { display: flex; gap: 4px; width: fit-content; padding: 4px; margin: 14px 16px 4px; border-radius: 999px; background: rgba(255,255,255,.04); }
+.meal-visibility-tabs button { border: 0; border-radius: 999px; padding: 7px 16px; background: transparent; color: var(--text-tertiary); font: inherit; font-size: 12px; cursor: pointer; }
+.meal-visibility-tabs button.active { background: rgba(124,77,255,.16); color: var(--primary-light); }
+.meal-icon { color: var(--primary-light); }
+.meal-calories { color: var(--text-secondary); }
+.meal-macros { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 640px) {
+  .profile-tabs { display: flex; overflow-x: auto; scrollbar-width: none; }
+  .profile-tabs::-webkit-scrollbar { display: none; }
+  .profile-tab-btn { flex: 0 0 25%; min-width: 82px; }
+}
 
 /* Posts grid */
 .profile-posts-section { display: flex; flex-direction: column; gap: 12px; }
@@ -339,6 +359,7 @@
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .workout-icon { background: rgba(124,77,255,0.15); color: var(--primary); }
+.workout-card-icon { background: transparent; color: var(--primary-light); }
 .blog-icon { background: rgba(0,188,212,0.12); color: var(--color-info, #00bcd4); }
 .profile-card-icon mat-icon { font-size: 22px; width: 22px; height: 22px; }
 .profile-card-img-wrap {
@@ -361,7 +382,7 @@
 .profile-card-actions { display: flex; gap: 4px; flex-shrink: 0; }
 .profile-card-action-btn {
   display: flex; align-items: center; justify-content: center;
-  width: 32px; height: 32px; border-radius: 8px;
+  width: 44px; height: 44px; border-radius: 8px;
   border: none; background: transparent;
   color: var(--text-tertiary); cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
@@ -455,7 +476,7 @@
 .archived-section-header { display: flex; align-items: center; gap: 12px; }
 .archived-back-btn {
   display: flex; align-items: center; justify-content: center;
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 48px; height: 48px; border-radius: 50%;
   border: none; background: rgba(255,255,255,0.06);
   color: var(--white); cursor: pointer;
   transition: background 0.15s ease;
@@ -554,8 +575,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   border: none;
   background: transparent;
@@ -901,6 +922,9 @@
   cursor: pointer;
   transition: background 0.15s;
   border-radius: 8px;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
 }
 .profile-stat-cell--clickable:hover {
   background: rgba(255, 255, 255, 0.06);
@@ -945,6 +969,11 @@
   cursor: pointer;
   flex: 1;
   min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
 }
 .follow-list-avatar-wrap {
   width: 44px;
@@ -1002,6 +1031,19 @@
   white-space: nowrap;
   flex-shrink: 0;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
+  min-height: 44px;
+}
+.profile-overlay-btn:disabled,
+.profile-card-action-btn:disabled,
+.follow-list-btn:disabled { opacity: 0.45; cursor: wait; }
+.profile-section-error { margin: 8px 0; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+:is(button, [role="link"], [role="tab"]):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 .follow-list-btn:hover {
   background: #6b3de8;

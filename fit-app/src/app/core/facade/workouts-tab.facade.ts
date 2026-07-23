@@ -31,11 +31,14 @@ export class WorkoutsTabFacade {
   private readonly _templates = signal<WorkoutTemplate[]>([]);
   private readonly _selectedTemplate = signal<WorkoutTemplate | null>(null);
   private readonly _loading = signal(false);
+  private readonly _error = signal<string | null>(null);
 
   /** Public reactive signal — used by WorkoutsGuidedEmptyComponent trigger check */
   readonly templatesSignal = this._templates.asReadonly();
   /** Public reactive loading signal — used by WorkoutsGuidedEmptyComponent */
   readonly loadingSignal = this._loading.asReadonly();
+  /** Non-null when the last loadTemplates() call failed. */
+  readonly error = this._error.asReadonly();
 
   // ── Fix 6: Session state ────────────────────────────────────────────────────
   readonly lastSession = signal<LastExerciseSession[]>([]);
@@ -68,9 +71,12 @@ export class WorkoutsTabFacade {
 
   async loadTemplates(): Promise<void> {
     this._loading.set(true);
+    this._error.set(null);
     try {
       const templates = await this.workoutsSvc.listTemplates();
       this._templates.set(templates);
+    } catch {
+      this._error.set('Failed to load workouts. Please try again.');
     } finally {
       this._loading.set(false);
     }
@@ -82,9 +88,16 @@ export class WorkoutsTabFacade {
       return;
     }
     this._loading.set(true);
+    this._error.set(null);
     try {
       const t = await this.workoutsSvc.getTemplate(docId);
+      if (!t) {
+        this._error.set('Failed to load workout. Please try again.');
+        return;
+      }
       this._selectedTemplate.set(t);
+    } catch {
+      this._error.set('Failed to load workout. Please try again.');
     } finally {
       this._loading.set(false);
     }
@@ -94,12 +107,15 @@ export class WorkoutsTabFacade {
     if (!editModel) return;
 
     this._loading.set(true);
+    this._error.set(null);
     try {
       if (editModel.uid) {
         const updated = await this.workoutsSvc.updateTemplateByUid(editModel.uid, editModel);
         if (updated) {
           await this.loadTemplates();
           this._selectedTemplate.set(updated);
+        } else {
+          this._error.set('Failed to save workout. Please try again.');
         }
         return;
       }
@@ -108,7 +124,11 @@ export class WorkoutsTabFacade {
       if (created) {
         await this.loadTemplates();
         this._selectedTemplate.set(created);
+      } else {
+        this._error.set('Failed to save workout. Please try again.');
       }
+    } catch {
+      this._error.set('Failed to save workout. Please try again.');
     } finally {
       this._loading.set(false);
     }
@@ -118,12 +138,17 @@ export class WorkoutsTabFacade {
     if (!uid) return;
 
     this._loading.set(true);
+    this._error.set(null);
     try {
       const success = await this.workoutsSvc.deleteTemplateByUid(uid);
       if (success) {
         this._selectedTemplate.set(null);
         await this.loadTemplates();
+      } else {
+        this._error.set('Failed to delete workout. Please try again.');
       }
+    } catch {
+      this._error.set('Failed to delete workout. Please try again.');
     } finally {
       this._loading.set(false);
     }

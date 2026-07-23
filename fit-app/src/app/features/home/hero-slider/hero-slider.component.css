@@ -5,7 +5,7 @@
   position: relative;
   height: calc(100vh - 74px);
   overflow: hidden;
-  background: #0d0d14;
+  background: var(--surface);
 }
 
 /* ── Background slides ── */
@@ -56,8 +56,11 @@
   align-items: center;
   gap: 6px;
   padding: 6px 16px;
-  background: rgba(124,77,255,.18);
-  border: 1px solid rgba(124,77,255,.35);
+  background: rgba(124,77,255,.12);
+  border: 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--nova-glass-highlight);
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
@@ -117,10 +120,17 @@
   gap: 7px;
   font-size: 15px;
   font-weight: 600;
-  color: var(--primary);
+  min-height: var(--action-min-height);
+  padding: 0 20px;
+  border: 1px solid var(--action-border);
+  border-radius: var(--action-radius);
+  color: var(--action-text);
   text-decoration: none;
   letter-spacing: .02em;
-  transition: gap .2s ease, opacity .2s;
+  background: rgba(var(--primary-rgb), .035);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: color .15s ease, border-color .15s ease, background .15s ease, transform .15s ease;
 }
 
 .btn-text-link mat-icon {
@@ -131,7 +141,15 @@
 }
 
 .btn-text-link:hover {
-  opacity: .82;
+  color: var(--action-text-hover);
+  border-color: var(--action-border-hover);
+  background: var(--action-hover-bg);
+  transform: translateY(-1px);
+}
+
+.btn-text-link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
 }
 
 .btn-text-link:hover mat-icon {
@@ -151,16 +169,18 @@
   align-items: center;
   gap: 14px;
   padding: 14px 18px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.08);
+  background: var(--nova-glass-card);
+  border: 0;
   border-radius: 14px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: var(--nova-glass-blur);
+  -webkit-backdrop-filter: var(--nova-glass-blur);
+  box-shadow: var(--nova-glass-highlight);
   transition: transform .25s ease, background .25s ease;
 }
 
 .motivation-card:hover {
   transform: translateX(6px);
-  background: rgba(255,255,255,.07);
+  background: linear-gradient(145deg, rgba(38,31,50,.31), rgba(16,15,21,.22));
 }
 
 .mc-icon-wrap {

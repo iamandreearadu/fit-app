@@ -7,8 +7,13 @@
   }
 }
 
+.post-loading,
+.post-not-found {
+  background: var(--nova-page-canvas);
+}
+
 .post-page {
-  background: var(--surface);
+  background: var(--nova-page-canvas);
   color: var(--white-soft);
 }
 
@@ -23,9 +28,11 @@
   position: sticky;
   top: 0;
   z-index: 5;
-  background: rgba(13,13,16,.85);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255,255,255,.08);
+  background: rgba(13,13,16,.68);
+  backdrop-filter: blur(18px) saturate(115%);
+  -webkit-backdrop-filter: blur(18px) saturate(115%);
+  border-bottom: 0;
+  box-shadow: var(--nova-glass-highlight);
 }
 
 .topbar-inner {
@@ -40,7 +47,7 @@
 
 .back-btn {
   color: rgba(255,255,255,.65) !important;
-  border-color: rgba(255,255,255,.12) !important;
+  border-color: var(--action-border) !important;
   border-radius: 10px !important;
   display: inline-flex;
   align-items: center;
@@ -51,7 +58,13 @@
 
 .back-btn:hover {
   color: var(--white) !important;
-  border-color: rgba(124,77,255,.4) !important;
+  border-color: var(--action-border-hover) !important;
+  background: var(--action-hover-bg) !important;
+}
+
+.back-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .topbar-divider {
@@ -113,7 +126,8 @@
   letter-spacing: .06em;
   color: #a78bfa;
   background: rgba(124,77,255,.18);
-  border: 1px solid rgba(124,77,255,.3);
+  border: 0;
+  box-shadow: var(--nova-glass-highlight);
   padding: 4px 12px;
   border-radius: 999px;
   margin-bottom: 14px;
@@ -142,6 +156,11 @@
   max-width: min(760px, 92vw);
   margin: clamp(24px, 4vw, 48px) auto clamp(56px, 7vw, 96px);
   padding: clamp(20px, 4vw, 36px);
+  border-radius: 20px;
+  background: var(--nova-glass-soft);
+  backdrop-filter: blur(10px) saturate(108%);
+  -webkit-backdrop-filter: blur(10px) saturate(108%);
+  box-shadow: var(--nova-glass-highlight);
 }
 
 .post-description {
@@ -178,4 +197,9 @@
 
 @media (min-width: 1200px) {
   .post-content { max-width: 800px; }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .post-topbar { background: rgba(13,13,16,.96); }
+  .post-content { background: rgba(24,20,31,.94); }
 }

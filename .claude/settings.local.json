@@ -39,7 +39,21 @@
       "Bash(kill 95970)",
       "Bash(node_modules/.bin/ng serve *)",
       "Bash(echo \"PID: $!\")",
-      "Bash(awk '{print $8, $11}')"
+      "Bash(awk '{print $8, $11}')",
+      "Bash(gh repo *)",
+      "Bash(taskkill //PID 10408 //F)",
+      "Bash(netstat -ano)",
+      "Bash(dotnet new *)",
+      "Bash(rm -f FitApp.Api.Tests/UnitTest1.cs)",
+      "Bash(dotnet add *)",
+      "Bash(dotnet sln *)",
+      "Bash(tasklist //FI \"IMAGENAME eq dotnet.exe\")",
+      "Bash(taskkill //PID 12192 //F)",
+      "Bash(taskkill //PID 22572 //F)",
+      "Bash(taskkill //PID 21624 //F)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5140/api/blog)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:4200)",
+      "WebSearch"
     ]
   }
 }

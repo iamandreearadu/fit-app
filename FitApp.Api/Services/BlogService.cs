@@ -16,6 +16,7 @@ public class BlogService(AppDbContext db)
         // User-authored articles (AuthorId != null) are managed via SocialService
         // and displayed in the social feed, not the public blog listing.
         var query = db.BlogPosts
+            .AsNoTracking()
             .Where(b => b.AuthorId == null)
             .OrderByDescending(b => b.CreatedAt);
 
@@ -38,7 +39,9 @@ public class BlogService(AppDbContext db)
     public async Task<BlogPostDto?> GetAsync(int id)
     {
         // Only return admin-authored posts (AuthorId == null) — see ListAsync for rationale.
-        var post = await db.BlogPosts.FirstOrDefaultAsync(b => b.Id == id && b.AuthorId == null);
+        var post = await db.BlogPosts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(b => b.Id == id && b.AuthorId == null);
         return post is null ? null : MapToDto(post);
     }
 
@@ -79,6 +82,10 @@ public class BlogService(AppDbContext db)
     {
         var post = await db.BlogPosts.FindAsync(id);
         if (post is null) return false;
+
+        var linkedPost = await db.Posts.FirstOrDefaultAsync(p => p.ArticleId == id);
+        if (linkedPost is not null) db.Posts.Remove(linkedPost);
+
         db.BlogPosts.Remove(post);
         await db.SaveChangesAsync();
         return true;

@@ -26,7 +26,7 @@ export class DailyUserDataService {
   readonly todaySummary = this._todaySummary.asReadonly();
 
   readonly stats = computed<DailyUserDataStats>(() =>
-    this.computeStats(this._daily())
+    this.computeStats(this._daily(), this._todaySummary())
   );
 
   readonly waterTarget = computed(() =>
@@ -116,6 +116,23 @@ export class DailyUserDataService {
     });
   }
 
+  public setCaloriesBurned(value: number): void {
+    const current = this._daily();
+    const normalized = Math.max(0, Number.isFinite(value) ? value : 0);
+    if (!current) {
+      this.setDailyFromPatch({
+        date: this.todayDate,
+        caloriesBurned: normalized,
+      });
+      return;
+    }
+
+    this.setDailyFromPatch({
+      date: current.date,
+      caloriesBurned: normalized,
+    });
+  }
+
   // ----------------- DOMAIN LOGIC (pure) -----------------
 
   private caloriesFromMacros(protein: number, carbs: number, fats: number): number {
@@ -143,21 +160,14 @@ export class DailyUserDataService {
       fats: Number(patch.macrosPct?.fats ?? existing?.macrosPct?.fats ?? 0),
     };
 
-    const hasMacrosInPatch =
-      !!patch.macrosPct &&
-      (
-        patch.macrosPct.protein !== undefined ||
-        patch.macrosPct.carbs !== undefined ||
-        patch.macrosPct.fats !== undefined
-      );
-
-    const caloriesIntake = hasMacrosInPatch
-      ? this.caloriesFromMacros(macros.protein, macros.carbs, macros.fats)
-      : Number(
-          patch.caloriesIntake
-          ?? existing?.caloriesIntake
-          ?? this.caloriesFromMacros(macros.protein, macros.carbs, macros.fats)
-        );
+    // MealEntry.TotalCalories is the canonical calorie intake. Keep an explicit
+    // backend value even when the same payload also contains macro totals; AI and
+    // packaged-food calories are not guaranteed to equal the 4/4/9 estimate.
+    const hasExplicitCalories = patch.caloriesIntake !== undefined
+      || existing?.caloriesIntake !== undefined;
+    const caloriesIntake = hasExplicitCalories
+      ? Number(patch.caloriesIntake ?? existing?.caloriesIntake ?? 0)
+      : this.caloriesFromMacros(macros.protein, macros.carbs, macros.fats);
 
     const caloriesBurned = Number(patch.caloriesBurned ?? existing?.caloriesBurned ?? 0);
 
@@ -181,7 +191,10 @@ export class DailyUserDataService {
     return result;
   }
 
-  private computeStats(d: DailyUserData | null): DailyUserDataStats {
+  private computeStats(
+    d: DailyUserData | null,
+    summary: DailyEntrySummary | null
+  ): DailyUserDataStats {
     if (!d) {
       return {
         totalCalories: 0,
@@ -200,10 +213,16 @@ export class DailyUserDataService {
     const carbs = Number(macros.carbs ?? 0);
     const fats = Number(macros.fats ?? 0);
 
-    const caloriesIntake = d.caloriesIntake ?? this.caloriesFromMacros(protein, carbs, fats);
-    const caloriesBurned = Number(d.caloriesBurned ?? 0);
-    const totalCalories = Math.round(this.caloriesFromMacros(protein, carbs, fats));
-    const netCalories = Math.max(0, this.caloriesTotal(totalCalories, caloriesBurned));
+    const caloriesIntake = Number(
+      summary?.caloriesFromNutritionLog
+      ?? d.caloriesIntake
+      ?? this.caloriesFromMacros(protein, carbs, fats)
+    );
+    // Daily state reflects the live form value. The summary can remain stale
+    // until autosave completes, so it must only be a fallback.
+    const caloriesBurned = Number(d.caloriesBurned ?? summary?.caloriesBurned ?? 0);
+    const totalCalories = Math.round(caloriesIntake);
+    const netCalories = this.caloriesTotal(totalCalories, caloriesBurned);
 
     const waterConsumedL = Number(d.waterConsumedL ?? 0);
     const steps = Number(d.steps ?? 0);

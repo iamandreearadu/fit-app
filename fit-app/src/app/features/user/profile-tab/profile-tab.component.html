@@ -1,130 +1,104 @@
-<div class="card">
+<section class="account-panel" aria-labelledby="account-title" [attr.aria-busy]="facade.loading()">
   <div *ngIf="facade.loading()" class="loader-overlay">
-    <mat-progress-spinner
-      mode="indeterminate"
-      [diameter]="36"
-    ></mat-progress-spinner>
+    <mat-progress-spinner mode="indeterminate" [diameter]="36"></mat-progress-spinner>
   </div>
 
-  <div class="card-hdr">
-    <span class="card-tag">Account</span>
-    <h3 class="card-title">Basic Information</h3>
-  </div>
+  <header class="account-header">
+    <span class="header-icon" aria-hidden="true"><mat-icon>person</mat-icon></span>
+    <div>
+      <h2 id="account-title">Account</h2>
+      <p>Manage your profile and contact details.</p>
+    </div>
+  </header>
 
-  <div class="card-body">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="profile-form">
-      <!-- Avatar section -->
-      <div class="avatar-section">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="profile-form">
+    <div class="profile-layout">
+      <section class="profile-identity" aria-labelledby="photo-title">
         <div class="av-wrap">
-          <img
-            [src]="form.get('imageUrl')?.value || 'assets/user.png'"
-            alt="Profile photo"
-            class="av-img"
-            [class.clickable]="form.get('imageUrl')?.value"
-            (click)="openImagePreview()"
-            (error)="onClearLink()"
-          />
           <button
-            class="av-cam"
+            class="avatar-preview"
             type="button"
-            (click)="openFilePicker()"
-            title="Change photo"
+            [class.clickable]="form.get('imageUrl')?.value"
+            [disabled]="!form.get('imageUrl')?.value"
+            (click)="openImagePreview()"
+            aria-label="Preview profile photo"
           >
+            <img
+              [src]="form.get('imageUrl')?.value || 'assets/user.png'"
+              alt=""
+              class="av-img"
+              (error)="onClearLink()"
+            />
+          </button>
+          <button class="av-cam" type="button" (click)="openFilePicker()" aria-label="Change profile photo">
             <mat-icon>photo_camera</mat-icon>
           </button>
         </div>
+
         <div class="av-meta">
-          <p class="av-name">
-            {{ form.get("fullName")?.value || "Your Name" }}
-          </p>
-          <!-- <p class="av-hint">JPG or PNG · max 1.5 MB</p> -->
+          <span class="section-kicker" id="photo-title">Profile photo</span>
+          <p class="av-name">{{ form.get('fullName')?.value || 'Your Name' }}</p>
+          <p class="av-email">{{ form.get('email')?.value || 'Your email address' }}</p>
+          <p class="av-hint" id="photo-hint">JPG, PNG or WebP · max 15 MB</p>
           <div class="av-btns">
             <button class="btn-ghost" type="button" (click)="openFilePicker()">
-              <mat-icon>upload</mat-icon>Upload photo
+              <mat-icon>upload</mat-icon>Upload
             </button>
-            <button
-              *ngIf="form.get('imageUrl')?.value"
-              class="btn-ghost danger"
-              type="button"
-              (click)="onClearLink()"
-            >
-              <mat-icon>delete_outline</mat-icon>Remove
+            <button *ngIf="form.get('imageUrl')?.value" class="btn-ghost danger" type="button" (click)="onClearLink()">
+              Remove
             </button>
           </div>
-          <input
-            #fileInput
-            type="file"
-            accept="image/*"
-            (change)="onFilePicked($event)"
-            hidden
-          />
+          <input #fileInput type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="photo-hint" (change)="onFilePicked($event)" hidden />
         </div>
-      </div>
+      </section>
 
-      <!-- Fields -->
-      <div class="fields-grid">
-        <div class="field-group">
-          <label class="f-label"><mat-icon>person</mat-icon>Full Name</label>
-          <mat-form-field appearance="outline" class="f-field">
-            <input
-              matInput
-              formControlName="fullName"
-              placeholder="Your full name"
-            />
-            <mat-error
-              *ngIf="
-                form.get('fullName')?.touched && form.get('fullName')?.invalid
-              "
-            >
-              {{ formErrors.getMessage(form.get("fullName")?.errors) }}
-            </mat-error>
-          </mat-form-field>
+      <section class="profile-details" aria-labelledby="details-title">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Personal information</span>
+            <h3 id="details-title">Your details</h3>
+          </div>
+          <mat-icon aria-hidden="true">badge</mat-icon>
         </div>
 
-        <div class="field-group">
-          <label class="f-label"><mat-icon>email</mat-icon>Email Address</label>
-          <mat-form-field appearance="outline" class="f-field">
-            <input
-              matInput
-              formControlName="email"
-              type="email"
-              placeholder="your@email.com"
-            />
-            <mat-error
-              *ngIf="form.get('email')?.touched && form.get('email')?.invalid"
-            >
-              {{ formErrors.getMessage(form.get("email")?.errors) }}
-            </mat-error>
-          </mat-form-field>
-        </div>
-      </div>
+        <div class="fields-grid">
+          <div class="field-group">
+            <label class="f-label" for="account-full-name">Full name</label>
+            <mat-form-field appearance="outline" class="f-field">
+              <input id="account-full-name" matInput formControlName="fullName" placeholder="Your full name" autocomplete="name" />
+              <mat-error *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">
+                {{ formErrors.getMessage(form.get('fullName')?.errors) }}
+              </mat-error>
+            </mat-form-field>
+          </div>
 
-      <!-- Actions -->
-      <div class="form-actions">
-        <button class="btn-primary" type="submit" [disabled]="form.invalid">
-          <mat-icon>save</mat-icon>Save Changes
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
+          <div class="field-group">
+            <label class="f-label" for="account-email">Email address</label>
+            <mat-form-field appearance="outline" class="f-field">
+              <input id="account-email" matInput formControlName="email" type="email" placeholder="your@email.com" autocomplete="email" />
+              <mat-error *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+                {{ formErrors.getMessage(form.get('email')?.errors) }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="form-actions">
+      <span class="save-hint">Changes apply across your NovaFit account.</span>
+      <button class="btn-primary" type="submit" [disabled]="form.invalid || facade.loading()">
+        <mat-icon>save</mat-icon>{{ facade.loading() ? 'Saving…' : 'Save changes' }}
+      </button>
+    </footer>
+  </form>
+</section>
 
 <ng-template #imagePreviewTpl>
   <div class="md-img-dialog">
     <figure class="md-img-shell">
-      <img
-        class="md-img"
-        [src]="form.get('imageUrl')?.value"
-        alt="Profile preview"
-      />
-      <button
-        class="md-close"
-        mat-icon-button
-        mat-dialog-close
-        aria-label="Close preview"
-      >
-        <mat-icon>close</mat-icon>
-      </button>
+      <img class="md-img" [src]="form.get('imageUrl')?.value" alt="Profile preview" />
+      <button class="md-close" mat-icon-button mat-dialog-close aria-label="Close preview"><mat-icon>close</mat-icon></button>
     </figure>
   </div>
 </ng-template>

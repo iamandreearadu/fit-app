@@ -1,0 +1,17 @@
+.archive-page { width:min(760px,100%); margin:0 auto; padding:24px 16px 100px; box-sizing:border-box; color:var(--text-primary); }
+header { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+header a { display:grid; width:44px; height:44px; place-items:center; border-radius:50%; color:var(--text-secondary); }
+h1 { margin:0; font-size:24px; } header p { margin:2px 0 0; color:var(--text-tertiary); font-size:13px; }
+.posts-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:3px; }
+.post-cell { position:relative; display:flex; aspect-ratio:3/4; min-width:0; overflow:hidden; background:rgba(255,255,255,.04); color:var(--text-secondary); }
+.post-cell img { display:block; width:100%; height:100%; object-fit:cover; }
+.text-post { display:-webkit-box; margin:auto; padding:14px; overflow:hidden; font-size:12px; line-height:1.5; text-align:center; -webkit-box-orient:vertical; -webkit-line-clamp:6; }
+.restore { position:absolute; right:8px; bottom:8px; display:grid; width:40px; height:40px; padding:0; place-items:center; border:1px solid rgba(var(--primary-rgb),.42); border-radius:50%; background:rgba(13,13,16,.78); color:var(--primary-light); backdrop-filter:blur(8px); cursor:pointer; }
+.restore mat-icon { width:19px; height:19px; font-size:19px; } .restore:focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
+.state { padding:64px 20px; text-align:center; } .state>mat-icon { width:40px; height:40px; color:var(--primary-light); font-size:40px; } .state h2 { font-size:18px; } .state p { color:var(--text-tertiary); font-size:14px; }
+.state button,.state a,.load-more { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 18px; border:1px solid rgba(var(--primary-rgb),.5); border-radius:var(--radius-md); background:transparent; color:var(--primary-light); font:500 13px inherit; text-decoration:none; }
+.skeleton { background:linear-gradient(100deg,rgba(255,255,255,.035),rgba(255,255,255,.075),rgba(255,255,255,.035)); background-size:220% 100%; animation:shimmer 1.4s ease-in-out infinite; }
+.load-more { display:flex; margin:18px auto; } @keyframes shimmer { to { background-position:-220% 0; } }
+@media(max-width:768px){.archive-page{padding:0 0 96px}.archive-page>header{display:none}.posts-grid{gap:2px}.restore{right:6px;bottom:6px}}
+@media(max-width:400px){.posts-grid{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){.skeleton{animation:none}}

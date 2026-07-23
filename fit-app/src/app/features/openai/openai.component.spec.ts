@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { OpenaiComponent } from './openai.component';
+import { TEST_PROVIDERS } from '../../testing/test-providers';
 
 describe('OpenaiComponent', () => {
   let component: OpenaiComponent;
@@ -8,7 +9,7 @@ describe('OpenaiComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OpenaiComponent]
+      imports: [OpenaiComponent], providers: TEST_PROVIDERS
     })
     .compileComponents();
 

@@ -4,6 +4,15 @@ export interface MessagePreview {
   content?: string;
   hasImage: boolean;
   sentAt: string;
+  messageType?: 'text' | 'shared_post';
+}
+
+export interface SharedPostPreview {
+  postId: number;
+  isAvailable: boolean;
+  author?: UserSummary;
+  content?: string;
+  imageUrl?: string;
 }
 
 export interface ConversationSummary {
@@ -23,6 +32,9 @@ export interface DirectMessage {
   sentAt: string;
   isDeleted: boolean;
   isOwn: boolean;
+  messageType?: 'text' | 'shared_post';
+  sharedPostId?: number;
+  sharedPost?: SharedPostPreview;
 }
 
 export interface SendMessageRequest {

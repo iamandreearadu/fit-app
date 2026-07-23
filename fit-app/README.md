@@ -100,13 +100,20 @@ src/app/
 │   ├── home/                   Landing page
 │   ├── openai/                 AI Assistant (Groq chat)
 │   ├── social/                 Social platform (see below)
-│   ├── user/                   Profile, physical stats, metrics
+│   ├── user/                   Account shell + lazy child-route tabs
 │   └── workouts/               Workout plans CRUD
 │
 └── shared/
     ├── components/             Header, Footer, ConfirmDialog, MoveUp
     └── services/               Alert, FormError, LocalStorage, Navigation
 ```
+
+### Account Module (`features/user/`)
+
+The Account page is a route shell. Its desktop sidebar and mobile tab rail are
+shared while `account.routes.ts` lazy-loads the active standalone tab into a
+nested `router-outlet`. `/account` redirects to `/account/my-account`; the other
+canonical URLs are listed below.
 
 ### Social Module (`features/social/`)
 
@@ -147,7 +154,15 @@ social/
 | `/register` | RegisterComponent | GuestGuard |
 | `/plans` | WorkoutsComponent | AuthGuard |
 | `/ai-assistant` | OpenaiComponent | AuthGuard |
-| `/user-profile` | UserPageComponent | AuthGuard |
+| `/account` | Redirect to `/account/my-account` | AuthGuard |
+| `/account/my-account` | ProfileTabComponent inside UserPageComponent | AuthGuard |
+| `/account/physical` | PhysicalTabComponent inside UserPageComponent | AuthGuard |
+| `/account/workouts` | WorkoutsTabComponent inside UserPageComponent | AuthGuard |
+| `/account/nutrition` | NutritionTabComponent inside UserPageComponent | AuthGuard |
+| `/account/progress` | ProgressTabComponent inside UserPageComponent | AuthGuard |
+| `/account/goals` | GoalsTabComponent inside UserPageComponent | AuthGuard |
+| `/account/settings` | SettingsTabComponent inside UserPageComponent | AuthGuard |
+| `/account/notifications` | NotificationsTabComponent inside UserPageComponent | AuthGuard |
 | `/user-dashboard` | DashboardPageComponent | AuthGuard |
 | `/social` | SocialShellComponent | AuthGuard |
 | `/social/` | SocialFeedComponent | — |

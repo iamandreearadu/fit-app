@@ -24,6 +24,7 @@ public class AiImageRequest
     public string Base64Image { get; set; } = string.Empty;
     public string MimeType { get; set; } = "image/jpeg";
     public string? SystemPrompt { get; set; }
+    public bool JsonMode { get; set; }
 }
 
 public class AiResponse

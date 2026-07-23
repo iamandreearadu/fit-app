@@ -100,7 +100,7 @@ FitApp/
 │   └── src/app/
 │       ├── api/       # HTTP services
 │       ├── core/      # Facades, stores, guards, interceptors
-│       ├── features/  # Pages (auth, social, dashboard, workouts…)
+│       ├── features/  # Pages and route shells (Account uses lazy child routes)
 │       └── shared/    # Header, Footer, ConfirmDialog
 └── FitApp.sln
 ```
@@ -139,9 +139,35 @@ ng serve
 
 ## Environment Setup
 
-Configure:
+Two config files hold secrets and are **gitignored** — they are never committed, so a fresh
+clone must create them manually before the app will start.
 
-* JWT secret
-* Database connection
-* AI API key
-* Email credentials
+### Backend — `FitApp.Api/appsettings.json`
+
+Copy the template and fill in real values:
+
+```bash
+cd FitApp.Api
+cp appsettings.Example.json appsettings.json
+```
+
+| Key | Purpose | Where to get it |
+| --- | --- | --- |
+| `ConnectionStrings:Default` | SQLite file path | Leave as `Data Source=fitapp.db` |
+| `Jwt:Secret` | Signs auth tokens | Generate a random 32+ char string (e.g. `openssl rand -base64 32`) |
+| `Groq:ApiKey` | AI chat / meal analyzer / calorie estimation | https://console.groq.com |
+| `Usda:ApiKey` | Food search (USDA FoodData Central) | https://api.data.gov/signup/ — optional, defaults to rate-limited `DEMO_KEY` if omitted |
+| `Email:SenderEmail` / `Email:Password` | Transactional emails via Gmail SMTP | A Gmail account + [App Password](https://myaccount.google.com/apppasswords) (not your normal password) |
+
+Without this file, the API throws on startup (`InvalidOperationException: Connection string 'Default' is missing`) or fails on the first request that needs `Jwt:Secret`/`Groq:*`/`Usda:*`.
+
+### Frontend — `fit-app/src/environments/environment.ts` (+ `environment.prod.ts`)
+
+```bash
+cd fit-app/src/environments
+cp environment.example.ts environment.ts
+```
+
+`apiUrl` should point at the running backend (`http://localhost:5140` for local dev). The AI
+calls are proxied through the backend `AiController`, so the frontend does not need a real
+Groq key — leave `groqApiKey` empty.

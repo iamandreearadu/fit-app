@@ -4,6 +4,7 @@ import { GroqComponent } from './groq/groq.component';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../core/material/material.module';
 import { GroqSidenavComponent } from './groq-sidenav/groq-sidenav.component';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-openai',
@@ -12,6 +13,7 @@ import { GroqSidenavComponent } from './groq-sidenav/groq-sidenav.component';
   styleUrl: './openai.component.css'
 })
  export class OpenaiComponent  implements OnInit, OnDestroy {
+  constructor(private readonly location: Location) {}
   isHandset = false;
   sidebarOpen = true;
 
@@ -30,6 +32,7 @@ import { GroqSidenavComponent } from './groq-sidenav/groq-sidenav.component';
 
   openSidebar(): void { this.sidebarOpen = true; }
   closeSidebar(): void { this.sidebarOpen = false; }
+  goBack(): void { this.location.back(); }
 
   private applyBreakpoint(isMobile: boolean): void {
     this.isHandset = isMobile;

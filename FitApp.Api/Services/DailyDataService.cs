@@ -41,7 +41,7 @@ public class DailyDataService(
 
         // Fix 10: CaloriesIntake is always server-computed from MealEntries — never from client.
         var mealCalories = await db.MealEntries
-            .Where(m => m.UserId == userId && m.Date == req.Date)
+            .Where(m => m.UserId == userId && m.Date == req.Date && !m.IsSavedMeal)
             .SumAsync(m => m.TotalCalories);
         entry.CaloriesIntake = (int)Math.Round(mealCalories);
         entry.CaloriesTotal = entry.CaloriesIntake - req.CaloriesBurned;
@@ -84,7 +84,7 @@ public class DailyDataService(
             .FirstOrDefaultAsync(d => d.UserId == userId && d.Date == today.ToString("yyyy-MM-dd"));
 
         var nutritionTotals = await db.MealEntries
-            .Where(m => m.UserId == userId && m.Date == today.ToString("yyyy-MM-dd"))
+            .Where(m => m.UserId == userId && m.Date == today.ToString("yyyy-MM-dd") && !m.IsSavedMeal)
             .GroupBy(m => 1)
             .Select(g => new
             {

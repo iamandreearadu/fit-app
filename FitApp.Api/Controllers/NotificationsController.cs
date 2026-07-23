@@ -8,12 +8,56 @@ namespace FitApp.Api.Controllers;
 [ApiController]
 [Route("api/notifications")]
 [Authorize]
-public class NotificationsController(INotificationService notificationService, ILogger<NotificationsController> logger) : ControllerBase
+public class NotificationsController(
+    INotificationService notificationService,
+    IPushNotificationService webPushService,
+    ILogger<NotificationsController> logger) : ControllerBase
 {
     private string UserId =>
-        User.FindFirstValue(ClaimTypes.NameIdentifier)
-        ?? User.FindFirstValue("sub")
+        User.FindFirstValue("sub")
         ?? throw new UnauthorizedAccessException("User identity not resolved.");
+
+    [HttpPost("push-subscribe")]
+    public async Task<IActionResult> Subscribe(
+        [FromBody] Models.DTOs.PushSubscriptionRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await webPushService.SubscribeAsync(UserId, request, cancellationToken);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error registering web push for user {UserId}", UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
+    [HttpDelete("push-subscribe")]
+    public async Task<IActionResult> Unsubscribe(
+        [FromBody] Models.DTOs.DeletePushSubscriptionRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await webPushService.UnsubscribeAsync(UserId, request.Endpoint, cancellationToken);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error removing web push for user {UserId}", UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
 
     // GET /api/notifications
     [HttpGet]

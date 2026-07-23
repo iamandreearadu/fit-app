@@ -81,7 +81,7 @@
         >
           <button
             mat-menu-item
-            routerLink="/account"
+            routerLink="/account/my-account"
             (click)="closeMobileNav()"
           >
             <mat-icon>person</mat-icon><span>Account</span>
@@ -204,7 +204,7 @@
       @if (accountFacade.authUser()) {
         <a
           class="mob-user-row"
-          routerLink="/account"
+          routerLink="/account/my-account"
           (click)="closeMobileNav()"
         >
           <div class="hdr-avatar">

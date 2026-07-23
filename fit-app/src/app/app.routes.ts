@@ -63,6 +63,10 @@ export const routes: Routes = [
       import('./features/user/user-page.component').then(
         (m) => m.UserPageComponent,
       ),
+    loadChildren: () =>
+      import('./features/user/account.routes').then(
+        (m) => m.ACCOUNT_ROUTES,
+      ),
     canActivate: [AuthGuard],
   },
   {

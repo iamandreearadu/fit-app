@@ -54,6 +54,15 @@ export class SocialContentFacade {
     });
   }
 
+  syncSavedState(postId: number, isSaved: boolean): void {
+    const apply = (post: Post): Post => post.id === postId
+      ? { ...post, isSavedByMe: isSaved }
+      : post;
+    this.feedFacade.patchFeedPost(apply);
+    this.feedFacade.patchDiscoverPost(apply);
+    this.profileFacade.patchProfilePost(apply);
+  }
+
   // ── Post CRUD ─────────────────────────────────────────────────────────────────
 
   async createPost(req: CreatePostRequest): Promise<void> {

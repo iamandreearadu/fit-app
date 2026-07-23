@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace FitApp.Api.Models.DTOs;
 
@@ -32,10 +33,10 @@ public class PaginatedResponse<T>
 
 public class CreatePostRequest
 {
-    [Required]
     [MaxLength(500)]
     public string Content { get; set; } = string.Empty;
 
+    [MaxLength(7_000_000)]
     public string? ImageUrl { get; set; }
     public int? LinkedWorkoutId { get; set; }
     public int? LinkedMealId { get; set; }
@@ -56,11 +57,13 @@ public class PostResponse
     public int Id { get; set; }
     public UserSummary Author { get; set; } = null!;
     public string Content { get; set; } = string.Empty;
+    [MaxLength(7_000_000)]
     public string? ImageUrl { get; set; }
     public LinkedContentPreview? LinkedContent { get; set; }
     public int LikesCount { get; set; }
     public int CommentsCount { get; set; }
     public bool IsLikedByMe { get; set; }
+    public bool IsSavedByMe { get; set; }
     public bool IsFollowingAuthor { get; set; }
     public bool IsOwnPost { get; set; }
     public bool IsArchived { get; set; }
@@ -88,6 +91,7 @@ public class ArticleDetailResponse
     public string Title { get; set; } = string.Empty;
     public string Caption { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    [MaxLength(7_000_000)]
     public string? Image { get; set; }
     public string Category { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
@@ -109,6 +113,11 @@ public class LikeToggleResponse
 {
     public bool IsLiked { get; set; }
     public int LikesCount { get; set; }
+}
+
+public class SaveToggleResponse
+{
+    public bool IsSaved { get; set; }
 }
 
 public class FollowToggleResponse
@@ -161,12 +170,37 @@ public class ProfileWorkoutSummary
     public bool IsOwnWorkout { get; set; }
 }
 
+public class ProfileMealSummary
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public string Date { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+    public bool IsHiddenFromProfile { get; set; }
+    public bool IsOwnMeal { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public double? TotalCalories { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public double? TotalProtein_g { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public double? TotalCarbs_g { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public double? TotalFats_g { get; set; }
+}
+
+public class MealVisibilityResponse
+{
+    public bool IsHiddenFromProfile { get; set; }
+}
+
 public class ProfileBlogSummary
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Caption { get; set; } = string.Empty;
     public string? Description { get; set; }
+    [MaxLength(7_000_000)]
     public string? Image { get; set; }
     public string Category { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }

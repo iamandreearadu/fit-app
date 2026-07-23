@@ -1,116 +1,241 @@
-<div class="cp-dialog">
-
-  <!-- Header -->
-  <div class="cp-header">
-    <div class="cp-header-left">
-      <div class="cp-header-icon">
-        <mat-icon>add_circle_outline</mat-icon>
-      </div>
-      <h2 class="cp-title">New Post</h2>
-    </div>
-    <button mat-icon-button class="cp-close-btn" (click)="close()" aria-label="Close dialog">
-      <mat-icon>close</mat-icon>
+<main class="new-post-page">
+  <header class="new-post-desktop-header">
+    <button class="new-post-back" type="button" (click)="close()" aria-label="Go back">
+      <mat-icon>chevron_left</mat-icon>
     </button>
-  </div>
+    <h1>New post</h1>
+  </header>
 
-  <!-- Body -->
-  <div class="cp-body">
+  <form class="new-post-form" (submit)="$event.preventDefault(); submit()">
+    <section class="photo-section" aria-labelledby="photo-heading">
+      <div class="section-heading">
+        <div>
+          <h2 id="photo-heading">Photo</h2>
+          <p>Shown in the same 3:4 format as your profile grid.</p>
+        </div>
+        @if (imagePreview()) {
+          <button class="text-action" type="button" (click)="photoInput.click()">Change</button>
+        }
+      </div>
 
-    <!-- Textarea -->
-    <div class="cp-textarea-wrap">
+      <input #photoInput type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileSelected($event)" hidden />
+
+      @if (imagePreview()) {
+        <div class="photo-frame photo-frame--filled">
+          <img [src]="imagePreview()!" alt="Preview of the post photo" />
+          <button class="remove-photo" type="button" (click)="removeImage()" aria-label="Remove photo">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      } @else {
+        <button
+          class="photo-frame photo-picker"
+          type="button"
+          [class.photo-picker--drag]="isDragOver()"
+          (click)="photoInput.click()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop($event)"
+          [disabled]="isProcessingImage()"
+          aria-label="Choose a photo for your post"
+        >
+          @if (isProcessingImage()) {
+            <mat-spinner diameter="28" />
+            <strong>Preparing photo…</strong>
+          } @else {
+            <span class="photo-picker-icon"><mat-icon>add_photo_alternate</mat-icon></span>
+            <strong>Add a photo</strong>
+            <span>Choose from your device</span>
+            <small>JPEG, PNG or WebP · up to 10 MB</small>
+          }
+        </button>
+      }
+    </section>
+
+    <section class="activity-section" aria-labelledby="activity-heading">
+      <div class="section-heading">
+        <div>
+          <h2 id="activity-heading">Activity</h2>
+          <p>Attach one saved workout or meal.</p>
+        </div>
+      </div>
+
+      @if (selectedWorkout(); as workout) {
+        <div class="activity-preview">
+          <button #activityTrigger class="activity-preview-main" type="button" (click)="openActivityPicker()" aria-label="Change attached workout">
+            <span class="activity-icon"><mat-icon>fitness_center</mat-icon></span>
+            <span class="activity-copy">
+              <small>WORKOUT</small>
+              <strong>{{ workout.title }}</strong>
+              <span>{{ workout.durationMin }} min · {{ workout.type }}</span>
+            </span>
+            <mat-icon class="activity-edit" aria-hidden="true">edit</mat-icon>
+          </button>
+          <button class="activity-remove" type="button" aria-label="Remove attached workout" (click)="removeActivity($event)"><mat-icon>close</mat-icon></button>
+        </div>
+      } @else {
+        @if (selectedMeal(); as meal) {
+          <div class="activity-preview">
+            <button #activityTrigger class="activity-preview-main" type="button" (click)="openActivityPicker()" aria-label="Change attached meal">
+              <span class="activity-icon"><mat-icon>restaurant</mat-icon></span>
+              <span class="activity-copy"><small>MEAL</small><strong>{{ meal.name }}</strong><span>{{ meal.type }} · {{ meal.date | date:'mediumDate' }}</span></span>
+              <mat-icon class="activity-edit">edit</mat-icon>
+            </button>
+            <button class="activity-remove" type="button" aria-label="Remove attached meal" (click)="removeActivity($event)"><mat-icon>close</mat-icon></button>
+          </div>
+        } @else {
+          <button #activityTrigger class="add-activity" type="button" (click)="openActivityPicker()" [disabled]="isSubmitting()">
+            <mat-icon>add_circle_outline</mat-icon><span>Add activity</span><mat-icon class="add-activity-chevron">chevron_right</mat-icon>
+          </button>
+        }
+      }
+    </section>
+
+    <section class="caption-section" aria-labelledby="caption-heading">
+      <div class="section-heading caption-heading-row">
+        <div>
+          <h2 id="caption-heading">Caption</h2>
+          <p>Share the workout, progress or story behind this post.</p>
+        </div>
+        <span class="char-counter" [class]="charClass" aria-live="polite">{{ charCount }}/500</span>
+      </div>
       <textarea
-        class="cp-textarea"
-        placeholder="What's your fitness update?"
+        class="caption-input"
+        placeholder="What’s happening in your fitness journey?"
         [value]="content()"
         (input)="content.set($any($event.target).value)"
         maxlength="500"
         rows="5"
         [disabled]="isSubmitting()"
-        aria-label="Post content"
+        aria-label="Post caption"
       ></textarea>
-    </div>
+    </section>
 
-    <!-- Char counter -->
-    <div class="cp-char-counter" [class]="charClass" aria-live="polite">
-      {{ charCount }}/500
-    </div>
-
-    <!-- Image dropzone -->
-    @if (!imagePreview()) {
-      <div
-        class="cp-dropzone"
-        [class.cp-dropzone--drag]="isDragOver()"
-        (dragover)="onDragOver($event)"
-        (dragleave)="onDragLeave()"
-        (drop)="onDrop($event)"
-        (click)="fileInput.click()"
-        role="button"
-        tabindex="0"
-        aria-label="Upload an image"
-        (keydown.enter)="fileInput.click()"
-        (keydown.space)="fileInput.click()"
-      >
-        <div class="cp-dropzone-icon-wrap">
-          <mat-icon>image</mat-icon>
-        </div>
-        <span class="cp-dropzone-label">Drag &amp; drop or click to add photo</span>
-        <span class="cp-dropzone-hint">JPEG, PNG, WebP &middot; max 1200px</span>
-        <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
-      </div>
-    } @else {
-      <div class="cp-preview">
-        <img [src]="imagePreview()!" alt="Post image preview" class="cp-preview-img" />
-        <button
-          class="cp-preview-remove"
-          (click)="removeImage()"
-          type="button"
-          aria-label="Remove image"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
+    @if (error()) {
+      <p class="new-post-error" role="alert"><mat-icon>error_outline</mat-icon>{{ error() }}</p>
     }
 
-  </div>
-
-  <!-- Footer -->
-  <div class="cp-footer">
-    <!-- Left: image shortcut when no image attached -->
-    @if (!imagePreview()) {
-      <button
-        class="cp-img-shortcut"
-        type="button"
-        (click)="shortcutInput.click()"
-        aria-label="Add photo"
-        title="Add photo"
-      >
-        <mat-icon>add_photo_alternate</mat-icon>
-        <input #shortcutInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
-      </button>
-    } @else {
-      <span class="cp-img-badge">
-        <mat-icon>check_circle</mat-icon> Photo added
-      </span>
-    }
-
-    <div class="cp-footer-actions">
-      <button class="cp-cancel" (click)="close()" type="button">Cancel</button>
-      <button
-        class="cp-submit btn-primary"
-        [disabled]="!canPost || isSubmitting()"
-        (click)="submit()"
-        type="button"
-        [attr.aria-busy]="isSubmitting()"
-      >
+    <footer class="new-post-actions">
+      <button class="cancel-action" type="button" (click)="close()" [disabled]="isSubmitting()">Cancel</button>
+      <button class="publish-action" type="submit" [disabled]="!canPost || isSubmitting() || isProcessingImage()" [attr.aria-busy]="isSubmitting()">
         @if (isSubmitting()) {
-          <mat-spinner diameter="16" />
-          <span>Posting…</span>
+          <mat-spinner diameter="18" />
+          Publishing…
         } @else {
-          <mat-icon>send</mat-icon>
-          <span>Post</span>
+          Publish
         }
       </button>
-    </div>
-  </div>
+    </footer>
+  </form>
+</main>
 
-</div>
+@if (isActivityPickerOpen()) {
+  <div class="activity-backdrop" (mousedown)="closeActivityPicker()">
+    <section
+      #activityPicker
+      class="activity-picker"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="activity-picker-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <header class="activity-picker-header">
+        <div>
+          <span class="picker-kicker">ADD ACTIVITY</span>
+          <h2 id="activity-picker-title">Choose an activity</h2>
+        </div>
+        <button type="button" class="picker-close" (click)="closeActivityPicker()" aria-label="Close workout picker">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="activity-type-tabs">
+        <button type="button" [class.active]="activityType() === 'workout'" (click)="chooseActivityType('workout')"><mat-icon>fitness_center</mat-icon>Workout</button>
+        <button type="button" [class.active]="activityType() === 'meal'" (click)="chooseActivityType('meal')"><mat-icon>restaurant</mat-icon>Meal</button>
+      </div>
+
+      <label class="workout-search">
+        <mat-icon>search</mat-icon>
+        <input
+          #activitySearch
+          type="search"
+          [placeholder]="activityType() === 'workout' ? 'Search saved workouts' : 'Search meals'"
+          [value]="workoutSearch()"
+          (input)="workoutSearch.set($any($event.target).value)"
+          [disabled]="isLoadingWorkouts()"
+        />
+        @if (workoutSearch()) {
+          <button type="button" (click)="workoutSearch.set('')" aria-label="Clear workout search"><mat-icon>close</mat-icon></button>
+        }
+      </label>
+
+      <div class="workout-list" role="radiogroup" aria-label="Saved activities">
+        @if (activityType() === 'meal') {
+          @if (isLoadingMeals()) {
+            <div class="picker-state"><mat-spinner diameter="26" /><span>Loading meals…</span></div>
+          } @else if (mealsError()) {
+            <div class="picker-state" role="alert"><mat-icon>error_outline</mat-icon><strong>Couldn’t load meals</strong><span>{{ mealsError() }}</span></div>
+          } @else if (filteredMeals().length === 0) {
+            <div class="picker-state"><mat-icon>restaurant</mat-icon><strong>No meals found</strong><span>Log a meal in Nutrition, then attach it here.</span></div>
+          } @else {
+            @for (meal of filteredMeals(); track meal.id) {
+              <button type="button" class="workout-option" role="radio" [attr.aria-checked]="pendingMealId() === meal.id" [class.workout-option--selected]="pendingMealId() === meal.id" (click)="selectMeal(meal)">
+                <span class="workout-option-icon"><mat-icon>restaurant</mat-icon></span>
+                <span class="workout-option-copy"><strong>{{ meal.name }}</strong><span>{{ meal.type }} · {{ meal.date | date:'mediumDate' }} @if (meal.isHiddenFromProfile) { · Hidden on profile }</span></span>
+                <mat-icon class="workout-check">{{ pendingMealId() === meal.id ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              </button>
+            }
+          }
+        } @else if (isLoadingWorkouts()) {
+          @for (row of [1, 2, 3]; track row) {
+            <div class="workout-skeleton" aria-hidden="true"><span></span><div><i></i><i></i></div></div>
+          }
+          <span class="sr-only" role="status">Loading saved workouts</span>
+        } @else if (workoutsError()) {
+          <div class="picker-state" role="alert">
+            <mat-icon>error_outline</mat-icon>
+            <strong>Couldn’t load workouts</strong>
+            <span>{{ workoutsError() }}</span>
+            <button type="button" (click)="retryWorkouts()">Try again</button>
+          </div>
+        } @else if (savedWorkouts().length === 0) {
+          <div class="picker-state">
+            <mat-icon>fitness_center</mat-icon>
+            <strong>No saved workouts yet</strong>
+            <span>Save a personal workout first, then attach it to your post.</span>
+          </div>
+        } @else if (filteredWorkouts().length === 0) {
+          <div class="picker-state">
+            <mat-icon>search_off</mat-icon>
+            <strong>No matching workouts</strong>
+            <span>Try another workout name.</span>
+            <button type="button" (click)="workoutSearch.set('')">Clear search</button>
+          </div>
+        } @else {
+          @for (workout of filteredWorkouts(); track workout.id) {
+            <button
+              type="button"
+              class="workout-option"
+              role="radio"
+              [attr.aria-checked]="pendingWorkoutId() === workout.id"
+              [class.workout-option--selected]="pendingWorkoutId() === workout.id"
+              (click)="selectWorkout(workout)"
+            >
+              <span class="workout-option-icon"><mat-icon>fitness_center</mat-icon></span>
+              <span class="workout-option-copy">
+                <strong>{{ workout.title }}</strong>
+                <span>{{ workout.durationMin }} min · {{ workout.type }}@if (workout.exercises?.length) { · {{ workout.exercises?.length }} exercises }</span>
+              </span>
+              <mat-icon class="workout-check">{{ pendingWorkoutId() === workout.id ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            </button>
+          }
+        }
+      </div>
+
+      <footer class="activity-picker-actions">
+        <button type="button" class="picker-cancel" (click)="closeActivityPicker()">Cancel</button>
+        <button type="button" class="picker-add" (click)="confirmActivity()" [disabled]="activityType() === 'workout' ? pendingWorkoutId() === null || isLoadingWorkouts() : pendingMealId() === null || isLoadingMeals()">Add {{ activityType() }}</button>
+      </footer>
+    </section>
+  </div>
+}

@@ -5,6 +5,13 @@ import { AlertService } from '../shared/services/alert.service';
 import { FoodItem, FoodSearchResult, MacroProgressDto, MealEntry, MealType, RecentFoodItem } from '../core/models/nutrition-tab.model';
 import { environment } from '../../environments/environment';
 
+interface FoodItemDto extends Partial<FoodItem> {}
+interface MealEntryDto extends Omit<Partial<MealEntry>, 'id' | 'items'> {
+  id: number | string;
+  items?: FoodItemDto[];
+}
+interface MealEntryListDto { items?: MealEntryDto[]; }
+
 @Injectable({ providedIn: 'root' })
 export class NutritionTabService {
 
@@ -12,15 +19,15 @@ export class NutritionTabService {
   private alerts = inject(AlertService);
   private readonly baseUrl = `${environment.apiUrl}/api/nutrition`;
 
-  private normalizeType(raw: any): MealType {
+  private normalizeType(raw: unknown): MealType {
     const allowed: MealType[] = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Pre-workout', 'Post-workout', 'Other'];
     const t = String(raw ?? '').trim();
     return allowed.includes(t as MealType) ? (t as MealType) : 'Other';
   }
 
-  private mapMeal(d: any): MealEntry {
+  private mapMeal(d: MealEntryDto): MealEntry {
     const items: FoodItem[] = Array.isArray(d.items)
-      ? d.items.map((i: any) => ({
+      ? d.items.map(i => ({
           name: i.name ?? '',
           grams: Number(i.grams ?? 0),
           calories: Number(i.calories ?? 0),
@@ -44,20 +51,43 @@ export class NutritionTabService {
       totalCarbs_g: d.totalCarbs_g ?? 0,
       totalFats_g: d.totalFats_g ?? 0,
       notes: d.notes ?? '',
-      createdAt: d.createdAt ?? null,
-      updatedAt: d.updatedAt ?? null,
+      isSavedMeal: d.isSavedMeal ?? false,
+      isHiddenFromProfile: d.isHiddenFromProfile ?? true,
+      createdAt: d.createdAt ?? undefined,
+      updatedAt: d.updatedAt ?? undefined,
     };
   }
 
-  async listMeals(): Promise<MealEntry[]> {
+  async listMeals(pageSize = 20): Promise<MealEntry[]> {
     try {
-      const res = await firstValueFrom(this.http.get<any>(this.baseUrl));
-      const dtos: any[] = Array.isArray(res) ? res : (res?.items ?? []);
+      const res = await firstValueFrom(
+        this.http.get<MealEntryDto[] | MealEntryListDto>(this.baseUrl, {
+          params: { pageSize: Math.min(Math.max(pageSize, 1), 50) },
+        })
+      );
+      const dtos = Array.isArray(res) ? res : (res.items ?? []);
       return dtos.map(d => this.mapMeal(d));
     } catch (err) {
       this.alerts?.warn('Failed to load meals');
-      return [];
+      throw err;
     }
+  }
+
+  async listMealsForDate(date: string): Promise<MealEntry[]> {
+    const res = await firstValueFrom(
+      this.http.get<MealEntryDto[] | MealEntryListDto>(this.baseUrl, {
+        params: { date, pageSize: 50 },
+      })
+    );
+    const dtos = Array.isArray(res) ? res : (res.items ?? []);
+    return dtos.map(d => this.mapMeal(d));
+  }
+
+  async listSavedMeals(): Promise<MealEntry[]> {
+    const dtos = await firstValueFrom(
+      this.http.get<MealEntryDto[]>(`${this.baseUrl}/saved`)
+    );
+    return dtos.map(d => this.mapMeal(d));
   }
 
   async addMeal(payload: Partial<MealEntry>): Promise<MealEntry | null> {
@@ -68,8 +98,9 @@ export class NutritionTabService {
         date: payload.date ?? new Date().toISOString().slice(0, 10),
         items: Array.isArray(payload.items) ? payload.items : [],
         notes: payload.notes ?? '',
+        isSavedMeal: payload.isSavedMeal ?? false,
       };
-      const dto = await firstValueFrom(this.http.post<any>(this.baseUrl, body));
+      const dto = await firstValueFrom(this.http.post<MealEntryDto>(this.baseUrl, body));
       return this.mapMeal(dto);
     } catch (err) {
       this.alerts?.warn('Failed to add meal');
@@ -86,8 +117,9 @@ export class NutritionTabService {
         date: payload.date ?? new Date().toISOString().slice(0, 10),
         items: Array.isArray(payload.items) ? payload.items : [],
         notes: payload.notes ?? '',
+        isSavedMeal: payload.isSavedMeal ?? false,
       };
-      const dto = await firstValueFrom(this.http.put<any>(`${this.baseUrl}/${docId}`, body));
+      const dto = await firstValueFrom(this.http.put<MealEntryDto>(`${this.baseUrl}/${docId}`, body));
       return this.mapMeal(dto);
     } catch (err) {
       this.alerts?.warn('Failed to update meal');
@@ -95,14 +127,14 @@ export class NutritionTabService {
     }
   }
 
-  async deleteMeal(docId: string): Promise<boolean> {
+  async deleteMeal(docId: string, notify = true): Promise<boolean> {
     if (!docId) return false;
     try {
       await firstValueFrom(this.http.delete(`${this.baseUrl}/${docId}`));
-      this.alerts?.success('Meal deleted');
+      if (notify) this.alerts?.success('Meal deleted');
       return true;
     } catch (err) {
-      this.alerts?.warn('Failed to delete meal');
+      if (notify) this.alerts?.warn('Failed to delete meal');
       return false;
     }
   }

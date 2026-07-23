@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using FitApp.Api.Models.DTOs;
-using FitApp.Api.Models.Entities;
 using FitApp.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -10,7 +9,7 @@ namespace FitApp.Api.Hubs;
 [Authorize]
 public class ChatHub(
     IConversationService conversationService,
-    INotificationService notificationService,
+    ConversationRealtimeService realtime,
     ILogger<ChatHub> logger) : Hub
 {
     public override async Task OnConnectedAsync()
@@ -58,7 +57,7 @@ public class ChatHub(
         DirectMessageResponse message;
         try
         {
-            message = await conversationService.SendMessageAsync(conversationId, userId, request);
+            message = await realtime.SendAsync(conversationId, userId, request);
         }
         catch (Exception ex)
         {
@@ -66,22 +65,6 @@ public class ChatHub(
             throw new HubException(ex.Message);
         }
 
-        await Clients.Group($"conv-{conversationId}").SendAsync("ReceiveMessage", message);
-
-        // Notify other participants
-        var otherIds = await conversationService.GetOtherParticipantIdsAsync(conversationId, userId);
-        foreach (var recipientId in otherIds)
-        {
-            // Push to user's personal group so badge updates even when not in the conversation page
-            await Clients.Group($"user-{recipientId}").SendAsync("NewConversationMessage", message);
-
-            await notificationService.CreateAndPushAsync(
-                recipientId,
-                userId,
-                NotificationType.NewMessage,
-                conversationId,
-                $"{message.Sender.DisplayName} sent you a message");
-        }
     }
 
     private string GetUserId()

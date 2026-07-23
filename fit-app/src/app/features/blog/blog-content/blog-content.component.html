@@ -68,9 +68,15 @@
         </button>
       </div>
 
-      <div class="post-img"
-           [style.background-image]="'url(' + (p.image || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80') + ')'"
-           [routerLink]="['/blog', p.uid]">
+      <div class="post-img" [routerLink]="['/blog', p.uid]">
+        <img
+          class="post-img-media"
+          [src]="cardImage(p.image)"
+          [alt]="p.title || 'NovaFit blog article'"
+          loading="lazy"
+          decoding="async"
+          fetchpriority="low"
+        />
         <div class="post-img-overlay"></div>
       </div>
 

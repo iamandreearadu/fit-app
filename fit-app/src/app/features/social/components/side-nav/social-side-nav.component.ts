@@ -2,9 +2,6 @@ import { Component, Input, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { UserStore } from '../../../../core/store/user.store';
-import { SocialFeedFacade } from '../../../../core/facade/social-feed.facade';
-import { MatDialog } from '@angular/material/dialog';
-import { CreateContentComponent } from '../create-content/create-content.component';
 import { AccountFacade } from '../../../../core/facade/account.facade';
 import { StreakBadgeComponent } from '../../../../shared/components/streak-badge/streak-badge.component';
 
@@ -27,9 +24,7 @@ export class SocialSideNavComponent {
   @Input() unreadNotifications = 0;
   @Input() unreadMessages = 0;
 
-  protected readonly facade = inject(SocialFeedFacade);
   protected readonly accountFacade = inject(AccountFacade);
-  private readonly dialog = inject(MatDialog);
 
   private readonly userStore = inject(UserStore);
 
@@ -71,16 +66,4 @@ export class SocialSideNavComponent {
     void this.accountFacade.logout();
   }
 
-  openCreatePost(): void {
-    this.dialog
-      .open(CreateContentComponent, {
-        panelClass: 'create-post-panel',
-        maxWidth: '600px',
-        width: '100%',
-      })
-      .afterClosed()
-      .subscribe((result) => {
-        if (result) this.facade.loadFeed(true);
-      });
-  }
 }

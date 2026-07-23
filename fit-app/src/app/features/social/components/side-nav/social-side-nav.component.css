@@ -170,39 +170,6 @@
   flex-shrink: 0;
 }
 
-/* ── New Post button ── */
-.social-new-post-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 14px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--white);
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  border: none;
-  cursor: pointer;
-  transition: opacity 0.18s, transform 0.15s;
-  letter-spacing: 0.02em;
-  min-height: 48px;
-  margin-top: 8px;
-  flex-shrink: 0;
-}
-
-.social-new-post-btn mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-.social-new-post-btn:hover {
-  opacity: 0.88;
-  transform: translateY(-1px);
-}
-
 /* ── Logout button ── */
 .social-back-btn {
   display: flex;

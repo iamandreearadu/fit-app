@@ -42,7 +42,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--surface, #0d0d10);
+  background: var(--modal-surface, #0d0d10);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px 24px 0 0;
   padding: 12px 24px 36px;

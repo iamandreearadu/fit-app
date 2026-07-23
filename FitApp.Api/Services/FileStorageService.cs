@@ -13,6 +13,26 @@ public class FileStorageService(IWebHostEnvironment env, ILogger<FileStorageServ
     };
 
     public async Task<string> SaveChatImageAsync(string base64Data, string? mimeType)
+        => await SaveBase64ImageAsync(base64Data, mimeType, "chat");
+
+    public async Task<string?> NormalizeImageAsync(string? image, string category)
+    {
+        if (string.IsNullOrWhiteSpace(image)) return image;
+        if (Uri.TryCreate(image, UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps)
+            return image;
+        if (!image.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Image must be an HTTPS URL or a valid image data URI.");
+
+        var semicolon = image.IndexOf(';');
+        var comma = image.IndexOf(',');
+        if (semicolon < 5 || comma < semicolon ||
+            !image[semicolon..comma].Equals(";base64", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Invalid image data URI.");
+
+        return await SaveBase64ImageAsync(image, image[5..semicolon], category);
+    }
+
+    private async Task<string> SaveBase64ImageAsync(string base64Data, string? mimeType, string category)
     {
         var mime = mimeType?.ToLower() ?? "image/jpeg";
 
@@ -39,13 +59,18 @@ public class FileStorageService(IWebHostEnvironment env, ILogger<FileStorageServ
         var ext = MimeToExt.GetValueOrDefault(mime, "jpg");
         var fileName = $"{Guid.NewGuid()}.{ext}";
         var webRoot = env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-        var uploadDir = Path.Combine(webRoot, "uploads", "chat");
+        var safeCategory = category switch
+        {
+            "avatars" or "posts" or "articles" or "chat" => category,
+            _ => throw new InvalidOperationException("Invalid image category.")
+        };
+        var uploadDir = Path.Combine(webRoot, "uploads", safeCategory);
         Directory.CreateDirectory(uploadDir);
         var filePath = Path.Combine(uploadDir, fileName);
 
         await File.WriteAllBytesAsync(filePath, bytes);
-        logger.LogInformation("Saved chat image: {FileName} ({Bytes} bytes)", fileName, bytes.Length);
+        logger.LogInformation("Saved {Category} image: {FileName} ({Bytes} bytes)", safeCategory, fileName, bytes.Length);
 
-        return $"/uploads/chat/{fileName}";
+        return $"/uploads/{safeCategory}/{fileName}";
     }
 }

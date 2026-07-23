@@ -45,8 +45,11 @@ export class SocialChatDetailComponent implements OnInit, OnDestroy {
   imagePreview = signal<string | null>(null);
   imageBase64 = signal<string | null>(null);
   imageMimeType = signal<string | null>(null);
+  attachmentError = signal<string | null>(null);
   isSending = signal(false);
   lightboxSrc = signal<string | null>(null);
+  revealedTimestampId = signal<number | null>(null);
+  private touchStartX = 0;
 
   readonly skeletons = Array.from({ length: 6 });
 
@@ -104,6 +107,7 @@ export class SocialChatDetailComponent implements OnInit, OnDestroy {
     if ((!text && !img) || this.isSending()) return;
 
     this.isSending.set(true);
+    this.attachmentError.set(null);
     try {
       await this.facade.sendMessage(
         this.conversationId,
@@ -116,7 +120,7 @@ export class SocialChatDetailComponent implements OnInit, OnDestroy {
       this.imageBase64.set(null);
       this.imageMimeType.set(null);
     } catch {
-      // silently ignore
+      this.attachmentError.set('Image could not be sent. Please try again.');
     } finally {
       this.isSending.set(false);
     }
@@ -130,8 +134,23 @@ export class SocialChatDetailComponent implements OnInit, OnDestroy {
   }
 
   onFileSelected(e: Event): void {
-    const file = (e.target as HTMLInputElement).files?.[0];
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (!file) return;
+
+    this.attachmentError.set(null);
+    const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+    if (!allowedTypes.has(file.type)) {
+      this.attachmentError.set('Choose a JPEG, PNG, WebP or GIF image.');
+      input.value = '';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.attachmentError.set('Image must be smaller than 5 MB.');
+      input.value = '';
+      return;
+    }
+
     this.imageMimeType.set(file.type);
     const reader = new FileReader();
     reader.onload = (ev) => {
@@ -139,13 +158,16 @@ export class SocialChatDetailComponent implements OnInit, OnDestroy {
       this.imagePreview.set(result);
       this.imageBase64.set(result.split(',')[1]);
     };
+    reader.onerror = () => this.attachmentError.set('Image could not be read. Please choose it again.');
     reader.readAsDataURL(file);
+    input.value = '';
   }
 
   removeImage(): void {
     this.imagePreview.set(null);
     this.imageBase64.set(null);
     this.imageMimeType.set(null);
+    this.attachmentError.set(null);
   }
 
   async deleteMessage(msgId: number): Promise<void> {
@@ -156,6 +178,18 @@ export class SocialChatDetailComponent implements OnInit, OnDestroy {
   closeLightbox(): void { this.lightboxSrc.set(null); }
   goBack(): void { this.router.navigate(['/social/chat']); }
 
+  openParticipantProfile(): void {
+    const participant = this.otherParticipant();
+    if (!participant) return;
+    void this.router.navigate(['/social/profile', participant.id], {
+      state: { returnUrl: this.router.url }
+    });
+  }
+
+  openSharedPost(postId: number): void {
+    void this.router.navigate(['/social/post', postId], { state: { returnUrl: this.router.url } });
+  }
+
   formatDateLabel(label: string): string {
     const d = new Date(label);
     const today = new Date();
@@ -164,5 +198,25 @@ export class SocialChatDetailComponent implements OnInit, OnDestroy {
     if (d.toDateString() === today.toDateString()) return 'Today';
     if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  isHourGap(current: DirectMessage, previous: DirectMessage): boolean {
+    return new Date(current.sentAt).getTime() - new Date(previous.sentAt).getTime() >= 60 * 60 * 1000;
+  }
+
+  formatTimelineLabel(value: string): string {
+    const date = new Date(value);
+    return `${this.formatDateLabel(date.toDateString())} · ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+  }
+
+  onMessageTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.touches[0]?.clientX ?? 0;
+  }
+
+  onMessageTouchEnd(event: TouchEvent, messageId: number): void {
+    const endX = event.changedTouches[0]?.clientX ?? this.touchStartX;
+    const delta = endX - this.touchStartX;
+    if (delta < -28) this.revealedTimestampId.set(messageId);
+    else if (delta > 20 || Math.abs(delta) < 8) this.revealedTimestampId.set(null);
   }
 }

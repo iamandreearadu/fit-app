@@ -1,5 +1,4 @@
-import { Component, DestroyRef, HostListener, inject, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, HostListener, inject, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,7 +9,6 @@ import { SocialFeedFacade } from '../../../core/facade/social-feed.facade';
 import { SocialContentFacade } from '../../../core/facade/social-content.facade';
 import { Post } from '../../../core/models/social.model';
 import { PostCardComponent } from '../components/post-card/post-card.component';
-import { CreateContentComponent } from '../components/create-content/create-content.component';
 import { EditPostComponent } from '../components/edit-post/edit-post.component';
 import { SocialFeedGuidedEmptyComponent } from './guided-empty/social-feed-guided-empty.component';
 import { AuthenticationStore } from '../../../core/store/auth.store';
@@ -37,7 +35,6 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly authStore = inject(AuthenticationStore);
-  private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('feedContainer') feedContainer!: ElementRef<HTMLElement>;
   private observer: IntersectionObserver | null = null;
@@ -139,6 +136,10 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
     this.content.toggleLike(postId);
   }
 
+  onSavedToggled(event: { postId: number; isSaved: boolean }): void {
+    this.content.syncSavedState(event.postId, event.isSaved);
+  }
+
   onCommentClicked(postId: number): void {
     this.router.navigate(['/social/post', postId]);
   }
@@ -162,21 +163,7 @@ export class SocialFeedComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  openArticle(articleId: number): void {
-    this.router.navigate(['/social/article', articleId]);
-  }
-
   openCreatePost(): void {
-    const isMobile = window.innerWidth <= 640;
-    this.dialog.open(CreateContentComponent, {
-      panelClass: 'create-post-panel',
-      maxWidth: isMobile ? '100vw' : '600px',
-      width: '100%',
-      position: isMobile ? { bottom: '0' } : undefined,
-    }).afterClosed().pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(result => {
-      if (result) this.facade.loadFeed(true);
-    });
+    this.router.navigate(['/social/new-post'], { state: { returnUrl: this.router.url } });
   }
 }

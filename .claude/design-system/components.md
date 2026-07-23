@@ -58,7 +58,7 @@ Classification per component:
 | EditPost | `features/social/components/edit-post/` | SOLID | |
 | WriteArticle | `features/social/components/write-article/` | SOLID | |
 | SideNav | `features/social/components/side-nav/` | SOLID | |
-| BottomNav | `features/social/components/bottom-nav/` | IMPROVE | Missing bridge back to tracking (S10). |
+| BottomNav | `shared/components/bottom-nav/` | CURRENT | Unified floating dock: Feed, Dashboard, Create, Messages, Profile. |
 | TopBar | `features/social/components/top-bar/` | IMPROVE | 2 rogue colors (`#a07cff`, `#ff5252`). Functional. |
 | DailyPanel | `features/social/components/daily-panel/` | IMPROVE | Read-only dead-end (S8). Needs quick-log actions. 15+ hardcoded colors. |
 | SuggestedUsers | `features/social/components/suggested-users/` | IMPROVE | Silently hides when empty -- needs fallback message (S5). |
@@ -103,6 +103,61 @@ Classification per component:
 ---
 
 ## SECTION 2 -- MISSING Components (New for Redesign)
+
+## Global Text Action Button — current standard, 2026-07-22
+
+All text-based primary buttons use the visual language established by
+`Add to today's meals`:
+
+- transparent background;
+- `1px` subtle violet border using `--action-border`;
+- violet-soft label using `--action-text`;
+- `12px` radius and at least `44px` control height;
+- font weight `500`, without a dramatic shadow;
+- hover uses `--action-hover-bg` and `--action-border-hover`;
+- pressed state scales to `0.985`;
+- keyboard focus uses a visible two-pixel primary ring;
+- disabled state preserves the same shape with reduced opacity.
+
+The shared implementation is defined in `src/styles.css` and covers the known
+legacy CTA class names plus non-icon Angular Material flat/raised buttons.
+Feature styles must not reintroduce a filled purple/gradient background for
+these actions.
+
+### Semantic exceptions
+
+Do not apply the outline CTA rule to icon-only/FAB controls, navigation active
+states, progress indicators, badges, chat messages, or destructive actions.
+Their color conveys state, location, progress, or risk rather than primary
+action hierarchy.
+
+## Account Minimal Input — current standard, 2026-07-22
+
+All editable fields rendered inside `app-user-page` reuse the Dashboard
+Nutrition card input language. This includes Account, Physical, Workouts and
+Nutrition tabs, their search/filter controls, editors, numeric fields, selects,
+date inputs and textareas.
+
+- transparent field surface and no enclosing outline;
+- square wrapper with a single `1px` low-contrast underline;
+- underline strengthens on hover and becomes violet on focus;
+- invalid fields use the destructive underline token;
+- disabled fields retain structure at reduced opacity;
+- input text uses regular `14px` typography and `--text-primary`;
+- placeholders use `--text-muted`;
+- select arrows and prefix/suffix icons use tertiary text color;
+- validation copy and Material subscript layout remain available.
+
+The rule is scoped to `app-user-page` in `src/styles.css`; authentication,
+Dashboard modals and other feature forms retain their context-specific styles.
+
+### Account mobile parent surfaces
+
+At `<= 768px`, the root parent containers for Account, Physical, Workouts,
+Nutrition and the remaining Account tab placeholders have no border or shadow.
+They sit directly on the page canvas to reduce nested-card chrome. Internal
+section separators, list-item boundaries, input underlines and modal edges are
+preserved because they still communicate grouping or interaction.
 
 ### 2.1 MetricCard
 
@@ -511,7 +566,42 @@ Same header/footer. Fitness data block becomes:
 
 ---
 
-### 2.6 NotificationBadge
+### 2.6 DashboardGlassModal
+
+**Purpose:** Canonical centered overlay for compact dashboard utilities that should preserve visual context. Used by `Analyze your meal`, `Today's meals`, and `Weekly balance`.
+
+**Composition:**
+- The full-screen backdrop uses a dark translucent veil plus `blur(14px) saturate(112%)`.
+- The outer dialog is transparent and owns only sizing, layout, and scroll constraints.
+- Header and body are two independent glass surfaces separated by a `12px` gap.
+- Both surfaces use a dark violet-neutral gradient, `blur(18px) saturate(125%)`, a subtle white edge, and a quiet layered shadow.
+- The body owns vertical scrolling; scrollbars remain visually hidden while touch, wheel, and keyboard scrolling continue to work.
+
+**Surface recipe:**
+```css
+background: linear-gradient(145deg, rgba(25, 22, 34, 0.76), rgba(10, 10, 14, 0.66));
+border: 1px solid rgba(255, 255, 255, 0.11);
+backdrop-filter: blur(18px) saturate(125%);
+box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045),
+            0 12px 30px rgba(0, 0, 0, 0.24);
+```
+
+**Sizing and spacing:**
+- Outer gap: `12px`; outer padding/background/border/shadow: none.
+- Header: `12px 14px`, `16px` radius; mobile `10px 12px`, `15px` radius.
+- Body: `14px`, `18px` radius; mobile `12px`, `16px` radius.
+- Mobile maximum height must reserve the bottom navigation, safe area, and `124px` breathing room.
+
+**Accessibility and behavior:**
+- Keep `role="dialog"`, `aria-modal="true"`, labelled headings, and explicit close labels.
+- Touch targets remain at least `44px` even when the visible icon is smaller.
+- Do not use this recipe for destructive confirmations or content-heavy bottom sheets; those require a more opaque surface for readability.
+
+**Implementation:** `features/dashboard/daily-user-data/daily-user-data.component.{html,css}` via the shared `dashboard-glass-modal-bg` and `dashboard-glass-modal` classes.
+
+---
+
+### 2.7 NotificationBadge
 
 **Purpose:** Grouped notification count indicator. Replaces the current flat notification rows for repeated actions. Displays "X and Y liked your post" instead of separate rows.
 

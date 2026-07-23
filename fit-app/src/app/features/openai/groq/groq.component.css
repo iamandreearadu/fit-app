@@ -6,6 +6,7 @@
   min-height: 0;
   overflow: hidden;
   color: var(--white-soft);
+  position: relative;
 }
 
 /* ─── CENTERED STATES ─── */
@@ -26,12 +27,16 @@
   -ms-overflow-style: none;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 7px;
   padding: 20px 16px 20px;
   max-width: 720px;
   width: 100%;
   box-sizing: border-box;
   align-self: center;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(92,60,145,0.028), transparent 34%),
+    radial-gradient(circle at 82% 72%, rgba(67,45,105,0.022), transparent 38%),
+    linear-gradient(180deg, rgba(37,27,51,0.01), rgba(45,31,63,0.022));
 }
 
 .messages::-webkit-scrollbar {
@@ -51,12 +56,21 @@
   opacity: 0.7;
 }
 
-.empty-icon {
-  font-size: 48px;
+.empty-ai-icon {
   width: 48px;
   height: 48px;
-  color: var(--primary);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  display: grid;
+  place-items: center;
+  color: var(--primary-light);
+  background: transparent;
+  border: 0;
+}
+.empty-ai-icon mat-icon {
+  width: 36px;
+  height: 36px;
+  font-size: 36px;
+  filter: drop-shadow(0 4px 10px rgba(124, 77, 255, 0.24));
 }
 
 .empty-title {
@@ -115,22 +129,36 @@
 }
 
 .msg-user .bubble {
-  background: var(--primary);
-  color: #fff;
+  background: linear-gradient(
+    145deg,
+    rgba(39, 28, 55, 0.34),
+    rgba(18, 16, 24, 0.27)
+  );
+  color: rgba(255,255,255,0.94);
+  border: 1px solid rgba(155, 121, 207, 0.12);
   border-bottom-right-radius: 4px;
-  box-shadow: 0 2px 12px rgba(124, 77, 255, 0.35);
+  backdrop-filter: blur(5px) saturate(106%);
+  -webkit-backdrop-filter: blur(5px) saturate(106%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
 }
 
 .msg-ai .bubble {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--white-soft);
-  border: 1px solid var(--white-fade);
+  background: linear-gradient(
+    145deg,
+    rgba(27, 25, 33, 0.3),
+    rgba(14, 14, 18, 0.23)
+  );
+  color: rgba(255,255,255,0.9);
+  border: 1px solid rgba(255, 255, 255, 0.065);
   border-bottom-left-radius: 4px;
+  backdrop-filter: blur(5px) saturate(102%);
+  -webkit-backdrop-filter: blur(5px) saturate(102%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.018);
 }
 
 .bubble-text {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
   white-space: pre-wrap;
 }
 
@@ -194,7 +222,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px 8px 16px;
-  background: var(--surface);
+  background: transparent;
   max-width: 720px;
   width: calc(100% - 32px);
   margin: 0 auto 26px;
@@ -218,7 +246,7 @@
   border-radius: 44px;
   padding: 10px 14px;
   color: var(--white);
-  font-size: 14px;
+  font-size: 15px;
   font-family: inherit;
   line-height: 1.5;
   resize: none;
@@ -332,7 +360,7 @@
 /* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
   .messages {
-    padding: 14px 16px 8px;
+    padding: 14px 16px 104px;
     max-width: 100%;
   }
   .msg {
@@ -350,7 +378,7 @@
 
 @media (max-width: 480px) {
   .messages {
-    padding: 10px 12px 14px;
+    padding: 10px 12px 104px;
     gap: 2px;
     max-width: 100%;
   }
@@ -366,25 +394,49 @@
     max-width: 100%;
     word-break: break-word;
   }
-  .bubble-text {
-    font-size: 13px;
-  }
+  .bubble-text { font-size: 15px; }
   .bubble-img {
     max-width: 130px;
     max-height: 130px;
   }
   .input-bar {
     width: calc(100% - 24px);
-    margin: 0 auto 14px;
+    margin: 0 auto 18px;
     border-radius: 28px;
     padding: 6px 6px 6px 14px;
     gap: 4px;
     box-sizing: border-box;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(13, 13, 16, 0.76);
+    backdrop-filter: blur(12px) saturate(115%);
+    -webkit-backdrop-filter: blur(12px) saturate(115%);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
+  .input-bar-wrap {
+    position: absolute;
+    z-index: 10;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+  }
+  .input-bar-wrap::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 62px;
+    background: linear-gradient(to bottom, transparent, rgba(10, 10, 13, 0.42));
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.35) 42%, #000 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.35) 42%, #000 100%);
+    pointer-events: none;
+  }
+  .input-bar { position: relative; z-index: 1; pointer-events: auto; }
   .input-field {
-    font-size: 14px;
+    font-size: 15px;
     padding: 8px 4px;
     background: transparent;
     border: none;

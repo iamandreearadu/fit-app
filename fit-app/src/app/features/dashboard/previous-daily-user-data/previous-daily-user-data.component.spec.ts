@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PreviousDailyUserDataComponent } from './previous-daily-user-data.component';
+import { TEST_PROVIDERS } from '../../../testing/test-providers';
 
 describe('PreviousDailyUserDataComponent', () => {
   let component: PreviousDailyUserDataComponent;
@@ -8,7 +9,7 @@ describe('PreviousDailyUserDataComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PreviousDailyUserDataComponent]
+      imports: [PreviousDailyUserDataComponent], providers: TEST_PROVIDERS
     })
     .compileComponents();
 

@@ -1,0 +1,20 @@
+@if (facade.pushPromptVisible()) {
+  <aside class="push-banner" aria-live="polite">
+    <mat-icon class="push-icon">notifications_active</mat-icon>
+    <div class="push-copy">
+      <strong>Rămâi la curent</strong>
+      <span>{{ message() }}</span>
+    </div>
+    @if (canEnable()) {
+      <button mat-flat-button type="button" class="push-enable" (click)="facade.enablePushNotifications()">
+        Activează
+      </button>
+    }
+    @if (facade.pushOptInState() === 'requesting') {
+      <mat-progress-spinner diameter="24" mode="indeterminate" />
+    }
+    <button mat-icon-button type="button" aria-label="Închide" (click)="facade.dismissPushPrompt()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </aside>
+}

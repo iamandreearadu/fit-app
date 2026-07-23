@@ -10,6 +10,7 @@ public interface IConversationService
     Task<List<string>> GetOtherParticipantIdsAsync(int conversationId, string userId);
     Task<CursorPageResponse<DirectMessageResponse>> GetMessagesAsync(int conversationId, string userId, int? beforeMessageId, int pageSize);
     Task<DirectMessageResponse> SendMessageAsync(int conversationId, string userId, SendMessageRequest request);
+    Task<SharePostToUserResponse> SharePostAsync(string userId, SharePostRequest request);
     Task MarkAsReadAsync(int conversationId, string userId);
     Task SoftDeleteMessageAsync(int messageId, string userId);
 }

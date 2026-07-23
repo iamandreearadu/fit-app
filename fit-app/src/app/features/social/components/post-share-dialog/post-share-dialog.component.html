@@ -1,0 +1,17 @@
+<section class="share-dialog" aria-labelledby="share-title">
+  <div class="sheet-handle" aria-hidden="true"></div>
+  <header><div><h2 id="share-title">Share post</h2><p>Send it to someone on NovaFit</p></div><button type="button" class="icon-button" (click)="close()" aria-label="Close share dialog"><mat-icon>close</mat-icon></button></header>
+  <div class="search"><mat-icon>search</mat-icon><input class="search-input" [formControl]="search" placeholder="Search people" aria-label="Search people" />@if(search.value){<button type="button" (click)="search.setValue('')" aria-label="Clear search"><mat-icon>close</mat-icon></button>}</div>
+  <div class="people-section"><h3>{{ search.value.trim().length >= 2 ? 'People' : 'Recent' }}</h3>
+  <div class="people" aria-live="polite" tabindex="0">
+    @if(searching()){<p class="state">Searching…</p>}
+    @else if(searchError()){<p class="state error">Could not search people. Try again.</p>}
+    @else { @for(user of users(); track user.id){
+      <div class="person"><span class="avatar">@if(user.avatarUrl){<img [src]="user.avatarUrl" alt="" />}@else{<mat-icon>person</mat-icon>}</span><span class="name">{{user.displayName}}</span>
+        <button type="button" class="send" (click)="send(user)" [disabled]="sending().has(user.id) || sent().has(user.id)">@if(sending().has(user.id)){Sending…}@else if(sent().has(user.id)){<mat-icon>check</mat-icon> Sent}@else{Send}</button>
+      </div>
+    } @empty {<p class="state">{{search.value.trim().length >= 2 ? 'No people found.' : 'No recent conversations.'}}</p>} }
+  </div></div>
+  <div class="other"><h3>Share another way</h3><div class="other-actions">@if(canNativeShare){<button type="button" (click)="shareVia()"><mat-icon>ios_share</mat-icon>Share via…</button>}<button type="button" (click)="copyLink()"><mat-icon>{{copied()?'check':'link'}}</mat-icon>{{copied()?'Link copied':'Copy link'}}</button></div></div>
+  <span class="sr-only" aria-live="polite">{{status()}}</span>
+</section>

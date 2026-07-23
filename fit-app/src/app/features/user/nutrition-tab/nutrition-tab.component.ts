@@ -7,7 +7,7 @@ import { MaterialModule } from '../../../core/material/material.module';
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NutritionTabFacade } from '../../../core/facade/nutrition-tab.facade';
-import { FoodSearchResult, MealEntry, MealType, RecentFoodItem } from '../../../core/models/nutrition-tab.model';
+import { FoodItem, FoodSearchResult, MealEntry, MealType, RecentFoodItem } from '../../../core/models/nutrition-tab.model';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { NutritionGuidedEmptyComponent } from './guided-empty/nutrition-guided-empty.component';
@@ -41,7 +41,7 @@ export class NutritionTabComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly alerts = inject(AlertService);
 
-  loading = false;
+  readonly loading = signal(false);
   meals: MealEntry[] = [];
   filtered: MealEntry[] = [];
 
@@ -80,8 +80,8 @@ export class NutritionTabComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loading = true;
-    this.facade.loadMeals().finally(() => (this.loading = false));
+    this.loading.set(true);
+    this.facade.loadMeals().finally(() => this.loading.set(false));
 
     // Fix 1 — pre-load recent foods so the @if guard fires immediately
     this.facade.loadRecentFoods();
@@ -149,8 +149,8 @@ export class NutritionTabComponent implements OnInit {
   }
 
   get mealTotals() {
-    const vals = this.items.value as any[];
-    return vals.reduce(
+    const vals = this.items.value as Partial<FoodItem>[];
+    return vals.reduce<{ grams: number; calories: number; protein_g: number; carbs_g: number; fats_g: number }>(
       (acc, item) => ({
         grams:     acc.grams     + Number(item.grams     ?? 0),
         calories:  acc.calories  + Number(item.calories  ?? 0),
@@ -242,14 +242,15 @@ export class NutritionTabComponent implements OnInit {
       type:  raw.type,
       date:  raw.date ?? new Date().toISOString().slice(0, 10),
       notes: raw.notes ?? '',
-      items: (raw.items as any[]).map(i => ({
-        name:      i.name,
+      isSavedMeal: true,
+      items: (raw.items as Partial<FoodItem>[]).map(i => ({
+        name:      i.name ?? '',
         grams:     Number(i.grams),
         calories:  Number(i.calories),
         protein_g: Number(i.protein_g),
         carbs_g:   Number(i.carbs_g),
         fats_g:    Number(i.fats_g),
-        source:    i.source ?? null,   // Fix 1: pass through data origin
+        source:    i.source ?? undefined,   // Fix 1: pass through data origin
       })),
     });
     this.cancel();

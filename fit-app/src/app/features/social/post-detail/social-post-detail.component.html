@@ -26,11 +26,14 @@
     @if (post()) {
       <app-post-card
         [post]="post()!"
+        [showArchiveAction]="true"
         (likeToggled)="onLikePost()"
         (commentClicked)="scrollToComposer()"
         (followToggled)="facade.toggleFollow($event)"
         (deleteClicked)="onDeletePost($event)"
         (editClicked)="onEditPost($event)"
+        (archiveClicked)="onArchivePost($event)"
+        (savedToggled)="onSavedToggled($event)"
       />
     }
 
