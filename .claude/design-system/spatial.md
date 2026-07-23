@@ -444,3 +444,20 @@ Every interactive element must meet the 48px minimum touch target rule. This is 
 8. Grid-3 gap `12px` -> keep (acceptable as 1.5 x 8px)
 
 These are subtle visual changes (2-6px adjustments) but bring the system onto the 8px grid for maintainability.
+# Current mobile shell spacing — 2026-07-22
+
+These production values override older full-width navigation examples:
+
+| Property | Value |
+|---|---:|
+| Horizontal viewport inset | `12px` |
+| Bottom breathing room | `18px + safe-area-inset-bottom` |
+| Dock height / radius | `60px / 30px` |
+| Dock inner padding | `4px 6px` |
+| Destination touch height | `52px` |
+| Active indicator | `44px` circle |
+| Extra content clearance | `26px` beyond legacy nav offset |
+
+The circle is decorative and must not reduce the touch target. Content, FABs, and sheets clear the full dock. Glyph-specific optical corrections may move only the icon, never its circle or hit area.
+
+---

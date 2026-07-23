@@ -2,7 +2,7 @@
 .ob-dialog {
   display: flex;
   flex-direction: column;
-  background: #13131a;
+  background: var(--modal-surface);
   border: 1px solid rgba(124, 77, 255, 0.18);
   border-radius: 20px;
   overflow: hidden;

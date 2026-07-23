@@ -1,4 +1,5 @@
 <div class="daily-root">
+  <app-push-opt-in />
   <!-- Picker backdrop (closes picker when clicking outside) -->
   @if (showActivityPicker) {
     <div
@@ -53,6 +54,22 @@
           <div class="ctrl-body">
             <span class="ctrl-lbl">AI</span>
             <span class="ctrl-val">Analyze your meal</span>
+          </div>
+        </button>
+
+        <div class="ctrl-sep"></div>
+
+        <button
+          class="ctrl-section ctrl-meals"
+          type="button"
+          (click)="openMeals()"
+        >
+          <div class="ctrl-meals-icon">
+            <mat-icon>restaurant</mat-icon>
+          </div>
+          <div class="ctrl-body">
+            <span class="ctrl-lbl">Today</span>
+            <span class="ctrl-val">Today's Meals</span>
           </div>
         </button>
 
@@ -120,10 +137,10 @@
               <span>{{ opt.label }}</span>
             </button>
           }
-          @if (facade.workoutTemplates.length > 0) {
+          @if (facade.workoutTemplates().length > 0) {
             <div class="act-divider"></div>
             <div class="act-group-lbl">My Workouts</div>
-            @for (w of facade.workoutTemplates; track w.uid) {
+            @for (w of facade.workoutTemplates(); track w.uid) {
               <button
                 class="act-opt"
                 type="button"
@@ -169,48 +186,54 @@
           </div>
         </div>
 
-        <!-- Fix 10: read-only calorie summary from nutrition log -->
-        <app-daily-entry-calorie-summary />
-
         <fieldset formGroupName="macrosPct" class="macros-list">
           <div class="macro-row">
-            <span class="mdot d-protein"></span>
+            <label class="macro-label" for="daily-protein">
+              <span class="mdot d-protein"></span>
+              Protein
+            </label>
             <mat-form-field
               appearance="outline"
               subscriptSizing="dynamic"
               class="mf"
             >
-              <mat-label>Protein (g)</mat-label>
-              <input matInput type="number" formControlName="protein" min="0" />
+              <input id="daily-protein" matInput type="number" formControlName="protein" min="0" step="0.1" readonly />
+              <span matTextSuffix>g</span>
             </mat-form-field>
           </div>
           <div class="macro-row">
-            <span class="mdot d-carbs"></span>
+            <label class="macro-label" for="daily-carbs">
+              <span class="mdot d-carbs"></span>
+              Carbs
+            </label>
             <mat-form-field
               appearance="outline"
               subscriptSizing="dynamic"
               class="mf"
             >
-              <mat-label>Carbs (g)</mat-label>
-              <input matInput type="number" formControlName="carbs" min="0" />
+              <input id="daily-carbs" matInput type="number" formControlName="carbs" min="0" step="0.1" readonly />
+              <span matTextSuffix>g</span>
             </mat-form-field>
           </div>
           <div class="macro-row">
-            <span class="mdot d-fats"></span>
+            <label class="macro-label" for="daily-fats">
+              <span class="mdot d-fats"></span>
+              Fats
+            </label>
             <mat-form-field
               appearance="outline"
               subscriptSizing="dynamic"
               class="mf"
             >
-              <mat-label>Fats (g)</mat-label>
-              <input matInput type="number" formControlName="fats" min="0" />
+              <input id="daily-fats" matInput type="number" formControlName="fats" min="0" step="0.1" readonly />
+              <span matTextSuffix>g</span>
             </mat-form-field>
           </div>
         </fieldset>
 
-        <button type="button" class="btn-pick-meal" (click)="openMealPicker()">
-          <mat-icon>restaurant_menu</mat-icon>
-          <span>Pick from saved meals</span>
+        <button type="button" class="btn-manual-macros" (click)="openManualMacros()">
+          <mat-icon>add</mat-icon>
+          <span>Add macros manually</span>
         </button>
 
       </div>
@@ -244,38 +267,16 @@
           <mat-icon matSuffix>edit</mat-icon>
         </mat-form-field>
 
-        <div class="adj-row">
-          <button
-            mat-stroked-button
-            class="ab ab-p"
-            type="button"
-            (click)="adjustCaloriesBurned(200)"
-          >
-            +200
+        <div class="metric-stepper" aria-label="Adjust calories burned">
+          <button type="button" class="metric-stepper-btn" aria-label="Decrease calories burned by 100 kilocalories" (click)="adjustCaloriesBurned(-100)">
+            <mat-icon>remove</mat-icon>
           </button>
-          <button
-            mat-stroked-button
-            class="ab ab-p"
-            type="button"
-            (click)="adjustCaloriesBurned(100)"
-          >
-            +100
-          </button>
-          <button
-            mat-stroked-button
-            class="ab ab-m"
-            type="button"
-            (click)="adjustCaloriesBurned(-100)"
-          >
-            −100
-          </button>
-          <button
-            mat-stroked-button
-            class="ab ab-m"
-            type="button"
-            (click)="adjustCaloriesBurned(-200)"
-          >
-            −200
+          <div class="metric-stepper-value" aria-live="polite">
+            <strong>{{ facade.dailyDataStats().caloriesBurned | number:'1.0-0' }}</strong>
+            <span>kcal · ±100</span>
+          </div>
+          <button type="button" class="metric-stepper-btn" aria-label="Increase calories burned by 100 kilocalories" (click)="adjustCaloriesBurned(100)">
+            <mat-icon>add</mat-icon>
           </button>
         </div>
 
@@ -316,30 +317,16 @@
             mode="determinate"
             [value]="facade.waterProgress()"
           ></mat-progress-bar>
-          <div class="adj-row">
-            <button
-              mat-stroked-button
-              class="ab ab-p"
-              type="button"
-              (click)="adjustWaterMl(500)"
-            >
-              +500 ml
+          <div class="metric-stepper" aria-label="Adjust hydration">
+            <button type="button" class="metric-stepper-btn" aria-label="Decrease water by 250 milliliters" (click)="adjustWaterMl(-250)">
+              <mat-icon>remove</mat-icon>
             </button>
-            <button
-              mat-stroked-button
-              class="ab ab-p"
-              type="button"
-              (click)="adjustWaterMl(250)"
-            >
-              +250 ml
-            </button>
-            <button
-              mat-stroked-button
-              class="ab ab-m"
-              type="button"
-              (click)="adjustWaterMl(-250)"
-            >
-              −250 ml
+            <div class="metric-stepper-value" aria-live="polite">
+              <strong>{{ facade.dailyDataStats().waterConsumedL | number:'1.2-2' }}</strong>
+              <span>L · ±250 ml</span>
+            </div>
+            <button type="button" class="metric-stepper-btn" aria-label="Increase water by 250 milliliters" (click)="adjustWaterMl(250)">
+              <mat-icon>add</mat-icon>
             </button>
           </div>
         </div>
@@ -363,35 +350,22 @@
             mode="determinate"
             [value]="facade.dailyDataStats().stepsProgress"
           ></mat-progress-bar>
-          <div class="adj-row">
-            <button
-              mat-stroked-button
-              class="ab ab-p"
-              type="button"
-              (click)="adjustSteps(1000)"
-            >
-              +1 000
+          <div class="metric-stepper" aria-label="Adjust steps">
+            <button type="button" class="metric-stepper-btn" aria-label="Decrease steps by 500" (click)="adjustSteps(-500)">
+              <mat-icon>remove</mat-icon>
             </button>
-            <button
-              mat-stroked-button
-              class="ab ab-p"
-              type="button"
-              (click)="adjustSteps(500)"
-            >
-              +500
-            </button>
-            <button
-              mat-stroked-button
-              class="ab ab-m"
-              type="button"
-              (click)="adjustSteps(-500)"
-            >
-              −500
+            <div class="metric-stepper-value" aria-live="polite">
+              <strong>{{ facade.dailyDataStats().steps | number:'1.0-0' }}</strong>
+              <span>steps · ±500</span>
+            </div>
+            <button type="button" class="metric-stepper-btn" aria-label="Increase steps by 500" (click)="adjustSteps(500)">
+              <mat-icon>add</mat-icon>
             </button>
           </div>
         </div>
       </div>
     </div>
+
   </form>
 
   <!-- Loading overlay -->
@@ -505,10 +479,288 @@
     </div>
   }
 
+  <!-- Today's Meals Modal -->
+  @if (showMealsOverlay) {
+    <div class="modal-bg dashboard-glass-modal-bg meals-modal-bg" (click)="closeMeals()">
+      <section
+        class="modal-box dashboard-glass-modal meals-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="today-meals-title"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="modal-head meals-modal-head">
+          <div class="modal-icon-wrap meals-modal-icon">
+            <mat-icon>restaurant</mat-icon>
+          </div>
+          <div class="meals-modal-heading">
+            <span id="today-meals-title" class="modal-title">Today's meals</span>
+            @if (!facade.mealsLoading() && !facade.mealsError()) {
+              <span class="meals-modal-summary">
+                {{ todayMeals().length }} {{ todayMeals().length === 1 ? 'meal' : 'meals' }}
+                <span aria-hidden="true">·</span>
+                {{ todayMealsCalories() | number: '1.0-0' }} kcal
+              </span>
+            }
+          </div>
+          <button
+            mat-icon-button
+            class="modal-close"
+            type="button"
+            (click)="closeMeals()"
+            aria-label="Close today's meals"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="meals-modal-body">
+          <button
+            type="button"
+            class="add-saved-meal-trigger"
+            (click)="showSavedMeals ? closeSavedMeals() : openSavedMeals()"
+            [attr.aria-expanded]="showSavedMeals"
+          >
+            <mat-icon>{{ showSavedMeals ? 'arrow_back' : 'add' }}</mat-icon>
+            <span>{{ showSavedMeals ? 'Back to today' : 'Add saved meal' }}</span>
+          </button>
+
+          @if (showSavedMeals) {
+            <div class="saved-meals-picker">
+              <div class="saved-meal-step">
+                <span class="saved-meal-step-label">1. Choose a saved meal</span>
+                @if (savedMeals().length === 0) {
+                  <div class="saved-meals-empty">
+                    <mat-icon>bookmark_border</mat-icon>
+                    <span>No saved meals yet. Create one in Account → Nutrition.</span>
+                  </div>
+                } @else {
+                  <div class="saved-meals-list" role="listbox" aria-label="Saved meals">
+                    @for (meal of savedMeals(); track meal.uid ?? meal.id) {
+                      <button
+                        type="button"
+                        class="saved-meal-option"
+                        [class.saved-meal-option--selected]="selectedSavedMeal() === meal"
+                        [attr.aria-selected]="selectedSavedMeal() === meal"
+                        role="option"
+                        (click)="selectedSavedMeal.set(meal)"
+                      >
+                        <span class="saved-meal-option-name">{{ meal.name }}</span>
+                        <span>{{ meal.totalCalories | number: '1.0-0' }} kcal</span>
+                        <mat-icon>{{ selectedSavedMeal() === meal ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+
+              @if (selectedSavedMeal()) {
+                <div class="saved-meal-step">
+                  <span class="saved-meal-step-label">2. Add it as</span>
+                  <div class="saved-meal-types" role="radiogroup" aria-label="Meal type">
+                    @for (type of mealTypes; track type) {
+                      <button
+                        type="button"
+                        role="radio"
+                        class="saved-meal-type"
+                        [class.saved-meal-type--selected]="selectedSavedMealType() === type"
+                        [attr.aria-checked]="selectedSavedMealType() === type"
+                        (click)="selectedSavedMealType.set(type)"
+                      >{{ type }}</button>
+                    }
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="saved-meal-add"
+                  [disabled]="!!mealActionId()"
+                  (click)="addSavedMeal()"
+                >
+                  @if (mealActionId()?.startsWith('add:')) {
+                    <span class="meal-action-spinner" aria-hidden="true"></span>
+                    Adding…
+                  } @else {
+                    Add to today's meals
+                  }
+                </button>
+              }
+            </div>
+          } @else {
+          @if (facade.mealsLoading()) {
+            <div class="meals-skeleton" role="status" aria-label="Loading today's meals">
+              @for (type of mealTypes; track type) {
+                <div class="meals-skeleton-row"></div>
+              }
+            </div>
+          } @else if (facade.mealsError()) {
+            <div class="meals-state meals-state--error" role="alert">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ facade.mealsError() }}</span>
+              <button type="button" class="meals-retry" (click)="openMeals()">Retry</button>
+            </div>
+          } @else if (todayMeals().length === 0) {
+            <div class="meals-state">
+              <mat-icon>no_meals</mat-icon>
+              <strong>No meals logged today</strong>
+              <span>Meals you add today will appear here.</span>
+            </div>
+          } @else {
+            <div class="meal-groups">
+              @for (group of todayMealGroups(); track group.type) {
+                <section class="meal-group">
+                  <button
+                    type="button"
+                    class="meal-group-toggle"
+                    (click)="toggleMealGroup(group.type)"
+                    [attr.aria-expanded]="expandedMealTypes().has(group.type)"
+                  >
+                    <span class="meal-group-name">{{ group.type }}</span>
+                    <span class="meal-group-meta">
+                      {{ group.meals.length }}
+                      @if (group.calories > 0) {
+                        <span aria-hidden="true">·</span>
+                        {{ group.calories | number: '1.0-0' }} kcal
+                      }
+                    </span>
+                    <mat-icon>{{ expandedMealTypes().has(group.type) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                  </button>
+
+                  @if (expandedMealTypes().has(group.type)) {
+                    <div class="meal-group-content">
+                      @if (group.meals.length === 0) {
+                        <span class="meal-group-empty">No meals in this category</span>
+                      } @else {
+                        @for (meal of group.meals; track meal.uid ?? meal.id) {
+                          <article class="today-meal-row">
+                            <div class="today-meal-main">
+                              <div class="today-meal-copy">
+                                <span class="today-meal-name">{{ meal.name }}</span>
+                                <span class="today-meal-kcal">{{ meal.totalCalories | number: '1.0-0' }} kcal</span>
+                              </div>
+                              <button
+                                type="button"
+                                class="today-meal-delete"
+                                (click)="deleteTodayMeal(meal)"
+                                [disabled]="!!mealActionId()"
+                                [attr.aria-label]="'Delete ' + meal.name"
+                              >
+                                @if (mealActionId() === 'delete:' + (meal.uid ?? meal.id)) {
+                                  <span class="meal-action-spinner" aria-hidden="true"></span>
+                                } @else {
+                                  <mat-icon>delete_outline</mat-icon>
+                                }
+                              </button>
+                            </div>
+                            <div class="today-meal-macros" aria-label="Meal macros">
+                              <span>P {{ meal.totalProtein_g | number: '1.0-1' }}g</span>
+                              <span>C {{ meal.totalCarbs_g | number: '1.0-1' }}g</span>
+                              <span>F {{ meal.totalFats_g | number: '1.0-1' }}g</span>
+                            </div>
+                          </article>
+                        }
+                      }
+                    </div>
+                  }
+                </section>
+              }
+            </div>
+          }
+          }
+        </div>
+      </section>
+    </div>
+  }
+
+  <!-- Manual Macros Modal -->
+  @if (showManualMacrosOverlay) {
+    <div class="modal-bg dashboard-glass-modal-bg manual-macros-modal-bg" (click)="closeManualMacros()">
+      <section
+        class="modal-box dashboard-glass-modal manual-macros-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="manual-macros-title"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="modal-head">
+          <div class="modal-icon-wrap manual-macros-icon">
+            <mat-icon>edit_note</mat-icon>
+          </div>
+          <span id="manual-macros-title" class="modal-title">Add macros manually</span>
+          <button mat-icon-button class="modal-close" type="button" (click)="closeManualMacros()" aria-label="Close manual macros">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <form class="manual-macros-form" [formGroup]="manualMacrosForm" (ngSubmit)="saveManualMacros()">
+          <div class="manual-macros-section">
+            <span class="manual-macros-section-label">Meal details</span>
+            <div class="manual-macros-meta">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Name</mat-label>
+                <input matInput formControlName="name" maxlength="80" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Meal type</mat-label>
+                <mat-select formControlName="type" panelClass="manual-macros-select-panel">
+                  @for (type of mealTypes; track type) {
+                    <mat-option [value]="type">{{ type }}</mat-option>
+                  }
+                </mat-select>
+                <mat-icon matSuffix class="manual-macros-select-chevron">expand_more</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="manual-macros-section">
+            <span class="manual-macros-section-label">Macros</span>
+            <div class="manual-macros-values">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Protein (g)</mat-label>
+                <input matInput type="number" min="0" step="0.1" placeholder="0" formControlName="protein" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Carbs (g)</mat-label>
+                <input matInput type="number" min="0" step="0.1" placeholder="0" formControlName="carbs" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Fats (g)</mat-label>
+                <input matInput type="number" min="0" step="0.1" placeholder="0" formControlName="fats" />
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="manual-macros-actions">
+            <button
+              class="manual-macros-save manual-macros-save--secondary"
+              type="button"
+              [disabled]="manualMealSaving || manualMacrosSaving"
+              (click)="saveManualMeal()"
+            >
+              @if (manualMealSaving) {
+                <span class="meal-action-spinner" aria-hidden="true"></span>
+                Saving…
+              } @else {
+                Save meal
+              }
+            </button>
+            <button class="manual-macros-save" type="submit" [disabled]="manualMacrosSaving || manualMealSaving">
+              @if (manualMacrosSaving) {
+                <span class="meal-action-spinner" aria-hidden="true"></span>
+                Adding…
+              } @else {
+                Add to today's meals
+              }
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+
   <!-- Calorie Balance Modal -->
   @if (showCalorieBalance) {
-    <div class="modal-bg" (click)="closeCalorieBalance()">
-      <div class="modal-box cb-box" (click)="$event.stopPropagation()">
+    <div class="modal-bg dashboard-glass-modal-bg balance-modal-bg" (click)="closeCalorieBalance()">
+      <div class="modal-box dashboard-glass-modal cb-box" (click)="$event.stopPropagation()">
         <div class="modal-head">
           <div class="modal-icon-wrap cb-icon-wrap">
             <mat-icon>show_chart</mat-icon>
@@ -532,13 +784,13 @@
 
   <!-- Analyze Modal -->
   @if (showAnalyzeOverlay) {
-    <div class="modal-bg" (click)="closeMealAnalyze()">
-      <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-bg dashboard-glass-modal-bg analyze-modal-bg" (click)="closeMealAnalyze()">
+      <div class="modal-box dashboard-glass-modal analyze-modal" (click)="$event.stopPropagation()">
         <div class="modal-head">
           <div class="modal-icon-wrap">
             <mat-icon>auto_awesome</mat-icon>
           </div>
-          <span class="modal-title">Analyze Meal with AI</span>
+          <span class="modal-title">Analyze your meal</span>
           <button
             mat-icon-button
             class="modal-close"
@@ -554,9 +806,6 @@
           (error)="onAnalyzerError($event)"
         >
         </app-ai-meal-analyzer>
-        @if (analyzeError) {
-          <div class="modal-err">{{ analyzeError }}</div>
-        }
       </div>
     </div>
   }

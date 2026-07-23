@@ -63,6 +63,10 @@ export const routes: Routes = [
       import('./features/user/user-page.component').then(
         (m) => m.UserPageComponent,
       ),
+    loadChildren: () =>
+      import('./features/user/account.routes').then(
+        (m) => m.ACCOUNT_ROUTES,
+      ),
     canActivate: [AuthGuard],
   },
   {
@@ -88,6 +92,44 @@ export const routes: Routes = [
         (m) => m.RegisterComponent,
       ),
     canActivate: [GuestGuard],
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./features/auth/forgot-password/forgot-password.component').then(
+        (m) => m.ForgotPasswordComponent,
+      ),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./features/auth/reset-password/reset-password.component').then(
+        (m) => m.ResetPasswordComponent,
+      ),
+  },
+  {
+    path: 'privacy',
+    loadComponent: () =>
+      import('./features/legal/legal-page.component').then(
+        (m) => m.LegalPageComponent,
+      ),
+    data: { document: 'privacy' },
+  },
+  {
+    path: 'terms',
+    loadComponent: () =>
+      import('./features/legal/legal-page.component').then(
+        (m) => m.LegalPageComponent,
+      ),
+    data: { document: 'terms' },
+  },
+  {
+    path: 'cookies',
+    loadComponent: () =>
+      import('./features/legal/legal-page.component').then(
+        (m) => m.LegalPageComponent,
+      ),
+    data: { document: 'cookies' },
   },
 
   {

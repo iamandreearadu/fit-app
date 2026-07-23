@@ -1,214 +1,78 @@
-<main class="ob-page" role="main">
-  <!-- Ambient orbs -->
-  <div class="ob-orb ob-orb-1" aria-hidden="true"></div>
-  <div class="ob-orb ob-orb-2" aria-hidden="true"></div>
+<main class="guide-page" role="main">
+  <div class="guide-ambient" aria-hidden="true"></div>
 
-  <!-- Skip link — slide 2 only -->
-  @if (currentSlide() === 1) {
-    <button
-      type="button"
-      class="ob-skip-link"
-      (click)="skip()"
-      aria-label="Skip carousel and go to registration"
-    >
-      Skip
+  <header class="guide-header">
+    <div class="guide-brand">
+      <span class="guide-mark"><mat-icon>fitness_center</mat-icon></span>
+      <span>NovaFit Guide</span>
+    </div>
+    <button type="button" class="guide-exit" (click)="exit()">
+      {{ isGuideMode ? 'Back to Dashboard' : 'Skip guide' }}
+      <mat-icon>close</mat-icon>
     </button>
-  }
+  </header>
 
-  <!-- Slide container -->
-  <div
-    class="ob-slides-wrapper"
-    [class.ob-transitioning]="isTransitioning()"
-    aria-live="polite"
-    aria-atomic="true"
-  >
-
-    <!-- ════════════════════════════════
-         SLIDE 1 — Track every rep
-    ════════════════════════════════ -->
-    <div
-      class="ob-slide"
-      [class.ob-slide--active]="currentSlide() === 0"
-      [class.ob-slide--exit-left]="currentSlide() === 1"
-      [attr.aria-hidden]="currentSlide() !== 0"
-    >
-      <div class="ob-layout">
-
-        <!-- Phone mockup -->
-        <div class="ob-phone-frame" aria-hidden="true">
-          <!-- Header bar -->
-          <div class="ob-mock-header">
-            <div class="ob-mock-header-left">
-              <mat-icon class="ob-mock-icon-flame">local_fire_department</mat-icon>
-              <span class="ob-mock-streak-num">12</span>
-            </div>
-            <span class="ob-mock-brand">NOVAFIT</span>
-            <mat-icon class="ob-mock-icon-chart">bar_chart</mat-icon>
-          </div>
-
-          <!-- Stat tiles -->
-          <div class="ob-mock-stats">
-            <div class="ob-mock-tile">
-              <span class="ob-mock-tile-value">1,840</span>
-              <span class="ob-mock-tile-label">KCAL</span>
-            </div>
-            <div class="ob-mock-tile">
-              <span class="ob-mock-tile-value">8,200</span>
-              <span class="ob-mock-tile-label">STEPS</span>
-            </div>
-          </div>
-
-          <!-- Weekly chart -->
-          <div class="ob-mock-chart-section">
-            <span class="ob-mock-chart-label">WEEKLY TRAINING</span>
-            <div class="ob-mock-bars" role="presentation">
-              <div class="ob-mock-bar ob-mock-bar--1"></div>
-              <div class="ob-mock-bar ob-mock-bar--2"></div>
-              <div class="ob-mock-bar ob-mock-bar--3"></div>
-              <div class="ob-mock-bar ob-mock-bar--4"></div>
-              <div class="ob-mock-bar ob-mock-bar--5"></div>
-            </div>
-          </div>
-
-          <!-- Streak pill -->
-          <div class="ob-mock-streak">
-            <mat-icon class="ob-mock-streak-icon">local_fire_department</mat-icon>
-            <span>12-DAY STREAK</span>
-          </div>
-        </div>
-
-        <!-- Text content -->
-        <div class="ob-content">
-          <h1 class="ob-carousel-headline">
-            Track <span class="ob-gradient-text">every</span> rep,<br>
-            <span class="ob-gradient-text">every</span> meal,<br>
-            <span class="ob-gradient-text">every</span> day.
-          </h1>
-          <p class="ob-carousel-sub">
-            NovaFit turns your effort into insight — workouts, nutrition,
-            and daily habits unified in one place.
-          </p>
-
-          <!-- Progress dots -->
-          <div class="ob-dots" role="tablist" aria-label="Carousel progress">
-            <div
-              class="ob-dot ob-dot--active"
-              role="tab"
-              [attr.aria-selected]="true"
-              aria-label="Slide 1 of 2"
-            ></div>
-            <div
-              class="ob-dot"
-              role="tab"
-              [attr.aria-selected]="false"
-              aria-label="Slide 2 of 2"
-            ></div>
-          </div>
-
+  <section class="guide-shell" aria-live="polite">
+    <aside class="guide-rail" aria-label="Guide sections">
+      <span class="guide-count">{{ currentSlide() + 1 | number:'2.0-0' }} / {{ slides.length | number:'2.0-0' }}</span>
+      <nav>
+        @for (item of slides; track item.eyebrow; let index = $index) {
           <button
             type="button"
-            class="ob-cta-btn"
-            (click)="goToSlide2()"
-            aria-label="Go to slide 2"
+            [class.is-active]="currentSlide() === index"
+            (click)="goTo(index)"
+            [attr.aria-current]="currentSlide() === index ? 'step' : null"
+            [attr.aria-label]="'Open step ' + (index + 1) + ': ' + item.eyebrow"
           >
-            Next
-            <mat-icon>arrow_forward</mat-icon>
+            <span>{{ index + 1 }}</span>
+            <span>{{ item.eyebrow }}</span>
           </button>
+        }
+      </nav>
+    </aside>
+
+    <article class="guide-content">
+      <div class="guide-copy">
+        <span class="guide-eyebrow">{{ slide.eyebrow }}</span>
+        <h1>{{ slide.title }}<br><em>{{ slide.accent }}</em></h1>
+        <p>{{ slide.description }}</p>
+      </div>
+
+      <div class="guide-glass">
+        <div class="guide-feature-hero">
+          <span><mat-icon>{{ slide.icon }}</mat-icon></span>
+          <div>
+            <small>Explore</small>
+            <strong>{{ slide.eyebrow }}</strong>
+          </div>
+        </div>
+        <div class="guide-feature-grid">
+          @for (feature of slide.features; track feature.title) {
+            <div class="guide-feature">
+              <mat-icon>{{ feature.icon }}</mat-icon>
+              <div>
+                <strong>{{ feature.title }}</strong>
+                <p>{{ feature.description }}</p>
+              </div>
+            </div>
+          }
         </div>
       </div>
-    </div>
 
-    <!-- ════════════════════════════════
-         SLIDE 2 — AI fitness coach
-    ════════════════════════════════ -->
-    <div
-      class="ob-slide"
-      [class.ob-slide--active]="currentSlide() === 1"
-      [class.ob-slide--enter-right]="currentSlide() === 0"
-      [attr.aria-hidden]="currentSlide() !== 1"
-    >
-      <div class="ob-layout">
-
-        <!-- Phone mockup — AI chat -->
-        <div class="ob-phone-frame" aria-hidden="true">
-          <!-- Blurred background layer -->
-          <div class="ob-mock-bg-blur">
-            <div class="ob-mock-bg-line"></div>
-            <div class="ob-mock-bg-line ob-mock-bg-line--2"></div>
-            <div class="ob-mock-bg-line ob-mock-bg-line--3"></div>
-          </div>
-
-          <!-- FAB -->
-          <div class="ob-mock-fab">
-            <mat-icon class="ob-mock-fab-icon">auto_awesome</mat-icon>
-          </div>
-
-          <!-- AI Chat bottom sheet -->
-          <div class="ob-mock-chat">
-            <div class="ob-mock-chat-header">
-              <mat-icon class="ob-mock-chat-header-icon">smart_toy</mat-icon>
-              <span class="ob-mock-chat-header-text">AI Chat</span>
-            </div>
-
-            <!-- User message -->
-            <div class="ob-mock-bubble-user">
-              How many kcal did I burn today?
-            </div>
-
-            <!-- AI typing / response -->
-            @if (!aiResponseVisible()) {
-              <div class="ob-mock-bubble-ai">
-                <span class="ob-mock-typing-dot"></span>
-                <span class="ob-mock-typing-dot ob-mock-typing-dot--2"></span>
-                <span class="ob-mock-typing-dot ob-mock-typing-dot--3"></span>
-              </div>
-            } @else {
-              <div class="ob-mock-bubble-ai ob-mock-bubble-ai--response">
-                Based on your 47-min strength session, you burned approx. 285 kcal. 💪
-              </div>
-            }
-          </div>
+      <footer class="guide-actions">
+        <button type="button" class="guide-button guide-button--back" (click)="previous()" [disabled]="currentSlide() === 0">
+          <mat-icon>arrow_back</mat-icon> Previous
+        </button>
+        <div class="guide-mobile-dots" aria-hidden="true">
+          @for (item of slides; track item.eyebrow; let index = $index) {
+            <i [class.is-active]="currentSlide() === index"></i>
+          }
         </div>
-
-        <!-- Text content -->
-        <div class="ob-content">
-          <h1 class="ob-carousel-headline">
-            Your <span class="ob-gradient-text">AI</span> fitness coach,<br>
-            always on.
-          </h1>
-          <p class="ob-carousel-sub">
-            Ask about your macros, get a workout plan, or analyse a meal photo.
-            Context-aware intelligence, built right in.
-          </p>
-
-          <!-- Progress dots -->
-          <div class="ob-dots" role="tablist" aria-label="Carousel progress">
-            <div
-              class="ob-dot"
-              role="tab"
-              [attr.aria-selected]="false"
-              aria-label="Slide 1 of 2"
-            ></div>
-            <div
-              class="ob-dot ob-dot--active"
-              role="tab"
-              [attr.aria-selected]="true"
-              aria-label="Slide 2 of 2"
-            ></div>
-          </div>
-
-          <button
-            type="button"
-            class="ob-cta-btn"
-            (click)="getStarted()"
-            aria-label="Begin registration"
-          >
-            Get started
-            <mat-icon>arrow_forward</mat-icon>
-          </button>
-        </div>
-      </div>
-    </div>
-
-  </div>
+        <button type="button" class="guide-button guide-button--next" (click)="next()">
+          {{ currentSlide() === slides.length - 1 ? (isGuideMode ? 'Go to Dashboard' : 'Set up my profile') : 'Next' }}
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </footer>
+    </article>
+  </section>
 </main>

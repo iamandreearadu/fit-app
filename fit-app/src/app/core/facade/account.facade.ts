@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AccountService } from '../../api/account.service';
 import { AuthenticationStore } from '../store/auth.store';
@@ -16,6 +16,8 @@ import { OnboardingFacade } from './onboarding.facade';
 
 @Injectable({ providedIn: 'root' })
 export class AccountFacade {
+
+  readonly authError = signal<'invalidCredentials' | 'emailTaken' | null>(null);
 
   private authStore = inject(AuthenticationStore);
   private ls = inject(LocalStorageService);
@@ -75,6 +77,7 @@ export class AccountFacade {
 
   public async login(creds: AuthCredentials): Promise<boolean> {
     this.authStore.setLoading(true);
+    this.authError.set(null);
 
     try {
       const u = await this.svc.login(creds);
@@ -98,7 +101,7 @@ export class AccountFacade {
     } catch (error: unknown) {
       const status = (error as { status?: number })?.status;
       if (status === 401 || status === 400) {
-        this.alerts.warn('Incorrect email or password', 'Login failed');
+        this.authError.set('invalidCredentials');
       } else if (status === 0) {
         this.alerts.warn('Connection failed', 'Error');
       } else {
@@ -113,6 +116,7 @@ export class AccountFacade {
 
   public async register(creds: AuthCredentials & { fullName?: string }): Promise<boolean> {
     this.authStore.setLoading(true);
+    this.authError.set(null);
 
     try {
       const u = await this.svc.register(creds);
@@ -136,7 +140,7 @@ export class AccountFacade {
     } catch (err: unknown) {
       const status = (err as { status?: number })?.status;
       if (status === 409) {
-        this.alerts.warn('Email address is already used', 'Error');
+        this.authError.set('emailTaken');
       } else {
         this.alerts.warn('Could not reach remote register service', 'Error');
       }
@@ -164,7 +168,7 @@ export class AccountFacade {
       this.ls.remove(this.userKey);
 
       this.alerts.info('You have been logged out');
-      void this.router.navigate(['/auth/login']);
+      void this.router.navigate(['/login']);
 
     } finally {
       this.authStore.setLoading(false);

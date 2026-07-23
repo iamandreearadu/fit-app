@@ -21,6 +21,15 @@ public class SendMessageRequest
     public string? ImageMimeType { get; set; }
 }
 
+public class SharePostRequest
+{
+    [Required]
+    public string TargetUserId { get; set; } = string.Empty;
+
+    [Range(1, int.MaxValue)]
+    public int PostId { get; set; }
+}
+
 // ── Responses ─────────────────────────────────────────────────────────────────
 
 public class MessagePreview
@@ -28,6 +37,16 @@ public class MessagePreview
     public string? Content { get; set; }
     public bool HasImage { get; set; }
     public DateTime SentAt { get; set; }
+    public string MessageType { get; set; } = "text";
+}
+
+public class SharedPostPreview
+{
+    public int PostId { get; set; }
+    public bool IsAvailable { get; set; }
+    public UserSummary? Author { get; set; }
+    public string? Content { get; set; }
+    public string? ImageUrl { get; set; }
 }
 
 public class ConversationSummaryResponse
@@ -49,6 +68,15 @@ public class DirectMessageResponse
     public DateTime SentAt { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsOwn { get; set; }
+    public string MessageType { get; set; } = "text";
+    public int? SharedPostId { get; set; }
+    public SharedPostPreview? SharedPost { get; set; }
+}
+
+public class SharePostToUserResponse
+{
+    public int ConversationId { get; set; }
+    public DirectMessageResponse Message { get; set; } = null!;
 }
 
 /// <summary>

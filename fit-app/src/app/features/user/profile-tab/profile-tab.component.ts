@@ -77,7 +77,7 @@ export class ProfileTabComponent implements OnInit {
       return;
     }
     if (file.size > this.maxImageSizeBytes) {
-      this.alerts.warn('Image too large. Please choose an image under ~1.5MB.');
+      this.alerts.warn('Image too large. Please choose an image under 15 MB.');
       return;
     }
 

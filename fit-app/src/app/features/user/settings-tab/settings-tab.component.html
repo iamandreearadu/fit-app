@@ -1,0 +1,42 @@
+<section class="settings-page">
+  <div class="cs-card" aria-labelledby="settings-title">
+    <header class="cs-header">
+      <div class="cs-icon-wrap"><mat-icon>settings</mat-icon></div>
+      <div>
+        <h2 class="cs-title" id="settings-title">Account settings</h2>
+        <p class="cs-subtitle">Manage your security, privacy and preferences.</p>
+      </div>
+      <span class="cs-badge">Coming soon</span>
+    </header>
+    <div class="cs-body">
+      <span class="cs-kicker">Planned features</span>
+      <ul class="cs-list">
+        <li><mat-icon>password</mat-icon><span><strong>Password &amp; security</strong><small>Update your credentials and secure your account.</small></span></li>
+        <li><mat-icon>shield</mat-icon><span><strong>Privacy controls</strong><small>Choose how your profile and activity are shared.</small></span></li>
+        <li><mat-icon>tune</mat-icon><span><strong>Notification preferences</strong><small>Control which updates you want to receive.</small></span></li>
+        <li><mat-icon>delete_outline</mat-icon><span><strong>Account management</strong><small>Download your data or close your account.</small></span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="delete-zone">
+    <div>
+      <h3>Delete account</h3>
+      <p>Permanently remove your account and all associated data.</p>
+    </div>
+    <button
+      type="button"
+      class="delete-account-btn"
+      [disabled]="deleting()"
+      (click)="openDeleteConfirmation()"
+    >
+      @if (deleting()) {
+        <mat-spinner diameter="18"></mat-spinner>
+        <span>Deleting…</span>
+      } @else {
+        <mat-icon>delete_outline</mat-icon>
+        <span>Delete Account</span>
+      }
+    </button>
+  </div>
+</section>

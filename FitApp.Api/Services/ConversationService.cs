@@ -18,6 +18,7 @@ public class ConversationService(
 
         // Get all conversation IDs for this user — needed for total count
         var participantConvIds = await db.ConversationParticipants
+            .AsNoTracking()
             .Where(cp => cp.UserId == userId)
             .Select(cp => cp.ConversationId)
             .ToListAsync();
@@ -25,6 +26,7 @@ public class ConversationService(
         var totalCount = participantConvIds.Count;
 
         var conversations = await db.Conversations
+            .AsNoTracking()
             .Where(c => participantConvIds.Contains(c.Id))
             .Include(c => c.Participants).ThenInclude(p => p.User)
             .Include(c => c.Messages.OrderByDescending(m => m.SentAt).Take(1))
@@ -44,6 +46,7 @@ public class ConversationService(
             .ToDictionary(p => p.ConversationId, p => p.LastReadAt ?? DateTime.MinValue);
 
         var unreadCounts = await db.DirectMessages
+            .AsNoTracking()
             .Where(m => convIds.Contains(m.ConversationId)
                         && !m.IsDeleted
                         && m.SenderId != userId)
@@ -79,9 +82,12 @@ public class ConversationService(
                 },
                 LastMessage = lastMessage is null ? null : new MessagePreview
                 {
-                    Content = lastMessage.IsDeleted ? null : lastMessage.Content,
+                    Content = lastMessage.IsDeleted
+                        ? null
+                        : lastMessage.MessageType == "shared_post" ? "Shared a post" : lastMessage.Content,
                     HasImage = !lastMessage.IsDeleted && lastMessage.ImageUrl is not null,
-                    SentAt = lastMessage.SentAt
+                    SentAt = lastMessage.SentAt,
+                    MessageType = lastMessage.IsDeleted ? "text" : lastMessage.MessageType
                 },
                 UnreadCount = unreadCounts.GetValueOrDefault(conv.Id, 0),
                 UpdatedAt = lastMessage?.SentAt ?? conv.CreatedAt
@@ -104,6 +110,7 @@ public class ConversationService(
     {
         // Find existing conversation where both are participants
         var existingConvId = await db.ConversationParticipants
+            .AsNoTracking()
             .Where(cp => cp.UserId == userId)
             .Select(cp => cp.ConversationId)
             .Intersect(
@@ -116,6 +123,7 @@ public class ConversationService(
         {
             // Targeted single-conversation query — avoids re-running the full list with N+1 unread counts
             var existing = await db.Conversations
+                .AsNoTracking()
                 .Where(c => c.Id == existingConvId)
                 .Include(c => c.Participants).ThenInclude(p => p.User)
                 .Include(c => c.Messages.OrderByDescending(m => m.SentAt).Take(1))
@@ -143,9 +151,12 @@ public class ConversationService(
                     },
                     LastMessage = lastMsg is null ? null : new MessagePreview
                     {
-                        Content = lastMsg.IsDeleted ? null : lastMsg.Content,
+                        Content = lastMsg.IsDeleted
+                            ? null
+                            : lastMsg.MessageType == "shared_post" ? "Shared a post" : lastMsg.Content,
                         HasImage = !lastMsg.IsDeleted && lastMsg.ImageUrl is not null,
-                        SentAt = lastMsg.SentAt
+                        SentAt = lastMsg.SentAt,
+                        MessageType = lastMsg.IsDeleted ? "text" : lastMsg.MessageType
                     },
                     UnreadCount = unread,
                     UpdatedAt = lastMsg?.SentAt ?? existing.CreatedAt
@@ -186,10 +197,12 @@ public class ConversationService(
 
     public async Task<bool> IsParticipantAsync(int conversationId, string userId)
         => await db.ConversationParticipants
+            .AsNoTracking()
             .AnyAsync(cp => cp.ConversationId == conversationId && cp.UserId == userId);
 
     public async Task<List<string>> GetOtherParticipantIdsAsync(int conversationId, string userId)
         => await db.ConversationParticipants
+            .AsNoTracking()
             .Where(cp => cp.ConversationId == conversationId && cp.UserId != userId)
             .Select(cp => cp.UserId)
             .ToListAsync();
@@ -207,6 +220,7 @@ public class ConversationService(
             throw new UnauthorizedAccessException("You are not a participant of this conversation.");
 
         var query = db.DirectMessages
+            .AsNoTracking()
             .Include(m => m.Sender)
             .Where(m => m.ConversationId == conversationId);
 
@@ -225,7 +239,8 @@ public class ConversationService(
         // Return in ascending order for display
         messages.Reverse();
 
-        var items = messages.Select(m => MapToMessageResponse(m, userId)).ToList();
+        var postPreviews = await LoadSharedPostPreviewsAsync(messages);
+        var items = messages.Select(m => MapToMessageResponse(m, userId, postPreviews)).ToList();
 
         // NextCursor is the Id of the oldest message in this batch — client passes it as beforeMessageId
         var nextCursor = items.Count > 0 ? items[0].Id : (int?)null;
@@ -273,6 +288,48 @@ public class ConversationService(
         return MapToMessageResponse(message, userId);
     }
 
+    public async Task<SharePostToUserResponse> SharePostAsync(string userId, SharePostRequest request)
+    {
+        if (request.TargetUserId == userId)
+            throw new InvalidOperationException("You cannot send a post to yourself.");
+
+        var targetExists = await db.Users.AsNoTracking().AnyAsync(u => u.Id == request.TargetUserId);
+        if (!targetExists)
+            throw new KeyNotFoundException("Target user not found.");
+
+        var post = await db.Posts
+            .AsNoTracking()
+            .Include(p => p.User)
+            .FirstOrDefaultAsync(p => p.Id == request.PostId && !p.IsArchived && p.ArticleId == null)
+            ?? throw new KeyNotFoundException("Post not found or unavailable.");
+
+        var conversation = await GetOrCreateAsync(userId, request.TargetUserId);
+        var sender = await db.Users.FindAsync(userId)
+            ?? throw new KeyNotFoundException("Sender not found.");
+
+        var message = new DirectMessage
+        {
+            ConversationId = conversation.Id,
+            SenderId = userId,
+            Sender = sender,
+            MessageType = "shared_post",
+            SharedPostId = post.Id
+        };
+
+        db.DirectMessages.Add(message);
+        await db.SaveChangesAsync();
+
+        var preview = CreateSharedPostPreview(post);
+        return new SharePostToUserResponse
+        {
+            ConversationId = conversation.Id,
+            Message = MapToMessageResponse(message, userId, new Dictionary<int, SharedPostPreview>
+            {
+                [post.Id] = preview
+            })
+        };
+    }
+
     // ── Mark as read ──────────────────────────────────────────────────────────
 
     public async Task MarkAsReadAsync(int conversationId, string userId)
@@ -298,12 +355,52 @@ public class ConversationService(
         message.IsDeleted = true;
         message.Content = null;
         message.ImageUrl = null;
+        message.MessageType = "text";
+        message.SharedPostId = null;
         await db.SaveChangesAsync();
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
 
-    private static DirectMessageResponse MapToMessageResponse(DirectMessage m, string currentUserId) => new()
+    private async Task<Dictionary<int, SharedPostPreview>> LoadSharedPostPreviewsAsync(
+        IEnumerable<DirectMessage> messages)
+    {
+        var postIds = messages
+            .Where(m => !m.IsDeleted && m.MessageType == "shared_post" && m.SharedPostId.HasValue)
+            .Select(m => m.SharedPostId!.Value)
+            .Distinct()
+            .ToList();
+
+        if (postIds.Count == 0)
+            return [];
+
+        var posts = await db.Posts
+            .AsNoTracking()
+            .Include(p => p.User)
+            .Where(p => postIds.Contains(p.Id) && !p.IsArchived && p.ArticleId == null)
+            .ToListAsync();
+
+        return posts.ToDictionary(p => p.Id, CreateSharedPostPreview);
+    }
+
+    private static SharedPostPreview CreateSharedPostPreview(Post post) => new()
+    {
+        PostId = post.Id,
+        IsAvailable = true,
+        Author = new UserSummary
+        {
+            Id = post.User.Id,
+            DisplayName = post.User.FullName,
+            AvatarUrl = post.User.ImageUrl
+        },
+        Content = post.Content.Length <= 180 ? post.Content : $"{post.Content[..177]}...",
+        ImageUrl = post.ImageUrl
+    };
+
+    private static DirectMessageResponse MapToMessageResponse(
+        DirectMessage m,
+        string currentUserId,
+        IReadOnlyDictionary<int, SharedPostPreview>? postPreviews = null) => new()
     {
         Id = m.Id,
         ConversationId = m.ConversationId,
@@ -317,6 +414,15 @@ public class ConversationService(
         ImageUrl = m.IsDeleted ? null : m.ImageUrl,
         SentAt = m.SentAt,
         IsDeleted = m.IsDeleted,
-        IsOwn = m.SenderId == currentUserId
+        IsOwn = m.SenderId == currentUserId,
+        MessageType = m.IsDeleted ? "text" : m.MessageType,
+        SharedPostId = m.IsDeleted ? null : m.SharedPostId,
+        SharedPost = !m.IsDeleted && m.SharedPostId.HasValue
+            ? postPreviews?.GetValueOrDefault(m.SharedPostId.Value) ?? new SharedPostPreview
+            {
+                PostId = m.SharedPostId.Value,
+                IsAvailable = false
+            }
+            : null
     };
 }

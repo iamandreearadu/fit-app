@@ -337,7 +337,7 @@
   inset: 0 0 0 auto;
   z-index: 201;
   width: min(85vw, 320px);
-  background: var(--surface);
+  background: var(--modal-surface);
   border-left: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: -16px 0 48px rgba(0, 0, 0, 0.55);
   display: flex;
@@ -430,9 +430,36 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 10px 14px 28px;
+  padding: 10px 14px max(20px, env(safe-area-inset-bottom));
   border-top: 1px solid rgba(255, 255, 255, 0.07);
   flex-shrink: 0;
+}
+
+.mob-guide-link {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  color: rgba(255, 255, 255, 0.72);
+  border-radius: 12px;
+  background: transparent;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.18s, background 0.18s;
+}
+
+.mob-guide-link:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.mob-guide-link mat-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--primary);
+  font-size: 20px;
 }
 
 .mob-link-ghost {

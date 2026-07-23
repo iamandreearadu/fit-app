@@ -13,6 +13,7 @@ public class UserProfileDto
     public double WeightKg { get; set; }
     public string Goal { get; set; } = string.Empty;
     public string Activity { get; set; } = string.Empty;
+    [MaxLength(7_000_000)]
     public string? ImageUrl { get; set; }
     public bool OnboardingCompleted { get; set; }
     public string? DietaryPreference { get; set; }
@@ -37,9 +38,9 @@ public record StreakDto(int Current, int Longest, bool LoggedToday, bool AtRisk)
 // (no BMI, weight, BMR, TDEE, goal calories). Consumed by GET /api/users/me/streak.
 public record UserStreakDto(
     int CurrentStreak,
-    string? LastLogDate,  // "yyyy-MM-dd" of most recent DailyEntry; null if no entries
+    string? LastLogDate,  // "yyyy-MM-dd" of most recent complete day; null if none
     bool AtRiskToday,     // !loggedToday && currentStreak > 0 && UTC hour >= 18
-    bool LoggedToday,     // DailyEntry exists for today's UTC date
+    bool LoggedToday,     // today satisfies meals + activity + steps + water
     bool IsNewRecord      // currentStreak > 0 && currentStreak == allTimeLongest
 );
 

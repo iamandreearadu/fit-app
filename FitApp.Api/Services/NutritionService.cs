@@ -7,15 +7,31 @@ namespace FitApp.Api.Services;
 
 public class NutritionService(AppDbContext db)
 {
+    // IsSavedMeal was introduced on 2026-07-22. Before that date,
+    // Account > Nutrition exposed the user's meals as reusable templates.
+    // Preserve that legacy behaviour only for rows created before the flag
+    // existed; newer daily logs must never become saved meals implicitly.
+    private static readonly DateTime LegacySavedMealCutoffUtc =
+        new(2026, 7, 22, 15, 40, 17, DateTimeKind.Utc);
+
     private static readonly HashSet<string> ValidSources =
         ["search", "recent", "manual", "ai_analyzer"];
-    public async Task<(List<MealEntryDto> Items, bool HasMore)> ListAsync(string userId, int page = 1, int pageSize = 20)
+    public async Task<(List<MealEntryDto> Items, bool HasMore)> ListAsync(
+        string userId,
+        int page = 1,
+        int pageSize = 20,
+        string? date = null)
     {
         pageSize = Math.Min(pageSize, 50);
         var query = db.MealEntries
             .AsNoTracking()
             .Include(m => m.Items.OrderBy(f => f.Order))
-            .Where(m => m.UserId == userId)
+            .Where(m => m.UserId == userId);
+
+        if (date is not null)
+            query = query.Where(m => m.Date == date);
+
+        query = query
             .OrderByDescending(m => m.UpdatedAt);
         var total = await query.CountAsync();
         var meals = await query
@@ -23,6 +39,25 @@ public class NutritionService(AppDbContext db)
             .Take(pageSize)
             .ToListAsync();
         return (meals.Select(MapToDto).ToList(), page * pageSize < total);
+    }
+
+    public async Task<List<MealEntryDto>> ListSavedMealsAsync(string userId)
+    {
+        var meals = await db.MealEntries
+            .AsNoTracking()
+            .Include(m => m.Items.OrderBy(f => f.Order))
+            .Where(m => m.UserId == userId &&
+                (m.IsSavedMeal || m.CreatedAt < LegacySavedMealCutoffUtc))
+            .OrderByDescending(m => m.UpdatedAt)
+            .Take(200)
+            .ToListAsync();
+
+        return meals.Select(meal =>
+        {
+            var dto = MapToDto(meal);
+            dto.IsSavedMeal = true;
+            return dto;
+        }).ToList();
     }
 
     public async Task<MealEntryDto> CreateAsync(string userId, SaveMealRequest req)
@@ -33,7 +68,8 @@ public class NutritionService(AppDbContext db)
             Name = req.Name,
             Type = req.Type,
             Date = req.Date,
-            Notes = req.Notes
+            Notes = req.Notes,
+            IsSavedMeal = req.IsSavedMeal
         };
 
         ApplyItemsAndTotals(meal, req.Items);
@@ -54,6 +90,7 @@ public class NutritionService(AppDbContext db)
         meal.Type = req.Type;
         meal.Date = req.Date;
         meal.Notes = req.Notes;
+        meal.IsSavedMeal = req.IsSavedMeal;
         meal.UpdatedAt = DateTime.UtcNow;
 
         db.FoodItems.RemoveRange(meal.Items);
@@ -93,7 +130,7 @@ public class NutritionService(AppDbContext db)
         // GroupBy(1) collapses all rows into one aggregate row; returns null when no rows exist.
         var totals = await db.MealEntries
             .AsNoTracking()
-            .Where(m => m.UserId == userId && m.Date == today)
+            .Where(m => m.UserId == userId && m.Date == today && !m.IsSavedMeal)
             .GroupBy(_ => 1)
             .Select(g => new
             {
@@ -159,6 +196,8 @@ public class NutritionService(AppDbContext db)
         Type = m.Type,
         Date = m.Date,
         Notes = m.Notes,
+        IsSavedMeal = m.IsSavedMeal,
+        IsHiddenFromProfile = m.IsHiddenFromProfile,
         TotalGrams = m.TotalGrams,
         TotalCalories = m.TotalCalories,
         TotalProtein_g = m.TotalProtein_g,

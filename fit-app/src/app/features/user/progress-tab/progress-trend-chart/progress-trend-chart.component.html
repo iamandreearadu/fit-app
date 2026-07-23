@@ -1,0 +1,10 @@
+<article class="chart-card">
+  <header><div class="icon"><mat-icon>{{ icon }}</mat-icon></div><div><h2>{{ title }}</h2><p>{{ subtitle }}</p></div></header>
+  @if (empty) {
+    <div class="empty"><mat-icon>insights</mat-icon><span>Log a few days to reveal this trend.</span></div>
+  } @else {
+    <div class="chart" role="img" [attr.aria-label]="summary"><canvas baseChart [data]="chart.data" [options]="chart.options" [type]="chart.type"></canvas></div>
+    <div class="legend" aria-hidden="true">@for (dataset of chart.data.datasets; track dataset.label) {<span><i [style.background]="dataset.borderColor || dataset.backgroundColor"></i>{{ dataset.label }}</span>}</div>
+    <p class="sr-only">{{ summary }}</p>
+  }
+</article>

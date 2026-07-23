@@ -41,6 +41,11 @@ export class AppTopBarComponent {
     { initialValue: this.router.url },
   );
 
+  readonly isNotificationsActive = computed(() => {
+    const url = this.currentUrl() ?? '';
+    return url === '/social/notifications' || url.startsWith('/social/notifications?');
+  });
+
   /**
    * Non-empty string on routes that show a back-button + title on the left.
    * Empty string on root/hub routes that show the hamburger.
@@ -48,6 +53,7 @@ export class AppTopBarComponent {
   readonly contextTitle = computed((): string => {
     const url = this.currentUrl() ?? '';
     if (/^\/social\/post\/[^/]+/.test(url)) return 'Post';
+    if (url === '/social/new-post' || url.startsWith('/social/new-post?')) return 'New post';
     if (/^\/social\/article\/[^/]+/.test(url)) return 'Article';
     // Chat thread (has numeric/string :id after /chat/)
     if (/^\/social\/chat\/[^/]+/.test(url)) return 'Message';
@@ -55,6 +61,8 @@ export class AppTopBarComponent {
     if (/^\/social\/profile\/(?!me([/?#]|$))[^/]+/.test(url)) return 'Profile';
     if (url === '/social/discover' || url.startsWith('/social/discover?')) return 'Discover';
     if (url === '/social/notifications' || url.startsWith('/social/notifications?')) return 'Notifications';
+    if (url === '/social/saved' || url.startsWith('/social/saved?')) return 'Saved posts';
+    if (url === '/social/archived' || url.startsWith('/social/archived?')) return 'Archived posts';
     if (/^\/blog\/[^/]+/.test(url)) return 'Blog';
     if (url.startsWith('/workout-session')) return 'Session';
     return '';
@@ -87,8 +95,14 @@ export class AppTopBarComponent {
     return (
       /^\/social\/chat\/[^/]+/.test(url) ||
       /^\/social\/post\/[^/]+/.test(url) ||
+      url === '/social/new-post' ||
+      url.startsWith('/social/new-post?') ||
       /^\/social\/article\/[^/]+/.test(url) ||
       /^\/blog\/[^/]+/.test(url) ||
+      url === '/social/saved' ||
+      url.startsWith('/social/saved?') ||
+      url === '/social/archived' ||
+      url.startsWith('/social/archived?') ||
       url.startsWith('/workout-session') ||
       url.startsWith('/ai-assistant') ||
       url.startsWith('/account')

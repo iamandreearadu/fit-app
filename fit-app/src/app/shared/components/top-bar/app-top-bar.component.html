@@ -5,7 +5,7 @@
     <!-- Detail route: back chevron + screen title -->
     <div class="app-topbar-left">
       <button
-        class="topbar-icon-btn"
+        class="topbar-icon-btn topbar-back-btn"
         type="button"
         (click)="goBack()"
         aria-label="Go back">
@@ -57,6 +57,7 @@
       <!-- Notifications bell with badge -->
       <button
         class="topbar-icon-btn topbar-notif-btn"
+        [class.topbar-icon-btn--active]="isNotificationsActive()"
         type="button"
         (click)="goToNotifications()"
         [attr.aria-label]="unreadNotifications() > 0

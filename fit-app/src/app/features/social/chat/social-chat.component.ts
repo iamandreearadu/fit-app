@@ -42,8 +42,9 @@ export class SocialChatComponent implements OnInit {
     return count > 99 ? '99+' : String(count);
   }
 
-  getLastMessagePreview(conv: { lastMessage?: { content?: string; hasImage: boolean } }): string {
+  getLastMessagePreview(conv: { lastMessage?: { content?: string; hasImage: boolean; messageType?: string } }): string {
     if (!conv.lastMessage) return '';
+    if (conv.lastMessage.messageType === 'shared_post') return 'Shared a post';
     if (conv.lastMessage.hasImage) return 'Image';
     return conv.lastMessage.content ?? '';
   }

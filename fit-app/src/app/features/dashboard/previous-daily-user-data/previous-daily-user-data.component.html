@@ -2,7 +2,7 @@
 
   <!-- ── HISTORY HEADER (title + week nav in one row) ── -->
   <div class="hist-bar">
-    <span class="hist-title">Previous Days</span>
+    <span class="hist-title">This week’s logs</span>
     @if (currentWeek(); as week) {
       <div class="week-controls">
         <button type="button" class="icon-btn-round"
@@ -147,6 +147,49 @@
           }
 
         </div>
+
+        <section class="history-meals" aria-labelledby="history-meals-title">
+          <div class="history-meals-head">
+            <span id="history-meals-title">Meals logged</span>
+            @if (!dayMealsLoading() && !dayMealsError()) {
+              <span>{{ dayMeals().length }} {{ dayMeals().length === 1 ? 'meal' : 'meals' }}</span>
+            }
+          </div>
+
+          @if (dayMealsLoading()) {
+            <div class="history-meals-state" role="status">
+              <span class="history-meals-spinner" aria-hidden="true"></span>
+              Loading meals…
+            </div>
+          } @else if (dayMealsError()) {
+            <div class="history-meals-state history-meals-state--error" role="alert">
+              Meals could not be loaded.
+            </div>
+          } @else if (dayMeals().length === 0) {
+            <div class="history-meals-state">No meals were logged for this day.</div>
+          } @else {
+            <div class="history-meal-groups">
+              @for (group of dayMealGroups(); track group.type) {
+                <div class="history-meal-group">
+                  <span class="history-meal-type">{{ group.type }}</span>
+                  @for (meal of group.meals; track meal.uid ?? meal.id) {
+                    <article class="history-meal-row">
+                      <div class="history-meal-main">
+                        <span class="history-meal-name">{{ meal.name }}</span>
+                        <span class="history-meal-kcal">{{ meal.totalCalories | number:'1.0-0' }} kcal</span>
+                      </div>
+                      <div class="history-meal-macros" aria-label="Meal macros">
+                        <span>P {{ meal.totalProtein_g | number:'1.0-1' }}g</span>
+                        <span>C {{ meal.totalCarbs_g | number:'1.0-1' }}g</span>
+                        <span>F {{ meal.totalFats_g | number:'1.0-1' }}g</span>
+                      </div>
+                    </article>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </section>
       </div>
 
     </div>

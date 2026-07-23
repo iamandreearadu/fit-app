@@ -32,9 +32,12 @@
   @if (facade.currentProfile() && !facade.isLoadingProfile()) {
     <!-- Header -->
     <div class="profile-header">
-      <div class="profile-avatar-ring"
+      <button class="profile-avatar-ring"
+           type="button"
            [class.profile-avatar-ring--editable]="facade.currentProfile()!.isOwnProfile"
-           (click)="facade.currentProfile()!.isOwnProfile && avatarInputRef.nativeElement.click()">
+           [disabled]="!facade.currentProfile()!.isOwnProfile || isUploadingAvatar()"
+           [attr.aria-label]="isUploadingAvatar() ? 'Uploading profile photo' : 'Change profile photo'"
+           (click)="avatarInputRef.nativeElement.click()">
         @if (facade.currentProfile()!.avatarUrl) {
           <img
             class="profile-avatar"
@@ -52,7 +55,10 @@
             <mat-icon>photo_camera</mat-icon>
           </div>
         }
-      </div>
+        @if (isUploadingAvatar()) {
+          <mat-spinner class="avatar-spinner" diameter="28" aria-label="Uploading profile photo" />
+        }
+      </button>
       <input #avatarInput type="file" accept="image/*"
              class="profile-avatar-file-input"
              (change)="onAvatarFileChange($event)" />
@@ -62,6 +68,9 @@
           <mat-icon class="profile-verified-badge" aria-label="Verified account">verified</mat-icon>
         }
       </h1>
+      @if (avatarError()) {
+        <p class="profile-inline-error" role="alert">{{ avatarError() }}</p>
+      }
     </div>
 
     <!-- Stats row -->
@@ -72,22 +81,22 @@
         }}</span>
         <span class="profile-stat-label">POSTS</span>
       </div>
-      <div class="profile-stat-cell profile-stat-cell--clickable"
-           (click)="openFollowList('followers')"
-           role="button" tabindex="0">
+      <button class="profile-stat-cell profile-stat-cell--clickable"
+           type="button" (click)="openFollowList('followers', $event)"
+           aria-label="View followers">
         <span class="profile-stat-number">{{
           facade.currentProfile()!.followersCount
         }}</span>
         <span class="profile-stat-label">FOLLOWERS</span>
-      </div>
-      <div class="profile-stat-cell profile-stat-cell--clickable"
-           (click)="openFollowList('following')"
-           role="button" tabindex="0">
+      </button>
+      <button class="profile-stat-cell profile-stat-cell--clickable"
+           type="button" (click)="openFollowList('following', $event)"
+           aria-label="View following">
         <span class="profile-stat-number">{{
           facade.currentProfile()!.followingCount
         }}</span>
         <span class="profile-stat-label">FOLLOWING</span>
-      </div>
+      </button>
     </div>
 
     <!-- Bio (below stats) -->
@@ -121,7 +130,10 @@
             placeholder="Write something about yourself..."
             rows="3"
             maxlength="200"
+            aria-label="Profile bio"
+            [attr.aria-describedby]="'bio-character-count'"
           ></textarea>
+          <span id="bio-character-count" class="bio-character-count">{{ bioInput().length }}/200</span>
         </div>
       }
     </div>
@@ -131,7 +143,7 @@
       @if (facade.currentProfile()!.isOwnProfile) {
         @if (!isEditingBio()) {
           <button
-            class="btn-ghost profile-action-btn"
+            class="profile-action-btn profile-action-btn--plain"
             (click)="startEditBio($event)"
             type="button"
             aria-label="Edit Bio"
@@ -142,6 +154,7 @@
           <button
             class="btn-ghost profile-action-btn"
             (click)="cancelEditBio()"
+            [disabled]="isSavingBio()"
             type="button"
           >
             <mat-icon>close</mat-icon> Cancel Bio
@@ -149,14 +162,16 @@
           <button
             class="btn-primary profile-action-btn"
             (click)="saveBio()"
+            [disabled]="isSavingBio()"
             type="button"
           >
-            <mat-icon>check</mat-icon> Save Bio
+            @if (isSavingBio()) { <mat-spinner diameter="16" /> } @else { <mat-icon>check</mat-icon> }
+            Save Bio
           </button>
         }
         @if (!isEditingBio()) {
           <button
-            class="btn-primary profile-action-btn"
+            class="btn-ghost profile-action-btn"
             (click)="openCreatePost()"
             type="button"
           >
@@ -165,8 +180,9 @@
         }
       } @else {
         <button
-          class="btn-primary profile-action-btn"
-          [class.btn-ghost]="isFollowing()"
+          class="profile-action-btn"
+          [class.btn-primary]="!isFollowing()"
+          [class.profile-action-btn--plain]="isFollowing()"
           (click)="toggleFollow()"
           [disabled]="isTogglingFollow()"
           type="button"
@@ -174,6 +190,7 @@
           @if (isTogglingFollow()) {
             <mat-spinner diameter="16" />
           } @else {
+            <mat-icon>{{ isFollowing() ? "person_remove" : "person_add" }}</mat-icon>
             {{ isFollowing() ? "Unfollow" : "Follow" }}
           }
         </button>
@@ -199,22 +216,14 @@
           </button>
           @if (showMoreMenu()) {
             <div class="profile-more-menu">
-              <button
-                class="profile-more-item"
-                (click)="openArchived($event)"
-                type="button"
-              >
+              <a class="profile-more-item" routerLink="/social/saved" (click)="showMoreMenu.set(false)">
+                <mat-icon>bookmark</mat-icon>
+                Saved
+              </a>
+              <a class="profile-more-item" routerLink="/social/archived" (click)="showMoreMenu.set(false)">
                 <mat-icon>inventory_2</mat-icon>
                 Archived
-              </button>
-              <button
-                class="profile-more-item"
-                (click)="startEditBio($event)"
-                type="button"
-              >
-                <mat-icon>badge</mat-icon>
-                Edit Bio
-              </button>
+              </a>
             </div>
           }
         </div>
@@ -230,12 +239,17 @@
             (click)="closeArchived()"
             type="button"
           >
-            <mat-icon>arrow_back</mat-icon>
+            <mat-icon>arrow_back</mat-icon><span class="sr-only">Back to profile</span>
           </button>
           <span class="archived-title">Archived Posts</span>
         </div>
 
-        @if (facade.isLoadingProfileSections()) {
+        @if (hasSectionError('archive')) {
+          <div class="profile-error profile-section-error" role="alert">
+            <mat-icon>error_outline</mat-icon><span>{{ facade.archivedPostsError() || facade.archivedWorkoutsError() }}</span>
+            <button class="btn-ghost" type="button" (click)="retrySection('archive')">Retry</button>
+          </div>
+        } @else if (facade.isLoadingProfileSections()) {
           <div class="profile-posts-grid">
             @for (s of skeletonCells; track $index) {
               <div class="profile-post-cell profile-post-cell--skeleton"></div>
@@ -252,8 +266,10 @@
               <div
                 class="profile-post-cell"
                 (click)="openPostDetail(post.id)"
-                role="button"
-                tabindex="0"
+                role="link" tabindex="0"
+                (keydown.enter)="openPostDetail(post.id)"
+                (keydown.space)="$event.preventDefault(); openPostDetail(post.id)"
+                [attr.aria-label]="'Open archived post ' + post.id"
               >
                 @if (post.imageUrl && !brokenImages.has(post.id)) {
                   <img
@@ -271,7 +287,8 @@
                   <button
                     class="profile-overlay-btn"
                     (click)="unarchivePost($event, post.id)"
-                    title="Unarchive"
+                    aria-label="Restore post"
+                    [disabled]="isPending('post:' + post.id)"
                     type="button"
                   >
                     <mat-icon>unarchive</mat-icon>
@@ -279,7 +296,8 @@
                   <button
                     class="profile-overlay-btn profile-overlay-btn--danger"
                     (click)="deletePost($event, post.id)"
-                    title="Delete"
+                    aria-label="Delete post"
+                    [disabled]="isPending('post:' + post.id)"
                     type="button"
                   >
                     <mat-icon>delete</mat-icon>
@@ -304,7 +322,8 @@
                   <button
                     class="profile-overlay-btn"
                     (click)="unarchiveWorkout($event, workout.id)"
-                    title="Unarchive"
+                    aria-label="Restore workout"
+                    [disabled]="isPending('workout:' + workout.id)"
                     type="button"
                   >
                     <mat-icon>unarchive</mat-icon>
@@ -319,18 +338,18 @@
 
     <!-- ── Follow List Section ──────────────────────────────────────────── -->
     @if (facade.followListType()) {
-      <div class="follow-list-section">
+      <div class="follow-list-section" role="dialog" aria-modal="false" aria-labelledby="follow-list-title">
         <div class="follow-list-header">
           <button
             class="archived-back-btn"
             (click)="closeFollowList()"
             type="button"
           >
-            <mat-icon>arrow_back</mat-icon>
+            <mat-icon>arrow_back</mat-icon><span class="sr-only">Close follow list</span>
           </button>
-          <span class="archived-title">
+          <h2 #followListHeading id="follow-list-title" class="archived-title" tabindex="-1">
             {{ facade.followListType() === 'followers' ? 'Followers' : 'Following' }}
-          </span>
+          </h2>
         </div>
 
         @if (facade.isLoadingFollowList() && facade.followListUsers().length === 0) {
@@ -353,9 +372,9 @@
           <div class="follow-list">
             @for (user of facade.followListUsers(); track user.id) {
               <div class="follow-list-item">
-                <div class="follow-list-user"
+                <button class="follow-list-user"
                      (click)="navigateToProfile(user.id)"
-                     role="button" tabindex="0">
+                     type="button" [attr.aria-label]="'Open ' + user.displayName + ' profile'">
                   <div class="follow-list-avatar-wrap">
                     @if (user.avatarUrl) {
                       <img
@@ -375,12 +394,13 @@
                       <mat-icon class="follow-list-verified">verified</mat-icon>
                     }
                   </span>
-                </div>
+                </button>
                 @if (user.id !== userId) {
                   <button
                     class="follow-list-btn"
                     [class.follow-list-btn--following]="user.isFollowedByMe"
                     (click)="toggleFollowUser(user.id)"
+                    [disabled]="isPending('follow:' + user.id)"
                     type="button"
                   >
                     {{ user.isFollowedByMe ? 'Following' : 'Follow' }}
@@ -412,12 +432,15 @@
 
         <!-- ── Tabs ──────────────────────────────────────────────────────────── -->
     @if (!showArchivedSection() && !facade.followListType()) {
-      <div class="profile-tabs">
+      <div class="profile-tabs" role="tablist" aria-label="Profile sections">
         <button
           class="profile-tab-btn"
           data-cy="profile-tab-posts"
+          id="profile-tab-posts" role="tab" aria-controls="profile-panel-posts"
+          [attr.aria-selected]="activeTab() === 'posts'" [tabIndex]="activeTab() === 'posts' ? 0 : -1"
           [class.active]="activeTab() === 'posts'"
           (click)="setTab('posts')"
+          (keydown)="onTabKeydown($event, 'posts')"
           type="button"
         >
           <mat-icon>grid_on</mat-icon>
@@ -426,8 +449,11 @@
         <button
           class="profile-tab-btn"
           data-cy="profile-tab-workouts"
+          id="profile-tab-workouts" role="tab" aria-controls="profile-panel-workouts"
+          [attr.aria-selected]="activeTab() === 'workouts'" [tabIndex]="activeTab() === 'workouts' ? 0 : -1"
           [class.active]="activeTab() === 'workouts'"
           (click)="setTab('workouts')"
+          (keydown)="onTabKeydown($event, 'workouts')"
           type="button"
         >
           <mat-icon>fitness_center</mat-icon>
@@ -435,19 +461,22 @@
         </button>
         <button
           class="profile-tab-btn"
-          data-cy="profile-tab-blogs"
-          [class.active]="activeTab() === 'blogs'"
-          (click)="setTab('blogs')"
-          type="button"
+          id="profile-tab-meals" role="tab" aria-controls="profile-panel-meals"
+          [attr.aria-selected]="activeTab() === 'meals'" [tabIndex]="activeTab() === 'meals' ? 0 : -1"
+          [class.active]="activeTab() === 'meals'"
+          (click)="setTab('meals')" (keydown)="onTabKeydown($event, 'meals')" type="button"
         >
-          <mat-icon>article</mat-icon>
-          Articles
+          <mat-icon>restaurant</mat-icon>
+          Meals
         </button>
         <button
           class="profile-tab-btn"
           data-cy="profile-tab-stats"
+          id="profile-tab-stats" role="tab" aria-controls="profile-panel-stats"
+          [attr.aria-selected]="activeTab() === 'stats'" [tabIndex]="activeTab() === 'stats' ? 0 : -1"
           [class.active]="activeTab() === 'stats'"
           (click)="setTab('stats')"
+          (keydown)="onTabKeydown($event, 'stats')"
           type="button"
         >
           <mat-icon>bar_chart</mat-icon>
@@ -457,7 +486,7 @@
 
       <!-- Posts tab -->
       @if (activeTab() === "posts") {
-        <div class="profile-posts-section">
+        <div id="profile-panel-posts" class="profile-posts-section" role="tabpanel" aria-labelledby="profile-tab-posts">
           @if (facade.profilePosts().length === 0) {
             <div class="profile-empty">
               <mat-icon>photo_camera</mat-icon>
@@ -480,60 +509,41 @@
                 <div
                   class="profile-post-cell"
                   (click)="openPostDetail(post.id)"
-                  role="button"
+                  role="link"
                   tabindex="0"
+                  (keydown.enter)="openPostDetail(post.id)"
+                  (keydown.space)="$event.preventDefault(); openPostDetail(post.id)"
+                  [attr.aria-label]="'Open post ' + post.id"
                 >
                   @if (post.imageUrl && !brokenImages.has(post.id)) {
-                    <img
-                      class="profile-post-img"
-                      [src]="post.imageUrl"
-                      [alt]="'Post ' + post.id"
-                      (error)="brokenImages.add(post.id)"
-                    />
+                    <img class="profile-post-img" [src]="post.imageUrl" [alt]="'Post ' + post.id" (error)="brokenImages.add(post.id)" />
                   } @else {
-                    <div class="profile-post-text-cell">
-                      <p>{{ post.content | slice: 0 : 80 }}</p>
-                    </div>
-                  }
-                  @if (facade.currentProfile()!.isOwnProfile) {
-                    <div class="profile-item-overlay">
-                      <button
-                        class="profile-overlay-btn"
-                        (click)="editPost($event, post)"
-                        title="Edit"
-                        type="button"
-                      >
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button
-                        class="profile-overlay-btn"
-                        (click)="archivePost($event, post.id)"
-                        title="Archive"
-                        type="button"
-                      >
-                        <mat-icon>archive</mat-icon>
-                      </button>
-                      <button
-                        class="profile-overlay-btn profile-overlay-btn--danger"
-                        (click)="deletePost($event, post.id)"
-                        title="Delete"
-                        type="button"
-                      >
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </div>
+                    <div class="profile-post-text-cell"><p>{{ post.content | slice: 0 : 80 }}</p></div>
                   }
                 </div>
               }
             </div>
+            @if (facade.profilePostsHasMore()) {
+              <button class="follow-list-load-more" type="button" (click)="facade.loadMoreProfilePosts(userId)" [disabled]="facade.isLoadingProfilePosts()">
+                @if (facade.isLoadingProfilePosts()) { <mat-spinner diameter="18" /> } @else { Load more posts }
+              </button>
+            }
           }
         </div>
       }
 
       <!-- Workouts tab -->
       @if (activeTab() === "workouts") {
-        <div class="profile-section">
-          @if (facade.isLoadingProfileSections()) {
+        <div id="profile-panel-workouts" class="profile-section" role="tabpanel" aria-labelledby="profile-tab-workouts">
+          @if (facade.currentProfile()!.isOwnProfile) {
+            <div class="meal-visibility-tabs" aria-label="Workout visibility">
+              <button type="button" [class.active]="workoutView() === 'visible'" (click)="workoutView.set('visible')">Visible</button>
+              <button type="button" [class.active]="workoutView() === 'hidden'" (click)="workoutView.set('hidden')">Hidden</button>
+            </div>
+          }
+          @if (hasSectionError('workouts')) {
+            <div class="profile-error profile-section-error" role="alert"><mat-icon>error_outline</mat-icon><span>{{ facade.profileWorkoutsError() }}</span><button class="btn-ghost" type="button" (click)="retrySection('workouts')">Retry</button></div>
+          } @else if (facade.isLoadingProfileSections()) {
             <div class="profile-cards-grid">
               @for (s of skeletonCells.slice(0, 6); track $index) {
                 <div
@@ -541,207 +551,100 @@
                 ></div>
               }
             </div>
-          } @else if (facade.profileWorkouts().length === 0) {
+          } @else {
+            @let workouts = workoutView() === 'hidden' && facade.currentProfile()!.isOwnProfile ? facade.archivedWorkouts() : facade.profileWorkouts();
+            @if (workouts.length === 0) {
             <div class="profile-empty">
               <mat-icon>fitness_center</mat-icon>
-              <p>No workouts yet</p>
-              @if (facade.currentProfile()!.isOwnProfile) {
+              <p>{{ workoutView() === 'hidden' ? 'No hidden workouts' : 'No visible workouts yet' }}</p>
+              @if (facade.currentProfile()!.isOwnProfile && workoutView() === 'visible') {
                 <a routerLink="/workouts" class="btn-primary profile-empty-btn"
                   >Go to Workouts</a
                 >
               }
             </div>
-          } @else {
+            } @else {
             <div class="profile-cards-grid">
-              @for (workout of facade.profileWorkouts(); track workout.id) {
-                <div class="profile-content-card">
-                  <div class="profile-card-icon workout-icon">
-                    <mat-icon>fitness_center</mat-icon>
-                  </div>
+              @for (workout of workouts; track workout.id) {
+                <article class="profile-content-card meal-card">
+                  <div class="profile-card-icon workout-card-icon"><mat-icon>fitness_center</mat-icon></div>
                   <div class="profile-card-info">
                     <span class="profile-card-title">{{ workout.title }}</span>
                     <span class="profile-card-sub"
                       >{{ workout.type }} · {{ workout.durationMin }} min</span
                     >
-                    <span class="profile-card-sub"
-                      >{{ workout.caloriesEstimateKcal }} kcal</span
-                    >
                   </div>
                   @if (workout.isOwnWorkout) {
-                    <div class="profile-card-actions">
                       <button
                         class="profile-card-action-btn"
-                        (click)="editWorkout($event, workout.id)"
-                        title="Edit"
+                        (click)="workout.isArchived ? unarchiveWorkout($event, workout.id) : archiveWorkout($event, workout.id)"
+                        [attr.aria-label]="workout.isArchived ? 'Show workout on profile' : 'Hide workout from profile'"
+                        [disabled]="isPending('workout:' + workout.id)"
                         type="button"
                       >
-                        <mat-icon>edit</mat-icon>
+                        <mat-icon>{{ workout.isArchived ? 'visibility' : 'visibility_off' }}</mat-icon>
                       </button>
-                      <button
-                        class="profile-card-action-btn"
-                        (click)="archiveWorkout($event, workout.id)"
-                        title="Archive"
-                        type="button"
-                      >
-                        <mat-icon>archive</mat-icon>
-                      </button>
-                      <button
-                        class="profile-card-action-btn profile-card-action-btn--danger"
-                        (click)="deleteWorkout($event, workout.id)"
-                        title="Delete"
-                        type="button"
-                      >
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </div>
                   }
-                </div>
+                </article>
               }
             </div>
+            @if (facade.profileWorkoutsHasMore()) {
+              <button class="follow-list-load-more" type="button" (click)="facade.loadMoreProfileWorkouts(userId)" [disabled]="facade.isLoadingProfileWorkouts()">
+                @if (facade.isLoadingProfileWorkouts()) { <mat-spinner diameter="18" /> } @else { Load more workouts }
+              </button>
+            }
+            }
           }
         </div>
       }
 
-      <!-- Articles tab -->
-      @if (activeTab() === "blogs") {
-        <div class="profile-section">
-          @if (facade.isLoadingProfileSections()) {
-            <div class="article-list">
-              @for (s of skeletonCells.slice(0, 4); track $index) {
-                <div class="article-card article-card--skeleton"></div>
-              }
+      @if (activeTab() === "meals") {
+        <div id="profile-panel-meals" class="profile-section" role="tabpanel" aria-labelledby="profile-tab-meals">
+          @if (facade.currentProfile()!.isOwnProfile) {
+            <div class="meal-visibility-tabs" aria-label="Meal visibility">
+              <button type="button" [class.active]="mealView() === 'visible'" (click)="mealView.set('visible')">Visible</button>
+              <button type="button" [class.active]="mealView() === 'hidden'" (click)="mealView.set('hidden')">Hidden</button>
             </div>
-          } @else if (facade.profileBlogs().length === 0) {
-            <div class="profile-empty">
-              <mat-icon>article</mat-icon>
-              @if (facade.currentProfile()!.isOwnProfile) {
-                <p>You haven't published any articles yet</p>
-              } @else {
-                <p>No articles yet</p>
-              }
-            </div>
+          }
+          @if (facade.isLoadingProfileMeals()) {
+            <div class="profile-cards-grid">@for (s of skeletonCells.slice(0, 4); track $index) { <div class="profile-content-card profile-content-card--skeleton"></div> }</div>
+          } @else if (facade.profileMealsError()) {
+            <div class="profile-error profile-section-error" role="alert"><mat-icon>error_outline</mat-icon><span>{{ facade.profileMealsError() }}</span></div>
           } @else {
-            <div class="blog-post-list">
-              @for (blog of facade.profileBlogs(); track blog.id) {
-                <div class="blog-post-card">
-                  <!-- Header row: avatar + name + date + three-dot menu -->
-                  <div class="blog-post-card-header">
-                    <div class="blog-post-card-avatar-wrap">
-                      @if (facade.currentProfile()!.avatarUrl) {
-                        <img
-                          class="blog-post-card-avatar"
-                          [src]="facade.currentProfile()!.avatarUrl"
-                          [alt]="facade.currentProfile()!.displayName"
-                        />
-                      } @else {
-                        <div class="blog-post-card-avatar blog-post-card-avatar--fallback">
-                          <mat-icon>person</mat-icon>
-                        </div>
+            @let meals = mealView() === 'hidden' && facade.currentProfile()!.isOwnProfile ? facade.hiddenProfileMeals() : facade.profileMeals();
+            @if (meals.length === 0) {
+              <div class="profile-empty"><mat-icon>restaurant</mat-icon><p>{{ mealView() === 'hidden' ? 'No hidden meals' : 'No visible meals yet' }}</p></div>
+            } @else {
+              <div class="profile-cards-grid">
+                @for (meal of meals; track meal.id) {
+                  <article class="profile-content-card meal-card">
+                    <div class="profile-card-icon meal-icon"><mat-icon>restaurant</mat-icon></div>
+                    <div class="profile-card-info">
+                      <span class="profile-card-title">{{ meal.name }}</span>
+                      @if (meal.isOwnMeal) {
+                        <span class="profile-card-sub meal-calories">{{ meal.totalCalories | number:'1.0-0' }} kcal</span>
+                        <span class="profile-card-sub meal-macros">P {{ meal.totalProtein_g | number:'1.0-1' }}g · C {{ meal.totalCarbs_g | number:'1.0-1' }}g · F {{ meal.totalFats_g | number:'1.0-1' }}g</span>
                       }
                     </div>
-                    <div class="blog-post-card-meta">
-                      <span class="blog-post-card-author">{{ facade.currentProfile()!.displayName }}</span>
-                      <span class="blog-post-card-date">{{ blog.createdAt | date: "MMM d" }}</span>
-                    </div>
-                    @if (blog.isOwnBlog) {
-                      <div
-                        class="blog-post-card-menu-wrap"
-                        (click)="$event.stopPropagation()"
-                      >
-                        <button
-                          class="blog-post-card-menu-btn"
-                          [attr.aria-label]="'Options for ' + blog.title"
-                          type="button"
-                          (click)="toggleBlogMenu($event, blog.id)"
-                        >
-                          <mat-icon>more_horiz</mat-icon>
-                        </button>
-                        @if (openBlogMenuId() === blog.id) {
-                          <div class="blog-post-card-menu">
-                            <button
-                              class="blog-post-card-menu-item"
-                              (click)="editBlog($event, blog)"
-                              type="button"
-                            >
-                              <mat-icon>edit</mat-icon>
-                              Edit
-                            </button>
-                            <button
-                              class="blog-post-card-menu-item"
-                              (click)="archiveBlog($event, blog.id)"
-                              type="button"
-                            >
-                              <mat-icon>archive</mat-icon>
-                              Archive
-                            </button>
-                            <button
-                              class="blog-post-card-menu-item blog-post-card-menu-item--danger"
-                              (click)="deleteBlog($event, blog.id)"
-                              type="button"
-                            >
-                              <mat-icon>delete</mat-icon>
-                              Delete
-                            </button>
-                          </div>
-                        }
-                      </div>
+                    @if (meal.isOwnMeal) {
+                      <button class="profile-card-action-btn" type="button" (click)="toggleMealVisibility($event, meal.id)" [disabled]="isPending('meal:' + meal.id)" [attr.aria-label]="meal.isHiddenFromProfile ? 'Show meal on profile' : 'Hide meal from profile'">
+                        <mat-icon>{{ meal.isHiddenFromProfile ? 'visibility' : 'visibility_off' }}</mat-icon>
+                      </button>
                     }
-                  </div>
-
-                  <!-- Body: optional image + embedded article card -->
-                  <div class="blog-post-card-body">
-                    @if (blog.image) {
-                      <div class="blog-post-card-image-wrap">
-                        <img
-                          class="blog-post-card-image"
-                          [src]="blog.image"
-                          [alt]="blog.title"
-                        />
-                      </div>
-                    }
-
-                    <!-- Embedded article preview -->
-                    <div class="blog-post-card-article">
-                      <span class="blog-post-card-article-category">{{ blog.category }}</span>
-                      <h3 class="blog-post-card-article-title">{{ blog.title }}</h3>
-                      @if (blog.description) {
-                        <p class="blog-post-card-article-desc"
-                           [class.blog-post-card-article-desc--expanded]="isArticleExpanded(blog.id)">
-                          {{ blog.description }}
-                        </p>
-                        @if (blog.description.length > 180) {
-                          <div class="blog-post-card-read-row">
-                            <button class="blog-post-card-read-more-btn"
-                                    (click)="toggleArticleExpand($event, blog.id)"
-                                    type="button">
-                              {{ isArticleExpanded(blog.id) ? 'Show less' : 'Read more' }}
-                            </button>
-                            @if (isArticleExpanded(blog.id)) {
-                              <button class="blog-post-card-open-btn"
-                                      (click)="openArticleDetail(blog.id)"
-                                      type="button">
-                                Open article
-                              </button>
-                            }
-                          </div>
-                        }
-                      }
-                    </div>
-                  </div>
-
-                  <!-- Footer: hidden until like/comment counts are wired to real data -->
-                </div>
-              }
-            </div>
+                  </article>
+                }
+              </div>
+            }
           }
         </div>
       }
+
       <!-- Stats tab -->
       @if (activeTab() === "stats") {
-        <app-stats-tab
+        <div id="profile-panel-stats" role="tabpanel" aria-labelledby="profile-tab-stats"><app-stats-tab
           [isOwnProfile]="facade.currentProfile()!.isOwnProfile"
           [userId]="userId"
-        />
+        /></div>
       }
     }
   }

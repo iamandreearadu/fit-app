@@ -14,6 +14,8 @@ public class DailyEntryDto
     public int CaloriesBurned { get; set; }
     public int CaloriesIntake { get; set; }      // Now server-computed from MealEntries, but field kept for compat
     public int CaloriesTotal { get; set; }
+    public double? ManualWeight { get; set; }
+    public int? EnergyLevel { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
 
@@ -41,6 +43,8 @@ public class DailyEntrySummaryDto
     public int StepTarget { get; set; }
     public int CaloriesBurned { get; set; }
     public int CaloriesTotal { get; set; }          // ROUND(caloriesFromNutritionLog) - caloriesBurned
+    public double? ManualWeight { get; set; }
+    public int? EnergyLevel { get; set; }
 
     // ── Existing macro percentages (still manual, not yet auto-populated) ──
     public MacrosPctDto MacrosPct { get; set; } = new();
@@ -65,6 +69,23 @@ public class SaveDailyEntryRequest
     public int StepTarget { get; set; } = 3000;
     public MacrosPctDto MacrosPct { get; set; } = new();
     public int CaloriesBurned { get; set; }
+    [Range(30, 300)]
+    public double? ManualWeight { get; set; }
+    [Range(1, 5)]
+    public int? EnergyLevel { get; set; }
     // CaloriesIntake REMOVED (Fix 10) — now server-computed from MealEntries.
     // Clients sending this field will NOT get a 400; System.Text.Json silently ignores it.
+}
+
+public class SaveDailyCheckInRequest
+{
+    [Required]
+    [RegularExpression(@"^\d{4}-\d{2}-\d{2}$", ErrorMessage = "Date must be in yyyy-MM-dd format.")]
+    public string Date { get; set; } = string.Empty;
+
+    [Range(30, 300)]
+    public double ManualWeight { get; set; }
+
+    [Range(1, 5)]
+    public int? EnergyLevel { get; set; }
 }

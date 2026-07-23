@@ -215,7 +215,21 @@ Currently, text opacity is hardcoded as `rgba(255, 255, 255, X)` at 8+ opacity l
 | `--surface-elevated` | `#1a1a24` | Elevated surface (dropdown, popover, sticky header) |
 | `--surface-overlay` | `rgba(13, 13, 16, 0.97)` | Overlay surface (bottom sheets with blur) |
 
-### 5d. Macro Color Tokens (Nutrition Domain)
+### 5d. Dashboard Glass Overlay Tokens
+
+These values define the centered glass utility dialogs used by Analyze your meal, Today's meals, and Weekly balance. They are intentionally more translucent than general-purpose modals because these dashboard flows benefit from retaining page context.
+
+| Token | Value | Purpose |
+|-------|-------|---------|
+| `--dashboard-glass-backdrop` | `rgba(4, 4, 7, 0.28)` | Translucent veil over the dashboard |
+| `--dashboard-glass-backdrop-filter` | `blur(14px) saturate(112%)` | Background separation without an opaque scrim |
+| `--dashboard-glass-surface` | `linear-gradient(145deg, rgba(25, 22, 34, 0.76), rgba(10, 10, 14, 0.66))` | Header and body surface |
+| `--dashboard-glass-surface-filter` | `blur(18px) saturate(125%)` | Frosted dark-glass treatment |
+| `--dashboard-glass-border` | `rgba(255, 255, 255, 0.11)` | Quiet edge definition |
+| `--dashboard-glass-inset` | `rgba(255, 255, 255, 0.045)` | Top-edge highlight |
+| `--dashboard-glass-shadow` | `0 12px 30px rgba(0, 0, 0, 0.24)` | Soft dialog separation |
+
+### 5e. Macro Color Tokens (Nutrition Domain)
 
 These colors appear repeatedly hardcoded across dashboard, nutrition-tab, daily-panel, and ai-meal-analyzer components:
 
@@ -567,6 +581,41 @@ This is the complete token set for `@angular-developer` to add to `fit-app/src/s
 ---
 
 ## SECTION 12 -- Migration Priority
+
+## Global Primary Action Tokens — implemented 2026-07-22
+
+NovaFit uses a quiet outline treatment for text-based primary actions. Filled
+purple or purple-gradient CTA surfaces are deprecated across the application.
+
+```css
+--action-border: rgba(167, 139, 250, 0.34);
+--action-border-hover: rgba(167, 139, 250, 0.56);
+--action-text: #c4b5fd;
+--action-text-hover: #ddd6fe;
+--action-hover-bg: rgba(124, 77, 255, 0.055);
+--action-radius: 12px;
+--action-min-height: 44px;
+```
+
+These tokens apply to text CTAs and Angular Material flat/raised text buttons.
+They do not apply to icon-only controls, navigation active indicators, status
+badges, progress fills, chat bubbles, or destructive actions.
+
+The default action surface is transparent. Accent color is expressed through
+the subtle border and label, with a low-opacity violet surface only on hover.
+
+### Account minimal-field mapping — implemented 2026-07-22
+
+Account fields intentionally reuse existing semantic tokens rather than adding
+a parallel field palette:
+
+- default underline: `rgba(255, 255, 255, 0.12)`;
+- hover underline: `rgba(255, 255, 255, 0.24)`;
+- focus underline: `rgba(167, 139, 250, 0.85)`;
+- invalid underline: `rgba(239, 83, 80, 0.78)`;
+- field text: `--text-primary`;
+- placeholder: `--text-muted`;
+- labels/icons: `--text-tertiary`, promoting to `--primary-light` on focus.
 
 ### Phase 1 (Before any redesign work)
 1. Add new tokens to `:root` -- additive, zero risk

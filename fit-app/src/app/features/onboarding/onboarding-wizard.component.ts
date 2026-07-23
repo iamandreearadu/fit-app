@@ -97,9 +97,14 @@ export class OnboardingWizardComponent {
     this.saveError.set(null);
 
     const current = this.userStore.user();
+    if (!current) {
+      this.saveError.set('Your profile could not be loaded. Please sign in again.');
+      this.isSaving.set(false);
+      return;
+    }
     try {
       await this.userFacade.saveUserProfile({
-        ...(current as any),
+        ...current,
         goal: this.data.goal,
         gender: this.data.gender,
         age: this.data.age ?? current?.age ?? 0,

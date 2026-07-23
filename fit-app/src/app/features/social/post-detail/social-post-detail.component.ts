@@ -40,7 +40,7 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
   private readonly location = inject(Location);
   private readonly feedFacade = inject(SocialFeedFacade);
   private readonly profileFacade = inject(SocialProfileFacade);
-  private readonly facade = inject(SocialContentFacade);
+  protected readonly facade = inject(SocialContentFacade);
   private readonly dialog = inject(MatDialog);
 
   post = signal<Post | null>(null);
@@ -118,6 +118,13 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
     }
   }
 
+  onSavedToggled(event: { postId: number; isSaved: boolean }): void {
+    this.post.update(post => post && post.id === event.postId
+      ? { ...post, isSavedByMe: event.isSaved }
+      : post);
+    this.facade.syncSavedState(event.postId, event.isSaved);
+  }
+
   async submitComment(): Promise<void> {
     const text = this.commentInput().trim();
     if (!text || this.isSubmittingComment()) return;
@@ -155,6 +162,15 @@ export class SocialPostDetailComponent implements OnInit, AfterViewInit {
   async onDeletePost(postId: number): Promise<void> {
     await this.facade.deletePost(postId);
     this.router.navigateByUrl(this.returnUrl);
+  }
+
+  async onArchivePost(postId: number): Promise<void> {
+    try {
+      await this.profileFacade.archivePost(postId);
+      await this.router.navigateByUrl(this.returnUrl);
+    } catch {
+      this.postError.set('Could not archive this post. Please try again.');
+    }
   }
 
   onEditPost(post: Post): void {

@@ -80,6 +80,22 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         }
     }
 
+    // GET /api/social/saved-posts
+    [HttpGet("saved-posts")]
+    public async Task<IActionResult> GetSavedPosts(
+        [FromQuery] int page = 1, [FromQuery] int pageSize = 12)
+    {
+        try
+        {
+            return Ok(await socialService.GetSavedPostsAsync(UserId, page, pageSize));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error getting saved posts for user {UserId}", UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
     // GET /api/social/discover/suggested?limit=5
     // Used by SocialFeedGuidedEmptyComponent to populate follow suggestions.
     // Returns up to 5 users; same-goal users are surfaced first.
@@ -113,6 +129,10 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         {
             return Forbid();
         }
+        catch (KeyNotFoundException ex)
+        {
+            return Problem(statusCode: StatusCodes.Status404NotFound, detail: ex.Message);
+        }
         catch (InvalidOperationException ex)
         {
             return Problem(statusCode: 400, detail: ex.Message);
@@ -120,6 +140,25 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         catch (Exception ex)
         {
             logger.LogError(ex, "Error creating post for user {UserId}", UserId);
+            return Problem(statusCode: 500, detail: "An unexpected error occurred.");
+        }
+    }
+
+    // POST /api/social/posts/{id}/save
+    [HttpPost("posts/{id:int}/save")]
+    public async Task<IActionResult> ToggleSavePost(int id)
+    {
+        try
+        {
+            return Ok(await socialService.ToggleSavePostAsync(id, UserId));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return Problem(statusCode: 404, detail: ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error toggling saved post {PostId} for user {UserId}", id, UserId);
             return Problem(statusCode: 500, detail: "An unexpected error occurred.");
         }
     }
@@ -406,31 +445,28 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         catch (Exception ex) { logger.LogError(ex, "Error deleting workout {WorkoutId}", id); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
     }
 
-    // GET /api/social/profile/{userId}/blogs
-    [HttpGet("profile/{userId}/blogs")]
-    public async Task<IActionResult> GetProfileBlogs(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 12)
+    [HttpGet("profile/{userId}/meals")]
+    public async Task<IActionResult> GetProfileMeals(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 12)
     {
-        try { return Ok(await socialService.GetProfileBlogsAsync(userId, UserId, page, pageSize)); }
-        catch (Exception ex) { logger.LogError(ex, "Error getting profile blogs"); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
+        try { return Ok(await socialService.GetProfileMealsAsync(userId, UserId, page, pageSize)); }
+        catch (Exception ex) { logger.LogError(ex, "Error getting profile meals"); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
     }
 
-    // PATCH /api/social/profile/blogs/{id}/archive
-    [HttpPatch("profile/blogs/{id:int}/archive")]
-    public async Task<IActionResult> ToggleArchiveBlog(int id)
+    [HttpGet("profile/{userId}/meals/hidden")]
+    public async Task<IActionResult> GetHiddenProfileMeals(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 12)
     {
-        try { return Ok(await socialService.ToggleArchiveBlogAsync(id, UserId)); }
+        if (userId != UserId) return Forbid();
+        try { return Ok(await socialService.GetHiddenProfileMealsAsync(userId, page, pageSize)); }
+        catch (Exception ex) { logger.LogError(ex, "Error getting hidden profile meals"); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
+    }
+
+    [HttpPatch("profile/meals/{id:int}/visibility")]
+    public async Task<IActionResult> ToggleMealProfileVisibility(int id)
+    {
+        try { return Ok(await socialService.ToggleMealProfileVisibilityAsync(id, UserId)); }
         catch (UnauthorizedAccessException) { return Forbid(); }
         catch (KeyNotFoundException ex) { return Problem(statusCode: 404, detail: ex.Message); }
-        catch (Exception ex) { logger.LogError(ex, "Error archiving blog {BlogId}", id); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
-    }
-
-    // DELETE /api/social/profile/blogs/{id}
-    [HttpDelete("profile/blogs/{id:int}")]
-    public async Task<IActionResult> DeleteBlogFromProfile(int id)
-    {
-        try { await socialService.DeleteBlogFromProfileAsync(id, UserId); return NoContent(); }
-        catch (UnauthorizedAccessException) { return Forbid(); }
-        catch (Exception ex) { logger.LogError(ex, "Error deleting blog {BlogId}", id); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
+        catch (Exception ex) { logger.LogError(ex, "Error toggling meal visibility {MealId}", id); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
     }
 
     // PATCH /api/social/profile/bio
@@ -440,39 +476,6 @@ public class SocialController(ISocialService socialService, ILogger<SocialContro
         try { await socialService.UpdateBioAsync(UserId, request.Bio); return NoContent(); }
         catch (KeyNotFoundException ex) { return Problem(statusCode: 404, detail: ex.Message); }
         catch (Exception ex) { logger.LogError(ex, "Error updating bio"); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
-    }
-
-    // POST /api/social/profile/blogs/create
-    [HttpPost("profile/blogs/create")]
-    [RequestSizeLimit(20 * 1024 * 1024)]
-    public async Task<IActionResult> CreateUserBlog([FromBody] CreateUserBlogRequest request)
-    {
-        try
-        {
-            var result = await socialService.CreateUserBlogAsync(UserId, request);
-            return StatusCode(StatusCodes.Status201Created, result);
-        }
-        catch (Exception ex) { logger.LogError(ex, "Error creating blog for user {UserId}", UserId); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
-    }
-
-    // PUT /api/social/profile/blogs/{id}
-    [HttpPut("profile/blogs/{id:int}")]
-    [RequestSizeLimit(20 * 1024 * 1024)]
-    public async Task<IActionResult> UpdateUserBlog(int id, [FromBody] UpdateUserBlogRequest request)
-    {
-        try { return Ok(await socialService.UpdateUserBlogAsync(id, UserId, request)); }
-        catch (UnauthorizedAccessException) { return Forbid(); }
-        catch (KeyNotFoundException ex) { return Problem(statusCode: 404, detail: ex.Message); }
-        catch (Exception ex) { logger.LogError(ex, "Error updating blog {BlogId}", id); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
-    }
-
-    // GET /api/social/articles/{id}
-    [HttpGet("articles/{id:int}")]
-    public async Task<IActionResult> GetArticle(int id)
-    {
-        try { return Ok(await socialService.GetArticleAsync(id, UserId)); }
-        catch (KeyNotFoundException ex) { return Problem(statusCode: 404, detail: ex.Message); }
-        catch (Exception ex) { logger.LogError(ex, "Error getting article {ArticleId}", id); return Problem(statusCode: 500, detail: "An unexpected error occurred."); }
     }
 
     // ── Fix 2: Share to beSocial ──────────────────────────────────────────────

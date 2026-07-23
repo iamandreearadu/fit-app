@@ -2,11 +2,11 @@
 
   <!-- ── MODE TABS ── -->
   <div class="mode-tabs">
-    <button class="mode-tab" [class.mode-tab--active]="mode === 'photo'" (click)="setMode('photo')">
+    <button type="button" class="mode-tab" [class.mode-tab--active]="mode === 'photo'" (click)="setMode('photo')">
       <mat-icon>add_photo_alternate</mat-icon>
       <span>Photo</span>
     </button>
-    <button class="mode-tab" [class.mode-tab--active]="mode === 'barcode'" (click)="setMode('barcode')">
+    <button type="button" class="mode-tab" [class.mode-tab--active]="mode === 'barcode'" (click)="setMode('barcode')">
       <mat-icon>qr_code_scanner</mat-icon>
       <span>Barcode</span>
     </button>
@@ -17,24 +17,34 @@
     <div
       class="dropzone"
       [class.dragover]="isDragOver"
+      [class.dropzone--preview]="preview"
+      [attr.aria-busy]="previewLoading || loading"
       (dragover)="onDragOver($event)"
       (dragleave)="onDragLeave($event)"
       (drop)="onDrop($event)"
     >
-      @if (!preview) {
+      @if (previewLoading) {
+        <div class="photo-loader" role="status" aria-live="polite">
+          <mat-progress-spinner mode="indeterminate" diameter="28"></mat-progress-spinner>
+          <div class="photo-loader-copy">
+            <span>Preparing photo</span>
+            <small>Just a moment</small>
+          </div>
+        </div>
+      } @else if (!preview) {
         <mat-icon class="dz-icon">add_photo_alternate</mat-icon>
         <div class="dz-text">
-          <span class="dz-primary">Drag &amp; drop your meal photo</span>
-          <span class="dz-sub">or click the button to choose a file</span>
+          <span class="dz-primary">Add a meal photo</span>
+          <span class="dz-sub">Take a clear photo or choose one from your device</span>
         </div>
         <button
           mat-stroked-button
           class="dz-btn"
           type="button"
           (click)="openFileDialog()"
-          [disabled]="disabled || loading"
+          [disabled]="disabled || previewLoading || loading"
         >
-          Choose file
+          Choose photo
         </button>
       } @else {
         <div class="preview-wrap">
@@ -52,7 +62,7 @@
           @if (loading) {
             <div class="analyzing-overlay">
               <mat-progress-spinner mode="indeterminate" diameter="36"></mat-progress-spinner>
-              <span>Analyzing…</span>
+              <span>Analyzing meal</span>
             </div>
           }
         </div>
@@ -239,16 +249,45 @@
       </div>
 
       @if (result.items?.length) {
-        <div class="items-row">
-          @for (it of result.items!; track it.name) {
-            <span class="item-chip">
-              {{ it.name }}
-              @if (it.confidence != null) {
-                <small>({{ it.confidence * 100 | number: "1.0-0" }}%)</small>
-              }
-            </span>
+        <section class="detected-foods" aria-labelledby="detected-foods-title">
+          <button
+            id="detected-foods-title"
+            type="button"
+            class="detected-foods-toggle"
+            (click)="showDetectedFoods = !showDetectedFoods"
+            [attr.aria-expanded]="showDetectedFoods"
+          >
+            <span>Detected foods</span>
+            <span class="detected-foods-count">{{ result.items!.length }}</span>
+            <mat-icon>{{ showDetectedFoods ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </button>
+          @if (showDetectedFoods) {
+          <div class="detected-foods-list">
+            @for (it of result.items!; track it.name) {
+              <div class="detected-food-row">
+                <div class="detected-food-line">
+                  <span class="detected-food-name">{{ it.name }}</span>
+                  @if (it.confidence != null) {
+                    <span
+                      class="detected-food-confidence"
+                      [class.detected-food-confidence--low]="it.confidence < 0.7"
+                    >{{ it.confidence * 100 | number: "1.0-0" }}%</span>
+                  }
+                </div>
+                @if (it.confidence != null) {
+                  <span class="confidence-track" aria-hidden="true">
+                    <span
+                      class="confidence-fill"
+                      [class.confidence-fill--low]="it.confidence < 0.7"
+                      [style.width.%]="it.confidence * 100"
+                    ></span>
+                  </span>
+                }
+              </div>
+            }
+          </div>
           }
-        </div>
+        </section>
       }
 
       <div class="meal-type-row">

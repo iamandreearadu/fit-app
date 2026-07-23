@@ -114,4 +114,23 @@ export class BlogContentComponent implements OnInit {
     this.showCreateOverlay = false;
     this.editModel = {};
   }
+
+  cardImage(image?: string): string {
+    const fallback = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=70&w=720&auto=format&fit=crop';
+    if (!image) return fallback;
+
+    try {
+      const url = new URL(image);
+      if (url.hostname === 'images.unsplash.com') {
+        url.searchParams.set('auto', 'format');
+        url.searchParams.set('fit', 'crop');
+        url.searchParams.set('w', '720');
+        url.searchParams.set('h', '450');
+        url.searchParams.set('q', '70');
+      }
+      return url.toString();
+    } catch {
+      return image;
+    }
+  }
 }

@@ -1,0 +1,158 @@
+:host {
+  display: block;
+}
+
+.cs-card {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.cs-header {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 13px;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cs-icon-wrap {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(124, 77, 255, 0.13);
+  color: #8f6cff;
+}
+
+.cs-icon-wrap mat-icon {
+  width: 21px;
+  height: 21px;
+  font-size: 21px;
+}
+
+.cs-title {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.cs-subtitle {
+  margin: 3px 0 0;
+  color: rgba(255, 255, 255, 0.43);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.cs-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border: 1px solid rgba(124, 77, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(124, 77, 255, 0.08);
+  color: #9c7cff;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cs-body {
+  padding: 24px;
+}
+
+.cs-kicker {
+  display: block;
+  margin-bottom: 13px;
+  color: #8f6cff;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.cs-list {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cs-list li {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cs-list mat-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: rgba(143, 108, 255, 0.72);
+  font-size: 18px;
+}
+
+.cs-list li > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cs-list strong {
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cs-list small {
+  color: rgba(255, 255, 255, 0.37);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+@media (max-width: 768px) {
+  .cs-card {
+    border: 0;
+    border-radius: 16px;
+    background: transparent;
+  }
+
+  .cs-header {
+    grid-template-columns: 40px minmax(0, 1fr);
+    padding: 17px 16px;
+  }
+
+  .cs-badge {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .cs-body {
+    padding: 18px 16px;
+  }
+
+  .cs-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .cs-title {
+    font-size: 17px;
+  }
+}

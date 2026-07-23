@@ -36,6 +36,7 @@ export interface Post {
   isFollowingAuthor: boolean;
   isOwnPost: boolean;
   isArchived: boolean;
+  isSavedByMe: boolean;
   createdAt: string;
   isSeedContent?: boolean;  // Fix 9 — drives .post-card--seed editorial rendering mode
   // Article-type post fields
@@ -106,6 +107,15 @@ export interface PaginatedResponse<T> {
   hasMore: boolean;
 }
 
+export interface SaveToggleResponse {
+  isSaved: boolean;
+}
+
+export interface SharePostRequest {
+  targetUserId: string;
+  postId: number;
+}
+
 export interface CreatePostRequest {
   content: string;
   imageUrl?: string;
@@ -139,6 +149,24 @@ export interface ProfileWorkout {
   createdAt: string;
   isArchived: boolean;
   isOwnWorkout: boolean;
+}
+
+export interface ProfileMeal {
+  id: number;
+  name: string;
+  type: string;
+  date: string;
+  createdAt: string;
+  isHiddenFromProfile: boolean;
+  isOwnMeal: boolean;
+  totalCalories?: number;
+  totalProtein_g?: number;
+  totalCarbs_g?: number;
+  totalFats_g?: number;
+}
+
+export interface MealVisibilityResponse {
+  isHiddenFromProfile: boolean;
 }
 
 export interface ProfileBlog {

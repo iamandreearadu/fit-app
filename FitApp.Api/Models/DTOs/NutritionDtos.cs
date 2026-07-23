@@ -15,6 +15,8 @@ public class MealEntryDto
     public double TotalCarbs_g { get; set; }
     public double TotalFats_g { get; set; }
     public string? Notes { get; set; }
+    public bool IsSavedMeal { get; set; }
+    public bool IsHiddenFromProfile { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
@@ -39,6 +41,7 @@ public class SaveMealRequest
     public string Date { get; set; } = string.Empty;
     public List<FoodItemDto> Items { get; set; } = [];
     public string? Notes { get; set; }
+    public bool IsSavedMeal { get; set; }
 }
 
 /// <summary>

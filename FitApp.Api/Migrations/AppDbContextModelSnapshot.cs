@@ -15,7 +15,7 @@ namespace FitApp.Api.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.5");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
 
             modelBuilder.Entity("FitApp.Api.Models.Entities.BlogPost", b =>
                 {
@@ -294,6 +294,13 @@ namespace FitApp.Api.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("MessageType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("text");
+
                     b.Property<string>("SenderId")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -301,9 +308,14 @@ namespace FitApp.Api.Migrations
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("SharedPostId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("SenderId");
+
+                    b.HasIndex("SharedPostId");
 
                     b.HasIndex("ConversationId", "SentAt");
 
@@ -418,6 +430,12 @@ namespace FitApp.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsHiddenFromProfile")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsSavedMeal")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -454,6 +472,8 @@ namespace FitApp.Api.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("UserId", "Date");
+
+                    b.HasIndex("UserId", "IsHiddenFromProfile", "CreatedAt");
 
                     b.ToTable("MealEntries");
                 });
@@ -522,6 +542,42 @@ namespace FitApp.Api.Migrations
                     b.ToTable("OnboardingSteps");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.PasswordResetToken", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PasswordResetTokens");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -550,6 +606,18 @@ namespace FitApp.Api.Migrations
 
                     b.Property<int>("LikesCount")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("LinkedContentSubtitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LinkedContentTitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LinkedContentType")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("LinkedDailyEntryId")
                         .HasColumnType("INTEGER");
@@ -580,6 +648,72 @@ namespace FitApp.Api.Migrations
                     b.HasIndex("UserId", "IsArchived", "CreatedAt");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.PushSubscription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Auth")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Endpoint")
+                        .IsRequired()
+                        .HasMaxLength(4096)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("P256dh")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Endpoint")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PushSubscriptions");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.SavedPost", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
+                    b.HasIndex("UserId", "PostId")
+                        .IsUnique();
+
+                    b.ToTable("SavedPosts");
                 });
 
             modelBuilder.Entity("FitApp.Api.Models.Entities.User", b =>
@@ -1024,6 +1158,17 @@ namespace FitApp.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.PasswordResetToken", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.User", "User")
+                        .WithMany("PasswordResetTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.Post", b =>
                 {
                     b.HasOne("FitApp.Api.Models.Entities.BlogPost", "Article")
@@ -1058,6 +1203,36 @@ namespace FitApp.Api.Migrations
                     b.Navigation("LinkedMeal");
 
                     b.Navigation("LinkedWorkout");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.PushSubscription", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.User", "User")
+                        .WithMany("PushSubscriptions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FitApp.Api.Models.Entities.SavedPost", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.Post", "Post")
+                        .WithMany("SavedByUsers")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FitApp.Api.Models.Entities.User", "User")
+                        .WithMany("SavedPosts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
 
                     b.Navigation("User");
                 });
@@ -1134,6 +1309,8 @@ namespace FitApp.Api.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Likes");
+
+                    b.Navigation("SavedByUsers");
                 });
 
             modelBuilder.Entity("FitApp.Api.Models.Entities.User", b =>
@@ -1156,9 +1333,15 @@ namespace FitApp.Api.Migrations
 
                     b.Navigation("OnboardingSteps");
 
+                    b.Navigation("PasswordResetTokens");
+
                     b.Navigation("Posts");
 
+                    b.Navigation("PushSubscriptions");
+
                     b.Navigation("ReceivedNotifications");
+
+                    b.Navigation("SavedPosts");
 
                     b.Navigation("WorkoutTemplates");
                 });

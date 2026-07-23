@@ -25,11 +25,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Post> Posts => Set<Post>();
     public DbSet<Like> Likes => Set<Like>();
     public DbSet<Comment> Comments => Set<Comment>();
+    public DbSet<SavedPost> SavedPosts => Set<SavedPost>();
     public DbSet<Follow> Follows => Set<Follow>();
     public DbSet<Conversation> Conversations => Set<Conversation>();
     public DbSet<ConversationParticipant> ConversationParticipants => Set<ConversationParticipant>();
     public DbSet<DirectMessage> DirectMessages => Set<DirectMessage>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -94,6 +97,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             e.HasKey(m => m.Id);
             e.HasIndex(m => new { m.UserId, m.Date });
+            e.HasIndex(m => new { m.UserId, m.IsHiddenFromProfile, m.CreatedAt });
             e.HasOne(m => m.User).WithMany(u => u.MealEntries).HasForeignKey(m => m.UserId);
             e.HasMany(m => m.Items).WithOne(f => f.MealEntry).HasForeignKey(f => f.MealEntryId).OnDelete(DeleteBehavior.Cascade);
         });
@@ -214,6 +218,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             e.HasKey(cp => cp.Id);
             e.HasIndex(cp => new { cp.ConversationId, cp.UserId }).IsUnique();
+            e.HasIndex(cp => cp.UserId);
             e.HasOne(cp => cp.User)
                 .WithMany(u => u.ConversationParticipants)
                 .HasForeignKey(cp => cp.UserId)
@@ -223,6 +228,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<DirectMessage>(e =>
         {
             e.HasKey(m => m.Id);
+            e.Property(m => m.MessageType).HasMaxLength(32).HasDefaultValue("text");
+            e.HasIndex(m => m.SharedPostId);
             e.HasOne(m => m.Sender)
                 .WithMany()
                 .HasForeignKey(m => m.SenderId)
@@ -257,6 +264,48 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .HasForeignKey(n => n.ActorId)
                 .OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(n => new { n.RecipientId, n.IsRead, n.CreatedAt });
+        });
+
+        modelBuilder.Entity<PasswordResetToken>(e =>
+        {
+            e.HasKey(token => token.Id);
+            e.Property(token => token.TokenHash).HasMaxLength(64);
+            e.HasIndex(token => token.TokenHash).IsUnique();
+            e.HasIndex(token => token.UserId);
+            e.HasIndex(token => token.ExpiresAt);
+            e.HasOne(token => token.User)
+                .WithMany(user => user.PasswordResetTokens)
+                .HasForeignKey(token => token.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SavedPost>(e =>
+        {
+            e.HasKey(saved => saved.Id);
+            e.HasIndex(saved => new { saved.UserId, saved.PostId }).IsUnique();
+            e.HasIndex(saved => new { saved.UserId, saved.CreatedAt });
+            e.HasOne(saved => saved.User)
+                .WithMany(user => user.SavedPosts)
+                .HasForeignKey(saved => saved.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(saved => saved.Post)
+                .WithMany(post => post.SavedByUsers)
+                .HasForeignKey(saved => saved.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<PushSubscription>(e =>
+        {
+            e.HasKey(subscription => subscription.Id);
+            e.Property(subscription => subscription.Endpoint).HasMaxLength(4096);
+            e.Property(subscription => subscription.P256dh).HasMaxLength(512);
+            e.Property(subscription => subscription.Auth).HasMaxLength(256);
+            e.HasIndex(subscription => subscription.Endpoint).IsUnique();
+            e.HasIndex(subscription => subscription.UserId);
+            e.HasOne(subscription => subscription.User)
+                .WithMany(user => user.PushSubscriptions)
+                .HasForeignKey(subscription => subscription.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

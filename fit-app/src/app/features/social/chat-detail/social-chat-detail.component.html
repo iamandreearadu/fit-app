@@ -7,7 +7,13 @@
     </button>
 
     @if (otherParticipant()) {
-      <div class="hdr-avatar-wrap">
+      <button
+        class="hdr-profile-link"
+        type="button"
+        (click)="openParticipantProfile()"
+        [attr.aria-label]="'Open ' + otherParticipant()!.displayName + ' profile'"
+      >
+      <span class="hdr-avatar-wrap">
         @if (otherParticipant()!.avatarUrl) {
           <img class="hdr-avatar" [src]="otherParticipant()!.avatarUrl" [alt]="otherParticipant()!.displayName" />
         } @else {
@@ -15,8 +21,9 @@
             <mat-icon>person</mat-icon>
           </div>
         }
-      </div>
-      <span class="hdr-name">{{ otherParticipant()!.displayName }}</span>
+      </span>
+        <span class="hdr-name">{{ otherParticipant()!.displayName }}</span>
+      </button>
     }
   </div>
 
@@ -41,24 +48,48 @@
     }
 
     <!-- Message groups -->
-    @for (group of messageGroups(); track group.dateLabel) {
+    @for (group of messageGroups(); track group.dateLabel; let firstGroup = $first) {
       <div class="msg-date-sep">
-        <span>{{ formatDateLabel(group.dateLabel) }}</span>
+        <span>{{ firstGroup ? formatDateLabel(group.dateLabel) : formatTimelineLabel(group.messages[0].sentAt) }}</span>
       </div>
 
-      @for (msg of group.messages; track msg.id) {
-        <div class="msg-row" [class.msg-row--own]="msg.isOwn">
+      @for (msg of group.messages; track msg.id; let messageIndex = $index) {
+        @if (messageIndex > 0 && isHourGap(msg, group.messages[messageIndex - 1])) {
+          <div class="msg-date-sep msg-date-sep--gap"><span>{{ formatTimelineLabel(msg.sentAt) }}</span></div>
+        }
+        <div
+          class="msg-row"
+          [class.msg-row--own]="msg.isOwn"
+          [class.msg-row--time-revealed]="revealedTimestampId() === msg.id"
+          (touchstart)="onMessageTouchStart($event)"
+          (touchend)="onMessageTouchEnd($event, msg.id)"
+        >
 
           <!-- Bubble first in DOM so row-reverse places it at the right edge -->
           <div
             class="msg-bubble"
             [class.msg-bubble--own]="msg.isOwn"
             [class.msg-bubble--other]="!msg.isOwn"
+            [class.msg-bubble--image]="!!msg.imageUrl"
             [class.msg-bubble--deleted]="msg.isDeleted"
           >
             @if (msg.isDeleted) {
               <span class="msg-deleted">Message deleted</span>
             } @else {
+              @if (msg.messageType === 'shared_post' && msg.sharedPost) {
+                @if (msg.sharedPost.isAvailable) {
+                  <button class="shared-post" type="button" (click)="openSharedPost(msg.sharedPost.postId)">
+                    @if (msg.sharedPost.imageUrl) { <img [src]="msg.sharedPost.imageUrl" alt="" /> }
+                    <span class="shared-post-copy">
+                      <strong>{{ msg.sharedPost.author?.displayName || 'NovaFit member' }}</strong>
+                      @if (msg.sharedPost.content) { <span>{{ msg.sharedPost.content }}</span> }
+                      <span class="shared-post-link">View post <mat-icon>arrow_forward</mat-icon></span>
+                    </span>
+                  </button>
+                } @else {
+                  <span class="shared-post-unavailable"><mat-icon>hide_source</mat-icon>This post is no longer available</span>
+                }
+              }
               @if (msg.imageUrl) {
                 <img class="msg-img" [src]="msg.imageUrl" alt="Image" (click)="openLightbox(msg.imageUrl)" />
               }
@@ -66,8 +97,9 @@
                 <span class="msg-text">{{ msg.content }}</span>
               }
             }
-            <span class="msg-time">{{ msg.sentAt | date:'shortTime' }}</span>
           </div>
+
+          <span class="msg-swipe-time" aria-hidden="true">{{ msg.sentAt | date:'shortTime' }}</span>
 
           <!-- Delete trigger — second in DOM so row-reverse places it to the LEFT of the bubble -->
           @if (msg.isOwn && !msg.isDeleted) {
@@ -90,6 +122,10 @@
   <!-- Composer -->
   <div class="msg-composer">
 
+    @if (attachmentError()) {
+      <div class="composer-error" role="alert">{{ attachmentError() }}</div>
+    }
+
     <!-- Image preview strip -->
     @if (imagePreview()) {
       <div class="composer-preview">
@@ -105,7 +141,7 @@
     <div class="composer-bar">
       <!-- Attach -->
       <label class="composer-attach" aria-label="Attach image">
-        <mat-icon>add_photo_alternate</mat-icon>
+        <span aria-hidden="true">+</span>
         <input type="file" accept="image/*" hidden (change)="onFileSelected($event)" />
       </label>
 
@@ -134,7 +170,7 @@
         @if (isSending()) {
           <mat-spinner diameter="18" />
         } @else {
-          <mat-icon>arrow_upward</mat-icon>
+          <mat-icon>send</mat-icon>
         }
       </button>
     </div>

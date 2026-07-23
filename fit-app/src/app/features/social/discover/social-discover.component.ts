@@ -149,6 +149,10 @@ export class SocialDiscoverComponent implements OnInit, AfterViewInit, OnDestroy
     this.content.toggleLike(postId);
   }
 
+  onSavedToggled(event: { postId: number; isSaved: boolean }): void {
+    this.content.syncSavedState(event.postId, event.isSaved);
+  }
+
   onFollowFromPost(userId: string): void {
     this.onFollow(userId);
   }

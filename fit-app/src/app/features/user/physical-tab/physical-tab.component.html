@@ -1,8 +1,14 @@
-<div class="physical-layout">
-  <div class="stats-col">
-    <app-physical-stats></app-physical-stats>
+<section class="physical-panel" aria-labelledby="physical-title">
+  <header class="physical-header">
+    <span class="header-icon" aria-hidden="true"><mat-icon>monitor_weight</mat-icon></span>
+    <div>
+      <h2 id="physical-title">Physical profile</h2>
+      <p>Update your body data and fitness goal.</p>
+    </div>
+  </header>
+
+  <div class="physical-layout">
+    <div class="stats-col"><app-physical-stats></app-physical-stats></div>
+    <aside class="metrics-col" aria-label="Calculated fitness metrics"><app-fitness-metrics></app-fitness-metrics></aside>
   </div>
-  <div class="metrics-col">
-    <app-fitness-metrics></app-fitness-metrics>
-  </div>
-</div>
+</section>

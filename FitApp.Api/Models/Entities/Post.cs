@@ -14,6 +14,12 @@ public class Post
     public int? LinkedWorkoutId { get; set; }
     public int? LinkedMealId { get; set; }
     public int? LinkedDailyEntryId { get; set; }
+    [MaxLength(20)]
+    public string? LinkedContentType { get; set; }
+    [MaxLength(200)]
+    public string? LinkedContentTitle { get; set; }
+    [MaxLength(200)]
+    public string? LinkedContentSubtitle { get; set; }
     public int LikesCount { get; set; }
     public int CommentsCount { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -29,4 +35,5 @@ public class Post
     public DailyEntry? LinkedDailyEntry { get; set; }
     public ICollection<Like> Likes { get; set; } = [];
     public ICollection<Comment> Comments { get; set; } = [];
+    public ICollection<SavedPost> SavedByUsers { get; set; } = [];
 }

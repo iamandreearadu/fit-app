@@ -4,16 +4,27 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #0d0d14;
+  position: relative;
+  isolation: isolate;
+  background: var(--nova-page-canvas);
 }
 
-.page-content { flex: 1; }
+.page-content {
+  flex: 1;
+  background: transparent;
+}
 
 /* ── Stats strip ── */
 .stats-strip {
-  background: rgba(255,255,255,.025);
-  border-top: 1px solid rgba(255,255,255,.06);
-  border-bottom: 1px solid rgba(255,255,255,.06);
+  position: relative;
+  z-index: 2;
+  margin: 20px clamp(16px, 3vw, 36px);
+  background: var(--nova-glass-soft);
+  border: 0;
+  border-radius: 20px;
+  backdrop-filter: var(--nova-glass-blur);
+  -webkit-backdrop-filter: var(--nova-glass-blur);
+  box-shadow: var(--nova-glass-highlight);
   padding: 26px 24px;
 }
 
@@ -55,12 +66,12 @@
 .stat-divider {
   width: 1px;
   height: 32px;
-  background: rgba(255,255,255,.09);
+  background: rgba(255,255,255,.06);
   flex-shrink: 0;
 }
 
 @media (max-width: 480px) {
-  .stats-strip { padding: 16px 12px; }
+  .stats-strip { margin: 12px; padding: 16px 8px; border-radius: 16px; }
   .stats-inner { gap: 0; justify-content: space-evenly; }
   .stat-value { font-size: 18px; }
   .stat-label { font-size: 10px; }

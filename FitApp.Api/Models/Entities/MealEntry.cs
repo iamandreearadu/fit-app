@@ -13,6 +13,8 @@ public class MealEntry
     public double TotalCarbs_g { get; set; }
     public double TotalFats_g { get; set; }
     public string? Notes { get; set; }
+    public bool IsSavedMeal { get; set; }
+    public bool IsHiddenFromProfile { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

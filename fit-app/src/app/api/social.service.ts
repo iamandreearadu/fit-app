@@ -14,6 +14,8 @@ import {
   CreateCommentRequest,
   UserSearchResult,
   ProfileWorkout,
+  ProfileMeal,
+  MealVisibilityResponse,
   ProfileBlog,
   ArchiveToggleResponse,
   UpdateBioRequest,
@@ -25,12 +27,18 @@ import {
   PostFromWorkoutRequest,
   PostFromMealRequest,
   SharePostResponse,
+  SaveToggleResponse,
+  SharePostRequest,
 } from '../core/models/social.model';
 
 /** Ensures imageUrl is always a renderable src (handles legacy raw-base64 posts). */
 function normalizeImageUrl(url: string | undefined): string | undefined {
   if (!url) return url;
-  if (url.startsWith('data:') || url.startsWith('http') || url.startsWith('/')) return url;
+  if (url.startsWith('data:') || url.startsWith('http')) return url;
+  if (url.startsWith('/')) {
+    const apiOrigin = environment.apiUrl.replace(/\/$/, '');
+    return `${apiOrigin}${url}`;
+  }
   // Legacy format: raw base64 without the data URI prefix.
   // Detect image type from the first base64-encoded bytes (magic bytes).
   if (url.startsWith('/9j/') || url.startsWith('FFD8')) return `data:image/jpeg;base64,${url}`;
@@ -156,6 +164,40 @@ export class SocialService {
   getProfileBlogs(userId: string, page = 1, pageSize = 12): Observable<PaginatedResponse<ProfileBlog>> {
     const params = new HttpParams().set('page', page).set('pageSize', pageSize);
     return this.http.get<PaginatedResponse<ProfileBlog>>(`${this.base}/profile/${userId}/blogs`, { params });
+  }
+
+  getProfileMeals(userId: string, page = 1, pageSize = 12): Observable<PaginatedResponse<ProfileMeal>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginatedResponse<ProfileMeal>>(`${this.base}/profile/${userId}/meals`, { params });
+  }
+
+  getHiddenProfileMeals(userId: string, page = 1, pageSize = 12): Observable<PaginatedResponse<ProfileMeal>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginatedResponse<ProfileMeal>>(`${this.base}/profile/${userId}/meals/hidden`, { params });
+  }
+
+  toggleMealVisibility(id: number): Observable<MealVisibilityResponse> {
+    return this.http.patch<MealVisibilityResponse>(`${this.base}/profile/meals/${id}/visibility`, {});
+  }
+
+  toggleSave(postId: number): Observable<SaveToggleResponse> {
+    return this.http.post<SaveToggleResponse>(`${this.base}/posts/${postId}/save`, {});
+  }
+
+  getSavedPosts(page = 1, pageSize = 12): Observable<PaginatedResponse<Post>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginatedResponse<Post>>(`${this.base}/saved-posts`, { params }).pipe(
+      map(r => ({ ...r, items: normalizePosts(r.items) }))
+    );
+  }
+
+  sharePost(req: SharePostRequest): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/api/conversations/share-post`, req);
+  }
+
+  getArchivedBlogs(userId: string, page = 1, pageSize = 12): Observable<PaginatedResponse<ProfileBlog>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginatedResponse<ProfileBlog>>(`${this.base}/profile/${userId}/blogs/archived`, { params });
   }
 
   archiveBlog(id: number): Observable<ArchiveToggleResponse> {

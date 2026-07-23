@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GroqSidenavComponent } from './groq-sidenav.component';
+import { TEST_PROVIDERS } from '../../../testing/test-providers';
 
 describe('GroqSidenavComponent', () => {
   let component: GroqSidenavComponent;
@@ -8,7 +9,7 @@ describe('GroqSidenavComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GroqSidenavComponent]
+      imports: [GroqSidenavComponent], providers: TEST_PROVIDERS
     })
     .compileComponents();
 

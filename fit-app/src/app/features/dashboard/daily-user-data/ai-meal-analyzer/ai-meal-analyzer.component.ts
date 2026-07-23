@@ -34,7 +34,7 @@ export class AiMealAnalyzerComponent implements OnDestroy {
   @Input() disabled = false;
   @Input() maxSizeMB = 8;
 
-  @Output() added = new EventEmitter<MealMacros>();
+  @Output() added = new EventEmitter<{ macros: MealMacros; mealType: MealType }>();
   @Output() analyzed = new EventEmitter<MealMacros>();
   @Output() error = new EventEmitter<string>();
   @Output() saveMeal = new EventEmitter<{ macros: MealMacros; mealType: MealType }>();
@@ -54,6 +54,7 @@ export class AiMealAnalyzerComponent implements OnDestroy {
   // ── Photo state ───────────────────────────────────────────────
   file: File | null = null;
   preview: string | null = null;
+  previewLoading = false;
   loading = false;
   isDragOver = false;
 
@@ -70,6 +71,7 @@ export class AiMealAnalyzerComponent implements OnDestroy {
 
   // ── Shared state ──────────────────────────────────────────────
   result: MealMacros | null = null;
+  showDetectedFoods = false;
   errorMsg: string | null = null;
   saving = false;
 
@@ -86,6 +88,7 @@ export class AiMealAnalyzerComponent implements OnDestroy {
     this.mode = m;
     this.errorMsg = null;
     this.result = null;
+    this.showDetectedFoods = false;
     this.saving = false;
     if (m === 'photo') {
       this.product = null;
@@ -93,6 +96,7 @@ export class AiMealAnalyzerComponent implements OnDestroy {
     } else {
       this.file = null;
       this.preview = null;
+      this.previewLoading = false;
     }
   }
 
@@ -120,15 +124,26 @@ export class AiMealAnalyzerComponent implements OnDestroy {
     this.errorMsg = null;
     this.file = null;
     this.preview = null;
+    this.previewLoading = false;
     this.result = null;
+    this.showDetectedFoods = false;
     if (!f) return;
     if (!f.type.startsWith('image/')) { this.fail('Please upload an image.'); return; }
     if (f.size > this.maxSizeMB * 1024 * 1024) { this.fail(`Image exceeds ${this.maxSizeMB}MB.`); return; }
     this.file = f;
+    this.previewLoading = true;
     const r = new FileReader();
-    r.onload = () => this.preview = String(r.result);
+    r.onload = () => {
+      this.preview = String(r.result);
+      this.previewLoading = false;
+      void this.analyze();
+    };
+    r.onerror = () => {
+      this.previewLoading = false;
+      this.file = null;
+      this.fail('The photo could not be loaded. Please try another image.');
+    };
     r.readAsDataURL(f);
-    void this.analyze();
   }
 
   async analyze(): Promise<void> {
@@ -232,6 +247,7 @@ export class AiMealAnalyzerComponent implements OnDestroy {
   clearBarcode(): void {
     this.product = null;
     this.result = null;
+    this.showDetectedFoods = false;
     this.manualBarcode = '';
     this.errorMsg = null;
     this.saving = false;
@@ -243,15 +259,18 @@ export class AiMealAnalyzerComponent implements OnDestroy {
   clear(): void {
     this.file = null;
     this.preview = null;
+    this.previewLoading = false;
     this.errorMsg = null;
     this.result = null;
+    this.showDetectedFoods = false;
     this.saving = false;
     this.selectedMealType = 'Other';
   }
 
   addToUser(): void {
-    if (!this.result) return;
-    this.added.emit(this.result);
+    if (!this.result || this.saving) return;
+    this.saving = true;
+    this.added.emit({ macros: this.result, mealType: this.selectedMealType });
   }
 
   saveToNutrition(): void {

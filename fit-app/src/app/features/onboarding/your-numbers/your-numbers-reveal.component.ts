@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OnboardingFacade } from '../../../core/facade/onboarding.facade';
@@ -16,7 +16,7 @@ import { YourNumbersResponse } from '../../../core/models/onboarding.model';
 @Component({
   selector: 'app-your-numbers-reveal',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [CommonModule, RouterLink, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './your-numbers-reveal.component.html',
   styleUrl: './your-numbers-reveal.component.css',
 })
@@ -136,7 +136,7 @@ export class YourNumbersRevealComponent implements OnInit, OnDestroy {
 
   async onLogMeal(): Promise<void> {
     void this.facade.recordStep('first_action_taken');
-    await this.router.navigate(['/account'], { queryParams: { tab: 'nutrition' } });
+    await this.router.navigate(['/account', 'nutrition']);
   }
 
   async retry(): Promise<void> {

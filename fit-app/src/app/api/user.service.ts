@@ -5,6 +5,11 @@ import { AlertService } from '../shared/services/alert.service';
 import { StreakData, UserProfile } from '../core/models/user.model';
 import { DailyEntrySummary, DailyUserData } from '../core/models/daily-user-data.model';
 import { environment } from '../../environments/environment';
+import { HttpErrorResponse } from '@angular/common/http';
+
+type UserProfileDto = Partial<UserProfile> & Pick<UserProfile, 'id' | 'email' | 'fullName' | 'gender' | 'age' | 'heightCm' | 'weightKg' | 'goal' | 'activity'>;
+type DailyUserDataDto = Partial<DailyUserData> & Pick<DailyUserData, 'date'>;
+interface DailyHistoryDto { items?: DailyUserDataDto[]; }
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -16,7 +21,7 @@ export class UserService {
   public async getCurrentUser(): Promise<UserProfile | null> {
     try {
       const dto = await firstValueFrom(
-        this.http.get<any>(`${this.baseUrl}/api/users/me`)
+        this.http.get<UserProfileDto>(`${this.baseUrl}/api/users/me`)
       );
       return this.mapDtoToProfile(dto);
     } catch (err) {
@@ -47,6 +52,18 @@ export class UserService {
     }
   }
 
+  public async deleteAccount(): Promise<boolean> {
+    try {
+      await firstValueFrom(
+        this.http.delete<void>(`${this.baseUrl}/api/users/me`)
+      );
+      return true;
+    } catch {
+      this.alerts.warn('Your account could not be deleted. Please try again.');
+      return false;
+    }
+  }
+
   public async getStreak(): Promise<StreakData | null> {
     try {
       return await firstValueFrom(
@@ -60,11 +77,11 @@ export class UserService {
   public async getDailyForDate(dateIso: string): Promise<DailyUserData | null> {
     try {
       const dto = await firstValueFrom(
-        this.http.get<any>(`${this.baseUrl}/api/daily?date=${dateIso}`)
+        this.http.get<DailyUserDataDto>(`${this.baseUrl}/api/daily?date=${dateIso}`)
       );
       return this.mapDtoToDaily(dto);
-    } catch (err: any) {
-      if (err?.status === 404) return null;
+    } catch (err: unknown) {
+      if (err instanceof HttpErrorResponse && err.status === 404) return null;
       this.alerts.warn('Failed to load daily data');
       return null;
     }
@@ -75,7 +92,7 @@ export class UserService {
       return await firstValueFrom(
         this.http.get<DailyEntrySummary>(`${this.baseUrl}/api/daily/today/summary`)
       );
-    } catch (err: any) {
+    } catch {
       this.alerts.warn('Failed to load daily summary');
       return null;
     }
@@ -103,9 +120,9 @@ export class UserService {
   public async getAllPreviousData(): Promise<DailyUserData[]> {
     try {
       const res = await firstValueFrom(
-        this.http.get<any>(`${this.baseUrl}/api/daily/history`)
+        this.http.get<DailyUserDataDto[] | DailyHistoryDto>(`${this.baseUrl}/api/daily/history`)
       );
-      const dtos: any[] = Array.isArray(res) ? res : (res?.items ?? []);
+      const dtos = Array.isArray(res) ? res : (res.items ?? []);
       const todayIso = new Date().toISOString().slice(0, 10);
       return dtos
         .map(d => this.mapDtoToDaily(d))
@@ -116,7 +133,7 @@ export class UserService {
     }
   }
 
-  private mapDtoToProfile(dto: any): UserProfile {
+  private mapDtoToProfile(dto: UserProfileDto): UserProfile {
     return {
       id: dto.id,
       email: dto.email,
@@ -133,7 +150,7 @@ export class UserService {
     };
   }
 
-  private mapDtoToDaily(d: any): DailyUserData {
+  private mapDtoToDaily(d: DailyUserDataDto): DailyUserData {
     return {
       date: d.date,
       activityType: d.activityType ?? 'Rest Day',

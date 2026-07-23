@@ -81,7 +81,7 @@
         >
           <button
             mat-menu-item
-            routerLink="/account"
+            routerLink="/account/my-account"
             (click)="closeMobileNav()"
           >
             <mat-icon>person</mat-icon><span>Account</span>
@@ -204,7 +204,7 @@
       @if (accountFacade.authUser()) {
         <a
           class="mob-user-row"
-          routerLink="/account"
+          routerLink="/account/my-account"
           (click)="closeMobileNav()"
         >
           <div class="hdr-avatar">
@@ -215,6 +215,14 @@
             <span class="mob-user-sub">View Account</span>
           </div>
           <mat-icon class="mob-user-arrow">chevron_right</mat-icon>
+        </a>
+        <a
+          class="mob-guide-link"
+          routerLink="/onboarding/carousel"
+          [queryParams]="{ mode: 'guide' }"
+          (click)="closeMobileNav()"
+        >
+          <mat-icon>explore</mat-icon><span>Getting Started</span>
         </a>
         <button class="mob-logout" (click)="logout(); closeMobileNav()">
           <mat-icon>logout</mat-icon><span>Logout</span>

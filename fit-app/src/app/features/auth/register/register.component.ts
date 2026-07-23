@@ -1,17 +1,15 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { AbstractControl, ReactiveFormsModule, FormBuilder, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AccountFacade } from '../../../core/facade/account.facade';
 import { FormErrorService } from '../../../shared/services/form-error.service';
 import { MaterialModule } from '../../../core/material/material.module';
 
 interface GoalOption {
-  value: string;
+  value: 'lose' | 'gain' | 'maintain';
   label: string;
   emoji: string;
-  /** "improve_fitness" is a display-only label; maps to "maintain" until the API
-   *  extends beyond lose|gain|maintain (see Fix 4 design spec note). */
   apiValue: 'lose' | 'gain' | 'maintain';
 }
 
@@ -19,7 +17,6 @@ const GOAL_OPTIONS: GoalOption[] = [
   { value: 'lose',             label: 'Lose weight',    emoji: '🔥', apiValue: 'lose'     },
   { value: 'gain',             label: 'Build muscle',   emoji: '💪', apiValue: 'gain'     },
   { value: 'maintain',         label: 'Stay steady',    emoji: '⚖️', apiValue: 'maintain' },
-  { value: 'improve_fitness',  label: 'Improve fitness', emoji: '🏃', apiValue: 'maintain' },
 ];
 
 @Component({
@@ -27,7 +24,7 @@ const GOAL_OPTIONS: GoalOption[] = [
   selector: 'app-register',
   imports: [CommonModule, ReactiveFormsModule, RouterLink, MaterialModule],
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css'],
+  styleUrls: ['../auth-shell.css', './register.component.css'],
 })
 export class RegisterComponent {
   private readonly fb     = inject(FormBuilder);
@@ -37,14 +34,19 @@ export class RegisterComponent {
 
   private readonly validators = this.facade.authValidation.getRegisterValidators();
 
-  form = this.fb.group({
-    fullName: ['', this.validators.fullName],
-    email:    ['', this.validators.email],
-    password: ['', this.validators.password],
-  });
+  form = this.fb.group(
+    {
+      fullName: ['', this.validators.fullName],
+      email: ['', this.validators.email],
+      password: ['', this.validators.password],
+      confirmPassword: ['', this.validators.password],
+    },
+    { validators: [this.passwordsMatchValidator] },
+  );
 
   // ── Goal selector state ───────────────────────────────────────────────────
   readonly showPassword = signal(false);
+  readonly showConfirmPassword = signal(false);
 
   readonly goalOptions = GOAL_OPTIONS;
   readonly selectedGoal = signal<GoalOption>(GOAL_OPTIONS[0]); // pre-select "Lose weight"
@@ -74,8 +76,20 @@ export class RegisterComponent {
     if (ok) {
       // Fix 4: redirect to onboarding carousel (not user-dashboard)
       await this.router.navigate(['/onboarding/carousel']);
-    } else {
-      this.form.get('password')?.reset();
+    } else if (this.facade.authError() === 'emailTaken') {
+      this.form.controls.email.setErrors({
+        ...this.form.controls.email.errors,
+        emailTaken: true,
+      });
+      this.form.controls.email.markAsTouched();
     }
+  }
+
+  private passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
+    const password = control.get('password')?.value;
+    const confirmation = control.get('confirmPassword')?.value;
+    return password && confirmation && password !== confirmation
+      ? { passwordMismatch: true }
+      : null;
   }
 }

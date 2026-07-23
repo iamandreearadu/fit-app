@@ -21,7 +21,7 @@
 <mat-dialog-content class="dialog-body">
   <app-ai-meal-analyzer
     (saveMeal)="onSaveMeal($event)"
-    (added)="onAdded()"
+    (added)="onAdded($event)"
     (error)="onError($event)"
   />
 </mat-dialog-content>

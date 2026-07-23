@@ -59,9 +59,13 @@
 /* ── Icon button (hamburger / back / search / bell) ──────────────────────── */
 
 .topbar-icon-btn {
+  flex: 0 0 48px;
   width: 48px;
   height: 48px;
-  border-radius: 10px;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  padding: 0;
+  border-radius: 50%;
   background: transparent;
   border: none;
   color: var(--white-soft);
@@ -87,6 +91,28 @@
 .topbar-icon-btn:active {
   background: rgba(255, 255, 255, 0.10);
   transition-duration: 0.1s;
+}
+
+.topbar-icon-btn--active {
+  width: 48px;
+  height: 48px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(var(--primary-rgb), 0.18);
+  color: var(--primary-light);
+}
+
+.topbar-icon-btn--active:hover,
+.topbar-icon-btn--active:active {
+  background: rgba(var(--primary-rgb), 0.24);
+}
+
+.topbar-back-btn {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  aspect-ratio: 1;
+  border-radius: 50%;
 }
 
 .topbar-icon-btn:focus-visible {

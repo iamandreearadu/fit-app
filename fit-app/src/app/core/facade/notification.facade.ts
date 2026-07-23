@@ -4,17 +4,22 @@ import { firstValueFrom } from 'rxjs';
 import { NotificationService } from '../../api/notification.service';
 import { NotificationHubService } from '../services/notification-hub.service';
 import { SocialNotification } from '../models/notification.model';
+import { PushNotificationService } from '../services/push-notification.service';
+import { PushOptInState } from '../models/push-notification.model';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationFacade {
   private readonly notifSvc = inject(NotificationService);
   private readonly notifHub = inject(NotificationHubService);
+  private readonly pushNotifications = inject(PushNotificationService);
 
   notifications = signal<SocialNotification[]>([]);
   unreadCount = signal(0);
   isLoading = signal(false);
   error = signal<string | null>(null);
   hasMore = signal(true);
+  pushPromptVisible = signal(false);
+  pushOptInState = signal<PushOptInState>('idle');
   private page = 1;
 
   constructor() {
@@ -87,6 +92,46 @@ export class NotificationFacade {
       this.unreadCount.update(c => Math.max(0, c - 1));
     } catch {
       // silently ignore
+    }
+  }
+
+  offerPushAfterDailyCheckIn(): void {
+    if (localStorage.getItem('novafit.push-prompt-seen')) return;
+    this.pushOptInState.set(this.pushNotifications.availability ?? 'idle');
+    this.pushPromptVisible.set(true);
+  }
+
+  dismissPushPrompt(): void {
+    localStorage.setItem('novafit.push-prompt-seen', 'true');
+    this.pushPromptVisible.set(false);
+  }
+
+  async enablePushNotifications(): Promise<void> {
+    const unavailable = this.pushNotifications.availability;
+    if (unavailable) {
+      this.pushOptInState.set(unavailable);
+      return;
+    }
+
+    this.pushOptInState.set('requesting');
+    try {
+      const subscription = await this.pushNotifications.requestSubscription();
+      await firstValueFrom(this.notifSvc.subscribeToPush(subscription));
+      this.pushOptInState.set('subscribed');
+      localStorage.setItem('novafit.push-prompt-seen', 'true');
+    } catch {
+      this.pushOptInState.set(Notification.permission === 'denied' ? 'denied' : 'error');
+    }
+  }
+
+  async unsubscribeFromPush(): Promise<void> {
+    try {
+      const endpoint = await this.pushNotifications.unsubscribe();
+      if (endpoint) await firstValueFrom(this.notifSvc.unsubscribeFromPush({ endpoint }));
+      this.pushOptInState.set('idle');
+      localStorage.removeItem('novafit.push-prompt-seen');
+    } catch {
+      this.pushOptInState.set('error');
     }
   }
 }

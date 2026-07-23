@@ -12,7 +12,7 @@ import { MaterialModule } from '../../../core/material/material.module';
   selector: 'app-login',
   imports: [CommonModule, ReactiveFormsModule, RouterLink, MaterialModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['../auth-shell.css', './login.component.css']
 })
 export class LoginComponent {
 
@@ -42,8 +42,12 @@ export class LoginComponent {
 
     if (ok) {
       await this.router.navigate(['/user-dashboard']);
-    } else {
-      this.form.get('password')?.reset();
+    } else if (this.facade.authError() === 'invalidCredentials') {
+      const serverError = { invalidCredentials: true };
+      this.form.controls.email.setErrors({ ...this.form.controls.email.errors, ...serverError });
+      this.form.controls.password.setErrors({ ...this.form.controls.password.errors, ...serverError });
+      this.form.controls.email.markAsTouched();
+      this.form.controls.password.markAsTouched();
     }
   }
 }

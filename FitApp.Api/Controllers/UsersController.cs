@@ -33,6 +33,13 @@ public class UsersController(
         return Ok(profile);
     }
 
+    [HttpDelete("me")]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var deleted = await userService.DeleteAccountAsync(UserId);
+        return deleted ? NoContent() : NotFound();
+    }
+
     [HttpGet("{userId}/stats")]
     public async Task<IActionResult> GetUserStats(string userId)
     {

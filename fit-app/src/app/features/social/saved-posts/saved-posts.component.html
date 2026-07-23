@@ -1,0 +1,21 @@
+<main class="saved-page">
+  <header><a routerLink="/social/profile/me" aria-label="Back to profile"><mat-icon>arrow_back</mat-icon></a><div><h1>Saved posts</h1><p>Posts you saved for later</p></div></header>
+  @if (facade.loading()) {
+    <section class="posts-grid" aria-label="Loading saved posts">@for (cell of [1,2,3,4,5,6]; track cell) { <div class="post-cell skeleton"></div> }</section>
+  } @else if (facade.error()) {
+    <section class="state"><mat-icon>error_outline</mat-icon><h2>Something went wrong</h2><p>{{ facade.error() }}</p><button type="button" (click)="facade.load()">Retry</button></section>
+  } @else if (!facade.posts().length) {
+    <section class="state"><mat-icon>bookmark_border</mat-icon><h2>No saved posts yet</h2><p>Save useful posts and find them here later.</p><a routerLink="/social/discover">Explore posts</a></section>
+  } @else {
+    <section class="posts-grid" aria-label="Saved posts">
+      @for (post of facade.posts(); track post.id) {
+        <button class="post-cell" type="button" (click)="openPost(post.id)" [attr.aria-label]="'Open saved post by ' + post.author.displayName">
+          @if (post.imageUrl && !brokenImages.has(post.id)) { <img [src]="post.imageUrl" [alt]="'Post by ' + post.author.displayName" (error)="brokenImages.add(post.id)" /> }
+          @else { <span class="text-post">{{ post.content }}</span> }
+          <span class="saved-mark" aria-hidden="true"><mat-icon>bookmark</mat-icon></span>
+        </button>
+      }
+    </section>
+    @if (facade.hasMore()) { <button class="load-more" type="button" [disabled]="facade.loadingMore()" (click)="facade.loadMore()">{{ facade.loadingMore() ? 'Loading…' : 'Load more' }}</button> }
+  }
+</main>

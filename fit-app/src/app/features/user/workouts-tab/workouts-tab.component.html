@@ -1,16 +1,19 @@
 <div class="tab-content" data-cy="workouts-tab">
   <!-- Toolbar -->
-  <div class="toolbar">
+  <header class="toolbar">
     <div class="left">
-      <h3 class="title">My Workouts</h3>
-      <p class="subtitle">Create and manage your workout templates</p>
+      <span class="header-icon" aria-hidden="true"><mat-icon>sports_gymnastics</mat-icon></span>
+      <div>
+        <h2 class="title">My workouts</h2>
+        <p class="subtitle">Create and manage reusable workout templates.</p>
+      </div>
     </div>
     <div class="right">
       <button type="button" class="btn-primary" data-cy="workout-new-btn" (click)="openCreate()">
         <mat-icon>add</mat-icon>New workout
       </button>
     </div>
-  </div>
+  </header>
 
   <!-- Filters -->
   <div class="filters">
@@ -35,10 +38,14 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="field type-field">
-      <mat-label>Type</mat-label>
+    <mat-form-field appearance="outline" class="field type-field compact-filter" [class.filter-active]="selectedType !== 'all'">
       <mat-icon matPrefix>filter_list</mat-icon>
-      <mat-select [(ngModel)]="selectedType" (selectionChange)="applyFilters()">
+      <mat-select
+        [(ngModel)]="selectedType"
+        (selectionChange)="applyFilters()"
+        [attr.aria-label]="'Filter workouts by type. Current filter: ' + selectedType"
+        panelClass="account-filter-select-panel"
+      >
         <mat-option value="all">All types</mat-option>
         @for (t of types; track t) {
           <mat-option [value]="t">{{ t }}</mat-option>
@@ -54,23 +61,26 @@
   </div>
 
   <!-- Content card -->
-  <div class="content-card">
-    <div class="card-hdr">
-      <div class="card-hdr-icon"><mat-icon>sports_gymnastics</mat-icon></div>
-      <div>
-        <div class="card-title">Your workouts</div>
-        <div class="card-subtitle">Templates you can reuse anytime</div>
-      </div>
-    </div>
-
+  <div class="content-card" [attr.aria-busy]="loading()">
     <div class="card-body">
+      <!-- Error state -->
+      @if (facade.error() && !loading()) {
+        <div class="empty" data-cy="workouts-error">
+          <mat-icon>error_outline</mat-icon>
+          <p>{{ facade.error() }}</p>
+          <button type="button" class="btn-ghost" (click)="facade.loadTemplates()">
+            Retry
+          </button>
+        </div>
+      }
+
       <!-- Fix 7: guided empty — shows when API returns only system templates -->
-      @if (isGuidedEmpty()) {
+      @if (!facade.error() && isGuidedEmpty()) {
         <app-workouts-guided-empty
           [templates]="facade.templatesSignal()"
           (createOwn)="openCreate()"
         />
-      } @else if (filtered.length === 0) {
+      } @else if (!facade.error() && filtered.length === 0) {
         <div class="empty">
           <mat-icon>fitness_center</mat-icon>
           @if (searchTerm || selectedType !== 'all') {
@@ -86,7 +96,7 @@
         <div class="list" data-cy="workout-list">
           @for (w of filtered; track w.uid) {
             <div class="row-wrap" data-cy="workout-row">
-              <div class="row clickable" (click)="togglePreview(w)">
+              <div class="row clickable" role="button" tabindex="0" [attr.aria-expanded]="isExpanded(w)" (click)="togglePreview(w)" (keydown.enter)="togglePreview(w)" (keydown.space)="$event.preventDefault(); togglePreview(w)">
                 <div class="row-main">
                   <div class="row-top">
                     <div class="row-title">{{ w.title }}</div>
@@ -96,7 +106,7 @@
                         class="icon-btn-round"
                         data-cy="workout-edit-btn"
                         (click)="stop($event); openEdit(w)"
-                        title="Edit"
+                        aria-label="Edit workout"
                       >
                         <mat-icon>edit</mat-icon>
                       </button>
@@ -105,7 +115,7 @@
                         class="icon-btn-round danger"
                         data-cy="workout-delete-btn"
                         (click)="stop($event); delete(w.uid)"
-                        title="Delete"
+                        aria-label="Delete workout"
                       >
                         <mat-icon>delete_outline</mat-icon>
                       </button>
@@ -173,7 +183,7 @@
                         type="button"
                         class="btn-start-workout"
                         (click)="startWorkout(w, $event)"
-                        title="Start this workout"
+                        aria-label="Start this workout"
                       >
                         <mat-icon>play_arrow</mat-icon>Start Workout
                       </button>
@@ -256,7 +266,7 @@
               </div>
             </div>
           </div>
-          <button type="button" class="icon-btn-round" (click)="cancel()">
+          <button type="button" class="icon-btn-round" (click)="cancel()" aria-label="Close workout editor">
             <mat-icon>close</mat-icon>
           </button>
         </div>
@@ -269,8 +279,8 @@
             </div>
             <div class="grid-2">
               <mat-form-field appearance="outline" class="span-2">
-                <mat-label>Title</mat-label>
-                <input matInput data-cy="workout-title-input" formControlName="title" placeholder="e.g. Pull Day A" />
+                <mat-label>Workout title</mat-label>
+                <input matInput data-cy="workout-title-input" formControlName="title" />
               </mat-form-field>
 
               <mat-form-field appearance="outline">
@@ -344,8 +354,8 @@
 
                     <div class="grid-2 tight">
                       <mat-form-field appearance="outline" class="span-2">
-                        <mat-label>Name</mat-label>
-                        <input matInput formControlName="name" placeholder="e.g. Lat Pulldown" />
+                        <mat-label>Exercise name</mat-label>
+                        <input matInput formControlName="name" />
                       </mat-form-field>
 
                       <div class="grid-3 span-2">
@@ -394,8 +404,9 @@
 
         <div class="modal-footer">
           <button type="button" class="btn-ghost" data-cy="workout-cancel-btn" (click)="cancel()">Cancel</button>
-          <button type="button" class="btn-primary" data-cy="workout-save-btn" (click)="save()">
-            <mat-icon>save</mat-icon>Save workout
+          <button type="button" class="btn-primary" data-cy="workout-save-btn" (click)="save()" [disabled]="form.invalid || loading()">
+            <mat-icon>{{ editing ? 'save' : 'add' }}</mat-icon>
+            {{ loading() ? (editing ? 'Saving…' : 'Adding…') : (editing ? 'Save changes' : 'Add workout') }}
           </button>
         </div>
       </div>

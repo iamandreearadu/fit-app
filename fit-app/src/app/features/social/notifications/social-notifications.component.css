@@ -6,21 +6,13 @@
   animation: slideUp 0.35s ease-out;
 }
 
-/* Header */
-.notif-page-header {
+/* Secondary page action — title lives in the global top bar */
+.notif-page-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 20px 0 16px;
-  margin-bottom: 8px;
-}
-
-.notif-page-title {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--white);
-  margin: 0;
-  letter-spacing: -0.3px;
+  justify-content: flex-end;
+  min-height: 44px;
+  padding: 4px 0;
 }
 
 .notif-mark-all {

@@ -1,0 +1,32 @@
+<section class="progress-page" aria-labelledby="progress-title">
+  <header class="page-heading"><div><span class="eyebrow">Your patterns</span><h1 id="progress-title">Progress</h1><p>See what consistency is changing over time.</p></div></header>
+
+  @if (facade.loading() && !facade.summary()) {
+    <div class="skeletons" aria-label="Loading progress"><span></span><span></span><span></span></div>
+  } @else if (facade.error() && !facade.summary()) {
+    <div class="state error-state" role="alert"><mat-icon>error_outline</mat-icon><h2>Progress is unavailable</h2><p>{{ facade.error() }}</p><button type="button" (click)="facade.loadSummary()">Try again</button></div>
+  } @else {
+   @if (facade.summary(); as summary) {
+    <div class="summary-grid">
+      <article><mat-icon>local_fire_department</mat-icon><small>Avg. calories</small><strong>{{ averageCalories() | number:'1.0-0' }}</strong><span>kcal / day</span></article>
+      <article><mat-icon>monitor_weight</mat-icon><small>Weight change</small><strong>{{ weightDelta() === null ? '—' : ((weightDelta()! > 0 ? '+' : '') + (weightDelta()! | number:'1.1-1')) }}</strong><span>{{ weightDelta() === null ? 'Add 2 check-ins' : 'kg' }}</span></article>
+      <article><mat-icon>water_drop</mat-icon><small>Avg. water</small><strong>{{ averageWater() | number:'1.1-1' }}</strong><span>litres / day</span></article>
+      <article><mat-icon>directions_walk</mat-icon><small>Avg. steps</small><strong>{{ averageSteps() | number:'1.0-0' }}</strong><span>steps / day</span></article>
+      <article class="streak-stat"><mat-icon>verified</mat-icon><small>Complete days</small><strong>{{ summary.streak.completeDayStreak }}</strong><span>current streak</span></article>
+    </div>
+
+    <app-complete-streak-hero [status]="summary.streak" />
+    <app-nutritionist-report-card [report]="summary.weeklyReport" [streak]="summary.streak.completeDayStreak" [refreshing]="facade.refreshingReport()" (refreshReport)="facade.refreshReport()" />
+
+    <div class="trend-heading"><div><span class="eyebrow">Your trends</span><h2>Look beyond a single day</h2></div><div class="window-toggle" role="group" aria-label="Trend window"><button type="button" [class.active]="facade.window() === 7" [attr.aria-pressed]="facade.window() === 7" (click)="selectWindow(7)">7 days</button><button type="button" [class.active]="facade.window() === 30" [attr.aria-pressed]="facade.window() === 30" (click)="selectWindow(30)">30 days</button></div></div>
+    @if (facade.loading()) {<div class="inline-loading" role="status">Updating trends…</div>}
+    <app-progress-weight-card [trends]="summary.trends" [saving]="facade.savingCheckIn()" [saved]="checkInSaved()" (saveCheckIn)="saveCheckIn($event)" />
+    <div class="charts-grid">
+      <app-progress-trend-chart kind="calories" [trends]="summary.trends" />
+      <app-progress-trend-chart kind="macros" [trends]="summary.trends" />
+      <app-progress-trend-chart kind="hydration" [trends]="summary.trends" />
+      <app-progress-trend-chart kind="steps" [trends]="summary.trends" />
+    </div>
+   }
+  }
+</section>

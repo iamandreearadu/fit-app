@@ -66,7 +66,7 @@ public class DashboardService(
 
         var mealTotalsTask = db.MealEntries
             .AsNoTracking()
-            .Where(m => m.UserId == userId && m.Date == todayStr)
+            .Where(m => m.UserId == userId && m.Date == todayStr && !m.IsSavedMeal)
             .GroupBy(m => 1)
             .Select(g => new
             {
@@ -261,7 +261,7 @@ public class DashboardService(
 
         var caloriesConsumed = (int)Math.Round(
             await db.MealEntries
-                .Where(m => m.UserId == userId && m.Date == todayStr)
+                .Where(m => m.UserId == userId && m.Date == todayStr && !m.IsSavedMeal)
                 .SumAsync(m => m.TotalCalories));
 
         var workoutsThisWeek = await db.WorkoutSessions

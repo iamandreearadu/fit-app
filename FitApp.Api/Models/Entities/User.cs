@@ -40,11 +40,14 @@ public class User
     public ICollection<Post> Posts { get; set; } = [];
     public ICollection<Like> Likes { get; set; } = [];
     public ICollection<Comment> Comments { get; set; } = [];
+    public ICollection<SavedPost> SavedPosts { get; set; } = [];
     public ICollection<Follow> Followers { get; set; } = [];       // users who follow this user (FollowingId == this.Id)
     public ICollection<Follow> Following { get; set; } = [];       // users this user follows (FollowerId == this.Id)
     public ICollection<ConversationParticipant> ConversationParticipants { get; set; } = [];
     public ICollection<Notification> ReceivedNotifications { get; set; } = [];
+    public ICollection<PushSubscription> PushSubscriptions { get; set; } = [];
 
     // Onboarding step tracking (Fix 4)
     public ICollection<OnboardingStep> OnboardingSteps { get; set; } = [];
+    public ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = [];
 }

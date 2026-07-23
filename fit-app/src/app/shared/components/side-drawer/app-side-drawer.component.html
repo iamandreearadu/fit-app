@@ -69,7 +69,7 @@
       <span>AI Assistant</span>
     </a>
     <a class="global-drawer-item"
-       routerLink="/account"
+       routerLink="/account/my-account"
        routerLinkActive="global-drawer-item--active"
        (click)="close()">
       <mat-icon>manage_accounts</mat-icon>
@@ -77,15 +77,23 @@
     </a>
   </nav>
 
-  <div class="global-drawer-divider" aria-hidden="true"></div>
-
-  <!-- Logout -->
-  <button
-    type="button"
-    class="global-drawer-item global-drawer-logout"
-    (click)="logout()">
-    <mat-icon>logout</mat-icon>
-    <span>Log out</span>
-  </button>
+  <div class="global-drawer-bottom">
+    <div class="global-drawer-divider" aria-hidden="true"></div>
+    <a
+      class="global-drawer-item global-drawer-guide"
+      routerLink="/onboarding/carousel"
+      [queryParams]="{ mode: 'guide' }"
+      (click)="close()">
+      <mat-icon>explore</mat-icon>
+      <span>Getting Started</span>
+    </a>
+    <button
+      type="button"
+      class="global-drawer-item global-drawer-logout"
+      (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>Log out</span>
+    </button>
+  </div>
 
 </aside>

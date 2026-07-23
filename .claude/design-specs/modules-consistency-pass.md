@@ -508,6 +508,13 @@ The chips are small enough that the `::before` pseudo-element touch target exten
 
 ### Information Architecture
 
+> **Implementation update — 2026-07-23:** Account now uses a route shell with
+> a nested `router-outlet`; every section is a standalone, lazy-loaded child
+> route under `/account/*`. References below to an `activeTab` union or to
+> placing tab content directly in `user-page.component.html` are historical
+> guidance, superseded by `features/user/account.routes.ts` and
+> `.claude/decisions/account-child-routes-plan-2026-07-23.md`.
+
 **Current sections in `user-page.component`:**
 
 The sidebar nav and mobile tab row reveal the current IA:

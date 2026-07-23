@@ -22,9 +22,17 @@ export const SOCIAL_ROUTES: Routes = [
           import('./post-detail/social-post-detail.component').then(m => m.SocialPostDetailComponent),
       },
       {
-        path: 'article/:id',
+        path: 'new-post',
         loadComponent: () =>
-          import('./article-detail/article-detail.component').then(m => m.ArticleDetailComponent),
+          import('./components/create-post/create-post.component').then(m => m.CreatePostComponent),
+      },
+      {
+        path: 'saved',
+        loadComponent: () => import('./saved-posts/saved-posts.component').then(m => m.SavedPostsComponent),
+      },
+      {
+        path: 'archived',
+        loadComponent: () => import('./archived-posts/archived-posts.component').then(m => m.ArchivedPostsComponent),
       },
       {
         path: 'profile/:userId',
