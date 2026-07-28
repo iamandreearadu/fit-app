@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { AlertService } from '../shared/services/alert.service';
-import { StreakData, UserProfile } from '../core/models/user.model';
+import { DailyTargets, StreakData, UserProfile } from '../core/models/user.model';
 import { DailyEntrySummary, DailyUserData } from '../core/models/daily-user-data.model';
 import { environment } from '../../environments/environment';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -49,6 +49,32 @@ export class UserService {
       this.alerts.success('Profile saved');
     } catch (err) {
       this.alerts.warn('Failed to save profile');
+    }
+  }
+
+  public async saveDailyTargets(values: {
+    calories: number | null;
+    waterL: number | null;
+    steps: number | null;
+  }): Promise<DailyTargets | null> {
+    try {
+      return await firstValueFrom(
+        this.http.put<DailyTargets>(`${this.baseUrl}/api/users/me/targets`, values)
+      );
+    } catch (err) {
+      this.alerts.warn('Daily targets could not be saved');
+      return null;
+    }
+  }
+
+  public async resetDailyTargets(): Promise<DailyTargets | null> {
+    try {
+      return await firstValueFrom(
+        this.http.delete<DailyTargets>(`${this.baseUrl}/api/users/me/targets`)
+      );
+    } catch {
+      this.alerts.warn('Daily targets could not be reset');
+      return null;
     }
   }
 
@@ -102,7 +128,7 @@ export class UserService {
     try {
       await firstValueFrom(
         this.http.post(`${this.baseUrl}/api/daily`, {
-          date: data.date,
+          date: dateIso,
           activityType: data.activityType,
           waterConsumedL: data.waterConsumedL,
           steps: data.steps,
@@ -147,6 +173,18 @@ export class UserService {
       imageUrl: dto.imageUrl,
       onboardingCompleted: dto.onboardingCompleted ?? false,
       dietaryPreference: dto.dietaryPreference ?? undefined,
+      metrics: dto.metrics,
+      targets: dto.targets ?? {
+        recommendedCalories: dto.metrics?.goalCalories ?? 2000,
+        recommendedWaterL: dto.metrics?.waterL ?? 2,
+        recommendedSteps: 8000,
+        customCalories: null,
+        customWaterL: null,
+        customSteps: null,
+        effectiveCalories: dto.metrics?.goalCalories ?? 2000,
+        effectiveWaterL: dto.metrics?.waterL ?? 2,
+        effectiveSteps: 8000,
+      },
     };
   }
 

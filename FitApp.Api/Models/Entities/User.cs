@@ -27,6 +27,9 @@ public class User
     public double? Tdee { get; set; }
     public double? GoalCalories { get; set; }
     public double? WaterL { get; set; }
+    public double? CustomCaloriesTarget { get; set; }
+    public double? CustomWaterTargetL { get; set; }
+    public int? CustomStepsTarget { get; set; }
     public string? BmiCat { get; set; }
     public DateTime? MetricsUpdatedAt { get; set; }
 

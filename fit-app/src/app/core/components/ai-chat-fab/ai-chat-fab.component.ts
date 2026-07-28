@@ -57,7 +57,8 @@ export class AiChatFabComponent {
       url.startsWith('/login') ||
       url.startsWith('/register') ||
       url.startsWith('/onboarding') ||
-      url.startsWith('/social/new-post');
+      url.startsWith('/social/new-post') ||
+      url.startsWith('/user-dashboard/analyze-meal');
     return isAuth && !isHiddenRoute;
   });
 

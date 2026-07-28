@@ -230,6 +230,9 @@ namespace FitApp.Api.Migrations
                     b.Property<int>("CaloriesIntake")
                         .HasColumnType("INTEGER");
 
+                    b.Property<double?>("CaloriesTarget")
+                        .HasColumnType("REAL");
+
                     b.Property<int>("CaloriesTotal")
                         .HasColumnType("INTEGER");
 
@@ -266,6 +269,9 @@ namespace FitApp.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<double>("WaterConsumedL")
+                        .HasColumnType("REAL");
+
+                    b.Property<double?>("WaterTargetL")
                         .HasColumnType("REAL");
 
                     b.HasKey("Id");
@@ -738,6 +744,15 @@ namespace FitApp.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<double?>("Bmr")
+                        .HasColumnType("REAL");
+
+                    b.Property<double?>("CustomCaloriesTarget")
+                        .HasColumnType("REAL");
+
+                    b.Property<int?>("CustomStepsTarget")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double?>("CustomWaterTargetL")
                         .HasColumnType("REAL");
 
                     b.Property<string>("DietaryPreference")

@@ -37,11 +37,13 @@ public class AiController(AiProxyService aiProxy, ILogger<AiController> logger) 
     }
 
     [HttpPost("image")]
-    public async Task<IActionResult> AnalyzeImage([FromBody] AiImageRequest req)
+    public async Task<IActionResult> AnalyzeImage(
+        [FromBody] AiImageRequest req,
+        CancellationToken cancellationToken)
     {
         try
         {
-            var result = await aiProxy.AnalyzeImageAsync(req);
+            var result = await aiProxy.AnalyzeImageAsync(req, cancellationToken);
             return Ok(result);
         }
         catch (HttpRequestException ex)
@@ -58,6 +60,42 @@ public class AiController(AiProxyService aiProxy, ILogger<AiController> logger) 
         {
             logger.LogError(ex, "AI image request failed");
             return Problem("AI request failed. Please try again.", statusCode: 500);
+        }
+    }
+
+    [HttpPost("meal-description")]
+    public async Task<IActionResult> AnalyzeMealDescription(
+        [FromBody] AiMealDescriptionRequest req,
+        CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+            return ValidationProblem(ModelState);
+
+        req.Description = req.Description.Trim();
+        if (req.Description.Length < 3)
+        {
+            ModelState.AddModelError(nameof(req.Description), "Add a little more detail so the meal can be estimated.");
+            return ValidationProblem(ModelState);
+        }
+
+        try
+        {
+            return Ok(await aiProxy.AnalyzeMealDescriptionAsync(req, cancellationToken));
+        }
+        catch (HttpRequestException ex)
+        {
+            logger.LogError(ex, "Groq meal description API error");
+            return Problem("Meal analysis is temporarily unavailable. Please try again.", statusCode: 502);
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Groq meal description API timeout");
+            return Problem("Meal analysis took too long. Please try again.", statusCode: 504);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "AI meal description request failed");
+            return Problem("The meal could not be estimated reliably. Please try again.", statusCode: 500);
         }
     }
 

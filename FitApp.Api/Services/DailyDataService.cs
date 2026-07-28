@@ -9,6 +9,7 @@ namespace FitApp.Api.Services;
 
 public class DailyDataService(
     AppDbContext db,
+    MetricsService metrics,
     IHubContext<NotificationHub> notifHub,
     ILogger<DailyDataService> logger)
 {
@@ -27,13 +28,15 @@ public class DailyDataService(
         if (entry is null)
         {
             entry = new DailyEntry { UserId = userId, Date = req.Date };
+            await ApplyCurrentTargetSnapshotAsync(entry, userId);
             db.DailyEntries.Add(entry);
         }
 
         entry.ActivityType = req.ActivityType;
         entry.WaterConsumedL = req.WaterConsumedL;
         entry.Steps = req.Steps;
-        entry.StepTarget = req.StepTarget;
+        if (entry.StepTarget <= 0)
+            entry.StepTarget = req.StepTarget > 0 ? req.StepTarget : MetricsService.DefaultStepsTarget;
         entry.MacrosProtein = req.MacrosPct.Protein;
         entry.MacrosCarbs = req.MacrosPct.Carbs;
         entry.MacrosFats = req.MacrosPct.Fats;
@@ -74,6 +77,7 @@ public class DailyDataService(
         if (entry is null)
         {
             entry = new DailyEntry { UserId = userId, Date = req.Date };
+            await ApplyCurrentTargetSnapshotAsync(entry, userId);
             db.DailyEntries.Add(entry);
         }
 
@@ -165,6 +169,16 @@ public class DailyDataService(
         var lastLogDate = dateSet.Count > 0 ? dateSet.Max().ToString("yyyy-MM-dd") : null;
         var isNewRecord = current > 0 && current == longest;
         return new UserStreakDto(current, lastLogDate, atRisk, loggedToday, isNewRecord);
+    }
+
+    private async Task ApplyCurrentTargetSnapshotAsync(DailyEntry entry, string userId)
+    {
+        var user = await db.Users.FindAsync(userId);
+        if (user is null) return;
+        var targets = metrics.GetTargets(user);
+        entry.StepTarget = targets.EffectiveSteps;
+        entry.CaloriesTarget = targets.EffectiveCalories;
+        entry.WaterTargetL = targets.EffectiveWaterL;
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────

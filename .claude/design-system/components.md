@@ -568,7 +568,7 @@ Same header/footer. Fitness data block becomes:
 
 ### 2.6 DashboardGlassModal
 
-**Purpose:** Canonical centered overlay for compact dashboard utilities that should preserve visual context. Used by `Analyze your meal`, `Today's meals`, and `Weekly balance`.
+**Purpose:** Canonical centered overlay for compact dashboard utilities that should preserve visual context. Used by `Today's meals` and manual macro entry.
 
 **Composition:**
 - The full-screen backdrop uses a dark translucent veil plus `blur(14px) saturate(112%)`.
@@ -601,7 +601,34 @@ box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045),
 
 ---
 
-### 2.7 NotificationBadge
+### 2.7 AnalyzeMealWorkspacePage
+
+**Purpose:** Focused full-screen workflow for photo, description and barcode meal estimation. Replaces the former dashboard analyzer modal.
+
+**Route:** `/user-dashboard/analyze-meal`
+
+**Composition:**
+- Mobile uses the standard application top bar with Back + `Analyze your meal`; bottom navigation and floating utilities are hidden.
+- Desktop keeps the standard header and centers the workflow in a maximum `780px` content column.
+- The Photo view accepts a photo, a written description, or both. Selecting a photo prepares a local preview but never starts analysis automatically.
+- The description uses the underline-only floating-label treatment and an explicit full-width `Analyze meal` action.
+- Results identify whether the estimate came from the photo, description, or both and show a concise estimation disclaimer.
+- Editing evidence after analysis marks the result stale and disables persistence until re-analysis.
+- Detected foods expand in normal document flow. The analyzer must never create an internal page-height scrollbar.
+- Save failures stay inline and preserve the completed estimate.
+- Dirty navigation opens the standard dark-glass leave confirmation.
+
+**Surface and spacing:**
+- Page canvas reuses the dashboard's restrained violet radial treatment.
+- Mobile renders directly on the canvas with `16px` gutters.
+- Desktop workspace uses a quiet violet-neutral glass surface, `18px` radius and `22px` padding.
+- All touch actions remain at least `44px`.
+
+**Implementation:** `features/dashboard/analyze-meal-page/*` with the reusable `daily-user-data/ai-meal-analyzer/*` workflow.
+
+---
+
+### 2.8 NotificationBadge
 
 **Purpose:** Grouped notification count indicator. Replaces the current flat notification rows for repeated actions. Displays "X and Y liked your post" instead of separate rows.
 

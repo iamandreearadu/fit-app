@@ -303,8 +303,7 @@ Inline pill, height 32px, border-radius 999px, min touch target 48×48px with ou
 |---|---|---|---|---|
 | Water | `water_drop` | `+500 ml` | `facade.adjustWaterMl(500)` + inline confirm | — |
 | Meal | `restaurant` | `Log meal` | emit `(openMealPicker)` | — |
-| AI Analyze | `auto_awesome` | `AI analyze` | emit `(openAiAnalyze)` | `groqFacade.loading()` |
-| Balance | `show_chart` | `Weekly balance` | emit `(openCalorieBalance)` | — |
+| AI Analyze | `auto_awesome` | `AI analyze` | navigate to `/user-dashboard/analyze-meal` | route transition |
 | Activity | dynamic | current activity label | emit `(openActivityPicker)` | — |
 | Reset | `restart_alt` | `Reset day` | emit `(reset)` → confirm dialog | — |
 
@@ -836,7 +835,7 @@ Applied to flame icon when current > 0 AND loggedToday === true
 
 - Single-column layout
 - All sections full-width
-- Modals (meal picker, calorie balance, activity picker): bottom sheets — `border-radius: 24px 24px 0 0; max-height: 88dvh`
+- Modals (meal picker, calorie balance, activity picker): bottom sheets — `border-radius: 24px 24px 0 0; max-height: 88dvh`. AI meal analysis is a dedicated full-screen route and must not use a bottom sheet.
 - CalorieBalance ring: 180px
 - Energy selector 5 buttons: stretch to fill width (`justify-content: space-between`)
 - QuickActions strip: `-webkit-overflow-scrolling: touch`

@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { SocialService } from '../../api/social.service';
 import { Post, SuggestedUser } from '../models/social.model';

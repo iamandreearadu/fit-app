@@ -4,7 +4,7 @@ import { UserStore } from '../store/user.store';
 import { UserMetricsService } from '../services/user-metrics.service';
 import { UserValidationService } from '../validations/user-validation.service';
 import { DailyUserDataValidationService } from '../validations/daily-user-data-validation.service';
-import { StreakData, UserProfile } from '../models/user.model';
+import { DailyTargets, StreakData, UserProfile } from '../models/user.model';
 import { UserService } from '../../api/user.service';
 import { DailyUserData } from '../models/daily-user-data.model';
 import { LocalStorageService } from '../../shared/services/local-storage.service';
@@ -215,6 +215,34 @@ export class UserFacade {
 
   async loadMeals(): Promise<void> {
     await this.nutritionTabFacade.loadMeals();
+  }
+
+  public async saveDailyTargets(values: {
+    calories: number | null;
+    waterL: number | null;
+    steps: number | null;
+  }): Promise<boolean> {
+    const targets = await this.userSrv.saveDailyTargets(values);
+    if (!targets) return false;
+    this.applyTargets(targets);
+    return true;
+  }
+
+  public async resetDailyTargets(): Promise<boolean> {
+    const targets = await this.userSrv.resetDailyTargets();
+    if (!targets) return false;
+    this.applyTargets(targets);
+    return true;
+  }
+
+  private applyTargets(targets: DailyTargets): void {
+    this.userStore.patchUser({ targets });
+    const current = this.userStore.user();
+    if (current) {
+      this.ls.set('user_profile_v1', current);
+      this.userMetricsSrv.updateFromUser(current);
+    }
+    this.dailyUserSrv.applyEffectiveTargets(targets);
   }
 
   async loadSavedMeals(): Promise<void> {

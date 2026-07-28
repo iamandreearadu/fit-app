@@ -80,29 +80,32 @@ export class SocialProfileComponent implements OnInit {
   protected userId = '';
   private readonly routeUserId = signal<string | null>(null);
   private loadedUserId: string | null = null;
-  private readonly loadResolvedProfile = effect(() => {
-    const routeUserId = this.routeUserId();
-    if (!routeUserId) return;
 
-    const resolvedUserId = routeUserId === 'me'
-      ? (this.userStore.user()?.id ?? this.authStore.authUser()?.id ?? '')
-      : routeUserId;
-    if (!resolvedUserId || resolvedUserId === this.loadedUserId) return;
+  constructor() {
+    effect(() => {
+      const routeUserId = this.routeUserId();
+      if (!routeUserId) return;
 
-    this.loadedUserId = resolvedUserId;
-    this.userId = resolvedUserId;
-    void Promise.all([
-      this.facade.loadProfile(resolvedUserId).then(() => {
-        const profile = this.facade.currentProfile();
-        if (profile) {
-          this.isFollowing.set(profile.isFollowedByMe);
-          if (profile.isOwnProfile) void this.facade.loadArchivedWorkouts(resolvedUserId);
-        }
-      }),
-      this.facade.loadProfileWorkouts(resolvedUserId),
-      this.facade.loadProfileMeals(resolvedUserId),
-    ]);
-  });
+      const resolvedUserId = routeUserId === 'me'
+        ? (this.userStore.user()?.id ?? this.authStore.authUser()?.id ?? '')
+        : routeUserId;
+      if (!resolvedUserId || resolvedUserId === this.loadedUserId) return;
+
+      this.loadedUserId = resolvedUserId;
+      this.userId = resolvedUserId;
+      void Promise.all([
+        this.facade.loadProfile(resolvedUserId).then(() => {
+          const profile = this.facade.currentProfile();
+          if (profile) {
+            this.isFollowing.set(profile.isFollowedByMe);
+            if (profile.isOwnProfile) void this.facade.loadArchivedWorkouts(resolvedUserId);
+          }
+        }),
+        this.facade.loadProfileWorkouts(resolvedUserId),
+        this.facade.loadProfileMeals(resolvedUserId),
+      ]);
+    });
+  }
 
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {

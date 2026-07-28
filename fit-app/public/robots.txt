@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /account/
+Disallow: /ai-assistant
+Disallow: /onboarding/
+Disallow: /reset-password
+Disallow: /social/
+Disallow: /user-dashboard
+Disallow: /workout-session/

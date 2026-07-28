@@ -136,7 +136,8 @@ core/
 features/
   auth/                       Login, Register
   blog/                       Public blog listing + post detail
-  dashboard/                  Daily tracker + AI meal analyzer
+  dashboard/                  Daily tracker + routed AI meal analyzer
+    analyze-meal-page/        /user-dashboard/analyze-meal focused workflow
   home/                       Landing page (hero, benefits, features)
   openai/                     AI Assistant (Groq chat with history)
   social/                     Social platform (see Social Module below)
@@ -211,7 +212,7 @@ Controllers/
   WorkoutSessionsController   Active workout session lifecycle
   NutritionController         CRUD /api/nutrition
   BlogController              GET /api/blog (public), CRUD (Admin)
-  AiController                POST /api/ai/text|image|workout-calories
+  AiController                POST /api/ai/text|image|meal-description|workout-calories
   ChatController              CRUD /api/chat (AI conversation history)
   SocialController            Posts, likes, comments, follows, profiles, blogs
   ConversationsController     Direct messaging (REST)
@@ -320,10 +321,11 @@ Frontend connects on login, disconnects on logout. JWT authenticated via query s
 | Feature              | Model                                       | Endpoint                      |
 | -------------------- | ------------------------------------------- | ----------------------------- |
 | AI Chat              | `llama-3.1-8b-instant`                      | POST /api/ai/text             |
-| Meal Analyzer        | `qwen/qwen3.6-27b`                           | POST /api/ai/image            |
+| Meal Analyzer (image) | `qwen/qwen3.6-27b`                          | POST /api/ai/image            |
+| Meal Analyzer (text)  | `openai/gpt-oss-20b`                        | POST /api/ai/meal-description |
 | Workout Calorie Est. | `llama-3.1-8b-instant`                      | POST /api/ai/workout-calories |
 
-Backend `AiProxyService` handles all Groq API calls. Image analyzer: base64 input.  
+Backend `AiProxyService` handles all Groq API calls. The meal analyzer accepts an image, a written meal description, or both. Meal photos are resized to at most 1600px and JPEG-compressed in the browser before being sent as base64; text-only estimation uses the faster production meal-text model.
 AI chat history stored in `ChatConversation` / `ChatMessage` entities.
 
 ---
@@ -352,6 +354,8 @@ POST   /api/auth/login                              Public
 
 GET    /api/users/me                                Bearer
 PUT    /api/users/me                                Bearer
+PUT    /api/users/me/targets                        Bearer
+DELETE /api/users/me/targets                        Bearer
 GET    /api/users/{userId}/stats                    Bearer
 
 GET    /api/daily?date=                             Bearer
@@ -365,7 +369,7 @@ GET    /api/blog                                    Public
 GET    /api/blog/{id}                               Public
 POST/PUT/DELETE /api/blog                           Admin
 
-POST   /api/ai/text|image|workout-calories          Bearer
+POST   /api/ai/text|image|meal-description|workout-calories Bearer
 
 GET/POST/DELETE /api/chat                           Bearer
 GET/POST /api/chat/{id}/messages                    Bearer

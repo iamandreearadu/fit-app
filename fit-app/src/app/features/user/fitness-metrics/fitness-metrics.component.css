@@ -3,6 +3,27 @@
 .metrics-rail { position: sticky; top: 24px; padding: 26px 22px 20px; }
 .section-kicker { color: #8f6cff; font-size: 10px; font-weight: 650; letter-spacing: .09em; text-transform: uppercase; }
 .metrics-header h3, .metrics-empty h3 { margin: 5px 0 0; color: #fff; font-size: 16px; font-weight: 650; letter-spacing: -.015em; }
+.daily-targets { margin: 18px 0 12px; padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.targets-grid { display: grid; gap: 10px; }
+.target-item { position: relative; min-height: 70px; padding: 10px 0; }
+.target-item strong { display: block; margin-top: 3px; color: #fff; font-size: 21px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.target-item strong small { color: rgba(255,255,255,.42); font-size: 10px; font-weight: 500; }
+.target-item > span:last-of-type { display: block; margin-top: 4px; color: rgba(255,255,255,.34); font-size: 9px; }
+.target-item em { position: absolute; top: 10px; right: 0; color: #a78bfa; font-size: 9px; font-style: normal; font-weight: 650; text-transform: uppercase; }
+.water-target strong { color: #8ddcff; }
+.targets-action, .targets-actions button { min-height: 44px; border: 1px solid rgba(143,108,255,.34); border-radius: 11px; background: transparent; color: #b8a3ff; font: inherit; font-size: 11px; cursor: pointer; }
+.targets-action { display: flex; width: 100%; align-items: center; justify-content: center; gap: 7px; }
+.targets-action mat-icon { width: 16px; height: 16px; font-size: 16px; }
+.targets-form { display: grid; gap: 13px; }
+.targets-form label > span { display: flex; justify-content: space-between; color: rgba(255,255,255,.58); font-size: 11px; }
+.targets-form label small { color: rgba(255,255,255,.28); font-weight: 450; }
+.targets-form input { width: 100%; height: 44px; border: 0; border-bottom: 1px solid rgba(255,255,255,.13); outline: 0; background: transparent; color: #fff; font: inherit; font-size: 15px; }
+.targets-form input:focus { border-bottom-color: #8f6cff; }
+.targets-form label em, .targets-error { display: block; margin: 4px 0 0; color: #ff6b9f; font-size: 9px; font-style: normal; }
+.targets-hint { margin: 0; color: rgba(255,255,255,.32); font-size: 9px; line-height: 1.5; }
+.targets-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.targets-actions .primary { grid-column: 1 / -1; color: #d8ceff; }
+.targets-actions button:disabled { cursor: default; opacity: .45; }
 .metric-hero { margin: 20px 0 10px; padding: 16px 0 18px; border-bottom: 1px solid rgba(255,255,255,.06); }
 .hero-label { display: block; color: rgba(255,255,255,.46); font-size: 11px; }
 .hero-value { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; color: #fff; font-size: 28px; font-weight: 700; letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
@@ -26,9 +47,12 @@
   .metrics-rail { position: static; }
   .metrics-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); column-gap: 28px; }
   .metrics-empty { min-height: 220px; }
+  .targets-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
 }
 @media (max-width: 600px) {
   .metrics-rail { padding: 20px 16px; }
   .metrics-list { grid-template-columns: 1fr; }
   .metrics-empty { min-height: 220px; padding: 28px 18px; }
+  .targets-grid { grid-template-columns: 1fr; gap: 0; }
+  .target-item { min-height: 72px; border-bottom: 1px solid rgba(255,255,255,.045); }
 }

@@ -2,3 +2,9 @@
 @media (min-width: 721px) {
   .form-card { padding-top: 42px; padding-bottom: 40px; }
 }
+
+@media (max-width: 720px) {
+  .form-panel {
+    align-items: safe center;
+  }
+}

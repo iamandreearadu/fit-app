@@ -143,13 +143,17 @@ export class GroqAiFacade {
   //  FUNCTION: EXTRACT MEAL MACROS FROM IMAGE
   // ========================================================
 
-  async analyzeMeal(file: File): Promise<MealMacros> {
+  async analyzeMeal(input: { description?: string; file?: File }): Promise<MealMacros> {
     this.state.setLoading(true);
     try {
-      return await this.inferenceService.analyzeMealImage(file);
+      return await this.inferenceService.analyzeMeal(input);
     } finally {
       this.state.setLoading(false);
     }
+  }
+
+  prepareMealImage(file: File): Promise<File> {
+    return this.inferenceService.prepareMealImage(file);
   }
 
   // ========================================================

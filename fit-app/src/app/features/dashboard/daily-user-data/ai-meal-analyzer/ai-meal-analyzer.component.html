@@ -23,7 +23,7 @@
       (dragleave)="onDragLeave($event)"
       (drop)="onDrop($event)"
     >
-      @if (previewLoading) {
+      @if (!preview && previewLoading) {
         <div class="photo-loader" role="status" aria-live="polite">
           <mat-progress-spinner mode="indeterminate" diameter="28"></mat-progress-spinner>
           <div class="photo-loader-copy">
@@ -48,12 +48,25 @@
         </button>
       } @else {
         <div class="preview-wrap">
-          <img [src]="preview" alt="Meal preview" class="preview-img" />
+          <img
+            [src]="preview"
+            alt="Meal preview"
+            class="preview-img"
+            decoding="async"
+            (load)="onPreviewLoaded()"
+            (error)="onPreviewError()"
+          />
+          @if (previewLoading) {
+            <div class="preview-preparing-overlay" role="status" aria-live="polite">
+              <mat-progress-spinner mode="indeterminate" diameter="28"></mat-progress-spinner>
+              <span>Preparing photo</span>
+            </div>
+          }
           <button
             mat-mini-fab
             class="remove-btn"
             type="button"
-            (click)="clear()"
+            (click)="clearPhoto()"
             [disabled]="loading"
             aria-label="Remove image"
           >
@@ -76,6 +89,51 @@
         (change)="onFileChange($event)"
       />
     </div>
+
+    <div class="meal-description-field">
+      <div class="meal-description-control">
+        <textarea
+          id="meal-description"
+          class="meal-description-input"
+          rows="2"
+          maxlength="1000"
+          [ngModel]="mealDescription"
+          (ngModelChange)="onDescriptionChange($event)"
+          (blur)="onDescriptionBlur()"
+          (keydown)="onDescriptionKeydown($event)"
+          [disabled]="disabled || loading"
+          aria-describedby="meal-description-help meal-description-count"
+          placeholder=" "
+        ></textarea>
+        <label for="meal-description">Describe what you ate</label>
+      </div>
+      <div class="description-meta">
+        <span id="meal-description-help">Include quantities, ingredients, sauces and how it was cooked.</span>
+        <span id="meal-description-count">{{ mealDescription.length }}/1000</span>
+      </div>
+      @if (descriptionTouched && !file && mealDescription.trim().length > 0 && mealDescription.trim().length < 3) {
+        <span class="description-error">Add a little more detail so the meal can be estimated.</span>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="analyze-meal-btn"
+      (click)="analyze()"
+      [disabled]="!canAnalyze"
+      [attr.aria-busy]="loading"
+    >
+      @if (loading) {
+        <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>
+        <span>Analyzing meal…</span>
+      } @else if (imagePreparingForAi) {
+        <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>
+        <span>Optimizing photo…</span>
+      } @else {
+        <mat-icon>auto_awesome</mat-icon>
+        <span>{{ resultIsStale || result ? 'Analyze again' : 'Analyze meal' }}</span>
+      }
+    </button>
   }
 
   <!-- ── BARCODE MODE ── -->
@@ -210,10 +268,26 @@
   <!-- ── MACROS RESULT (shared between modes) ── -->
   @if (result) {
     <div class="result-block">
-      <div class="result-header">
+      <div #resultHeading class="result-header" tabindex="-1">
         <mat-icon class="result-icon">auto_awesome</mat-icon>
-        <span>{{ mode === 'barcode' ? 'Product Nutrition' : 'AI Analysis Result' }}</span>
+        <div class="result-heading-copy">
+          <span>{{ mode === 'barcode' ? 'Product Nutrition' : 'AI Analysis Result' }}</span>
+          @if (mode === 'photo' && analysisSource) {
+            <small>{{ analysisSourceLabel }}</small>
+          }
+        </div>
       </div>
+
+      @if (mode === 'photo') {
+        <p class="estimate-note">AI estimates can vary with portions and preparation.</p>
+      }
+
+      @if (resultIsStale) {
+        <div class="stale-result" role="status">
+          <mat-icon>edit_note</mat-icon>
+          <span>Meal details changed. Analyze again before adding this result.</span>
+        </div>
+      }
 
       <div class="macros-grid">
         <div class="macro-tile">
@@ -310,7 +384,7 @@
           class="btn-save-meal"
           type="button"
           (click)="saveToNutrition()"
-          [disabled]="disabled || loading || saving"
+          [disabled]="disabled || loading || saving || resultIsStale"
         >
           <mat-icon>bookmark_add</mat-icon>
           Save as meal
@@ -320,7 +394,7 @@
           class="btn-add"
           type="button"
           (click)="addToUser()"
-          [disabled]="disabled || loading"
+          [disabled]="disabled || loading || saving || resultIsStale"
         >
           <mat-icon>add_circle</mat-icon>
           Add to Today
@@ -330,7 +404,7 @@
   }
 
   @if (errorMsg) {
-    <div class="error-msg">
+    <div #analysisError class="error-msg" role="alert" tabindex="-1">
       <mat-icon>error_outline</mat-icon>
       {{ errorMsg }}
     </div>
