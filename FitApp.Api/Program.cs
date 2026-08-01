@@ -85,7 +85,7 @@ builder.Services.AddCors(opt =>
     var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
         ?? (builder.Environment.IsDevelopment()
             ? ["http://localhost:4200", "https://localhost:4200"]
-            : ["https://nove-fit.net", "https://www.nove-fit.net"]);
+            : ["https://nova-fit.net", "https://www.nova-fit.net"]);
 
     opt.AddPolicy("Angular", policy => policy
         .WithOrigins(origins)
