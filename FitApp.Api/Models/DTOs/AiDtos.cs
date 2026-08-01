@@ -27,6 +27,14 @@ public class AiImageRequest
     public bool JsonMode { get; set; }
 }
 
+public class AiMealDescriptionRequest
+{
+    [Required]
+    [MinLength(3)]
+    [MaxLength(1000)]
+    public string Description { get; set; } = string.Empty;
+}
+
 public class AiResponse
 {
     public string Content { get; set; } = string.Empty;

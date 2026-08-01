@@ -162,8 +162,8 @@
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 16 / 6;
-  max-height: 150px;
+  aspect-ratio: 16 / 7;
+  max-height: 180px;
   object-fit: cover;
   background: #0b0b0b;
 }
@@ -178,11 +178,16 @@
   width: 32px;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   box-shadow: none !important;
+  z-index: 3;
 }
 
-.analyzing-overlay {
+.analyzing-overlay,
+.preview-preparing-overlay {
   position: absolute;
-  inset: 0;
+  /* Slight overscan prevents backdrop-filter edge sampling from leaving
+     a bright strip of the original image visible around the overlay. */
+  inset: -2px;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -193,6 +198,143 @@
   color: var(--white);
   font-size: 12px;
   font-weight: 500;
+  border-radius: inherit;
+}
+
+.preview-preparing-overlay {
+  background: rgba(13, 13, 16, 0.5);
+}
+
+/* ── MEAL EVIDENCE: DESCRIPTION + ANALYZE ACTION ── */
+.meal-description-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-block: 2px;
+}
+
+.description-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.description-meta {
+  color: rgba(255, 255, 255, 0.36);
+  font-size: 9px;
+  font-weight: 400;
+}
+
+.description-meta > span:first-child {
+  min-width: 0;
+  line-height: 1.45;
+}
+
+.description-meta > span:last-child {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.meal-description-control {
+  position: relative;
+}
+
+.meal-description-control label {
+  position: absolute;
+  top: 17px;
+  left: 0;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1;
+  pointer-events: none;
+  transform-origin: left top;
+  transition:
+    color 150ms ease,
+    transform 150ms ease,
+    top 150ms ease;
+}
+
+.meal-description-input {
+  width: 100%;
+  min-height: 54px;
+  max-height: 118px;
+  box-sizing: border-box;
+  padding: 22px 0 8px;
+  resize: none;
+  field-sizing: content;
+  overflow-y: auto;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.11);
+  outline: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  caret-color: var(--primary);
+  font: 400 13px/1.55 Poppins, sans-serif;
+  transition: border-color 150ms ease;
+  scrollbar-width: none;
+}
+
+.meal-description-input::-webkit-scrollbar { display: none; }
+.meal-description-input::placeholder { color: transparent; }
+.meal-description-input:focus { border-bottom-color: color-mix(in srgb, var(--primary) 75%, transparent); }
+.meal-description-input:disabled { opacity: 0.48; }
+
+.meal-description-input:focus + label,
+.meal-description-input:not(:placeholder-shown) + label {
+  top: 7px;
+  color: var(--primary-light);
+  font-size: 10px;
+  transform: translateY(0);
+}
+
+.meal-description-input:disabled + label {
+  opacity: 0.48;
+}
+
+.description-error {
+  color: var(--accent);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.analyze-meal-btn {
+  display: inline-flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px solid rgba(124, 77, 255, 0.3);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--primary);
+  font: 500 12px/1 Poppins, sans-serif;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease, opacity 150ms ease;
+}
+
+.analyze-meal-btn:hover:not(:disabled) {
+  border-color: rgba(124, 77, 255, 0.58);
+  color: #b39cff;
+}
+
+.analyze-meal-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.analyze-meal-btn:disabled {
+  cursor: default;
+  opacity: 0.38;
+}
+
+.analyze-meal-btn mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
 }
 
 /* ── RESULT BLOCK ── */
@@ -207,6 +349,7 @@
 }
 
 .result-header {
+  scroll-margin-top: calc(var(--nav-height, 56px) + env(safe-area-inset-top, 0px) + 12px);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -222,6 +365,46 @@
   width: 18px;
   height: 18px;
   color: var(--primary);
+}
+
+.result-header:focus { outline: none; }
+
+.result-heading-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.result-heading-copy small {
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.estimate-note {
+  margin: -3px 0 1px 26px;
+  color: rgba(255, 255, 255, 0.34);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.stale-result {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #c5b5ff;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.stale-result mat-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  font-size: 16px;
 }
 
 /* ── MACROS GRID ── */
@@ -800,6 +983,13 @@
 
   .dz-text { align-items: center; }
   .dz-btn  { width: 100%; justify-content: center; }
+
+  .meal-description-input {
+    min-height: 58px;
+    font-size: 16px;
+  }
+
+  .description-meta > span:first-child { max-width: 78%; }
 
   .barcode-idle {
     grid-template-columns: 1fr;

@@ -16,5 +16,7 @@
   />
 }
 
-<app-move-up></app-move-up>
+@if (showMoveUp()) {
+  <app-move-up />
+}
 <app-ai-chat-fab [extraBottomOffset]="aiFabExtraOffset"></app-ai-chat-fab>

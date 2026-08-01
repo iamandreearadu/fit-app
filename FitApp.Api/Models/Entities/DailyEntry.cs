@@ -9,6 +9,8 @@ public class DailyEntry
     public double WaterConsumedL { get; set; }
     public int Steps { get; set; }
     public int StepTarget { get; set; } = 3000;
+    public double? CaloriesTarget { get; set; }
+    public double? WaterTargetL { get; set; }
     public double MacrosProtein { get; set; }                       // percentage
     public double MacrosCarbs { get; set; }                         // percentage
     public double MacrosFats { get; set; }                          // percentage

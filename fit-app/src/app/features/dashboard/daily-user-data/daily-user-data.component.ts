@@ -4,12 +4,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { UserFacade } from '../../../core/facade/user.facade';
 import { DailyUserData } from '../../../core/models/daily-user-data.model';
 import { MaterialModule } from '../../../core/material/material.module';
-import { GroqAiFacade } from '../../../core/facade/groq-ai.facade';
-import { MealMacros } from '../../../core/models/meal-macros';
-import { AiMealAnalyzerComponent } from './ai-meal-analyzer/ai-meal-analyzer.component';
-import { CalorieBalanceCardComponent } from '../calorie-balance-card/calorie-balance-card.component';
 import { AlertService } from '../../../shared/services/alert.service';
 import { MealEntry, MealType } from '../../../core/models/nutrition-tab.model';
+import { Router } from '@angular/router';
 
 import { from, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -20,7 +17,7 @@ import { NotificationFacade } from '../../../core/facade/notification.facade';
 @Component({
   standalone: true,
   selector: 'app-daily-user-data',
-  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, MaterialModule, AiMealAnalyzerComponent, CalorieBalanceCardComponent, PushOptInComponent],
+  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, MaterialModule, PushOptInComponent],
   host: { class: 'd-block' },
   templateUrl: './daily-user-data.component.html',
   styleUrls: ['./daily-user-data.component.css']
@@ -30,19 +27,16 @@ export class DailyUserDataComponent implements OnInit {
   public form: FormGroup;
 
   protected readonly facade = inject(UserFacade);
-  protected readonly groqFacade = inject(GroqAiFacade);
   protected readonly alerts = inject(AlertService);
   protected readonly fb = inject(FormBuilder);
   private readonly notifications = inject(NotificationFacade);
+  private readonly router = inject(Router);
 
   protected readonly history = this.facade.history;
 
-  public showAnalyzeOverlay = false;
   public showMealsOverlay = false;
   public showSavedMeals = false;
-  public analyzeError: string | null = null;
   public showActivityPicker = false;
-  public showCalorieBalance = false;
 
   public showMealPicker = false;
   public readonly mealPickerSearch = signal('');
@@ -68,9 +62,9 @@ export class DailyUserDataComponent implements OnInit {
   public readonly manualMacrosForm = this.fb.group({
     name: this.fb.control('Manual entry', [Validators.required, Validators.maxLength(80)]),
     type: this.fb.control<MealType>('Breakfast', { nonNullable: true }),
-    protein: this.fb.control(0, [Validators.required, Validators.min(0)]),
-    carbs: this.fb.control(0, [Validators.required, Validators.min(0)]),
-    fats: this.fb.control(0, [Validators.required, Validators.min(0)]),
+    protein: this.fb.control<number | null>(null, [Validators.min(0)]),
+    carbs: this.fb.control<number | null>(null, [Validators.min(0)]),
+    fats: this.fb.control<number | null>(null, [Validators.min(0)]),
   });
 
   public readonly todayMeals = computed(() =>
@@ -91,7 +85,6 @@ export class DailyUserDataComponent implements OnInit {
   );
 
   public readonly savedMeals = computed(() => {
-    const today = this.facade.todayDate;
     const seen = new Set<string>();
     return this.facade.meals().filter(meal => {
       if (!meal.isSavedMeal) return false;
@@ -164,21 +157,18 @@ export class DailyUserDataComponent implements OnInit {
   }
 
   openMealAnalyze(): void {
-    this.analyzeError = null;
-    this.showAnalyzeOverlay = true;
-  }
-
-  closeMealAnalyze(): void {
-    this.showAnalyzeOverlay = false;
+    void this.router.navigate(['/user-dashboard/analyze-meal'], {
+      state: { returnUrl: this.router.url },
+    });
   }
 
   openManualMacros(): void {
     this.manualMacrosForm.reset({
       name: 'Manual entry',
       type: 'Breakfast',
-      protein: 0,
-      carbs: 0,
-      fats: 0,
+      protein: null,
+      carbs: null,
+      fats: null,
     });
     this.showManualMacrosOverlay = true;
   }
@@ -349,14 +339,6 @@ export class DailyUserDataComponent implements OnInit {
     this.expandedMealTypes.set(next);
   }
 
-  openCalorieBalance(): void {
-    this.showCalorieBalance = true;
-  }
-
-  closeCalorieBalance(): void {
-    this.showCalorieBalance = false;
-  }
-
   async openMealPicker(): Promise<void> {
     this.mealPickerSearch.set('');
     this.showMealPicker = true;
@@ -396,71 +378,6 @@ export class DailyUserDataComponent implements OnInit {
     await this.facade.loadTodaySummary();
     this.syncMacrosFromNutritionSummary();
   }
-
-  async onAnalyzerAdded(event: { macros: MealMacros; mealType: MealType }): Promise<void> {
-    const saved = await this.persistAnalyzedMeal(event);
-    if (!saved) return;
-    await this.facade.loadTodaySummary();
-    this.syncMacrosFromNutritionSummary();
-    this.alerts.success('Meal added to today.');
-    this.closeMealAnalyze();
-  }
-
-  onAnalyzerError(msg: string): void {
-    this.analyzeError = msg || 'Analysis failed.';
-    this.alerts.error('Macros analysis failed.');
-  }
-
-  async onAnalyzerSaveMeal(event: { macros: MealMacros; mealType: MealType }): Promise<void> {
-    const saved = await this.persistAnalyzedMeal(event);
-    if (!saved) return;
-    await this.facade.loadTodaySummary();
-    this.syncMacrosFromNutritionSummary();
-    this.alerts.success('Meal saved to nutrition log.');
-    this.closeMealAnalyze();
-  }
-
-  private async persistAnalyzedMeal(event: { macros: MealMacros; mealType: MealType }): Promise<boolean> {
-    const { macros, mealType } = event;
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: false });
-    const items = macros.items && macros.items.length > 0
-      ? macros.items.map(it => ({
-          name: it.name,
-          grams: 0,
-          calories: it.calories_kcal ?? 0,
-          protein_g: it.protein_g ?? 0,
-          carbs_g: it.carbs_g ?? 0,
-          fats_g: it.fats_g ?? 0,
-        }))
-      : [{
-          name: 'Mixed meal',
-          grams: 0,
-          calories: macros.calories_kcal ?? 0,
-          protein_g: macros.protein_g,
-          carbs_g: macros.carbs_g,
-          fats_g: macros.fats_g,
-        }];
-
-    try {
-      const saved = await this.facade.saveMeal({
-        name: `AI Meal ${timeStr}`,
-        type: mealType,
-        date: this.facade.todayDate,
-        items,
-      });
-      if (!saved) {
-        this.alerts.error('Failed to save meal. Please try again.');
-        return false;
-      }
-      return true;
-    } catch {
-      this.alerts.error('Failed to save meal. Please try again.');
-      return false;
-    }
-  }
-
-
 
   // ===================== AUTOSAVE =====================
 
@@ -518,35 +435,7 @@ export class DailyUserDataComponent implements OnInit {
     });
   }
 
-  private applyMealToForm(meal: MealMacros) {
-    const macros = this.form.get('macrosPct') as FormGroup;
-    const currProtein = Number(macros.get('protein')?.value ?? 0);
-    const currCarbs   = Number(macros.get('carbs')?.value ?? 0);
-    const currFats    = Number(macros.get('fats')?.value ?? 0);
-
-    const nextProtein = Math.max(0, Math.round(currProtein + (meal.protein_g || 0)));
-    const nextCarbs   = Math.max(0, Math.round(currCarbs   + (meal.carbs_g   || 0)));
-    const nextFats    = Math.max(0, Math.round(currFats    + (meal.fats_g    || 0)));
-
-    macros.patchValue({
-      protein: nextProtein,
-      carbs: nextCarbs,
-      fats: nextFats
-    });
     // caloriesIntake no longer mutated here — now server-computed from MealEntries (Fix 10)
-    this.form.markAsDirty();
-  }
-
-  private removeMealFromForm(meal: MealEntry): void {
-    const macros = this.form.get('macrosPct') as FormGroup;
-    macros.patchValue({
-      protein: Math.max(0, Math.round(Number(macros.get('protein')?.value ?? 0) - Number(meal.totalProtein_g || 0))),
-      carbs: Math.max(0, Math.round(Number(macros.get('carbs')?.value ?? 0) - Number(meal.totalCarbs_g || 0))),
-      fats: Math.max(0, Math.round(Number(macros.get('fats')?.value ?? 0) - Number(meal.totalFats_g || 0))),
-    });
-    this.form.markAsDirty();
-  }
-
   private syncMacrosFromNutritionSummary(): void {
     const summary = this.facade.todaySummary();
     if (!summary) return;

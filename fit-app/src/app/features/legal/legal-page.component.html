@@ -1,0 +1,47 @@
+<app-header></app-header>
+
+<main class="legal-page">
+  <div class="legal-glow" aria-hidden="true"></div>
+  <header class="legal-hero">
+    <a routerLink="/" class="legal-back" aria-label="Back to NovaFit">
+      <span aria-hidden="true">←</span> Back to NovaFit
+    </a>
+    <span class="legal-eyebrow">{{ document.eyebrow }}</span>
+    <h1>{{ document.title }}</h1>
+    <p>{{ document.summary }}</p>
+    <span class="legal-updated">Last updated {{ document.updated }}</span>
+  </header>
+
+  <div class="legal-layout">
+    <aside class="legal-toc" aria-label="On this page">
+      <span>On this page</span>
+      <nav>
+        @for (section of document.sections; track section.id) {
+          <button type="button" (click)="scrollToSection(section.id)">
+            {{ section.title }}
+          </button>
+        }
+      </nav>
+    </aside>
+
+    <article class="legal-document">
+      @for (section of document.sections; track section.id) {
+        <section [id]="section.id">
+          <h2>{{ section.title }}</h2>
+          @for (paragraph of section.paragraphs; track paragraph) {
+            <p>{{ paragraph }}</p>
+          }
+          @if (section.bullets?.length) {
+            <ul>
+              @for (bullet of section.bullets; track bullet) {
+                <li>{{ bullet }}</li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    </article>
+  </div>
+</main>
+
+<app-footer></app-footer>

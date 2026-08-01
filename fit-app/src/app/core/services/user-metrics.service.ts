@@ -71,10 +71,11 @@ export class UserMetricsService {
       tdee = Math.round(bmr * activity[user.activity]);
     }
 
-    const waterL: number | null = +((user.weightKg * 0.035).toFixed(1));
+    const waterL: number | null = user.targets?.effectiveWaterL
+      ?? +((user.weightKg * 0.035).toFixed(1));
 
-    let goalCalories: number | null = null;
-    if (tdee) {
+    let goalCalories: number | null = user.targets?.effectiveCalories ?? null;
+    if (tdee && goalCalories === null) {
       if (user.goal === 'lose') {
         goalCalories = tdee - 400;
       } else if (user.goal === 'gain') {

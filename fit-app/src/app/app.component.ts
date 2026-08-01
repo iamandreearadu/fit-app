@@ -9,6 +9,7 @@ import { AppBottomNavComponent } from './shared/components/bottom-nav/app-bottom
 import { AppTopBarComponent } from './shared/components/top-bar/app-top-bar.component';
 import { AppSideDrawerComponent } from './shared/components/side-drawer/app-side-drawer.component';
 import { PwaUpdateService } from './core/services/pwa-update.service';
+import { MetaTagsService } from './core/services/meta-tags.service';
 
 @Component({
   standalone: true,
@@ -27,7 +28,6 @@ import { PwaUpdateService } from './core/services/pwa-update.service';
 })
 export class AppComponent {
   private readonly router = inject(Router);
-  private readonly pwaUpdates = inject(PwaUpdateService);
 
   readonly isMobile = signal(false);
   readonly drawerOpen = signal(false);
@@ -55,13 +55,20 @@ export class AppComponent {
   });
 
   readonly showTopBar = computed(() => {
-    return this.showMainNav();
+    return this.showMainNav() && !this.currentRoute().startsWith('/forgot-password');
   });
 
   readonly showBottomNav = computed(() => {
     const route = this.currentRoute();
-    return this.showMainNav() && route !== '/social/new-post' && !route.startsWith('/social/new-post?');
+    return this.showMainNav()
+      && route !== '/social/new-post'
+      && !route.startsWith('/social/new-post?')
+      && !route.startsWith('/user-dashboard/analyze-meal');
   });
+
+  readonly showMoveUp = computed(
+    () => !this.currentRoute().startsWith('/user-dashboard/analyze-meal'),
+  );
 
   /**
    * AI Chat FAB extra bottom offset.
@@ -70,6 +77,8 @@ export class AppComponent {
   readonly aiFabExtraOffset = 0;
 
   constructor() {
+    inject(PwaUpdateService);
+    inject(MetaTagsService);
     const bp = inject(BreakpointObserver);
     bp.observe(['(max-width: 768px)'])
       .pipe(takeUntilDestroyed())

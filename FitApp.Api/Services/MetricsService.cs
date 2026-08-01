@@ -1,9 +1,30 @@
+using FitApp.Api.Models.DTOs;
 using FitApp.Api.Models.Entities;
 
 namespace FitApp.Api.Services;
 
 public class MetricsService
 {
+    public const int DefaultStepsTarget = 8000;
+
+    public DailyTargetsDto GetTargets(User user)
+    {
+        var recommendedCalories = user.GoalCalories ?? 2000;
+        var recommendedWater = user.WaterL ?? 2;
+        return new DailyTargetsDto
+        {
+            RecommendedCalories = recommendedCalories,
+            RecommendedWaterL = recommendedWater,
+            RecommendedSteps = DefaultStepsTarget,
+            CustomCalories = user.CustomCaloriesTarget,
+            CustomWaterL = user.CustomWaterTargetL,
+            CustomSteps = user.CustomStepsTarget,
+            EffectiveCalories = user.CustomCaloriesTarget ?? recommendedCalories,
+            EffectiveWaterL = user.CustomWaterTargetL ?? recommendedWater,
+            EffectiveSteps = user.CustomStepsTarget ?? DefaultStepsTarget
+        };
+    }
+
     public void CalculateAndApply(User user)
     {
         if (user.WeightKg <= 0 || user.HeightCm <= 0 || user.Age <= 0)

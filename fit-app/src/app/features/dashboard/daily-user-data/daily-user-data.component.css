@@ -335,66 +335,6 @@
   background: rgba(124, 77, 255, 0.28);
 }
 
-/* ─── CALORIE BALANCE BUTTON ─── */
-.ctrl-balance {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 16px;
-  height: 100%;
-  cursor: pointer;
-  border-radius: 12px;
-  border: none;
-  background: transparent;
-  font-family: inherit;
-  text-align: left;
-  flex-shrink: 0;
-  transition: background 0.15s;
-}
-
-.ctrl-balance:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.ctrl-balance-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  background: rgba(255, 152, 0, 0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: #ffb74d;
-  transition: background 0.15s;
-}
-
-.ctrl-balance-icon mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
-}
-
-.ctrl-balance:hover .ctrl-balance-icon {
-  background: rgba(255, 152, 0, 0.25);
-}
-
-/* ─── CALORIE BALANCE MODAL ─── */
-.cb-box {
-  max-width: 520px !important;
-  position: relative;
-}
-
-.cb-box .modal-close {
-  position: static;
-  margin-left: auto;
-}
-
-.cb-icon-wrap {
-  background: rgba(255, 152, 0, 0.12) !important;
-  color: #ffb74d !important;
-}
-
 .dashboard-glass-modal {
   gap: 12px;
   padding: 0;
@@ -422,8 +362,6 @@
     0 12px 30px rgba(0, 0, 0, 0.24);
 }
 
-.dashboard-glass-modal > app-ai-meal-analyzer,
-.dashboard-glass-modal > app-calorie-balance-card,
 .dashboard-glass-modal > .meals-modal-body,
 .dashboard-glass-modal > .manual-macros-form {
   min-height: 0;
@@ -449,8 +387,6 @@
     0 12px 30px rgba(0, 0, 0, 0.24);
 }
 
-.dashboard-glass-modal > app-ai-meal-analyzer::-webkit-scrollbar,
-.dashboard-glass-modal > app-calorie-balance-card::-webkit-scrollbar,
 .dashboard-glass-modal > .meals-modal-body::-webkit-scrollbar,
 .dashboard-glass-modal > .manual-macros-form::-webkit-scrollbar {
   display: none;
@@ -479,8 +415,6 @@
     border-radius: 15px;
   }
 
-  .dashboard-glass-modal > app-ai-meal-analyzer,
-  .dashboard-glass-modal > app-calorie-balance-card,
   .dashboard-glass-modal > .meals-modal-body,
   .dashboard-glass-modal > .manual-macros-form {
     padding: 12px;
@@ -545,15 +479,15 @@
 }
 
 .ci-purple {
-  background: rgba(124, 77, 255, 0.14);
+  background: transparent;
   color: #a78bfa;
 }
 .ci-orange {
-  background: rgba(255, 64, 129, 0.15);
+  background: transparent;
   color: var(--accent);
 }
 .ci-blue {
-  background: rgba(56, 189, 248, 0.15);
+  background: transparent;
   color: #38bdf8;
 }
 
@@ -1778,14 +1712,12 @@
   .ctrl-grow {
     order: 2;
   }
-  /* Row 3: AI + Meals + Balance */
+  /* Row 3: AI + Meals */
   .ctrl-ai    { order: 3; }
   .ctrl-meals { order: 4; }
-  .ctrl-balance { order: 5; }
 
   .ctrl-ai,
-  .ctrl-meals,
-  .ctrl-balance {
+  .ctrl-meals {
     flex: 1;
     min-width: 0;
     min-height: 48px;
@@ -1796,13 +1728,11 @@
   }
   /* Show descriptive label, hide the short one */
   .ctrl-ai .ctrl-lbl,
-  .ctrl-meals .ctrl-lbl,
-  .ctrl-balance .ctrl-lbl {
+  .ctrl-meals .ctrl-lbl {
     display: none;
   }
   .ctrl-ai .ctrl-val,
-  .ctrl-meals .ctrl-val,
-  .ctrl-balance .ctrl-val {
+  .ctrl-meals .ctrl-val {
     display: block;
     font-size: 11px;
     white-space: normal;
@@ -1826,9 +1756,4 @@
 
   .meal-group-toggle { min-height: 48px; }
 
-  .modal-box.analyze-modal {
-    height: auto;
-    max-height: calc(100dvh - var(--nav-height) - env(safe-area-inset-bottom, 0px) - 124px);
-    overflow: hidden;
-  }
 }

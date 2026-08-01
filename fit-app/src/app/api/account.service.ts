@@ -44,6 +44,20 @@ export class AccountService {
     return { id: res.id, email: res.email, fullName: res.fullName, token: res.token, isAdmin: res.isAdmin };
   }
 
+  public async requestPasswordReset(email: string): Promise<string> {
+    const response = await firstValueFrom(
+      this.http.post<{ message: string }>(`${this.baseUrl}/forgot-password`, { email })
+    );
+    return response.message;
+  }
+
+  public async resetPassword(token: string, newPassword: string): Promise<string> {
+    const response = await firstValueFrom(
+      this.http.post<{ message: string }>(`${this.baseUrl}/reset-password`, { token, newPassword })
+    );
+    return response.message;
+  }
+
   /** Server-side logout placeholder — currently stateless JWT. */
   public async logout(): Promise<void> {
     // No-op: token expiry is handled client-side.

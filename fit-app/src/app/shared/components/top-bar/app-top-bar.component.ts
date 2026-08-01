@@ -12,6 +12,7 @@ import { filter, map, startWith } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
 import { AccountFacade } from '../../../core/facade/account.facade';
 import { NotificationFacade } from '../../../core/facade/notification.facade';
+import { TopBarActionService } from '../../services/top-bar-action.service';
 
 @Component({
   selector: 'app-top-bar',
@@ -25,6 +26,7 @@ export class AppTopBarComponent {
   private readonly notifFacade = inject(NotificationFacade);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
+  readonly topBarAction = inject(TopBarActionService);
 
   /** Emits when the hamburger icon is tapped — parent opens the side drawer. */
   @Output() hamburgerClick = new EventEmitter<void>();
@@ -52,6 +54,9 @@ export class AppTopBarComponent {
    */
   readonly contextTitle = computed((): string => {
     const url = this.currentUrl() ?? '';
+    if (url === '/user-dashboard/analyze-meal' || url.startsWith('/user-dashboard/analyze-meal?')) {
+      return 'Analyze your meal';
+    }
     if (/^\/social\/post\/[^/]+/.test(url)) return 'Post';
     if (url === '/social/new-post' || url.startsWith('/social/new-post?')) return 'New post';
     if (/^\/social\/article\/[^/]+/.test(url)) return 'Article';
@@ -105,6 +110,7 @@ export class AppTopBarComponent {
       url.startsWith('/social/archived?') ||
       url.startsWith('/workout-session') ||
       url.startsWith('/ai-assistant') ||
+      url.startsWith('/user-dashboard/analyze-meal') ||
       url.startsWith('/account')
     );
   });

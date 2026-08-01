@@ -59,4 +59,15 @@ public class DailyDataController(DailyDataService dailyService) : ControllerBase
         var entry = await dailyService.SaveForDateAsync(UserId, req);
         return Ok(entry);
     }
+
+    // PATCH api/daily/check-in
+    // Partial update: intentionally preserves every daily tracking field except
+    // ManualWeight and EnergyLevel.
+    [HttpPatch("check-in")]
+    public async Task<ActionResult<DailyEntryDto>> SaveCheckIn(
+        [FromBody] SaveDailyCheckInRequest req)
+    {
+        var entry = await dailyService.SaveCheckInAsync(UserId, req);
+        return Ok(entry);
+    }
 }

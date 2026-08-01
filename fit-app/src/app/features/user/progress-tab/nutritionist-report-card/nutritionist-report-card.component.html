@@ -1,0 +1,30 @@
+<article class="report-card" [class.locked]="!report">
+  <header>
+    <div class="title-icon"><mat-icon>auto_awesome</mat-icon></div>
+    <div><span class="eyebrow">NovaFit nutritionist</span><h2>Weekly report</h2></div>
+    @if (report) {
+      <button type="button" class="icon-btn" aria-label="Refresh weekly report" [disabled]="refreshing" (click)="refreshReport.emit()"><mat-icon>refresh</mat-icon></button>
+    }
+  </header>
+  @if (!report) {
+    <div class="locked-state" role="status">
+      <mat-icon>lock_outline</mat-icon>
+      <strong>{{ streak }} of 7 complete days</strong>
+      <p>Your report unlocks after seven consecutive complete days.</p>
+      <div class="progress"><span [style.width.%]="streak / 7 * 100"></span></div>
+    </div>
+  } @else {
+    <div class="report-content" aria-live="polite">
+      <div class="tiles">
+        <div><small>Energy balance</small><strong>{{ report.netCaloriesTotal | number:'1.0-0' }} kcal</strong></div>
+        <div><small>Estimated change</small><strong>{{ report.estimatedWeightChangeKg > 0 ? '+' : '' }}{{ report.estimatedWeightChangeKg | number:'1.1-2' }} kg</strong></div>
+        <div><small>Hydration</small><strong>{{ report.waterAdherencePct | number:'1.0-0' }}%</strong></div>
+        <div><small>Average steps</small><strong>{{ report.avgSteps | number:'1.0-0' }}</strong></div>
+      </div>
+      @if (report.actualWeightChangeKg !== null) {
+        <div class="comparison"><span>Measured change</span><strong>{{ report.actualWeightChangeKg > 0 ? '+' : '' }}{{ report.actualWeightChangeKg | number:'1.1-2' }} kg</strong></div>
+      }
+      <p class="narrative">{{ report.aiNarrative || 'Your seven-day pattern is ready. Keep logging consistently to make each report more useful.' }}</p>
+    </div>
+  }
+</article>

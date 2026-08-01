@@ -209,8 +209,8 @@ export class WorkoutSetRowComponent implements OnInit {
     this.translateX.set(dx);
   }
 
-  @HostListener('pointerup', ['$event'])
-  onPointerUp(event: PointerEvent): void {
+  @HostListener('pointerup')
+  onPointerUp(): void {
     // Release capture unconditionally — must happen before any early return
     // so the browser never holds a stale capture after this gesture ends.
     if (this.capturedPointerId !== null) {

@@ -217,7 +217,7 @@ Currently, text opacity is hardcoded as `rgba(255, 255, 255, X)` at 8+ opacity l
 
 ### 5d. Dashboard Glass Overlay Tokens
 
-These values define the centered glass utility dialogs used by Analyze your meal, Today's meals, and Weekly balance. They are intentionally more translucent than general-purpose modals because these dashboard flows benefit from retaining page context.
+These values define the centered glass utility dialogs used by Analyze your meal and Today's meals. They are intentionally more translucent than general-purpose modals because these dashboard flows benefit from retaining page context.
 
 | Token | Value | Purpose |
 |-------|-------|---------|

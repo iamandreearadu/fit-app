@@ -1,5 +1,7 @@
 export interface DailyUserData {
     date: string;
+    manualWeight?: number;
+    energyLevel?: number;
     activityType?: DayType;
     waterConsumedL?: number;
     steps?: number;
@@ -33,6 +35,8 @@ export interface DailyUserDataStats {
 // Fix 10 — response from GET /api/daily/today/summary
 export interface DailyEntrySummary {
   date: string;
+  manualWeight?: number;
+  energyLevel?: number;
 
   // Computed from MealEntries — read-only, server-computed
   caloriesFromNutritionLog: number;

@@ -85,7 +85,7 @@ builder.Services.AddCors(opt =>
     var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
         ?? (builder.Environment.IsDevelopment()
             ? ["http://localhost:4200", "https://localhost:4200"]
-            : ["https://nove-fit.net", "https://www.nove-fit.net"]);
+            : ["https://nova-fit.net", "https://www.nova-fit.net"]);
 
     opt.AddPolicy("Angular", policy => policy
         .WithOrigins(origins)
@@ -165,6 +165,7 @@ builder.Services.AddScoped<ISocialService, SocialService>();
 
 // Dashboard
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IProgressService, ProgressService>();
 
 // ── Rate Limiting ─────────────────────────────────────────────────────────────
 builder.Services.AddRateLimiter(o =>
@@ -284,6 +285,7 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
     await FitApp.Api.Data.Seeds.BlogPostSeeder.SeedAsync(db);
     await FitApp.Api.Data.Seeds.UserSeeder.SeedAsync(db);
+    await FitApp.Api.Data.Seeds.ProgressDemoSeeder.SeedAsync(db);
     await FitApp.Api.Data.Seeds.WorkoutTemplateSeeder.SeedAsync(db);
     await FitApp.Api.Data.Seeds.NovaFitOfficialSeeder.SeedAsync(db);
 }

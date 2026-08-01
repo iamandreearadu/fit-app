@@ -11,6 +11,29 @@ export interface UserProfile {
   goal: Goal;
   onboardingCompleted: boolean;
   dietaryPreference?: DietaryPreference;
+  metrics?: ServerFitnessMetrics;
+  targets?: DailyTargets;
+}
+
+export interface ServerFitnessMetrics {
+  bmi: number | null;
+  bmr: number | null;
+  tdee: number | null;
+  goalCalories: number | null;
+  waterL: number | null;
+  bmiCat: string | null;
+}
+
+export interface DailyTargets {
+  recommendedCalories: number;
+  recommendedWaterL: number;
+  recommendedSteps: number;
+  customCalories: number | null;
+  customWaterL: number | null;
+  customSteps: number | null;
+  effectiveCalories: number;
+  effectiveWaterL: number;
+  effectiveSteps: number;
 }
 
 export interface StreakData {

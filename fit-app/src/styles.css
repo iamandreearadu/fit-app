@@ -1,6 +1,9 @@
 @import url("https://fonts.googleapis.com/css?family=Poppins:400,700,900");
 
 :root {
+  --ring-streak: var(--color-streak, #ff9f40);
+  --ring-streak-hot: var(--celebration-gold, #ffc107);
+  --ring-streak-bg: rgba(255, 159, 64, 0.12);
   --primary: #7c4dff;
   --primary-rgb: 124, 77, 255;
   --primary-light: #a78bfa;
@@ -167,13 +170,6 @@ app-root {
 
 .page-content {
   flex: 1;
-}
-
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 60px;
 }
 
 /* GLOBAL TEXT  */
@@ -500,10 +496,8 @@ mat-select {
   .yn-cta-primary,
   .btn-new-post,
   .btn-save,
-  .ob-btn--primary,
   .hdr-btn-primary,
   .btn-start-workout,
-  .ob-cta-btn,
   .bio-submit-btn,
   .push-enable,
   .sug-follow-btn,
@@ -546,10 +540,8 @@ mat-select {
   .yn-cta-primary,
   .btn-new-post,
   .btn-save,
-  .ob-btn--primary,
   .hdr-btn-primary,
   .btn-start-workout,
-  .ob-cta-btn,
   .bio-submit-btn,
   .push-enable,
   .sug-follow-btn,
@@ -582,10 +574,8 @@ mat-select {
   .yn-cta-primary,
   .btn-new-post,
   .btn-save,
-  .ob-btn--primary,
   .hdr-btn-primary,
   .btn-start-workout,
-  .ob-cta-btn,
   .bio-submit-btn,
   .push-enable,
   .sug-follow-btn,
@@ -616,10 +606,8 @@ mat-select {
   .yn-cta-primary,
   .btn-new-post,
   .btn-save,
-  .ob-btn--primary,
   .hdr-btn-primary,
   .btn-start-workout,
-  .ob-cta-btn,
   .bio-submit-btn,
   .push-enable,
   .sug-follow-btn,
@@ -796,63 +784,34 @@ app-user-page .mat-mdc-form-field-icon-suffix {
 }
 
 /* ─── CREATE ACTION SHEET (mobile bottom-sheet) ─── */
-.create-action-backdrop {
-  background: rgba(4, 4, 7, 0.28) !important;
-  backdrop-filter: blur(14px) saturate(112%);
-  -webkit-backdrop-filter: blur(14px) saturate(112%);
-}
-
-.cdk-overlay-pane.create-action-sheet {
-  inset: 0 !important;
-  display: flex !important;
-  width: 100% !important;
-  max-width: none !important;
-  height: 100% !important;
-  align-items: center !important;
-  justify-content: center !important;
-  pointer-events: none;
-  transform: none !important;
-}
-
-.create-action-sheet .mat-bottom-sheet-container {
-  width: min(420px, calc(100vw - 32px)) !important;
-  min-width: 0 !important;
-  max-width: 420px !important;
-  height: auto !important;
-  max-height: calc(100dvh - 48px) !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  box-shadow: none !important;
-  overflow: visible !important;
-  pointer-events: auto;
-}
-
 /* ─── CONFIRM DIALOG PANEL ─── */
 .confirm-dialog-panel .mat-mdc-dialog-container,
 .confirm-dialog-panel .mdc-dialog__container,
 .confirm-dialog-panel .mdc-dialog__surface {
-  background: var(--modal-surface) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: linear-gradient(
+    145deg,
+    rgba(25, 22, 34, 0.76),
+    rgba(10, 10, 14, 0.66)
+  ) !important;
+  border: 0 !important;
   border-radius: 20px !important;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    0 16px 48px rgba(0, 0, 0, 0.48) !important;
+  backdrop-filter: blur(18px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(125%) !important;
   padding: 0 !important;
   overflow: hidden !important;
 }
 
-/* ─── ONBOARDING DIALOG PANEL ─── */
-.onboarding-panel .mat-mdc-dialog-container,
-.onboarding-panel .mdc-dialog__container,
-.onboarding-panel .mdc-dialog__surface {
-  background: transparent !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  overflow: visible !important;
-  border-radius: 20px !important;
+.cdk-overlay-backdrop.novafit-glass-backdrop {
+  background: rgba(4, 4, 7, 0.52);
+  backdrop-filter: blur(14px) saturate(112%);
+  -webkit-backdrop-filter: blur(14px) saturate(112%);
+  opacity: 1;
 }
 
+/* ─── ONBOARDING DIALOG PANEL ─── */
 /* ─── AI MEAL ANALYZER DIALOG PANEL ─── */
 .ai-analyzer-panel .mat-mdc-dialog-container,
 .ai-analyzer-panel .mdc-dialog__container,
@@ -1582,45 +1541,6 @@ mat-bottom-sheet-container.ai-chat-sheet-panel {
    descendant selectors to reach the actual container inside it. */
 
 /* 1. Style the container element (child of the overlay pane) */
-.more-sheet-panel mat-bottom-sheet-container,
-.more-sheet-panel .mat-bottom-sheet-container {
-  background: var(--modal-surface) !important;
-  background-color: var(--modal-surface) !important;
-  border-radius: 24px 24px 0 0 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-bottom: none !important;
-  padding: 0 !important;
-  max-height: 60dvh !important;
-  box-shadow: 0 -8px 48px rgba(0, 0, 0, 0.7) !important;
-  overflow: hidden !important;
-  color: var(--white-soft) !important;
-}
-
-/* 2. Override MDC internal surface tokens */
-.more-sheet-panel .mat-bottom-sheet-container-medium,
-.more-sheet-panel .mat-bottom-sheet-container-large,
-.more-sheet-panel .mdc-surface,
-.more-sheet-panel [class*="mat-bottom-sheet"] {
-  background: var(--modal-surface) !important;
-  background-color: var(--modal-surface) !important;
-  color: var(--white-soft) !important;
-}
-
-/* 3. Override Angular Material 19 MDC surface color CSS variable */
-.more-sheet-panel {
-  --mdc-bottom-sheet-container-color: var(--modal-surface) !important;
-  --mat-bottom-sheet-container-background-color: var(--modal-surface) !important;
-  --mat-bottom-sheet-container-text-color: var(--white-soft) !important;
-}
-
-@media (min-width: 640px) {
-  .cdk-overlay-pane.more-sheet-panel {
-    max-width: 400px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-  }
-}
-
 /* Mobile feedback is rendered inline in the relevant flow; suppress global
    ngx-toastr overlays so they do not cover the compact app chrome/content. */
 @media (max-width: 768px) {

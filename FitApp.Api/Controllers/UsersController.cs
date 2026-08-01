@@ -33,6 +33,27 @@ public class UsersController(
         return Ok(profile);
     }
 
+    [HttpDelete("me")]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var deleted = await userService.DeleteAccountAsync(UserId);
+        return deleted ? NoContent() : NotFound();
+    }
+
+    [HttpPut("me/targets")]
+    public async Task<IActionResult> UpdateTargets([FromBody] UpdateDailyTargetsRequest req)
+    {
+        var targets = await userService.UpdateTargetsAsync(UserId, req);
+        return targets is null ? NotFound() : Ok(targets);
+    }
+
+    [HttpDelete("me/targets")]
+    public async Task<IActionResult> ResetTargets()
+    {
+        var targets = await userService.ResetTargetsAsync(UserId);
+        return targets is null ? NotFound() : Ok(targets);
+    }
+
     [HttpGet("{userId}/stats")]
     public async Task<IActionResult> GetUserStats(string userId)
     {

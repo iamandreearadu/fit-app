@@ -230,6 +230,9 @@ namespace FitApp.Api.Migrations
                     b.Property<int>("CaloriesIntake")
                         .HasColumnType("INTEGER");
 
+                    b.Property<double?>("CaloriesTarget")
+                        .HasColumnType("REAL");
+
                     b.Property<int>("CaloriesTotal")
                         .HasColumnType("INTEGER");
 
@@ -266,6 +269,9 @@ namespace FitApp.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<double>("WaterConsumedL")
+                        .HasColumnType("REAL");
+
+                    b.Property<double?>("WaterTargetL")
                         .HasColumnType("REAL");
 
                     b.HasKey("Id");
@@ -542,6 +548,42 @@ namespace FitApp.Api.Migrations
                     b.ToTable("OnboardingSteps");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.PasswordResetToken", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PasswordResetTokens");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -702,6 +744,15 @@ namespace FitApp.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<double?>("Bmr")
+                        .HasColumnType("REAL");
+
+                    b.Property<double?>("CustomCaloriesTarget")
+                        .HasColumnType("REAL");
+
+                    b.Property<int?>("CustomStepsTarget")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double?>("CustomWaterTargetL")
                         .HasColumnType("REAL");
 
                     b.Property<string>("DietaryPreference")
@@ -1122,6 +1173,17 @@ namespace FitApp.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FitApp.Api.Models.Entities.PasswordResetToken", b =>
+                {
+                    b.HasOne("FitApp.Api.Models.Entities.User", "User")
+                        .WithMany("PasswordResetTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FitApp.Api.Models.Entities.Post", b =>
                 {
                     b.HasOne("FitApp.Api.Models.Entities.BlogPost", "Article")
@@ -1285,6 +1347,8 @@ namespace FitApp.Api.Migrations
                     b.Navigation("MealEntries");
 
                     b.Navigation("OnboardingSteps");
+
+                    b.Navigation("PasswordResetTokens");
 
                     b.Navigation("Posts");
 

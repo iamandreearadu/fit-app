@@ -45,7 +45,7 @@ export interface ConfirmDialogData {
       gap: 12px;
       padding: 28px 24px 20px;
       text-align: center;
-      background: var(--surface);
+      background: transparent;
     }
 
     .confirm-icon mat-icon {

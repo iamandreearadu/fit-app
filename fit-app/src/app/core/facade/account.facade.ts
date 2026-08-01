@@ -168,7 +168,7 @@ export class AccountFacade {
       this.ls.remove(this.userKey);
 
       this.alerts.info('You have been logged out');
-      void this.router.navigate(['/auth/login']);
+      void this.router.navigate(['/login']);
 
     } finally {
       this.authStore.setLoading(false);

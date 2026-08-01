@@ -42,7 +42,6 @@ export class WorkoutCompletionCardComponent implements OnInit, OnDestroy {
 
   // ── Swipe-to-dismiss state ────────────────────────────────────────────────
   private pointerStartY = 0;
-  private pointerCurrentY = 0;
   readonly cardTranslateY = signal(0);
 
   ngOnInit(): void {
@@ -72,7 +71,6 @@ export class WorkoutCompletionCardComponent implements OnInit, OnDestroy {
   // ── Swipe gesture (mobile only) ────────────────────────────────────────────
   onPointerDown(event: PointerEvent): void {
     this.pointerStartY = event.clientY;
-    this.pointerCurrentY = event.clientY;
   }
 
   onPointerMove(event: PointerEvent): void {

@@ -9,6 +9,7 @@ namespace FitApp.Api.Services;
 
 public class DailyDataService(
     AppDbContext db,
+    MetricsService metrics,
     IHubContext<NotificationHub> notifHub,
     ILogger<DailyDataService> logger)
 {
@@ -27,17 +28,25 @@ public class DailyDataService(
         if (entry is null)
         {
             entry = new DailyEntry { UserId = userId, Date = req.Date };
+            await ApplyCurrentTargetSnapshotAsync(entry, userId);
             db.DailyEntries.Add(entry);
         }
 
         entry.ActivityType = req.ActivityType;
         entry.WaterConsumedL = req.WaterConsumedL;
         entry.Steps = req.Steps;
-        entry.StepTarget = req.StepTarget;
+        if (entry.StepTarget <= 0)
+            entry.StepTarget = req.StepTarget > 0 ? req.StepTarget : MetricsService.DefaultStepsTarget;
         entry.MacrosProtein = req.MacrosPct.Protein;
         entry.MacrosCarbs = req.MacrosPct.Carbs;
         entry.MacrosFats = req.MacrosPct.Fats;
         entry.CaloriesBurned = req.CaloriesBurned;
+        // Preserve an existing check-in when an older/full-form client omits these
+        // optional fields during its regular autosave.
+        if (req.ManualWeight.HasValue)
+            entry.ManualWeight = req.ManualWeight;
+        if (req.EnergyLevel.HasValue)
+            entry.EnergyLevel = req.EnergyLevel;
 
         // Fix 10: CaloriesIntake is always server-computed from MealEntries — never from client.
         var mealCalories = await db.MealEntries
@@ -55,6 +64,27 @@ public class DailyDataService(
         var streakDto = await GetUserStreakAsync(userId);
         _ = Task.Run(() => PushStreakUpdatedAsync(userId, streakDto));
 
+        return MapToDto(entry);
+    }
+
+    public async Task<DailyEntryDto> SaveCheckInAsync(
+        string userId,
+        SaveDailyCheckInRequest req)
+    {
+        var entry = await db.DailyEntries
+            .FirstOrDefaultAsync(d => d.UserId == userId && d.Date == req.Date);
+
+        if (entry is null)
+        {
+            entry = new DailyEntry { UserId = userId, Date = req.Date };
+            await ApplyCurrentTargetSnapshotAsync(entry, userId);
+            db.DailyEntries.Add(entry);
+        }
+
+        entry.ManualWeight = req.ManualWeight;
+        entry.EnergyLevel = req.EnergyLevel;
+        entry.UpdatedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync();
         return MapToDto(entry);
     }
 
@@ -113,6 +143,8 @@ public class DailyDataService(
             StepTarget               = entry?.StepTarget               ?? 3000,
             CaloriesBurned           = caloriesBurned,
             CaloriesTotal            = (int)Math.Round(caloriesFromLog) - caloriesBurned,
+            ManualWeight             = entry?.ManualWeight,
+            EnergyLevel              = entry?.EnergyLevel,
             MacrosPct = new MacrosPctDto
             {
                 Protein = entry?.MacrosProtein ?? 0,
@@ -139,6 +171,16 @@ public class DailyDataService(
         return new UserStreakDto(current, lastLogDate, atRisk, loggedToday, isNewRecord);
     }
 
+    private async Task ApplyCurrentTargetSnapshotAsync(DailyEntry entry, string userId)
+    {
+        var user = await db.Users.FindAsync(userId);
+        if (user is null) return;
+        var targets = metrics.GetTargets(user);
+        entry.StepTarget = targets.EffectiveSteps;
+        entry.CaloriesTarget = targets.EffectiveCalories;
+        entry.WaterTargetL = targets.EffectiveWaterL;
+    }
+
     // ── Private helpers ───────────────────────────────────────────────────────
 
     // Shared streak computation; eliminates duplication between GetStreakAsync and
@@ -153,17 +195,41 @@ public class DailyDataService(
         // Optimization: only load last 400 days — enough to compute any realistic streak.
         // Avoids loading entire user history (could be 1000+ rows for long-time users).
         var cutoff = today.AddDays(-400).ToString("yyyy-MM-dd");
-        var rawDates = await db.DailyEntries
+        var dailyStates = await db.DailyEntries
             .Where(d => d.UserId == userId && d.Date.CompareTo(cutoff) >= 0)
-            .Select(d => d.Date)
+            .Select(d => new
+            {
+                d.Date,
+                d.ActivityType,
+                d.Steps,
+                d.WaterConsumedL
+            })
             .ToListAsync();
 
-        if (rawDates.Count == 0)
+        if (dailyStates.Count == 0)
             return ([], 0, 0, false, false);
 
-        var dateSet = rawDates
-            .Select(d => DateOnly.Parse(d))
+        var mealDates = await db.MealEntries
+            .Where(m =>
+                m.UserId == userId
+                && !m.IsSavedMeal
+                && m.Date.CompareTo(cutoff) >= 0)
+            .Select(m => m.Date)
+            .Distinct()
+            .ToListAsync();
+        var mealDateSet = mealDates.ToHashSet(StringComparer.Ordinal);
+
+        var dateSet = dailyStates
+            .Where(d =>
+                mealDateSet.Contains(d.Date)
+                && !string.IsNullOrWhiteSpace(d.ActivityType)
+                && d.Steps > 0
+                && d.WaterConsumedL > 0)
+            .Select(d => DateOnly.Parse(d.Date))
             .ToHashSet();
+
+        if (dateSet.Count == 0)
+            return ([], 0, 0, false, false);
 
         var loggedToday = dateSet.Contains(today);
 
@@ -221,6 +287,8 @@ public class DailyDataService(
         CaloriesBurned = e.CaloriesBurned,
         CaloriesIntake = e.CaloriesIntake,
         CaloriesTotal = e.CaloriesTotal,
+        ManualWeight = e.ManualWeight,
+        EnergyLevel = e.EnergyLevel,
         UpdatedAt = e.UpdatedAt
     };
 }

@@ -1,4 +1,4 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DailyUserDataService } from '../services/daily-user-data.service';
 import { UserFacade } from './user.facade';
@@ -8,6 +8,8 @@ import {
   DashboardTodayDto,
   AiInsightDto,
 } from '../models/dashboard.model';
+import { MealMacros } from '../models/meal-macros';
+import { MealEntry, MealType } from '../models/nutrition-tab.model';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardFacade {
@@ -98,6 +100,46 @@ export class DashboardFacade {
     } finally {
       this.isAiInsightLoading.set(false);
     }
+  }
+
+  async saveAnalyzedMeal(
+    macros: MealMacros,
+    mealType: MealType,
+  ): Promise<MealEntry | null> {
+    const time = new Date().toLocaleTimeString('en', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    const items = macros.items?.length
+      ? macros.items.map(item => ({
+          name: item.name,
+          grams: 0,
+          calories: item.calories_kcal ?? 0,
+          protein_g: item.protein_g ?? 0,
+          carbs_g: item.carbs_g ?? 0,
+          fats_g: item.fats_g ?? 0,
+        }))
+      : [{
+          name: 'Mixed meal',
+          grams: 0,
+          calories: macros.calories_kcal ?? 0,
+          protein_g: macros.protein_g,
+          carbs_g: macros.carbs_g,
+          fats_g: macros.fats_g,
+        }];
+
+    const saved = await this.userFacade.saveMeal({
+      name: `AI Meal ${time}`,
+      type: mealType,
+      date: this.userFacade.todayDate,
+      items,
+    });
+    if (saved) {
+      await this.userFacade.loadTodaySummary();
+      await this.loadDashboardToday();
+    }
+    return saved;
   }
 
   // ── Legacy data load (used by PreviousDailyUserData etc.) ───────────

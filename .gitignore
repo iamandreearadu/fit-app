@@ -54,8 +54,6 @@ FitApp.Api/.vs/
 FitApp.Api/*.db
 FitApp.Api/*.db-shm
 FitApp.Api/*.db-wal
-FitApp.Api/appsettings.json
-FitApp.Api/appsettings.Development.json
 
 # ── FitApp.Api.Tests ─────────────────────────────────────────
 FitApp.Api.Tests/bin/
@@ -64,13 +62,15 @@ FitApp.Api.Tests/obj/
 # ── Build scratch output ────────────────────────────────────
 .codex-build/
 
+# ── .NET publish output ──────────────────────────────────────
+/publish/
+**/bin/
+**/obj/
+
 # ── fit-app ───────────────────────────────────────────────────
 fit-app/node_modules/
 fit-app/dist/
 fit-app/.angular
-fit-app/src/environments/environment.ts
-fit-app/src/environments/environment.development.ts
-fit-app/src/environments/environment.prod.ts
 
 *.log
 

@@ -4,7 +4,6 @@ import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ChatFacade } from '../../../core/facade/chat.facade';
 
 @Component({
@@ -16,8 +15,7 @@ import { ChatFacade } from '../../../core/facade/chat.facade';
     DatePipe,
     MatIconModule,
     MatButtonModule,
-    MatProgressSpinnerModule,
-    MatDialogModule
+    MatProgressSpinnerModule
   ],
   templateUrl: './social-chat.component.html',
   styleUrl: './social-chat.component.css'
