@@ -66,6 +66,34 @@ public class UserService(AppDbContext db, MetricsService metrics, IFileStorageSe
         return MapToDto(user);
     }
 
+    public async Task<DailyTargetsDto?> UpdateTargetsAsync(string userId, UpdateDailyTargetsRequest req)
+    {
+        var user = await db.Users.FindAsync(userId);
+        if (user is null) return null;
+
+        user.CustomCaloriesTarget = req.Calories;
+        user.CustomWaterTargetL = req.WaterL;
+        user.CustomStepsTarget = req.Steps;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        var effective = metrics.GetTargets(user);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd");
+        var todayEntry = await db.DailyEntries
+            .FirstOrDefaultAsync(entry => entry.UserId == userId && entry.Date == today);
+        if (todayEntry is not null)
+        {
+            todayEntry.CaloriesTarget = effective.EffectiveCalories;
+            todayEntry.WaterTargetL = effective.EffectiveWaterL;
+            todayEntry.StepTarget = effective.EffectiveSteps;
+        }
+
+        await db.SaveChangesAsync();
+        return effective;
+    }
+
+    public async Task<DailyTargetsDto?> ResetTargetsAsync(string userId)
+        => await UpdateTargetsAsync(userId, new UpdateDailyTargetsRequest());
+
     public async Task<UserPublicStatsResponse?> GetPublicStatsAsync(string userId)
     {
         if (!await db.Users.AnyAsync(u => u.Id == userId)) return null;
@@ -101,7 +129,7 @@ public class UserService(AppDbContext db, MetricsService metrics, IFileStorageSe
         return new UserPublicStatsResponse(streak.Current, activities.Count, 0, sevenDayActivity, recent);
     }
 
-    private static UserProfileDto MapToDto(Models.Entities.User user) => new()
+    private UserProfileDto MapToDto(Models.Entities.User user) => new()
     {
         Id = user.Id,
         Email = user.Email,
@@ -115,6 +143,7 @@ public class UserService(AppDbContext db, MetricsService metrics, IFileStorageSe
         ImageUrl = user.ImageUrl,
         OnboardingCompleted = user.OnboardingCompleted,
         DietaryPreference = user.DietaryPreference,
+        Targets = metrics.GetTargets(user),
         UpdatedAt = user.UpdatedAt,
         MetricsUpdatedAt = user.MetricsUpdatedAt,
         Metrics = user.Bmi.HasValue ? new UserMetricsDto

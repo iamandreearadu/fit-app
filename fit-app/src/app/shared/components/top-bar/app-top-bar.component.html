@@ -45,7 +45,15 @@
 
   <!-- ── RIGHT: search + notifications (contextual) ─────────────────────── -->
   <div class="app-topbar-right">
-    @if (isAuthenticated() && !hideRightIcons()) {
+    @if (topBarAction.action(); as action) {
+      <button
+        class="topbar-icon-btn"
+        type="button"
+        (click)="topBarAction.trigger()"
+        [attr.aria-label]="action.ariaLabel">
+        <mat-icon>{{ action.icon }}</mat-icon>
+      </button>
+    } @else if (isAuthenticated() && !hideRightIcons()) {
       <button
         class="topbar-icon-btn"
         type="button"

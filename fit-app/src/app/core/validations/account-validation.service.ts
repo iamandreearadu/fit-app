@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Validators, ValidatorFn, ValidationErrors } from '@angular/forms';
+import { Validators, ValidatorFn } from '@angular/forms';
 
 export interface LoginValidators {
   email: ValidatorFn[];

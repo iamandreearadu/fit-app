@@ -1,11 +1,19 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
+import { analyzeMealExitGuard } from './features/dashboard/analyze-meal-page/analyze-meal-exit.guard';
 import { GuestGuard } from './core/guards/guest.guard';
 import { OnboardingGuard } from './core/guards/onboarding.guard';
 
 export const routes: Routes = [
   {
     path: '',
+    data: {
+      meta: {
+        title: 'NovaFit — Fitness, Nutrition & Progress',
+        description: 'Track workouts, meals, hydration and progress with AI-assisted nutrition insights and a supportive fitness community.',
+        index: true,
+      },
+    },
     loadComponent: () =>
       import('./features/home/home-page.component').then(
         (m) => m.HomePageComponent,
@@ -16,11 +24,25 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        data: {
+          meta: {
+            title: 'Fitness & Nutrition Articles | NovaFit',
+            description: 'Practical fitness, workout and nutrition articles from NovaFit.',
+            index: true,
+          },
+        },
         loadComponent: () =>
           import('./features/blog/blog.component').then((m) => m.BlogComponent),
       },
       {
         path: ':id',
+        data: {
+          meta: {
+            title: 'Fitness Article | NovaFit',
+            description: 'Read fitness, workout and nutrition guidance from NovaFit.',
+            index: true,
+          },
+        },
         loadComponent: () =>
           import('./features/blog/blog-post-detail/blog-post-detail.component').then(
             (m) => m.BlogPostDetailComponent,
@@ -70,6 +92,15 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'user-dashboard/analyze-meal',
+    loadComponent: () =>
+      import('./features/dashboard/analyze-meal-page/analyze-meal-page.component').then(
+        (m) => m.AnalyzeMealPageComponent,
+      ),
+    canActivate: [AuthGuard],
+    canDeactivate: [analyzeMealExitGuard],
+  },
+  {
     path: 'user-dashboard',
     loadComponent: () =>
       import('./features/dashboard/dashboard-page.component').then(
@@ -79,6 +110,7 @@ export const routes: Routes = [
   },
   {
     path: 'login',
+    data: { meta: { title: 'Log in | NovaFit', index: false } },
     loadComponent: () =>
       import('./features/auth/login/login.component').then(
         (m) => m.LoginComponent,
@@ -87,6 +119,7 @@ export const routes: Routes = [
   },
   {
     path: 'register',
+    data: { meta: { title: 'Create your NovaFit account', index: false } },
     loadComponent: () =>
       import('./features/auth/register/register.component').then(
         (m) => m.RegisterComponent,
@@ -95,6 +128,7 @@ export const routes: Routes = [
   },
   {
     path: 'forgot-password',
+    data: { meta: { title: 'Reset your password | NovaFit', index: false } },
     loadComponent: () =>
       import('./features/auth/forgot-password/forgot-password.component').then(
         (m) => m.ForgotPasswordComponent,
@@ -102,6 +136,7 @@ export const routes: Routes = [
   },
   {
     path: 'reset-password',
+    data: { meta: { title: 'Choose a new password | NovaFit', index: false } },
     loadComponent: () =>
       import('./features/auth/reset-password/reset-password.component').then(
         (m) => m.ResetPasswordComponent,
@@ -113,7 +148,14 @@ export const routes: Routes = [
       import('./features/legal/legal-page.component').then(
         (m) => m.LegalPageComponent,
       ),
-    data: { document: 'privacy' },
+    data: {
+      document: 'privacy',
+      meta: {
+        title: 'Privacy Policy | NovaFit',
+        description: 'Learn how NovaFit collects, uses and protects your information.',
+        index: true,
+      },
+    },
   },
   {
     path: 'terms',
@@ -121,7 +163,14 @@ export const routes: Routes = [
       import('./features/legal/legal-page.component').then(
         (m) => m.LegalPageComponent,
       ),
-    data: { document: 'terms' },
+    data: {
+      document: 'terms',
+      meta: {
+        title: 'Terms of Service | NovaFit',
+        description: 'Read the terms that govern your use of NovaFit.',
+        index: true,
+      },
+    },
   },
   {
     path: 'cookies',
@@ -129,7 +178,14 @@ export const routes: Routes = [
       import('./features/legal/legal-page.component').then(
         (m) => m.LegalPageComponent,
       ),
-    data: { document: 'cookies' },
+    data: {
+      document: 'cookies',
+      meta: {
+        title: 'Cookie Policy | NovaFit',
+        description: 'Learn how NovaFit uses cookies and similar browser technologies.',
+        index: true,
+      },
+    },
   },
 
   {

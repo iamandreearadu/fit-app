@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { DailyEntrySummary, DailyUserDataStats, DailyUserData } from "../models/daily-user-data.model";
 import { UserMetricsService } from "./user-metrics.service";
+import { DailyTargets } from "../models/user.model";
 
 @Injectable({
   providedIn: 'root'
@@ -116,6 +117,13 @@ export class DailyUserDataService {
       date: current.date,
       caloriesBurned: next,
     });
+  }
+
+  public applyEffectiveTargets(targets: DailyTargets): void {
+    const current = this._daily();
+    if (current?.date === this.todayDate) {
+      this._daily.set({ ...current, stepTarget: targets.effectiveSteps });
+    }
   }
 
   public setCaloriesBurned(value: number): void {

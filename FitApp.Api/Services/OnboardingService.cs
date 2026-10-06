@@ -226,7 +226,7 @@ public class OnboardingService(AppDbContext db, MetricsService metricsService)
     private static YourNumbersResponse BuildYourNumbersResponse(User user)
     {
         // Null-safe defaults for users who haven't submitted biometrics yet.
-        var goalCalories = user.GoalCalories ?? 0.0;
+        var goalCalories = user.CustomCaloriesTarget ?? user.GoalCalories ?? 0.0;
 
         return new YourNumbersResponse
         {
@@ -236,7 +236,7 @@ public class OnboardingService(AppDbContext db, MetricsService metricsService)
             Tdee              = user.Tdee            ?? 0.0,
             GoalCalories      = goalCalories,
             DailyCalorieTarget = goalCalories,       // UX alias — same value as GoalCalories
-            WaterLiters       = user.WaterL          ?? 0.0,
+            WaterLiters       = user.CustomWaterTargetL ?? user.WaterL ?? 0.0,
             Goal              = user.Goal            ?? string.Empty
         };
     }

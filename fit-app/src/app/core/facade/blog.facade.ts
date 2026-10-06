@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal, WritableSignal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { BlogService } from "../../api/blog.service";
 import { BlogPost } from "../models/blog.model";
 

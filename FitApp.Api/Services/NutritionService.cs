@@ -142,13 +142,13 @@ public class NutritionService(AppDbContext db)
             .FirstOrDefaultAsync();
 
         // Load only GoalCalories — no need to materialise the full User entity.
-        var goalCalories = await db.Users
+        var targets = await db.Users
             .AsNoTracking()
             .Where(u => u.Id == userId)
-            .Select(u => u.GoalCalories)
+            .Select(u => new { u.GoalCalories, u.CustomCaloriesTarget })
             .FirstOrDefaultAsync();
 
-        var targetKcal = goalCalories ?? 0.0;
+        var targetKcal = targets?.CustomCaloriesTarget ?? targets?.GoalCalories ?? 0.0;
 
         // Derive per-macro gram targets from GoalCalories using a 30 / 40 / 30 split.
         // Rounded to one decimal place — consistent with frontend display precision.

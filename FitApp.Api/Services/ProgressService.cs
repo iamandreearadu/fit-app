@@ -44,7 +44,12 @@ public class ProgressService(
         var userMetrics = await db.Users
             .AsNoTracking()
             .Where(u => u.Id == userId)
-            .Select(u => new { Tdee = u.Tdee ?? 0, WaterTarget = u.WaterL ?? 0 })
+            .Select(u => new
+            {
+                Tdee = u.Tdee ?? 0,
+                WaterTarget = u.CustomWaterTargetL ?? u.WaterL ?? 0,
+                StepTarget = u.CustomStepsTarget ?? MetricsService.DefaultStepsTarget
+            })
             .FirstOrDefaultAsync();
 
         var entries = await db.DailyEntries
@@ -93,7 +98,7 @@ public class ProgressService(
             result.FatG.Add(Round(meal?.Fat ?? 0));
             result.WaterL.Add(Round(entry?.WaterConsumedL ?? 0));
             result.Steps.Add(entry?.Steps ?? 0);
-            result.StepTarget.Add(entry?.StepTarget ?? 3000);
+            result.StepTarget.Add(entry?.StepTarget ?? userMetrics?.StepTarget ?? MetricsService.DefaultStepsTarget);
         }
 
         return result;
@@ -276,8 +281,9 @@ public class ProgressService(
             {
                 Tdee = u.Tdee ?? 0,
                 Goal = string.IsNullOrWhiteSpace(u.Goal) ? "maintain" : u.Goal,
-                GoalCalories = u.GoalCalories ?? u.Tdee ?? 0,
-                WaterTarget = u.WaterL ?? 0
+                GoalCalories = u.CustomCaloriesTarget ?? u.GoalCalories ?? u.Tdee ?? 0,
+                WaterTarget = u.CustomWaterTargetL ?? u.WaterL ?? 0,
+                StepTarget = u.CustomStepsTarget ?? MetricsService.DefaultStepsTarget
             })
             .FirstAsync();
 
@@ -291,6 +297,8 @@ public class ProgressService(
             {
                 d.Date,
                 d.WaterConsumedL,
+                d.WaterTargetL,
+                d.CaloriesTarget,
                 d.Steps,
                 d.StepTarget,
                 d.ManualWeight
@@ -324,15 +332,17 @@ public class ProgressService(
             .Select(d => d.ManualWeight!.Value)
             .ToList();
         var stepTarget = daily.Count == 0
-            ? 3000
+            ? user.StepTarget
             : (int)Math.Round(daily.Average(d => d.StepTarget));
+        var reportCaloriesTarget = daily.Where(d => d.CaloriesTarget.HasValue).Select(d => d.CaloriesTarget!.Value).DefaultIfEmpty(user.GoalCalories).Average();
+        var reportWaterTarget = daily.Where(d => d.WaterTargetL.HasValue).Select(d => d.WaterTargetL!.Value).DefaultIfEmpty(user.WaterTarget).Average();
 
         return new NutritionistWeeklyReportDto
         {
             WindowStart = start,
             WindowEnd = end,
             UserGoal = user.Goal,
-            GoalCalories = Round(user.GoalCalories),
+            GoalCalories = Round(reportCaloriesTarget),
             AvgCaloriesIn = Round(totalCalories / UnlockDays),
             Tdee = Round(user.Tdee),
             NetCaloriesTotal = Round(totalCalories - user.Tdee * UnlockDays),
@@ -342,9 +352,9 @@ public class ProgressService(
                 ? Round(weights[^1] - weights[0], 2)
                 : null,
             AvgWaterL = Round(daily.Sum(d => d.WaterConsumedL) / UnlockDays),
-            WaterTargetL = Round(user.WaterTarget),
-            WaterAdherencePct = user.WaterTarget > 0
-                ? Round(daily.Sum(d => d.WaterConsumedL) / UnlockDays / user.WaterTarget * 100)
+            WaterTargetL = Round(reportWaterTarget),
+            WaterAdherencePct = reportWaterTarget > 0
+                ? Round(daily.Sum(d => d.WaterConsumedL) / UnlockDays / reportWaterTarget * 100)
                 : 0,
             AvgSteps = Round(daily.Sum(d => d.Steps) / (double)UnlockDays),
             StepTarget = stepTarget,

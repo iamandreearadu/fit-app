@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,7 +23,6 @@ export class PostShareDialogComponent {
   private readonly ref = inject(MatDialogRef<PostShareDialogComponent>);
   private readonly conversations = inject(ConversationService);
   private readonly social = inject(SocialService);
-  private readonly destroyRef = inject(DestroyRef);
   readonly search = new FormControl('', { nonNullable: true });
   readonly recent = signal<UserSearchResult[]>([]);
   readonly results = signal<UserSearchResult[]>([]);

@@ -98,7 +98,14 @@ All values are numbers. Confidence is 0-1. Estimate all values — do not return
 
 export const IMAGE_MACROS_PROMPT = `
 Analyze the meal photo and return macronutrients for THE WHOLE PLATE.
-- Identify all visible foods and estimate portions visually.
-- Make reasonable assumptions about common ingredients.
+- Use the user's written description as the primary source for quantities,
+  ingredients, sauces and cooking method; use the photo to verify and complete it.
+- Identify every distinct food, drink, sauce, topping and visible cooking fat.
+- Estimate edible portions conservatively using the plate and common serving sizes.
+- Calculate every item's macros first, then sum them. Top-level totals must equal the
+  item sums (within 1 g and 5 kcal).
+- Keep calories plausible against protein*4 + carbs*4 + fat*9.
+- Put useful portion context in item names and lower confidence when portions are vague.
+- Do not invent exact brands or omit recognizable foods because quantity is uncertain.
 - Return ONLY the JSON specified. No additional text.
 `;

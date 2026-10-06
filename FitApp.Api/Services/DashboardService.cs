@@ -48,6 +48,9 @@ public class DashboardService(
                 u.WeightKg,
                 u.GoalCalories,
                 u.WaterL,
+                u.CustomCaloriesTarget,
+                u.CustomWaterTargetL,
+                u.CustomStepsTarget,
                 u.Goal
             })
             .FirstOrDefaultAsync();
@@ -105,7 +108,7 @@ public class DashboardService(
         // ── Goal calorie baseline ─────────────────────────────────────────────
         // Read from User.GoalCalories (persisted by MetricsService.CalculateAndApply).
         // DashboardService is read-only — never calls MetricsService here.
-        var goalCalories = (int)Math.Round(user?.GoalCalories ?? 2000.0);
+        var goalCalories = (int)Math.Round(user?.CustomCaloriesTarget ?? user?.GoalCalories ?? 2000.0);
 
         // ── Calorie balance ───────────────────────────────────────────────────
         var eaten   = (int)Math.Round(mealTotals?.TotalCalories ?? 0.0);
@@ -150,7 +153,7 @@ public class DashboardService(
         };
 
         // WATER RING: value in ml, goal = User.WaterL × 1000 (fallback 2000 ml).
-        var waterGoalMl = (int)Math.Round((user?.WaterL ?? 2.0) * 1000);
+        var waterGoalMl = (int)Math.Round((user?.CustomWaterTargetL ?? user?.WaterL ?? 2.0) * 1000);
         var waterMl     = (int)Math.Round((entry?.WaterConsumedL ?? 0.0) * 1000);
         var waterRing   = new RingMetricDto
         {
@@ -161,7 +164,7 @@ public class DashboardService(
 
         // STEPS RING: value from DailyEntry.Steps, goal from DailyEntry.StepTarget (fallback 3000).
         var stepsValue = entry?.Steps ?? 0;
-        var stepsGoal  = entry?.StepTarget ?? 3000;
+        var stepsGoal  = entry?.StepTarget ?? user?.CustomStepsTarget ?? MetricsService.DefaultStepsTarget;
         var stepsRing  = new RingMetricDto
         {
             Value = stepsValue,

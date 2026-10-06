@@ -1,13 +1,20 @@
 {
+  "id": "/",
   "name": "NovaFit",
   "short_name": "NovaFit",
+  "description": "Track workouts, nutrition, hydration and fitness progress.",
+  "lang": "en",
+  "dir": "ltr",
   "display": "standalone",
-  "theme_color": "#7C4DFF",
+  "orientation": "portrait-primary",
+  "categories": ["fitness", "health", "lifestyle"],
+  "theme_color": "#0D0D10",
   "background_color": "#0D0D10",
   "start_url": "/",
+  "scope": "/",
   "icons": [
-    { "src": "icons/icon-192x192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512x512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "icons/icon-maskable-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

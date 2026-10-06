@@ -53,6 +53,12 @@
 .reg-goal-check mat-icon { width: 13px; height: 13px; font-size: 13px; }
 .reg-goal-error { margin: 0; color: var(--accent); font-size: 11px; }
 
+@media (max-width: 720px) {
+  .form-panel {
+    align-items: safe center;
+  }
+}
+
 @media (max-width: 380px) {
   .reg-goal-grid { gap: 6px; }
   .reg-goal-card { min-height: 68px; }

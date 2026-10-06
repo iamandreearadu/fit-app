@@ -53,7 +53,9 @@
       "Bash(taskkill //PID 21624 //F)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5140/api/blog)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:4200)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(tasklist)",
+      "Bash(findstr /i \"dotnet node\")"
     ]
   }
 }

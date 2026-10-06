@@ -295,7 +295,7 @@ export class ActiveWorkoutSessionComponent implements OnInit, OnDestroy {
         });
     });
 
-    const summary = await this.facade.completeSession({
+    await this.facade.completeSession({
       workoutTemplateId: this.templateId(),
       startedAt: this.startedAt.toISOString(),
       finishedAt: finishedAt.toISOString(),

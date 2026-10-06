@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -19,6 +20,7 @@ import { BarcodeProduct } from '../../../../core/models/barcode-product.model';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 
 type AnalyzerMode = 'photo' | 'barcode';
+type AnalysisSource = 'image' | 'description' | 'combined';
 
 @Component({
   selector: 'app-ai-meal-analyzer',
@@ -28,6 +30,7 @@ type AnalyzerMode = 'photo' | 'barcode';
   styleUrl: './ai-meal-analyzer.component.css',
 })
 export class AiMealAnalyzerComponent implements OnDestroy {
+  private changeDetector = inject(ChangeDetectorRef);
   private groqFacade = inject(GroqAiFacade);
   private ngZone = inject(NgZone);
 
@@ -40,6 +43,8 @@ export class AiMealAnalyzerComponent implements OnDestroy {
   @Output() saveMeal = new EventEmitter<{ macros: MealMacros; mealType: MealType }>();
 
   @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('resultHeading') resultHeadingRef?: ElementRef<HTMLElement>;
+  @ViewChild('analysisError') analysisErrorRef?: ElementRef<HTMLElement>;
 
   @ViewChild('scannerVideo') set scannerVideoRef(el: ElementRef<HTMLVideoElement> | undefined) {
     if (el?.nativeElement && this.scanning && !this.scannerStarted) {
@@ -55,8 +60,13 @@ export class AiMealAnalyzerComponent implements OnDestroy {
   file: File | null = null;
   preview: string | null = null;
   previewLoading = false;
+  imagePreparingForAi = false;
   loading = false;
   isDragOver = false;
+  mealDescription = '';
+  descriptionTouched = false;
+  analysisSource: AnalysisSource | null = null;
+  resultIsStale = false;
 
   // ── Barcode state ─────────────────────────────────────────────
   scanning = false;
@@ -68,6 +78,7 @@ export class AiMealAnalyzerComponent implements OnDestroy {
   private readonly codeReader = new BrowserMultiFormatReader();
   private scannerControls: { stop: () => void } | null = null;
   private scannerStarted = false;
+  private previewObjectUrl: string | null = null;
 
   // ── Shared state ──────────────────────────────────────────────
   result: MealMacros | null = null;
@@ -80,6 +91,7 @@ export class AiMealAnalyzerComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.stopScanning();
+    this.releasePreviewUrl();
   }
 
   setMode(m: AnalyzerMode): void {
@@ -88,6 +100,8 @@ export class AiMealAnalyzerComponent implements OnDestroy {
     this.mode = m;
     this.errorMsg = null;
     this.result = null;
+    this.analysisSource = null;
+    this.resultIsStale = false;
     this.showDetectedFoods = false;
     this.saving = false;
     if (m === 'photo') {
@@ -95,8 +109,10 @@ export class AiMealAnalyzerComponent implements OnDestroy {
       this.manualBarcode = '';
     } else {
       this.file = null;
+      this.releasePreviewUrl();
       this.preview = null;
       this.previewLoading = false;
+      this.imagePreparingForAi = false;
     }
   }
 
@@ -123,35 +139,60 @@ export class AiMealAnalyzerComponent implements OnDestroy {
   private setFile(f: File | null): void {
     this.errorMsg = null;
     this.file = null;
+    this.releasePreviewUrl();
     this.preview = null;
     this.previewLoading = false;
-    this.result = null;
-    this.showDetectedFoods = false;
+    this.imagePreparingForAi = false;
+    this.markResultStale();
     if (!f) return;
     if (!f.type.startsWith('image/')) { this.fail('Please upload an image.'); return; }
     if (f.size > this.maxSizeMB * 1024 * 1024) { this.fail(`Image exceeds ${this.maxSizeMB}MB.`); return; }
     this.file = f;
     this.previewLoading = true;
-    const r = new FileReader();
-    r.onload = () => {
-      this.preview = String(r.result);
-      this.previewLoading = false;
-      void this.analyze();
-    };
-    r.onerror = () => {
-      this.previewLoading = false;
-      this.file = null;
-      this.fail('The photo could not be loaded. Please try another image.');
-    };
-    r.readAsDataURL(f);
+    this.previewObjectUrl = URL.createObjectURL(f);
+    this.preview = this.previewObjectUrl;
+    this.imagePreparingForAi = true;
+    void this.groqFacade.prepareMealImage(f)
+      .catch(() => f)
+      .finally(() => {
+        if (this.file === f) {
+          this.imagePreparingForAi = false;
+          this.changeDetector.detectChanges();
+        }
+      });
+  }
+
+  onPreviewLoaded(): void {
+    this.previewLoading = false;
+  }
+
+  onPreviewError(): void {
+    this.previewLoading = false;
+    this.imagePreparingForAi = false;
+    this.file = null;
+    this.releasePreviewUrl();
+    this.preview = null;
+    this.fail('The photo could not be loaded. Please try another image.');
   }
 
   async analyze(): Promise<void> {
-    if (!this.file) { this.fail('No image selected.'); return; }
+    const description = this.mealDescription.trim();
+    const hasDescription = description.length >= 3;
+    if (!this.file && !hasDescription) {
+      this.descriptionTouched = true;
+      this.fail(description.length > 0
+        ? 'Add a little more detail so the meal can be estimated.'
+        : 'Add a photo or describe your meal first.');
+      return;
+    }
     this.loading = true;
     this.errorMsg = null;
+    let shouldRevealResult = false;
     try {
-      const res = await this.groqFacade.analyzeMeal(this.file);
+      const res = await this.groqFacade.analyzeMeal({
+        file: this.file ?? undefined,
+        description: hasDescription ? description : undefined,
+      });
       this.result = {
         protein_g: Number(res.protein_g ?? 0),
         carbs_g: Number(res.carbs_g ?? 0),
@@ -159,13 +200,81 @@ export class AiMealAnalyzerComponent implements OnDestroy {
         calories_kcal: res.calories_kcal != null ? Number(res.calories_kcal) : undefined,
         items: res.items,
       };
+      this.analysisSource = this.file
+        ? (hasDescription ? 'combined' : 'image')
+        : 'description';
+      this.resultIsStale = false;
+      this.showDetectedFoods = false;
       this.analyzed.emit(this.result);
+      shouldRevealResult = true;
     } catch (e: unknown) {
       const err = e as { message?: string };
       this.fail(err?.message || 'AI analysis failed.');
     } finally {
       this.loading = false;
+      this.changeDetector.detectChanges();
+      if (shouldRevealResult) this.revealResult();
     }
+  }
+
+  get canAnalyze(): boolean {
+    return !this.disabled
+      && !this.loading
+      && !this.previewLoading
+      && (!!this.file || this.mealDescription.trim().length >= 3);
+  }
+
+  get hasUnsavedWork(): boolean {
+    return !!this.file
+      || this.mealDescription.trim().length > 0
+      || !!this.product
+      || !!this.result
+      || this.manualBarcode.trim().length > 0;
+  }
+
+  get analysisSourceLabel(): string {
+    switch (this.analysisSource) {
+      case 'combined': return 'Estimated from photo + description';
+      case 'description': return 'Estimated from description';
+      default: return 'Estimated from photo';
+    }
+  }
+
+  onDescriptionChange(value: string): void {
+    this.mealDescription = value.slice(0, 1000);
+    this.errorMsg = null;
+    this.markResultStale();
+  }
+
+  onDescriptionBlur(): void {
+    this.descriptionTouched = true;
+  }
+
+  onDescriptionKeydown(event: KeyboardEvent): void {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter' && this.canAnalyze) {
+      event.preventDefault();
+      void this.analyze();
+    }
+  }
+
+  clearPhoto(): void {
+    this.file = null;
+    this.releasePreviewUrl();
+    this.preview = null;
+    this.previewLoading = false;
+    this.imagePreparingForAi = false;
+    this.errorMsg = null;
+    this.markResultStale();
+  }
+
+  private markResultStale(): void {
+    if (this.result) this.resultIsStale = true;
+  }
+
+  private releasePreviewUrl(): void {
+    if (!this.previewObjectUrl) return;
+    URL.revokeObjectURL(this.previewObjectUrl);
+    this.previewObjectUrl = null;
   }
 
   // ── Barcode mode ──────────────────────────────────────────────
@@ -219,6 +328,7 @@ export class AiMealAnalyzerComponent implements OnDestroy {
       this.servingG = this.product.servingSizeG;
       this.result = this.buildMacrosFromProduct(this.product, this.servingG);
       this.analyzed.emit(this.result);
+      this.revealResult();
     } catch (e: unknown) {
       const err = e as { message?: string };
       this.fail(err?.message || 'Product not found.');
@@ -248,6 +358,8 @@ export class AiMealAnalyzerComponent implements OnDestroy {
     this.product = null;
     this.result = null;
     this.showDetectedFoods = false;
+    this.analysisSource = null;
+    this.resultIsStale = false;
     this.manualBarcode = '';
     this.errorMsg = null;
     this.saving = false;
@@ -258,30 +370,64 @@ export class AiMealAnalyzerComponent implements OnDestroy {
 
   clear(): void {
     this.file = null;
+    this.releasePreviewUrl();
     this.preview = null;
     this.previewLoading = false;
+    this.imagePreparingForAi = false;
     this.errorMsg = null;
     this.result = null;
+    this.mealDescription = '';
+    this.descriptionTouched = false;
+    this.analysisSource = null;
+    this.resultIsStale = false;
     this.showDetectedFoods = false;
     this.saving = false;
     this.selectedMealType = 'Other';
+    this.changeDetector.detectChanges();
   }
 
   addToUser(): void {
-    if (!this.result || this.saving) return;
+    if (!this.result || this.resultIsStale || this.saving) return;
     this.saving = true;
     this.added.emit({ macros: this.result, mealType: this.selectedMealType });
   }
 
   saveToNutrition(): void {
-    if (!this.result || this.saving) return;
+    if (!this.result || this.resultIsStale || this.saving) return;
     this.saving = true;
     this.saveMeal.emit({ macros: this.result, mealType: this.selectedMealType });
+  }
+
+  finishSaving(): void {
+    this.saving = false;
   }
 
   private fail(msg: string): void {
     this.errorMsg = msg;
     this.error.emit(msg);
+    this.changeDetector.detectChanges();
+    requestAnimationFrame(() => {
+      const error = this.analysisErrorRef?.nativeElement;
+      error?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+      error?.focus({ preventScroll: true });
+    });
+  }
+
+  private revealResult(): void {
+    this.changeDetector.detectChanges();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const heading = this.resultHeadingRef?.nativeElement;
+        if (!heading) return;
+        const reduceMotion =
+          globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+        heading.scrollIntoView?.({
+          behavior: reduceMotion ? 'auto' : 'smooth',
+          block: 'start',
+        });
+        heading.focus({ preventScroll: true });
+      });
+    });
   }
 
   // ── Quality display helpers ───────────────────────────────────
